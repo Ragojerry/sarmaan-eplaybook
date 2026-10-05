@@ -1,0 +1,57 @@
+version: "3.9"
+
+services:
+  db:
+    image: pgvector/pgvector:pg16
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: sarmaan
+      POSTGRES_PASSWORD: sarmaan
+      POSTGRES_DB: sarmaan_eplaybook
+    ports:
+      - "5432:5432"
+    volumes:
+      - db_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U sarmaan -d sarmaan_eplaybook"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  backend:
+    build:
+      context: ./backend
+    restart: unless-stopped
+    env_file:
+      - ./backend/.env
+    environment:
+      DATABASE_URL: postgresql+psycopg://sarmaan:sarmaan@db:5432/sarmaan_eplaybook
+    ports:
+      - "8000:8000"
+    depends_on:
+      db:
+        condition: service_healthy
+    volumes:
+      - ./backend:/app
+      - ./content/media:/content/media
+
+  admin:
+    build:
+      context: ./admin
+    restart: unless-stopped
+    environment:
+      VITE_API_BASE_URL: http://localhost:8000
+    ports:
+      - "5173:5173"
+    depends_on:
+      - backend
+    volumes:
+      - ./admin:/app
+      - /app/node_modules
+
+volumes:
+  db_data:
+
+# Note: the Flutter mobile app is not containerized (it targets an Android
+# device/emulator, not a server process) — see mobile/README.md for local
+# setup. Admin/back-end are the only two services meant to run via Compose.

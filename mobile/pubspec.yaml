@@ -1,0 +1,60 @@
+name: sarmaan_eplaybook
+description: SARMAAN e-Playbook — offline-first CDD training app.
+publish_to: "none"
+version: 0.1.0+1
+
+environment:
+  sdk: ">=3.4.0 <4.0.0"
+
+dependencies:
+  flutter:
+    sdk: flutter
+
+  # Navigation
+  go_router: ^14.2.7
+
+  # State management
+  flutter_riverpod: ^2.5.1
+
+  # Networking (online mode: sync, releases, online AI/RAG)
+  dio: ^5.6.0
+
+  # Local database (offline-first core: modules, progress, sync queue)
+  drift: ^2.20.3
+  sqlite3_flutter_libs: ^0.5.24
+  path_provider: ^2.1.4
+  path: ^1.9.0
+
+  # Secure local storage (tokens, device id)
+  flutter_secure_storage: ^9.2.2
+
+  # Read-aloud (on-device TTS — replaces the prototype's browser speechSynthesis stub)
+  flutter_tts: ^4.1.0
+
+  # Video playback (downloaded, on-device files — see docs/architecture.md §3 and
+  # master prompt §95: offline video must be a real downloaded file, not a URL)
+  video_player: ^2.9.1
+
+  # Connectivity awareness for the online/offline contract
+  connectivity_plus: ^6.0.5
+
+  # Verifies downloaded media against the backend's recorded checksum
+  # (media_assets.checksum / videos.checksum) before trusting a cached file.
+  crypto: ^3.0.5
+
+  # Real app version for the About screen (replaces the prototype's
+  # hardcoded "1.2.0" string — docs/prototype-analysis.md §8).
+  package_info_plus: ^8.0.2
+
+  cupertino_icons: ^1.0.8
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  drift_dev: ^2.20.3
+  build_runner: ^2.4.13
+  flutter_lints: ^4.0.0
+
+flutter:
+  uses-material-design: true
+  # assets/fonts declared once real content/media are migrated in Phase 6

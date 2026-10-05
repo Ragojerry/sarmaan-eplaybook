@@ -1,0 +1,13 @@
+# Copy this file to `local.properties` (same folder) and fill in the real
+# paths for your machine. `local.properties` is git-ignored — it's
+# machine-specific and should never be committed.
+#
+# On your machine (from your earlier screenshots):
+#   sdk.dir=C:\\Users\\USER\\AppData\\Local\\Android\\Sdk
+#   flutter.sdk=<path to wherever you installed the Flutter SDK, e.g. C:\\src\\flutter>
+#
+# Find your flutter.sdk path with: `flutter --version --machine` (look for
+# "flutterRoot"), or `where flutter` and drop the trailing `bin\flutter`.
+
+sdk.dir=REPLACE_WITH_YOUR_ANDROID_SDK_PATH
+flutter.sdk=REPLACE_WITH_YOUR_FLUTTER_SDK_PATH
