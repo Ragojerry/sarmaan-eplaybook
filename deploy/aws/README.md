@@ -54,3 +54,32 @@ flutter build apk --release --dart-define=API_BASE_URL=https://d1eortf8qang6z.cl
 ```
 
 Without `--dart-define` the app talks to the local dev backend (`10.0.2.2:8000`).
+
+## Publish a test APK
+
+Test builds are served from the admin bucket under `downloads/<random>/`, through
+the admin CloudFront distribution. The bucket stays private (CloudFront can read
+objects but not list them), so the random folder name is what keeps a link
+unguessable: anyone who has the link can download, and it never expires. Bump
+`version:` in `mobile/pubspec.yaml` first, and use a new file name per build.
+
+```powershell
+$tok = -join (1..24 | % { '{0:x}' -f (Get-Random -Maximum 16) })
+$name = "sarmaan-eplaybook-<version>-<yyyymmdd>.apk"
+aws s3 cp mobile/build/app/outputs/flutter-apk/app-release.apk "s3://sarmaan-admin-568898409880/downloads/$tok/$name" `
+  --content-type application/vnd.android.package-archive `
+  --content-disposition "attachment; filename=`"$name`"" --cache-control "public,max-age=3600"
+# Link: https://dpoc28iz0vbai.cloudfront.net/downloads/$tok/$name
+```
+
+To withdraw a build, `aws s3 rm` it; CloudFront may serve a cached copy for up
+to an hour. Never `aws s3 sync --delete` the admin bucket root: that would also
+delete everything under `downloads/`.
+
+Don't record the random folder names in this repo; they are the only thing
+protecting the links. List published builds with
+`aws s3 ls s3://sarmaan-admin-568898409880/downloads/ --recursive`.
+
+| Version | Date | SHA-256 |
+|---|---|---|
+| 0.1.0 | 2026-10-30 | `6bdf2c4a31b980ff9578389954348c05755ab0dafd1a84804db36cbd36fdfcb6` |
