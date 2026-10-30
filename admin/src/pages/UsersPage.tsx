@@ -22,12 +22,33 @@ function errorText(err: unknown, fallback: string) {
   return fallback;
 }
 
+const IMPORT_HEADER = ["first_name", "last_name", "username", "email", "phone", "role", "team_code", "password", "session", "country", "state", "lga", "ward", "facility"];
+
+function csvCell(v: string) {
+  return /[",\r\n]/.test(v) ? `"${v.replace(/"/g, '""')}"` : v;
+}
+
+/** Saves rows as a CSV (UTF-8 with BOM so Excel opens it correctly). */
+function saveCsv(filename: string, rows: string[][]) {
+  const csv = "\ufeff" + rows.map((r) => r.map(csvCell).join(",")).join("\r\n") + "\r\n";
+  const url = URL.createObjectURL(new Blob([csv], { type: "text/csv;charset=utf-8" }));
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = filename;
+  a.click();
+  URL.revokeObjectURL(url);
+}
+
+type ImportResult = { created: number; generated_passwords: { username: string; password: string }[] };
+
 /** Account administration (SUPER_ADMIN). The team code is what a CDD sees on
  *  the phone's Home screen as "CDD TEAM 0041". */
 export default function UsersPage() {
   const queryClient = useQueryClient();
   const [teamFilter, setTeamFilter] = useState("");
   const [showCreate, setShowCreate] = useState(false);
+  const [showImport, setShowImport] = useState(false);
+  const [imported, setImported] = useState<ImportResult | null>(null);
   const [message, setMessage] = useState<{ kind: "error" | "info"; text: string } | null>(null);
   const [editing, setEditing] = useState<{ id: string; value: string } | null>(null);
   const [area, setArea] = useState<AreaValue>({});
@@ -74,6 +95,32 @@ export default function UsersPage() {
     onError: (e) => setMessage({ kind: "error", text: errorText(e, "Could not create the account.") }),
   });
 
+  const upload = useMutation({
+    mutationFn: async (file: File) => {
+      const body = new FormData();
+      body.append("file", file);
+      return (await api.post<ImportResult>("/users/import", body)).data;
+    },
+    onSuccess: (d) => {
+      setImported(d);
+      setMessage({ kind: "info", text: `Imported ${d.created} account(s).` });
+      refresh();
+    },
+    onError: (e) => {
+      setImported(null);
+      setMessage({ kind: "error", text: errorText(e, "Import failed.") });
+    },
+  });
+
+  const downloadTemplate = () => {
+    const session = sessions.data?.[0]?.name ?? "Example Session";
+    saveCsv("users_import_template.csv", [
+      IMPORT_HEADER,
+      ["Aisha", "Bello", "aisha.bello", "aisha.bello@example.org", "08030000000", "CDD", "0041", "", session, "Nigeria", "Example State", "Example LGA 1", "Example Ward A", ""],
+      ["Musa", "Ali", "musa.ali", "musa.ali@example.org", "", "SUPERVISOR", "0041", "", session, "Nigeria", "Example State", "Example LGA 1", "", ""],
+    ]);
+  };
+
   const patch = useMutation({
     mutationFn: async (v: { id: string; body: Record<string, unknown> }) => (await api.patch(`/users/${v.id}`, v.body)).data,
     onSuccess: () => {
@@ -107,6 +154,9 @@ export default function UsersPage() {
             value={teamFilter}
             onChange={(e) => setTeamFilter(e.target.value.trim())}
           />
+          <button onClick={() => setShowImport((v) => !v)} className="border text-sm rounded px-4 py-2">
+            Bulk upload
+          </button>
           <button onClick={() => setShowCreate((v) => !v)} className="bg-gray-900 text-white text-sm rounded px-4 py-2">
             + New user
           </button>
@@ -114,6 +164,62 @@ export default function UsersPage() {
       </div>
 
       {message && <p className={`text-sm mb-4 ${message.kind === "error" ? "text-red-600" : "text-green-700"}`}>{message.text}</p>}
+
+      {showImport && (
+        <div className="bg-white border rounded-lg p-4 mb-6 text-sm">
+          <h2 className="font-medium mb-1">Bulk upload users from CSV</h2>
+          <p className="text-xs text-gray-500 mb-3">
+            Download the template, replace the example rows and keep the header row. Required: first_name, last_name, username, email.
+            <em> role</em> defaults to CDD (SUPER_ADMIN cannot be bulk-created). <em>session</em> must match an existing training session name;
+            the area columns (country &gt; state &gt; lga &gt; ward &gt; facility) must match existing administrative areas and may stop at any depth.
+            Leave <em>password</em> blank to have a strong one generated. Up to 100 users per file; if any row is wrong nothing is imported.
+            Save from Excel as <em>CSV UTF-8</em>.
+          </p>
+          <button type="button" onClick={downloadTemplate} className="border rounded px-4 py-2 mr-2">
+            Download template (CSV)
+          </button>
+          <label className="inline-block bg-gray-900 text-white rounded px-4 py-2 cursor-pointer">
+            {upload.isPending ? "Importing…" : "Choose CSV file"}
+            <input
+              type="file"
+              accept=".csv,text/csv"
+              className="hidden"
+              disabled={upload.isPending}
+              onChange={(e) => {
+                const f = e.target.files?.[0];
+                if (f) {
+                  setMessage(null);
+                  upload.mutate(f);
+                }
+                e.target.value = "";
+              }}
+            />
+          </label>
+          {imported && imported.generated_passwords.length > 0 && (
+            <div className="mt-4 border border-amber-300 bg-amber-50 rounded p-3">
+              <p className="text-xs text-amber-900 mb-2">
+                {imported.generated_passwords.length} password(s) were generated. Download them now: they are shown only once. Share each one with its
+                user privately, then delete the file.
+              </p>
+              <button
+                type="button"
+                className="bg-amber-600 text-white rounded px-3 py-1.5"
+                onClick={() =>
+                  saveCsv(
+                    "generated_passwords.csv",
+                    [["username", "password"], ...imported.generated_passwords.map((g) => [g.username, g.password])],
+                  )
+                }
+              >
+                Download generated passwords
+              </button>
+              <button type="button" className="ml-3 text-xs text-gray-600 underline" onClick={() => setImported(null)}>
+                I have saved them, hide
+              </button>
+            </div>
+          )}
+        </div>
+      )}
 
       {showCreate && (
         <form

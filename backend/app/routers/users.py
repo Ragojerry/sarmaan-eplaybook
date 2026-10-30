@@ -1,11 +1,19 @@
 """
 User administration (SUPER_ADMIN only): list, create and edit accounts,
 including the field team code a CDD sees on the phone's Home screen.
-Passwords are never returned or editable here.
+Passwords are never returned or editable here, except the ones a bulk import
+generates, which are returned once in the import response.
 """
+import csv
+import io
+import secrets
+import string
 import uuid
+from concurrent.futures import ThreadPoolExecutor
 
-from fastapi import APIRouter, Depends, HTTPException, Query, status
+from fastapi import APIRouter, Depends, File, HTTPException, Query, UploadFile, status
+from pydantic import ValidationError
+from sqlalchemy import func
 from sqlalchemy.orm import Session
 
 from app.auth.dependencies import require_roles
@@ -13,9 +21,9 @@ from app.auth.security import hash_password
 from app.database import get_db
 from app.models import AdminBoundary, TrainingSession, User
 from app.models.audit_log import AuditLog
-from app.models.enums import AuditAction, RoleName, UserStatus
+from app.models.enums import BOUNDARY_ORDER, AuditAction, RoleName, UserStatus
 from app.schemas.auth import UserResponse
-from app.routers.boundaries import LEVEL_COLUMN, ancestors
+from app.routers.boundaries import LEVEL_COLUMN, _find, ancestors
 from app.training.restart import restart_training
 from app.schemas.users import UserCreate, UserUpdate
 
@@ -88,6 +96,158 @@ def create_user(
     db.commit()
     db.refresh(user)
     return user
+
+
+IMPORT_MAX_ROWS = 100  # 100 hashes take ~11 s on the t4g.small; CloudFront gives up at 30 s
+IMPORT_MAX_ERRORS = 30
+
+
+def _generated_password() -> str:
+    alphabet = string.ascii_letters + string.digits
+    return "".join(secrets.choice(alphabet) for _ in range(14))
+
+
+def _area_by_names(db: Session, row: dict, cache: dict) -> tuple[uuid.UUID | None, str | None]:
+    """Walks country > state > lga > ward > facility by name. Returns the deepest
+    boundary id, or an error message. Unlike the boundary import, nothing is created."""
+    parent_id, gap, path = None, False, []
+    for level in BOUNDARY_ORDER:
+        name = row.get(level.value.lower(), "")
+        if not name:
+            gap = True
+            continue
+        if gap:
+            return None, f"'{name}' has an empty area column above it"
+        path.append(name)
+        key = (level, parent_id, name.lower())
+        if key not in cache:
+            found = _find(db, level, parent_id, name)
+            cache[key] = found.id if found else None
+        if cache[key] is None:
+            return None, f"area '{' > '.join(path)}' does not exist (add it under Administrative areas first)"
+        parent_id = cache[key]
+    return parent_id, None
+
+
+@router.post("/import")
+async def import_users(
+    file: UploadFile = File(...),
+    db: Session = Depends(get_db),
+    current_user: User = Depends(require_roles(*ADMINS)),
+):
+    """CSV with the IMPORT_COLUMNS header. All or nothing: every row is checked
+    first and any problem rejects the whole file, listing the bad rows. A blank
+    password is generated; generated passwords are returned once, here only."""
+    raw = await file.read(2 * 1024 * 1024 + 1)
+    if len(raw) > 2 * 1024 * 1024:
+        raise HTTPException(status_code=status.HTTP_413_REQUEST_ENTITY_TOO_LARGE, detail="File is larger than 2 MB.")
+    try:
+        text = raw.decode("utf-8-sig")
+    except UnicodeDecodeError:
+        raise HTTPException(status_code=422, detail="The file must be UTF-8 (in Excel choose 'CSV UTF-8').")
+    reader = csv.DictReader(io.StringIO(text))
+    header = {h.strip().lower() for h in (reader.fieldnames or []) if h}
+    missing = [c for c in ("first_name", "last_name", "username", "email") if c not in header]
+    if missing:
+        raise HTTPException(status_code=422, detail=f"The header row is missing: {', '.join(missing)}. Download the template.")
+
+    sessions = {s.name.lower(): s.id for s in db.query(TrainingSession).all()}
+    area_cache: dict = {}
+    seen_usernames: set[str] = set()
+    seen_emails: set[str] = set()
+    errors: list[str] = []
+    pending: list[tuple[dict, str, bool]] = []  # (user columns, password, generated?)
+
+    for n, raw_row in enumerate(reader, start=2):
+        row = {k.strip().lower(): (v or "").strip() for k, v in raw_row.items() if k is not None and isinstance(v, (str, type(None)))}
+        if not any(row.values()):
+            continue  # blank line
+        if len(pending) + len(errors) >= IMPORT_MAX_ROWS:
+            raise HTTPException(status_code=422, detail=f"At most {IMPORT_MAX_ROWS} users per file. Split the list into several files.")
+        problems = []
+        password, generated = row.get("password", ""), False
+        if not password:
+            password, generated = _generated_password(), True
+        try:
+            payload = UserCreate(
+                username=row.get("username", ""),
+                email=row.get("email", ""),
+                password=password,
+                first_name=row.get("first_name", ""),
+                last_name=row.get("last_name", ""),
+                phone=row.get("phone") or None,
+                role=(row.get("role") or "CDD").upper(),
+                team_code=row.get("team_code") or None,
+            )
+        except ValidationError as e:
+            for err in e.errors():
+                field = str(err["loc"][0]) if err["loc"] else "row"
+                problems.append(f"{field}: {err['msg']}")
+            payload = None
+        if payload is not None:
+            if payload.role == RoleName.SUPER_ADMIN:
+                problems.append("SUPER_ADMIN accounts cannot be bulk-created")
+            uname, mail = payload.username.lower(), payload.email.lower()
+            if uname in seen_usernames:
+                problems.append(f"username '{payload.username}' appears twice in the file")
+            if mail in seen_emails:
+                problems.append(f"email '{payload.email}' appears twice in the file")
+            seen_usernames.add(uname)
+            seen_emails.add(mail)
+        data = payload.model_dump(exclude={"password", "boundary_id", "training_session_id"}) if payload else {}
+        session_name = row.get("session", "")
+        if session_name:
+            if session_name.lower() in sessions:
+                data["training_session_id"] = sessions[session_name.lower()]
+            else:
+                problems.append(f"session '{session_name}' does not exist (create it under Sessions first)")
+        boundary_id, area_error = _area_by_names(db, row, area_cache)
+        if area_error:
+            problems.append(area_error)
+        elif boundary_id:
+            data.update(_area_columns(db, boundary_id))
+        if problems:
+            errors.append(f"Row {n}: " + "; ".join(problems))
+            if len(errors) >= IMPORT_MAX_ERRORS:
+                break
+            continue
+        pending.append((data, password, generated))
+
+    if not errors and pending:
+        taken = (
+            db.query(User.username, User.email)
+            .filter(func.lower(User.username).in_(seen_usernames) | func.lower(User.email).in_(seen_emails))
+            .all()
+        )
+        for u, e in taken:
+            errors.append(f"'{u}' / '{e}' is already an account (username or email in use)")
+    if errors:
+        more = " (stopped after the first errors; fix these and upload again)" if len(errors) >= IMPORT_MAX_ERRORS else ""
+        raise HTTPException(status_code=422, detail="Nothing was imported. " + " | ".join(errors) + more)
+    if not pending:
+        raise HTTPException(status_code=422, detail="The file has no user rows under the header.")
+
+    # argon2 releases the GIL, so hashing in threads uses every CPU.
+    with ThreadPoolExecutor(max_workers=4) as pool:
+        hashes = list(pool.map(hash_password, [p for _, p, _ in pending]))
+    created = []
+    for (data, password, generated), password_hash in zip(pending, hashes):
+        user = User(**data, password_hash=password_hash, status=UserStatus.ACTIVE)
+        db.add(user)
+        db.flush()
+        db.add(AuditLog(
+            user_id=current_user.id,
+            action=AuditAction.USER_CREATE,
+            entity_type="user",
+            entity_id=user.id,
+            details={"username": user.username, "role": user.role.value, "team_code": user.team_code, "import": True},
+        ))
+        created.append((user.username, password if generated else None))
+    db.commit()
+    return {
+        "created": len(created),
+        "generated_passwords": [{"username": u, "password": p} for u, p in created if p],
+    }
 
 
 @router.post("/{user_id}/reset-training", response_model=UserResponse)

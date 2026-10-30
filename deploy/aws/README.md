@@ -83,3 +83,4 @@ protecting the links. List published builds with
 | Version | Date | SHA-256 |
 |---|---|---|
 | 0.1.0 | 2026-10-30 | `6bdf2c4a31b980ff9578389954348c05755ab0dafd1a84804db36cbd36fdfcb6` |
+| 0.1.1 | 2026-10-30 | `54bee08978c951b5b41931450c991cce1a14b921ea8394630dbb78417ec7b954` |

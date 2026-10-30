@@ -176,7 +176,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
         child: ListView(
           padding: EdgeInsets.zero,
           children: [
-            _buildHeader(_who(user), snap.status != SyncStatus.offline),
+            _buildHeader(_who(user), snap.status != SyncStatus.offline, snap.availableRelease != null),
             if (_syncing)
               const Padding(
                 padding: EdgeInsets.fromLTRB(22, 16, 22, 0),
@@ -391,7 +391,31 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     return user.firstName;
   }
 
-  Widget _buildHeader(String? who, bool online) {
+  /// Header pill in the same style as the Online pill, shown only while a
+  /// newer content release is waiting; it opens the Updates screen.
+  Widget _updatePill() {
+    return GestureDetector(
+      onTap: () => context.go('/updates'),
+      child: Container(
+        margin: const EdgeInsets.only(right: 6),
+        padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 4),
+        decoration: BoxDecoration(color: AppColors.gold, borderRadius: BorderRadius.circular(20)),
+        child: const Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(Icons.download_rounded, size: 11, color: AppColors.tealDeep),
+            SizedBox(width: 4),
+            Text(
+              'New content',
+              style: TextStyle(fontFamily: AppFonts.mono, fontSize: 10.5, fontWeight: FontWeight.w700, color: AppColors.tealDeep),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildHeader(String? who, bool online, bool updateAvailable) {
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.fromLTRB(22, 20, 22, 22),
@@ -423,6 +447,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                     ),
                   ),
                 ),
+                if (updateAvailable) _updatePill(),
                 GestureDetector(
                   onTap: () => context.go('/updates'),
                   child: Container(
