@@ -9,18 +9,17 @@ import '../db/local_database.dart';
 import '../models/api_models.dart';
 import '../offline/content_sync_service.dart';
 import '../services/auth_service.dart';
+import '../sync/analytics_recorder.dart';
 import '../theme/app_theme.dart';
 import '../video/video_manager.dart';
 
-final videoDetailProvider =
-    FutureProvider.family<TrainingVideo, String>((ref, videoId) async {
+final videoDetailProvider = FutureProvider.family<TrainingVideo, String>((ref, videoId) async {
   final api = ref.read(apiClientProvider);
   final resp = await api.dio.get('/videos/$videoId');
   return TrainingVideo.fromJson(resp.data);
 });
 
-final localVideoProvider =
-    FutureProvider.family<CachedVideoRow?, String>((ref, videoId) async {
+final localVideoProvider = FutureProvider.family<CachedVideoRow?, String>((ref, videoId) async {
   final db = ref.read(localDatabaseProvider);
   return db.getVideo(videoId);
 });
@@ -50,6 +49,15 @@ class _VideoScreenState extends ConsumerState<VideoScreen> {
   bool _downloading = false;
   double _progress = 0;
   String? _downloadError;
+  bool _completionReported = false;
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      recordAnalyticsEvent(ref.read(localDatabaseProvider), 'VIDEO_OPEN', videoId: widget.videoId);
+    });
+  }
 
   @override
   void dispose() {
@@ -65,11 +73,11 @@ class _VideoScreenState extends ConsumerState<VideoScreen> {
     });
     try {
       await ref.read(videoManagerProvider).downloadVideo(
-        widget.videoId,
-        onProgress: (p) {
-          if (mounted) setState(() => _progress = p);
-        },
-      );
+            widget.videoId,
+            onProgress: (p) {
+              if (mounted) setState(() => _progress = p);
+            },
+          );
       ref.invalidate(localVideoProvider(widget.videoId));
     } catch (e) {
       setState(() => _downloadError = e.toString());
@@ -79,10 +87,29 @@ class _VideoScreenState extends ConsumerState<VideoScreen> {
   }
 
   Future<void> _play(String localPath) async {
+    final db = ref.read(localDatabaseProvider);
     final controller = VideoPlayerController.file(File(localPath));
-    await controller.initialize();
-    await controller.play();
-    setState(() => _controller = controller);
+    try {
+      await controller.initialize();
+      await controller.play();
+    } catch (e) {
+      await controller.dispose();
+      await recordAnalyticsEvent(db, 'VIDEO_PLAYBACK_FAILURE', videoId: widget.videoId, payload: {'reason': e.runtimeType.toString()});
+      if (mounted) setState(() => _downloadError = 'This video could not be played. Try deleting it and downloading it again.');
+      return;
+    }
+    // One VIDEO_COMPLETE per viewing session, when playback reaches the end.
+    controller.addListener(() {
+      final v = controller.value;
+      if (!_completionReported &&
+          v.isInitialized &&
+          v.duration > Duration.zero &&
+          v.position >= v.duration - const Duration(milliseconds: 500)) {
+        _completionReported = true;
+        recordAnalyticsEvent(db, 'VIDEO_COMPLETE', videoId: widget.videoId);
+      }
+    });
+    if (mounted) setState(() => _controller = controller);
   }
 
   @override
@@ -102,15 +129,14 @@ class _VideoScreenState extends ConsumerState<VideoScreen> {
           error: (e, _) => _buildBody(video, null),
         ),
         loading: () => const Center(child: CircularProgressIndicator()),
-        error: (e, _) => Center(
-            child: Text('Could not load video: $e',
-                style: const TextStyle(color: AppColors.danger))),
+        error: (e, _) => Center(child: Text('Could not load video: $e', style: const TextStyle(color: AppColors.danger))),
       ),
     );
   }
 
   Widget _buildBody(TrainingVideo video, CachedVideoRow? local) {
-    final downloaded = local?.localPath != null && local!.hasFile;
+    final playablePath = (local != null && local.hasFile) ? local.localPath : null;
+    final downloaded = playablePath != null;
 
     return Padding(
       padding: const EdgeInsets.fromLTRB(22, 16, 22, 22),
@@ -119,15 +145,13 @@ class _VideoScreenState extends ConsumerState<VideoScreen> {
         children: [
           AspectRatio(
             aspectRatio: 16 / 9,
-            child: downloaded &&
-                    _controller != null &&
-                    _controller!.value.isInitialized
+            child: downloaded && _controller != null && _controller!.value.isInitialized
                 ? ClipRRect(
                     borderRadius: BorderRadius.circular(AppRadius.medium),
                     child: VideoPlayer(_controller!),
                   )
                 : GestureDetector(
-                    onTap: downloaded ? () => _play(local.localPath!) : null,
+                    onTap: playablePath == null ? null : () => _play(playablePath),
                     child: Container(
                       decoration: BoxDecoration(
                         gradient: const LinearGradient(
@@ -144,14 +168,10 @@ class _VideoScreenState extends ConsumerState<VideoScreen> {
                           decoration: BoxDecoration(
                             shape: BoxShape.circle,
                             color: Colors.white.withValues(alpha: 0.15),
-                            border: Border.all(
-                                color: Colors.white.withValues(alpha: 0.5),
-                                width: 1.5),
+                            border: Border.all(color: Colors.white.withValues(alpha: 0.5), width: 1.5),
                           ),
                           child: Icon(
-                            downloaded
-                                ? Icons.play_arrow_rounded
-                                : Icons.download_rounded,
+                            downloaded ? Icons.play_arrow_rounded : Icons.download_rounded,
                             color: Colors.white,
                             size: 28,
                           ),
@@ -161,17 +181,12 @@ class _VideoScreenState extends ConsumerState<VideoScreen> {
                   ),
           ),
           const SizedBox(height: 14),
-          Text(video.title,
-              style:
-                  const TextStyle(fontWeight: FontWeight.w700, fontSize: 14)),
+          Text(video.title, style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 14)),
           const SizedBox(height: 6),
           if (video.description != null)
-            Text(video.description!,
-                style: const TextStyle(
-                    fontSize: 11.5,
-                    color: AppColors.textSecondary,
-                    height: 1.5)),
+            Text(video.description!, style: const TextStyle(fontSize: 11.5, color: AppColors.textSecondary, height: 1.5)),
           const SizedBox(height: 16),
+
           if (!video.hasFile)
             _notice(
               'This video is not yet available. Real footage and offline download support are planned for a later phase.',
@@ -181,11 +196,7 @@ class _VideoScreenState extends ConsumerState<VideoScreen> {
               children: [
                 Icon(Icons.check_circle, size: 16, color: AppColors.teal),
                 SizedBox(width: 6),
-                Text('Downloaded for offline playback',
-                    style: TextStyle(
-                        fontSize: 11.5,
-                        color: AppColors.teal,
-                        fontWeight: FontWeight.w700)),
+                Text('Downloaded for offline playback', style: TextStyle(fontSize: 11.5, color: AppColors.teal, fontWeight: FontWeight.w700)),
               ],
             ),
           ] else ...[
@@ -200,17 +211,12 @@ class _VideoScreenState extends ConsumerState<VideoScreen> {
                 ),
               ),
               const SizedBox(height: 6),
-              Text('${(_progress * 100).toStringAsFixed(0)}%',
-                  style: const TextStyle(
-                      fontFamily: AppFonts.mono,
-                      fontSize: 10.5,
-                      color: AppColors.textMuted)),
+              Text('${(_progress * 100).toStringAsFixed(0)}%', style: const TextStyle(fontFamily: AppFonts.mono, fontSize: 10.5, color: AppColors.textMuted)),
             ] else
               FilledButton.icon(
                 onPressed: _startDownload,
                 icon: const Icon(Icons.download_rounded, size: 18),
-                label: Text(
-                    'Download${video.fileSize != null ? ' (${_formatBytes(video.fileSize!)})' : ''}'),
+                label: Text('Download${video.fileSize != null ? ' (${_formatBytes(video.fileSize!)})' : ''}'),
               ),
             if (_downloadError != null) ...[
               const SizedBox(height: 10),
@@ -225,19 +231,13 @@ class _VideoScreenState extends ConsumerState<VideoScreen> {
   Widget _notice(String text) {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
-      decoration: BoxDecoration(
-          color: AppColors.claySoft, borderRadius: BorderRadius.circular(12)),
+      decoration: BoxDecoration(color: AppColors.claySoft, borderRadius: BorderRadius.circular(12)),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           const Icon(Icons.info_outline, size: 16, color: AppColors.clay),
           const SizedBox(width: 9),
-          Expanded(
-              child: Text(text,
-                  style: const TextStyle(
-                      fontSize: 11.5,
-                      color: AppColors.calloutWarningText,
-                      height: 1.5))),
+          Expanded(child: Text(text, style: const TextStyle(fontSize: 11.5, color: AppColors.calloutWarningText, height: 1.5))),
         ],
       ),
     );

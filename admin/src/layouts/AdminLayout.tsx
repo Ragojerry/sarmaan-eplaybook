@@ -1,12 +1,20 @@
 import { NavLink, Outlet } from "react-router-dom";
 import { useAuth } from "../services/auth";
 
-const navItems = [
+// `roles` mirrors the backend (the server is what actually enforces access;
+// hiding a link is only a courtesy). SUPER_ADMIN always sees everything.
+const navItems: { to: string; label: string; roles?: string[] }[] = [
   { to: "/", label: "Dashboard" },
   { to: "/content", label: "Content" },
+  { to: "/videos", label: "Videos" },
   { to: "/releases", label: "Releases" },
   { to: "/languages", label: "Languages" },
-  { to: "/analytics", label: "Analytics" },
+  { to: "/analytics", label: "Analytics", roles: ["CONTENT_ADMIN", "PROGRAM_REVIEWER", "LOCALISATION_REVIEWER", "TECHNICAL_REVIEWER", "SUPERVISOR", "READ_ONLY"] },
+  { to: "/reports", label: "Reports", roles: ["CONTENT_ADMIN", "PROGRAM_REVIEWER", "LOCALISATION_REVIEWER", "TECHNICAL_REVIEWER", "SUPERVISOR", "READ_ONLY"] },
+  { to: "/audit", label: "Audit log", roles: ["CONTENT_ADMIN", "TECHNICAL_REVIEWER"] },
+  { to: "/users", label: "Users", roles: [] }, // SUPER_ADMIN only
+  { to: "/sessions", label: "Sessions", roles: [] }, // SUPER_ADMIN only
+  { to: "/areas", label: "Areas", roles: [] }, // SUPER_ADMIN only
 ];
 
 export default function AdminLayout() {
@@ -17,7 +25,9 @@ export default function AdminLayout() {
       <aside className="w-56 bg-gray-900 text-gray-100 p-4 flex flex-col">
         <div className="text-lg font-semibold mb-6">SARMAAN e-Playbook</div>
         <nav className="space-y-1 flex-1">
-          {navItems.map((item) => (
+          {navItems
+            .filter((item) => !item.roles || user?.role === "SUPER_ADMIN" || (user && item.roles.includes(user.role)))
+            .map((item) => (
             <NavLink
               key={item.to}
               to={item.to}

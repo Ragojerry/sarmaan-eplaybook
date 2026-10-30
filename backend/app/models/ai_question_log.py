@@ -1,7 +1,7 @@
 import uuid
 from datetime import datetime
 
-from sqlalchemy import String, Text, Integer, Boolean, Float, DateTime, ForeignKey
+from sqlalchemy import String, Text, Integer, Boolean, Float, DateTime, ForeignKey, Index, UniqueConstraint
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import Mapped, mapped_column
 
@@ -17,6 +17,10 @@ class AiQuestionLog(Base):
     in-memory chat log (docs/prototype-analysis.md §6)."""
 
     __tablename__ = "ai_question_log"
+    __table_args__ = (
+        UniqueConstraint("user_id", "client_id", name="uq_ai_question_user_client"),
+        Index("ix_ai_question_log_asked_at", "asked_at"),
+    )
 
     id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
     question: Mapped[str] = mapped_column(Text, nullable=False)
@@ -35,5 +39,7 @@ class AiQuestionLog(Base):
     language: Mapped[str] = mapped_column(String(10), nullable=False, default="en")
     user_id: Mapped[uuid.UUID | None] = mapped_column(UUID(as_uuid=True), ForeignKey("users.id"), nullable=True)
     device_id: Mapped[str | None] = mapped_column(String(255), nullable=True)
+    # Phone-generated UUID: makes POST /sync/ai-questions idempotent (a retried upload never double-logs).
+    client_id: Mapped[str | None] = mapped_column(String(80), nullable=True)
     asked_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
     synced_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)

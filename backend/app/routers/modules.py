@@ -6,13 +6,14 @@ per §16 ("Do not require administrators to edit raw HTML").
 """
 import uuid
 
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, File, HTTPException, Query, Response, UploadFile, status
 from sqlalchemy.orm import Session
 
 from app.database import get_db
 from app.auth.dependencies import get_current_user, require_roles
+from app.content import translation_io
 from app.content.governance import advance, reject
-from app.models import User, Module, ModuleTranslation, ContentSection
+from app.models import User, Module, ModuleTranslation, ContentSection, Language
 from app.models.audit_log import AuditLog
 from app.models.enums import RoleName, AuditAction
 from app.schemas.content import (
@@ -164,6 +165,66 @@ def create_translation(
     db.commit()
     db.refresh(translation)
     return translation
+
+
+def _target_language(db: Session, code: str) -> Language:
+    if code == "en":
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="English is the source language; choose another language.")
+    language = db.query(Language).filter_by(code=code).one_or_none()
+    if language is None:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"Unknown language '{code}'")
+    return language
+
+
+@router.get("/{module_id}/translations/export.csv")
+def export_translation_csv(
+    module_id: uuid.UUID,
+    language: str = Query(..., description="Target language code, e.g. ha, ff, kr"),
+    db: Session = Depends(get_db),
+    current_user: User = Depends(require_roles(*CONTENT_EDITORS)),
+):
+    """English source (plus any existing translation) as a CSV for translators."""
+    module = _get_module_or_404(db, module_id)
+    lang = _target_language(db, language)
+    body = translation_io.export_csv(db, module, lang)
+    return Response(
+        content=body,
+        media_type="text/csv; charset=utf-8",
+        headers={"Content-Disposition": f'attachment; filename="{module.module_code}_{language}.csv"'},
+    )
+
+
+@router.post("/{module_id}/translations/import")
+async def import_translation_csv(
+    module_id: uuid.UUID,
+    language: str = Query(...),
+    file: UploadFile = File(...),
+    db: Session = Depends(get_db),
+    current_user: User = Depends(require_roles(*CONTENT_EDITORS)),
+):
+    """Loads a translated CSV as a DRAFT. It must then pass the normal review
+    steps, including LOCALISATION_REVIEW, before it can be published."""
+    module = _get_module_or_404(db, module_id)
+    lang = _target_language(db, language)
+    raw = await file.read(5 * 1024 * 1024 + 1)
+    if len(raw) > 5 * 1024 * 1024:
+        raise HTTPException(status_code=status.HTTP_413_REQUEST_ENTITY_TOO_LARGE, detail="Translation file is larger than 5 MB.")
+    try:
+        summary = translation_io.import_csv(db, module, lang, raw)
+    except translation_io.ImportError_ as exc:
+        db.rollback()
+        raise HTTPException(status_code=status.HTTP_422_UNPROCESSABLE_ENTITY, detail=str(exc)) from exc
+    db.add(
+        AuditLog(
+            user_id=current_user.id,
+            action=AuditAction.CONTENT_EDIT,
+            entity_type="module_translation",
+            entity_id=uuid.UUID(summary["translation_id"]),
+            details={"import": True, "language": language, "strings": summary["strings"]},
+        )
+    )
+    db.commit()
+    return summary
 
 
 @router.patch("/translations/{translation_id}", response_model=ModuleTranslationResponse)

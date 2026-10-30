@@ -12,6 +12,9 @@ class UserProfile {
   final String role;
   final String status;
 
+  /// Field team, e.g. "0041" (shown on Home as "CDD TEAM 0041").
+  final String? teamCode;
+
   UserProfile({
     required this.id,
     required this.username,
@@ -20,6 +23,7 @@ class UserProfile {
     required this.lastName,
     required this.role,
     required this.status,
+    this.teamCode,
   });
 
   factory UserProfile.fromJson(Map<String, dynamic> json) => UserProfile(
@@ -30,6 +34,7 @@ class UserProfile {
         lastName: json['last_name'] as String,
         role: json['role'] as String,
         status: json['status'] as String,
+        teamCode: json['team_code'] as String?,
       );
 }
 

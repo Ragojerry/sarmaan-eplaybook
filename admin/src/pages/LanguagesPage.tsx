@@ -45,6 +45,16 @@ export default function LanguagesPage() {
     onSuccess: () => refetch(),
   });
 
+  const [deleteError, setDeleteError] = useState<string | null>(null);
+  const deleteLanguage = useMutation({
+    mutationFn: async (id: string) => api.delete(`/languages/${id}`),
+    onSuccess: () => {
+      setDeleteError(null);
+      refetch();
+    },
+    onError: (err: any) => setDeleteError(err.response?.data?.detail ?? "Could not delete the language."),
+  });
+
   return (
     <div className="p-6">
       <div className="flex items-center justify-between mb-6">
@@ -105,6 +115,8 @@ export default function LanguagesPage() {
         </form>
       )}
 
+      {deleteError && <p className="text-sm text-red-600 mb-3">{deleteError}</p>}
+
       {isLoading ? (
         <p className="text-sm text-gray-500">Loading…</p>
       ) : (
@@ -117,6 +129,7 @@ export default function LanguagesPage() {
                 <th className="px-4 py-2">Native name</th>
                 <th className="px-4 py-2">Status</th>
                 <th className="px-4 py-2">Default</th>
+                {canManage && <th className="px-4 py-2"></th>}
               </tr>
             </thead>
             <tbody>
@@ -145,6 +158,22 @@ export default function LanguagesPage() {
                     )}
                   </td>
                   <td className="px-4 py-2">{l.is_default ? "Yes" : ""}</td>
+                  {canManage && (
+                    <td className="px-4 py-2 text-right">
+                      {!l.is_default && (
+                        <button
+                          className="text-xs text-red-600 underline disabled:opacity-50"
+                          disabled={deleteLanguage.isPending}
+                          onClick={() => {
+                            if (window.confirm(`Delete ${l.name} (${l.code})? This only works if nothing uses it.`))
+                              deleteLanguage.mutate(l.id);
+                          }}
+                        >
+                          Delete
+                        </button>
+                      )}
+                    </td>
+                  )}
                 </tr>
               ))}
             </tbody>

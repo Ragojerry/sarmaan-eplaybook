@@ -1,0 +1,2 @@
+# Shell scripts run on Linux (EC2, CI); CRLF breaks them.
+*.sh text eol=lf

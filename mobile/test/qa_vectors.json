@@ -1,0 +1,699 @@
+{
+ "stopwords": [
+  "a",
+  "about",
+  "above",
+  "after",
+  "again",
+  "all",
+  "also",
+  "am",
+  "an",
+  "and",
+  "any",
+  "are",
+  "as",
+  "at",
+  "be",
+  "because",
+  "been",
+  "before",
+  "being",
+  "below",
+  "between",
+  "both",
+  "but",
+  "by",
+  "can",
+  "could",
+  "did",
+  "do",
+  "does",
+  "doing",
+  "down",
+  "during",
+  "each",
+  "few",
+  "for",
+  "from",
+  "further",
+  "had",
+  "has",
+  "have",
+  "having",
+  "he",
+  "her",
+  "here",
+  "hers",
+  "him",
+  "his",
+  "how",
+  "i",
+  "if",
+  "in",
+  "into",
+  "is",
+  "it",
+  "its",
+  "just",
+  "me",
+  "more",
+  "most",
+  "my",
+  "no",
+  "nor",
+  "not",
+  "of",
+  "off",
+  "on",
+  "once",
+  "only",
+  "or",
+  "other",
+  "our",
+  "out",
+  "over",
+  "own",
+  "same",
+  "she",
+  "should",
+  "so",
+  "some",
+  "such",
+  "than",
+  "that",
+  "the",
+  "their",
+  "them",
+  "then",
+  "there",
+  "these",
+  "they",
+  "this",
+  "those",
+  "through",
+  "to",
+  "too",
+  "under",
+  "until",
+  "up",
+  "very",
+  "was",
+  "we",
+  "were",
+  "what",
+  "when",
+  "where",
+  "which",
+  "while",
+  "who",
+  "whom",
+  "why",
+  "will",
+  "with",
+  "would",
+  "you",
+  "your"
+ ],
+ "synonym_groups": [
+  [
+   "vomit",
+   "vomiting",
+   "vomited",
+   "retch",
+   "puke",
+   "regurgitate",
+   "threw",
+   "throw",
+   "thrown",
+   "spit",
+   "spat"
+  ],
+  [
+   "medicine",
+   "drug",
+   "medication",
+   "tablet",
+   "suspension",
+   "antibiotic",
+   "dose",
+   "dosage",
+   "dosing"
+  ],
+  [
+   "azm",
+   "azithromycin",
+   "medicine",
+   "drug",
+   "medication"
+  ],
+  [
+   "much",
+   "amount",
+   "quantity",
+   "volume",
+   "ml",
+   "dose",
+   "dosage",
+   "dosing"
+  ],
+  [
+   "prepare",
+   "mix",
+   "reconstitute",
+   "dissolve",
+   "shake",
+   "dilute"
+  ],
+  [
+   "child",
+   "children",
+   "infant",
+   "baby",
+   "toddler",
+   "kid",
+   "kids"
+  ],
+  [
+   "age",
+   "aged",
+   "old",
+   "older",
+   "year",
+   "years",
+   "month",
+   "months",
+   "young",
+   "younger",
+   "newborn",
+   "neonate"
+  ],
+  [
+   "eligible",
+   "eligibility",
+   "qualify",
+   "allowed",
+   "receive"
+  ],
+  [
+   "sick",
+   "ill",
+   "unwell",
+   "illness"
+  ],
+  [
+   "fever",
+   "temperature",
+   "hot"
+  ],
+  [
+   "refer",
+   "referral",
+   "referred",
+   "facility",
+   "clinic",
+   "hospital"
+  ],
+  [
+   "report",
+   "contact",
+   "email",
+   "concern",
+   "complaint",
+   "escalate"
+  ],
+  [
+   "malnutrition",
+   "malnourished",
+   "muac",
+   "wasting",
+   "sam",
+   "thin",
+   "skinny",
+   "underweight",
+   "emaciated",
+   "armband"
+  ],
+  [
+   "allergy",
+   "allergic",
+   "allergies",
+   "reaction",
+   "rash",
+   "swelling"
+  ],
+  [
+   "photo",
+   "photograph",
+   "picture",
+   "camera"
+  ],
+  [
+   "house",
+   "home",
+   "household",
+   "compound",
+   "chalk",
+   "mark",
+   "marking",
+   "marked"
+  ],
+  [
+   "record",
+   "recording",
+   "card",
+   "register"
+  ],
+  [
+   "caregiver",
+   "parent",
+   "mother",
+   "guardian",
+   "mum"
+  ],
+  [
+   "safeguard",
+   "safeguarding",
+   "abuse",
+   "abused",
+   "protection",
+   "protect",
+   "harm",
+   "exploitation",
+   "misconduct"
+  ],
+  [
+   "pregnant",
+   "pregnancy",
+   "anc",
+   "antenatal"
+  ]
+ ],
+ "tokenize": [
+  {
+   "input": "What should I do if the child vomits?",
+   "expected": [
+    "what",
+    "should",
+    "do",
+    "if",
+    "the",
+    "child",
+    "vomits"
+   ]
+  },
+  {
+   "input": "Children aged 1–59 months.",
+   "expected": [
+    "children",
+    "aged",
+    "1",
+    "59",
+    "months"
+   ]
+  },
+  {
+   "input": "re-dose if the child vomits within 5 minutes",
+   "expected": [
+    "re",
+    "dose",
+    "if",
+    "the",
+    "child",
+    "vomits",
+    "within",
+    "5",
+    "minutes"
+   ]
+  },
+  {
+   "input": "Ƙananan YARA 3",
+   "expected": [
+    "ƙananan",
+    "yara",
+    "3"
+   ]
+  },
+  {
+   "input": "concerns@malariaconsortium.org",
+   "expected": [
+    "concerns",
+    "malariaconsortium",
+    "org"
+   ]
+  }
+ ],
+ "stem": [
+  {
+   "input": "vomiting",
+   "expected": "vomit"
+  },
+  {
+   "input": "vomited",
+   "expected": "vomit"
+  },
+  {
+   "input": "vomits",
+   "expected": "vomit"
+  },
+  {
+   "input": "vomit",
+   "expected": "vomit"
+  },
+  {
+   "input": "medicine",
+   "expected": "medicin"
+  },
+  {
+   "input": "medicines",
+   "expected": "medicin"
+  },
+  {
+   "input": "dose",
+   "expected": "dos"
+  },
+  {
+   "input": "doses",
+   "expected": "dos"
+  },
+  {
+   "input": "dosing",
+   "expected": "dos"
+  },
+  {
+   "input": "age",
+   "expected": "age"
+  },
+  {
+   "input": "ages",
+   "expected": "age"
+  },
+  {
+   "input": "give",
+   "expected": "giv"
+  },
+  {
+   "input": "giving",
+   "expected": "giv"
+  },
+  {
+   "input": "gives",
+   "expected": "giv"
+  },
+  {
+   "input": "reconstitute",
+   "expected": "reconstitut"
+  },
+  {
+   "input": "reconstituted",
+   "expected": "reconstitut"
+  },
+  {
+   "input": "safeguarding",
+   "expected": "safeguard"
+  },
+  {
+   "input": "children",
+   "expected": "children"
+  },
+  {
+   "input": "class",
+   "expected": "class"
+  },
+  {
+   "input": "59",
+   "expected": "59"
+  },
+  {
+   "input": "azm",
+   "expected": "azm"
+  }
+ ],
+ "content_terms": [
+  {
+   "input": "What should I do if the child vomits after the medicine?",
+   "expected": [
+    "child",
+    "vomit",
+    "medicin"
+   ]
+  },
+  {
+   "input": "How much AZM should I give to a 3 month old?",
+   "expected": [
+    "much",
+    "azm",
+    "giv",
+    "3",
+    "month",
+    "old"
+   ]
+  },
+  {
+   "input": "What is the capital of France?",
+   "expected": [
+    "capital",
+    "franc"
+   ]
+  },
+  {
+   "input": "Children aged 1–59 months",
+   "expected": [
+    "children",
+    "aged",
+    "1",
+    "59",
+    "month"
+   ]
+  }
+ ],
+ "chunks": [
+  {
+   "id": "c1",
+   "module_id": null,
+   "section_id": null,
+   "module_code": "M4",
+   "source_title": "Azithromycin Drug Administration and Recording",
+   "section_title": "Dosing strategy",
+   "chunk_text": "Age (1–11 months): 1–2 months; Dose: 2 ml. Age (1–11 months): 3–4 months; Dose: 3 ml. Age (1–11 months): 5–11 months; Dose: 4 ml. For children 12–59 months, use the dose pole to measure height; the DIGIT HCM app (or the pole itself) shows the matching dose. Safe administration: Sit the child upright · give the dose slowly with the dispensing cup · ensure they swallow it all · re-dose if the child vomits within 5 minutes · observe for 30 minutes afterwards for any side effect. Step — AZM is given slowly, cup to lip, with the child sitting upright and properly positioned. Accountability: All AZM bottles issued each morning must be returned — empty, partially used, or unopened — and reconciled in DIGIT HCM at day's end. Partially used bottles stay viable for up to 2 days."
+  },
+  {
+   "id": "c2",
+   "module_id": null,
+   "section_id": null,
+   "module_code": "M3",
+   "source_title": "Steps for Referral of Children to Health Facility",
+   "section_title": "Possible signs of an allergic reaction to AZM",
+   "chunk_text": "Swelling of the face, mouth, tongue or other body parts; nausea or severe vomiting for more than 2 hours; skin rash, itching or blistering; severe weakness; loss of appetite; abdominal pain; diarrhoea; headache; unusual behaviour; yellowing of skin or eyes. Referral steps: 1) Do NOT give AZM. 2) Complete the top portion of the AZM Referral Form. 3) Explain the reason for referral and its urgency. 4) Direct the caregiver to the nearest facility. 5) Confirm the caregiver understands by asking them to repeat the instructions. 6) Give them the referral form to take along. CDDs should leave their phone numbers on the child record card so caregivers can reach them if a referral is needed later."
+  },
+  {
+   "id": "c3",
+   "module_id": null,
+   "section_id": null,
+   "module_code": "M2",
+   "source_title": "Determination of Eligibility for AZM Drug Administration",
+   "section_title": "Who is NOT eligible",
+   "chunk_text": "Children who are sick or have fever — refer to the nearest health facility. Children with severe acute malnutrition (visible severe wasting or bilateral pitting oedema). Children allergic to AZM or similar antibiotics. Children who have taken AZM or a similar antibiotic in the last 28 days (4 weeks). Children who cannot swallow. Do not: Give AZM medicine to the caregiver \"to give later,\" and do not hand over the Child Record Card when referring a sick child — complete the AZM Referral Form instead."
+  },
+  {
+   "id": "c4",
+   "module_id": null,
+   "section_id": null,
+   "module_code": "M1",
+   "source_title": "Introduction to Azithromycin (AZM) Drug Administration",
+   "section_title": "Who receives it",
+   "chunk_text": "AZM Drug Administration targets children aged 1–59 months. It is given once every six months (bi-annually)."
+  },
+  {
+   "id": "c5",
+   "module_id": null,
+   "section_id": null,
+   "module_code": "M6",
+   "source_title": "Safeguarding",
+   "section_title": "During the AZM campaign",
+   "chunk_text": "CDDs are selected with active community involvement, on the basis of integrity and community trust. Caregivers have the right to informed consent, respectful treatment, and to know both the CDD's and supervisor's names. Caregivers must be told about potential risks and what to do if a reaction occurs, and must have a way to raise concerns. CDDs must never force AZM on a caregiver or treat a child harshly. Avoid: Taking photographs without consent · any bribery or corrupt practice, including sexual harassment or exploitation, in the field. Report: Escalate any safeguarding issue to your CDD supervisor or health facility OIC, who will raise it to the LGA NTD coordinator and partners — or email concerns@malariaconsortium.org directly."
+  },
+  {
+   "id": "c6",
+   "module_id": null,
+   "section_id": null,
+   "module_code": "M2",
+   "source_title": "Determination of Eligibility for AZM Drug Administration",
+   "section_title": "SARMAAN-II pilot: MUAC & ANC assessment",
+   "chunk_text": "Within the same household visit (no extra visit required), CDDs also take a Mid-Upper Arm Circumference (MUAC) reading for children 6–59 months, using the left arm and a colour-coded tape, and confirm a short set of ANC questions for pregnant women. Step — wrap the tape around the left upper arm at the correct midpoint; not too tight, not too loose. MUAC range: ≥ 12.5 cm; Classification: Normal; Action: No immediate action. MUAC range: 11.5 – 12.4 cm; Classification: Moderate Acute Malnutrition; Action: Refer to health facility for counselling. MUAC range: < 11.5 cm; Classification: Severe Acute Malnutrition; Action: Refer to health facility immediately."
+  },
+  {
+   "id": "c7",
+   "module_id": null,
+   "section_id": null,
+   "module_code": "M4",
+   "source_title": "Azithromycin Drug Administration and Recording",
+   "section_title": "AZM Powdered Oral Suspension (POS)",
+   "chunk_text": "Check the expiry date before use. Reconstitute with 15 ml of clean water to obtain a 30 ml suspension. Each bottle serves 4 children. Shake vigorously before each use to keep the suspension consistent. Step — measure the exact dose shown by DIGIT HCM using the provided calibrated cup."
+  }
+ ],
+ "answers": [
+  {
+   "question": "What age group is eligible for azithromycin?",
+   "expected": {
+    "matched": true,
+    "confidence": 0.75,
+    "answer": "AZM Drug Administration targets children aged 1–59 months.",
+    "source_ids": [
+     "c4"
+    ]
+   }
+  },
+  {
+   "question": "What should I do if the child vomits after the medicine?",
+   "expected": {
+    "matched": true,
+    "confidence": 1.0,
+    "answer": "re-dose if the child vomits within 5 minutes",
+    "source_ids": [
+     "c1"
+    ]
+   }
+  },
+  {
+   "question": "How much AZM should I give to a 3 month old?",
+   "expected": {
+    "matched": true,
+    "confidence": 1.0,
+    "answer": "Age (1–11 months): 3–4 months; Dose: 3 ml.",
+    "source_ids": [
+     "c1"
+    ]
+   }
+  },
+  {
+   "question": "How much AZM should I give to a 4 month old?",
+   "expected": {
+    "matched": true,
+    "confidence": 1.0,
+    "answer": "Age (1–11 months): 3–4 months; Dose: 3 ml.",
+    "source_ids": [
+     "c1"
+    ]
+   }
+  },
+  {
+   "question": "How much AZM should I give to a 2 year old?",
+   "expected": {
+    "matched": true,
+    "confidence": 0.8,
+    "answer": "For children 12–59 months, use the dose pole to measure height; the DIGIT HCM app (or the pole itself) shows the matching dose.",
+    "source_ids": [
+     "c1"
+    ]
+   }
+  },
+  {
+   "question": "My baby threw up the medicine, what now?",
+   "expected": {
+    "matched": true,
+    "confidence": 0.75,
+    "answer": "re-dose if the child vomits within 5 minutes",
+    "source_ids": [
+     "c1"
+    ]
+   }
+  },
+  {
+   "question": "How much AZM should I give to a 8 month old?",
+   "expected": {
+    "matched": true,
+    "confidence": 0.8,
+    "answer": "Age (1–11 months): 5–11 months; Dose: 4 ml.",
+    "source_ids": [
+     "c1"
+    ]
+   }
+  },
+  {
+   "question": "How do I mix the powder?",
+   "expected": {
+    "matched": true,
+    "confidence": 1.0,
+    "answer": "Reconstitute with 15 ml of clean water to obtain a 30 ml suspension. Shake vigorously before each use to keep the suspension consistent.",
+    "source_ids": [
+     "c7"
+    ]
+   }
+  },
+  {
+   "question": "What is the MUAC measurement for severe acute malnutrition?",
+   "expected": {
+    "matched": true,
+    "confidence": 0.75,
+    "answer": "MUAC range: < 11.5 cm; Classification: Severe Acute Malnutrition; Action: Refer to health facility immediately.",
+    "source_ids": [
+     "c6",
+     "c3"
+    ]
+   }
+  },
+  {
+   "question": "When should I refer a child to the health facility?",
+   "expected": {
+    "matched": true,
+    "confidence": 1.0,
+    "answer": "Children who are sick or have fever — refer to the nearest health facility.",
+    "source_ids": [
+     "c3",
+     "c6",
+     "c5"
+    ]
+   }
+  },
+  {
+   "question": "Who do I report safeguarding concerns to?",
+   "expected": {
+    "matched": true,
+    "confidence": 1.0,
+    "answer": "Report: Escalate any safeguarding issue to your CDD supervisor or health facility OIC, who will raise it to the LGA NTD coordinator and partners — or email concerns@malariaconsortium.org directly.",
+    "source_ids": [
+     "c5"
+    ]
+   }
+  },
+  {
+   "question": "What are the signs of an allergic reaction?",
+   "expected": {
+    "matched": true,
+    "confidence": 1.0,
+    "answer": "Swelling of the face, mouth, tongue or other body parts; nausea or severe vomiting for more than 2 hours; skin rash, itching or blistering; severe weakness; loss of appetite; abdominal pain; diarrhoea; headache; unusual behaviour; yellowing of skin or eyes.",
+    "source_ids": [
+     "c2"
+    ]
+   }
+  },
+  {
+   "question": "What is the capital of France?",
+   "expected": {
+    "matched": false,
+    "confidence": 0.0,
+    "answer": "I couldn't find a reliable answer to this question in your downloaded training materials.",
+    "source_ids": []
+   }
+  },
+  {
+   "question": "pizza recipe",
+   "expected": {
+    "matched": false,
+    "confidence": 0.0,
+    "answer": "I couldn't find a reliable answer to this question in your downloaded training materials.",
+    "source_ids": []
+   }
+  },
+  {
+   "question": "what is it?",
+   "expected": {
+    "matched": false,
+    "confidence": 0.0,
+    "answer": "I couldn't find a reliable answer to this question in your downloaded training materials.",
+    "source_ids": []
+   }
+  }
+ ]
+}

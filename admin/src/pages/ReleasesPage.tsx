@@ -18,6 +18,7 @@ export default function ReleasesPage() {
   const [showCreate, setShowCreate] = useState(false);
   const [form, setForm] = useState({ release_code: "", version: "", description: "" });
   const [formError, setFormError] = useState<string | null>(null);
+  const [actionError, setActionError] = useState<string | null>(null);
 
   const canCreate = user?.role === "CONTENT_ADMIN" || user?.role === "TECHNICAL_REVIEWER" || user?.role === "SUPER_ADMIN";
   const canPublish = user?.role === "TECHNICAL_REVIEWER" || user?.role === "SUPER_ADMIN";
@@ -40,12 +41,20 @@ export default function ReleasesPage() {
 
   const publish = useMutation({
     mutationFn: async (id: string) => (await api.post(`/releases/${id}/publish`)).data,
-    onSuccess: () => refetch(),
+    onSuccess: () => {
+      setActionError(null);
+      refetch();
+    },
+    onError: (err: any) => setActionError(err.response?.data?.detail ?? "Could not publish the release."),
   });
 
   const rollback = useMutation({
     mutationFn: async (id: string) => (await api.post(`/releases/${id}/rollback`)).data,
-    onSuccess: () => refetch(),
+    onSuccess: () => {
+      setActionError(null);
+      refetch();
+    },
+    onError: (err: any) => setActionError(err.response?.data?.detail ?? "Could not roll back the release."),
   });
 
   return (
@@ -61,6 +70,8 @@ export default function ReleasesPage() {
           </button>
         )}
       </div>
+
+      {actionError && <p className="text-sm text-red-600 mb-4">{actionError}</p>}
 
       {showCreate && (
         <form

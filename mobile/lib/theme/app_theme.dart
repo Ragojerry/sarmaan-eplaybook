@@ -43,20 +43,14 @@ class AppRadius {
   static const pill = 999.0;
 }
 
-/// Font families referenced here are the prototype's actual fonts (Fraunces
-/// serif for headings, Manrope for body/UI, JetBrains Mono for
-/// labels/eyebrows/badges) — matching master prompt's own reasoning for
-/// picking distinctive type at all. They render as system-font fallbacks
-/// until the actual font files are added as assets (Flutter doesn't fail or
-/// warn when a declared fontFamily has no matching asset — it silently
-/// falls back), since downloading the real font files isn't possible from
-/// this dev sandbox (no network access to fonts.google.com/gstatic.com
-/// here). To get the exact prototype typefaces rendering:
-///   1. Download Fraunces, Manrope, and JetBrains Mono from Google Fonts
-///   2. Add the .ttf files under mobile/assets/fonts/
-///   3. Register them in pubspec.yaml's `fonts:` section
-/// Everything else in this theme (colors, radii, spacing, component shapes)
-/// matches the prototype exactly regardless of that step.
+/// The prototype's actual typefaces, bundled under assets/fonts (registered in
+/// pubspec.yaml; SIL OFL 1.1): Fraunces serif for headings, Manrope for body
+/// and UI, JetBrains Mono for labels/eyebrows/badges.
+///
+/// Glyph coverage note: these three fonts do not include the extra letters used
+/// in Hausa, Fulfulde and Kanuri (ɓ ɗ ƙ ƴ ɲ ǝ). Flutter draws those from the
+/// device's fallback font, which is fine on any phone with Noto/Roboto but looks
+/// slightly different. If that matters, bundle Noto Sans as a fallback family.
 class AppFonts {
   AppFonts._();
 

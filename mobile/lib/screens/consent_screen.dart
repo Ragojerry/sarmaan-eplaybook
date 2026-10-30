@@ -10,16 +10,25 @@ import '../theme/app_theme.dart';
 /// Phase 7 screen order: splash, language, consent, login). Styled to
 /// match the prototype's `.consent-box` (soft bordered card) and
 /// `.btn-primary` treatment.
-class ConsentScreen extends ConsumerWidget {
+class ConsentScreen extends ConsumerStatefulWidget {
   const ConsentScreen({super.key});
 
-  Future<void> _continue(BuildContext context, WidgetRef ref) async {
-    await ref.read(settingsServiceProvider).markFirstLaunchDone();
-    if (context.mounted) context.go('/login');
+  @override
+  ConsumerState<ConsentScreen> createState() => _ConsentScreenState();
+}
+
+class _ConsentScreenState extends ConsumerState<ConsentScreen> {
+  bool _shareUsage = false; // opt-in: off unless the person ticks it
+
+  Future<void> _continue() async {
+    final settings = ref.read(settingsServiceProvider);
+    await settings.setAnalyticsConsent(_shareUsage);
+    await settings.markFirstLaunchDone();
+    if (mounted) context.go('/login');
   }
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  Widget build(BuildContext context) {
     return Scaffold(
       body: SafeArea(
         child: Padding(
@@ -46,13 +55,25 @@ class ConsentScreen extends ConsumerWidget {
                 ),
                 child: const Text(
                   'This app is used to deliver AZM training content to Community Drug Distributors. '
-                  'Your training progress is linked to your account, and module content is downloaded '
-                  'to this device so you can keep working without an internet connection.',
+                  'Your training progress and the questions you ask in the app are linked to your account and '
+                  'uploaded when you are online, so your supervisor and the programme team can support you. '
+                  'Module content is downloaded to this device so you can keep working without an internet connection.',
                   style: TextStyle(fontSize: 11.5, height: 1.6, color: AppColors.textSecondary),
                 ),
               ),
+              const SizedBox(height: 10),
+              CheckboxListTile(
+                value: _shareUsage,
+                onChanged: (v) => setState(() => _shareUsage = v ?? false),
+                contentPadding: EdgeInsets.zero,
+                controlAffinity: ListTileControlAffinity.leading,
+                title: const Text(
+                  'Also share anonymous usage statistics (optional)',
+                  style: TextStyle(fontSize: 11.5, color: AppColors.textSecondary),
+                ),
+              ),
               const Spacer(),
-              FilledButton(onPressed: () => _continue(context, ref), child: const Text('Agree and continue')),
+              FilledButton(onPressed: _continue, child: const Text('Agree and continue')),
             ],
           ),
         ),

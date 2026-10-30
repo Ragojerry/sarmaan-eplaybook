@@ -13,6 +13,18 @@ class RoleName(str, enum.Enum):
     READ_ONLY = "READ_ONLY"
 
 
+class BoundaryLevel(str, enum.Enum):
+    """Administrative hierarchy, top to bottom. Each level's parent is the level above."""
+    COUNTRY = "COUNTRY"
+    STATE = "STATE"
+    LGA = "LGA"
+    WARD = "WARD"
+    FACILITY = "FACILITY"
+
+
+BOUNDARY_ORDER = [BoundaryLevel.COUNTRY, BoundaryLevel.STATE, BoundaryLevel.LGA, BoundaryLevel.WARD, BoundaryLevel.FACILITY]
+
+
 class UserStatus(str, enum.Enum):
     ACTIVE = "ACTIVE"
     INACTIVE = "INACTIVE"
@@ -105,6 +117,11 @@ class AnalyticsEventType(str, enum.Enum):
 
 
 class AuditAction(str, enum.Enum):
+    SESSION_CHANGE = "SESSION_CHANGE"
+    TRAINING_RESTART = "TRAINING_RESTART"
+    BOUNDARY_CHANGE = "BOUNDARY_CHANGE"
+    API_KEY_CREATE = "API_KEY_CREATE"
+    API_KEY_REVOKE = "API_KEY_REVOKE"
     LOGIN = "LOGIN"
     LOGOUT = "LOGOUT"
     CONTENT_CREATE = "CONTENT_CREATE"
@@ -118,3 +135,17 @@ class AuditAction(str, enum.Enum):
     USER_CREATE = "USER_CREATE"
     ROLE_CHANGE = "ROLE_CHANGE"
     LANGUAGE_APPROVE = "LANGUAGE_APPROVE"
+    LOGIN_FAILED = "LOGIN_FAILED"
+    VIDEO_UPLOAD = "VIDEO_UPLOAD"
+    VIDEO_UPDATE = "VIDEO_UPDATE"
+    USER_UPDATE = "USER_UPDATE"
+
+
+class QuestionType(str, enum.Enum):
+    MULTIPLE_CHOICE = "MULTIPLE_CHOICE"
+    TRUE_FALSE = "TRUE_FALSE"
+    MULTIPLE_SELECT = "MULTIPLE_SELECT"
+    MATCHING = "MATCHING"
+    ORDERING = "ORDERING"
+    IMAGE_CHOICE = "IMAGE_CHOICE"
+    NUMERIC = "NUMERIC"

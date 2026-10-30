@@ -1,4 +1,4 @@
-package org.malariaconsortium.sarmaan_eplaybook
+package org.malariaconsortium.sarmaan
 
 import io.flutter.embedding.android.FlutterActivity
 

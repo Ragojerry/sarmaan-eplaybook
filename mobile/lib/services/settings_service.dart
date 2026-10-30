@@ -20,6 +20,14 @@ class SettingsService {
   static const _selectedLanguageCodeKey = 'selected_language_code';
   static const _cachedLanguagesKey = 'cached_languages_json';
 
+  static const _analyticsConsentKey = 'analytics_consent';
+
+  /// Opt-in anonymous usage statistics (module opens, video plays, app errors).
+  /// Off unless the person turns it on; nothing is uploaded while it is off.
+  Future<bool> getAnalyticsConsent() async => (await _db.getSetting(_analyticsConsentKey)) == 'true';
+
+  Future<void> setAnalyticsConsent(bool value) => _db.setSetting(_analyticsConsentKey, value ? 'true' : 'false');
+
   Future<bool> isFirstLaunch() async {
     final value = await _db.getSetting(_firstLaunchDoneKey);
     return value != 'true';

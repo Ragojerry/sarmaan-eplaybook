@@ -1,7 +1,7 @@
 import uuid
 from datetime import datetime
 
-from sqlalchemy import String, DateTime, ForeignKey, Enum as SAEnum
+from sqlalchemy import String, DateTime, ForeignKey, Index, UniqueConstraint, Enum as SAEnum
 from sqlalchemy.dialects.postgresql import UUID, JSONB
 from sqlalchemy.orm import Mapped, mapped_column
 from sqlalchemy.sql import func
@@ -20,6 +20,11 @@ class AnalyticsEvent(Base):
     JSONB `payload` avoids a migration for every new metric added later."""
 
     __tablename__ = "analytics_events"
+    __table_args__ = (
+        UniqueConstraint("device_id", "client_id", name="uq_analytics_device_client"),
+        Index("ix_analytics_events_occurred_at", "occurred_at"),
+        Index("ix_analytics_events_type_occurred", "event_type", "occurred_at"),
+    )
 
     id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
     event_type: Mapped[AnalyticsEventType] = mapped_column(
@@ -31,5 +36,6 @@ class AnalyticsEvent(Base):
     video_id: Mapped[uuid.UUID | None] = mapped_column(UUID(as_uuid=True), ForeignKey("videos.id"), nullable=True)
     language: Mapped[str | None] = mapped_column(String(10), nullable=True)
     payload: Mapped[dict] = mapped_column(JSONB, nullable=False, default=dict)
+    client_id: Mapped[str | None] = mapped_column(String(80), nullable=True)  # idempotency key from the phone
     occurred_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
     synced_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())

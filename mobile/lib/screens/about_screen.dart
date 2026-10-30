@@ -5,6 +5,8 @@ import 'package:package_info_plus/package_info_plus.dart';
 
 import '../offline/content_sync_service.dart';
 import '../services/auth_service.dart';
+import '../services/settings_service.dart';
+import '../sync/sync_engine.dart';
 import '../theme/app_theme.dart';
 import '../video/video_manager.dart';
 import '../widgets/app_bottom_nav.dart';
@@ -59,7 +61,20 @@ class AboutScreen extends ConsumerWidget {
             _AboutItem(label: 'Signed in as', value: '${user.firstName} ${user.lastName}'),
           if (user != null) _AboutItem(label: 'Role', value: user.role),
           const _AboutItem(label: 'Content source', value: 'AZM Training Flipbook'),
-          const _AboutItem(label: 'Language', value: 'English ›'),
+          ListTile(
+            contentPadding: const EdgeInsets.symmetric(horizontal: 22),
+            title: const Text('Language', style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600)),
+            subtitle: Text(ref.watch(selectedLanguageLabelProvider).valueOrNull ?? 'English', style: const TextStyle(fontSize: 11)),
+            trailing: const Icon(Icons.chevron_right),
+            onTap: () => context.go('/language?change=1'),
+          ),
+          ListTile(
+            contentPadding: const EdgeInsets.symmetric(horizontal: 22),
+            title: const Text('Sync & updates', style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600)),
+            subtitle: const Text('Upload status, content updates', style: TextStyle(fontSize: 11)),
+            trailing: const Icon(Icons.chevron_right),
+            onTap: () => context.go('/updates'),
+          ),
           const SizedBox(height: 6),
           _buildStorageCard(ref),
           const SizedBox(height: 6),
@@ -91,11 +106,25 @@ class AboutScreen extends ConsumerWidget {
               ],
             ),
           ),
-          const SizedBox(height: 20),
+          const SizedBox(height: 14),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 22),
+            child: OutlinedButton.icon(
+              onPressed: () => _confirmRestart(context, ref),
+              icon: const Icon(Icons.restart_alt, size: 16),
+              label: const Text('Start training over'),
+            ),
+          ),
+          const SizedBox(height: 10),
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 22),
             child: OutlinedButton.icon(
               onPressed: () async {
+                // Best effort: push anything still waiting before the session ends,
+                // so nobody's progress is stranded on a shared phone.
+                try {
+                  await ref.read(syncEngineProvider.notifier).syncNow(manual: true).timeout(const Duration(seconds: 8));
+                } catch (_) {}
                 await ref.read(authProvider.notifier).logout();
                 if (context.mounted) context.go('/login');
               },
@@ -108,6 +137,38 @@ class AboutScreen extends ConsumerWidget {
       ),
       bottomNavigationBar: const AppBottomNav(currentRoute: '/about'),
     );
+  }
+
+  /// Starting over replaces the old attempt: progress and quiz results are
+  /// cleared here and on the server. Downloaded content and videos are kept.
+  Future<void> _confirmRestart(BuildContext context, WidgetRef ref) async {
+    final ok = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: const Text('Start training over?'),
+        content: const Text(
+          'Your progress and quiz results for ALL modules will be cleared and replaced by your new attempt. '
+          'This cannot be undone. Downloaded lessons and videos stay on your phone.',
+        ),
+        actions: [
+          TextButton(onPressed: () => Navigator.pop(ctx, false), child: const Text('Cancel')),
+          FilledButton(
+            style: FilledButton.styleFrom(backgroundColor: AppColors.danger),
+            onPressed: () => Navigator.pop(ctx, true),
+            child: const Text('Start over'),
+          ),
+        ],
+      ),
+    );
+    if (ok != true) return;
+    await ref.read(localDatabaseProvider).restartTraining();
+    // Tell the open screens, then upload the restart as soon as we can.
+    ref.read(syncEngineProvider.notifier).notifyContentChanged();
+    ref.read(syncEngineProvider.notifier).syncNow(manual: true).catchError((_) {});
+    if (context.mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Training restarted. Your new attempt starts now.')));
+      context.go('/home');
+    }
   }
 
   Widget _buildStorageCard(WidgetRef ref) {
@@ -201,3 +262,14 @@ class _AboutItem extends StatelessWidget {
     );
   }
 }
+
+/// Name of the language the person chose, for the About screen.
+final selectedLanguageLabelProvider = FutureProvider.autoDispose<String>((ref) async {
+  final settings = ref.read(settingsServiceProvider);
+  final code = await settings.getSelectedLanguageCode() ?? 'en';
+  final languages = await settings.getCachedLanguages() ?? const [];
+  for (final l in languages) {
+    if (l.code == code) return l.nativeName == l.name ? l.name : '${l.name} · ${l.nativeName}';
+  }
+  return code == 'en' ? 'English' : code;
+});

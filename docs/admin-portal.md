@@ -84,3 +84,32 @@ Also verified: backend + admin dev server running together, login flow, and ever
 - No image/video upload UI yet (`media_assets`/`videos` tables exist from Phase 3, but Phase 5 didn't build admin screens for them — not in the master prompt's explicit Phase 5 list, which is dashboard/modules/content/languages/releases).
 - `AnalyticsPage` (nav item) is still a Phase 2 stub — a dedicated deep-dive analytics screen beyond the dashboard's charts wasn't in Phase 5's explicit scope either.
 - Release "package" fields (`package_size`, `checksum`) exist in the schema but nothing populates them yet — actual release-package building is master prompt §11-14, a later phase.
+
+## Videos page
+
+Admin > Videos (CONTENT_ADMIN, SUPER_ADMIN can edit; other roles see the list).
+1. **New video** creates a DRAFT record (title, description, module, required-offline).
+2. **Upload footage** (MP4 H.264 or WebM, up to 500 MB, `MAX_VIDEO_UPLOAD_MB`). The
+   browser reads the duration itself and shows upload progress.
+3. **Publish** (needs footage). **Archive** hides it from learners.
+Replacing the footage of a published video returns it to DRAFT for re-approval.
+Phones that already downloaded a video keep their copy. Learners only ever see
+PUBLISHED videos. Index-on-publish: publishing a release rebuilds the Q&A index
+(all languages) and the package in one transaction.
+
+## Users page and team code
+
+Admin > Users (SUPER_ADMIN only). Create accounts, set or clear a **team code**
+(letters, digits, dashes, up to 20, e.g. `0041`), activate/deactivate, filter by
+team. The phone's Home header shows it as "CDD TEAM 0041"; accounts without one
+show the first name. Passwords are never shown or editable here. API: `GET/POST
+/users`, `PATCH /users/{id}`; every change is audited (USER_CREATE, USER_UPDATE,
+ROLE_CHANGE). You cannot change your own role or status.
+
+## Module quiz
+
+Open a module in Content and choose **Manage the module quiz**. Add, edit, reorder-by-sort-order or delete questions of all seven types; image questions use the picture library or a new upload (JPEG/PNG/WebP, 5 MB). A warning shows when a module has fewer than 10 questions. Changes reach phones in the next published release. See `quiz.md`.
+
+## Editing English content
+
+On a module page (CONTENT_ADMIN, SUPER_ADMIN): **Edit title, description and audio text (English)** updates the module and its English translation together. Each section has an **Edit** button: text, headings, callouts/warnings/job aids, list items (one per line), table headers and cells, and image caption/alt text. Structure and pictures are not changed here. Edits are written to the audit log and reach phones on their next sync. Translations in other languages are not updated automatically: after changing English wording, re-export the CSV for that language and re-translate the changed lines.

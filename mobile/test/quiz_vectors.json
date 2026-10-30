@@ -1,0 +1,507 @@
+{
+ "pass_mark": 90,
+ "answers": [
+  {
+   "type": "MULTIPLE_CHOICE",
+   "content": {
+    "options": [
+     "a",
+     "b",
+     "c"
+    ],
+    "correct": 1
+   },
+   "answer": 1,
+   "correct": true
+  },
+  {
+   "type": "MULTIPLE_CHOICE",
+   "content": {
+    "options": [
+     "a",
+     "b",
+     "c"
+    ],
+    "correct": 1
+   },
+   "answer": 0,
+   "correct": false
+  },
+  {
+   "type": "MULTIPLE_CHOICE",
+   "content": {
+    "options": [
+     "a",
+     "b",
+     "c"
+    ],
+    "correct": 1
+   },
+   "answer": true,
+   "correct": false
+  },
+  {
+   "type": "MULTIPLE_CHOICE",
+   "content": {
+    "options": [
+     "a",
+     "b",
+     "c"
+    ],
+    "correct": 1
+   },
+   "answer": "1",
+   "correct": false
+  },
+  {
+   "type": "MULTIPLE_CHOICE",
+   "content": {
+    "options": [
+     "a",
+     "b",
+     "c"
+    ],
+    "correct": 1
+   },
+   "answer": null,
+   "correct": false
+  },
+  {
+   "type": "IMAGE_CHOICE",
+   "content": {
+    "options": [
+     "a",
+     "b",
+     "c"
+    ],
+    "correct": 1,
+    "media_asset_id": "56659c7d-bf5d-4166-b061-2d0dca90e1e3"
+   },
+   "answer": 1,
+   "correct": true
+  },
+  {
+   "type": "TRUE_FALSE",
+   "content": {
+    "correct": true
+   },
+   "answer": true,
+   "correct": true
+  },
+  {
+   "type": "TRUE_FALSE",
+   "content": {
+    "correct": true
+   },
+   "answer": false,
+   "correct": false
+  },
+  {
+   "type": "TRUE_FALSE",
+   "content": {
+    "correct": false
+   },
+   "answer": false,
+   "correct": true
+  },
+  {
+   "type": "TRUE_FALSE",
+   "content": {
+    "correct": true
+   },
+   "answer": 1,
+   "correct": false
+  },
+  {
+   "type": "MULTIPLE_SELECT",
+   "content": {
+    "options": [
+     "a",
+     "b",
+     "c",
+     "d"
+    ],
+    "correct": [
+     0,
+     2
+    ]
+   },
+   "answer": [
+    0,
+    2
+   ],
+   "correct": true
+  },
+  {
+   "type": "MULTIPLE_SELECT",
+   "content": {
+    "options": [
+     "a",
+     "b",
+     "c",
+     "d"
+    ],
+    "correct": [
+     0,
+     2
+    ]
+   },
+   "answer": [
+    2,
+    0
+   ],
+   "correct": true
+  },
+  {
+   "type": "MULTIPLE_SELECT",
+   "content": {
+    "options": [
+     "a",
+     "b",
+     "c",
+     "d"
+    ],
+    "correct": [
+     0,
+     2
+    ]
+   },
+   "answer": [
+    0
+   ],
+   "correct": false
+  },
+  {
+   "type": "MULTIPLE_SELECT",
+   "content": {
+    "options": [
+     "a",
+     "b",
+     "c",
+     "d"
+    ],
+    "correct": [
+     0,
+     2
+    ]
+   },
+   "answer": [
+    0,
+    1,
+    2
+   ],
+   "correct": false
+  },
+  {
+   "type": "MULTIPLE_SELECT",
+   "content": {
+    "options": [
+     "a",
+     "b",
+     "c",
+     "d"
+    ],
+    "correct": [
+     0,
+     2
+    ]
+   },
+   "answer": [
+    0,
+    0,
+    2
+   ],
+   "correct": false
+  },
+  {
+   "type": "MULTIPLE_SELECT",
+   "content": {
+    "options": [
+     "a",
+     "b",
+     "c",
+     "d"
+    ],
+    "correct": [
+     0,
+     2
+    ]
+   },
+   "answer": [],
+   "correct": false
+  },
+  {
+   "type": "MATCHING",
+   "content": {
+    "pairs": [
+     {
+      "left": "L0",
+      "right": "R0"
+     },
+     {
+      "left": "L1",
+      "right": "R1"
+     },
+     {
+      "left": "L2",
+      "right": "R2"
+     }
+    ]
+   },
+   "answer": [
+    0,
+    1,
+    2
+   ],
+   "correct": true
+  },
+  {
+   "type": "MATCHING",
+   "content": {
+    "pairs": [
+     {
+      "left": "L0",
+      "right": "R0"
+     },
+     {
+      "left": "L1",
+      "right": "R1"
+     },
+     {
+      "left": "L2",
+      "right": "R2"
+     }
+    ]
+   },
+   "answer": [
+    1,
+    0,
+    2
+   ],
+   "correct": false
+  },
+  {
+   "type": "MATCHING",
+   "content": {
+    "pairs": [
+     {
+      "left": "L0",
+      "right": "R0"
+     },
+     {
+      "left": "L1",
+      "right": "R1"
+     },
+     {
+      "left": "L2",
+      "right": "R2"
+     }
+    ]
+   },
+   "answer": [
+    0,
+    1
+   ],
+   "correct": false
+  },
+  {
+   "type": "ORDERING",
+   "content": {
+    "items": [
+     "first",
+     "second",
+     "third",
+     "fourth"
+    ]
+   },
+   "answer": [
+    0,
+    1,
+    2,
+    3
+   ],
+   "correct": true
+  },
+  {
+   "type": "ORDERING",
+   "content": {
+    "items": [
+     "first",
+     "second",
+     "third",
+     "fourth"
+    ]
+   },
+   "answer": [
+    0,
+    2,
+    1,
+    3
+   ],
+   "correct": false
+  },
+  {
+   "type": "ORDERING",
+   "content": {
+    "items": [
+     "first",
+     "second",
+     "third",
+     "fourth"
+    ]
+   },
+   "answer": [
+    0,
+    1,
+    2
+   ],
+   "correct": false
+  },
+  {
+   "type": "NUMERIC",
+   "content": {
+    "correct": 15,
+    "tolerance": 0
+   },
+   "answer": 15,
+   "correct": true
+  },
+  {
+   "type": "NUMERIC",
+   "content": {
+    "correct": 15,
+    "tolerance": 0
+   },
+   "answer": 15.0,
+   "correct": true
+  },
+  {
+   "type": "NUMERIC",
+   "content": {
+    "correct": 15,
+    "tolerance": 0
+   },
+   "answer": 14,
+   "correct": false
+  },
+  {
+   "type": "NUMERIC",
+   "content": {
+    "correct": 15,
+    "tolerance": 0
+   },
+   "answer": "15",
+   "correct": false
+  },
+  {
+   "type": "NUMERIC",
+   "content": {
+    "correct": 15,
+    "tolerance": 0
+   },
+   "answer": true,
+   "correct": false
+  },
+  {
+   "type": "NUMERIC",
+   "content": {
+    "correct": 11.5,
+    "tolerance": 0.05
+   },
+   "answer": 11.5,
+   "correct": true
+  },
+  {
+   "type": "NUMERIC",
+   "content": {
+    "correct": 11.5,
+    "tolerance": 0.05
+   },
+   "answer": 11.54,
+   "correct": true
+  },
+  {
+   "type": "NUMERIC",
+   "content": {
+    "correct": 11.5,
+    "tolerance": 0.05
+   },
+   "answer": 11.6,
+   "correct": false
+  }
+ ],
+ "passing": [
+  {
+   "correct": 9,
+   "total": 10,
+   "passed": true,
+   "score_percent": 90
+  },
+  {
+   "correct": 8,
+   "total": 10,
+   "passed": false,
+   "score_percent": 80
+  },
+  {
+   "correct": 10,
+   "total": 10,
+   "passed": true,
+   "score_percent": 100
+  },
+  {
+   "correct": 0,
+   "total": 10,
+   "passed": false,
+   "score_percent": 0
+  },
+  {
+   "correct": 89,
+   "total": 100,
+   "passed": false,
+   "score_percent": 89
+  },
+  {
+   "correct": 90,
+   "total": 100,
+   "passed": true,
+   "score_percent": 90
+  },
+  {
+   "correct": 17,
+   "total": 19,
+   "passed": false,
+   "score_percent": 89
+  },
+  {
+   "correct": 18,
+   "total": 19,
+   "passed": true,
+   "score_percent": 94
+  },
+  {
+   "correct": 1,
+   "total": 1,
+   "passed": true,
+   "score_percent": 100
+  },
+  {
+   "correct": 0,
+   "total": 1,
+   "passed": false,
+   "score_percent": 0
+  },
+  {
+   "correct": 4,
+   "total": 5,
+   "passed": false,
+   "score_percent": 80
+  },
+  {
+   "correct": 0,
+   "total": 0,
+   "passed": false,
+   "score_percent": 0
+  }
+ ]
+}

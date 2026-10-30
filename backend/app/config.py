@@ -29,6 +29,8 @@ class Settings(BaseSettings):
     # Storage
     storage_backend: str = "local"  # "local" | "s3"
     storage_local_path: str = "../content/media"
+    max_video_upload_mb: int = 500  # reject larger video uploads
+    release_storage_path: str = "../content/releases"  # built release manifests (Phase 12)
     s3_endpoint_url: str | None = None
     s3_bucket: str | None = None
     s3_access_key: str | None = None
@@ -37,7 +39,8 @@ class Settings(BaseSettings):
     # AI
     ai_online_provider: str = "none"  # e.g. "openai", "anthropic" — configured in a later phase
     ai_online_api_key: str | None = None
-    embedding_model_name: str = "not-yet-configured"
+    # Minimum % of a question's concepts the best passage must cover before an answer is given (else: strict fallback).
+    ai_min_coverage_pct: int = 50
 
 
 @lru_cache

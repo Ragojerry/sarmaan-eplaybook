@@ -95,6 +95,14 @@ model, offline LLM runtime/model); who holds each governance-workflow approval r
 can ship independently of app releases; privacy/consent/analytics/retention rules; and budget/timeline
 (₦50m vs. ₦15m, no confirmed production date).
 
+## 6b. Update — Phases 10/11 redesigned (supersedes parts of §1, §3, §6)
+
+By product-owner decision, Phases 10 (RAG with embeddings + pgvector) and 11 (offline AI with a local LLM) were
+replaced by an offline, deterministic, extractive Q&A engine — see `docs/offline-qa.md`. As a result the open
+decisions *embedding model*, *vector engine* and *local LLM model/runtime* are **no longer applicable**; the
+server-side hosted-LLM provider setting is likewise unused. The `rag_chunks` pgvector table was replaced by
+`content_chunks`.
+
 ## 7. Immediate next steps (Phase 2 onward, per the master prompt's phase sequence)
 
 1. Confirm the decisions in §6 above with the programme/product owner — several materially change scope

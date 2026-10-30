@@ -12,10 +12,10 @@ import '../models/api_models.dart';
 import '../offline/content_sync_service.dart';
 import '../services/api_client.dart';
 import '../services/auth_service.dart';
+import '../sync/analytics_recorder.dart';
 
 final videoManagerProvider = Provider<VideoManager>(
-  (ref) => VideoManager(
-      ref.read(apiClientProvider), ref.read(localDatabaseProvider)),
+  (ref) => VideoManager(ref.read(apiClientProvider), ref.read(localDatabaseProvider)),
 );
 
 class VideoDownloadException implements Exception {
@@ -58,18 +58,28 @@ class VideoManager {
   /// streams in even though the call site uses a single `get()` rather than
   /// a raw byte stream — this gives smooth progress feedback without
   /// needing a separate chunked-streaming implementation).
-  Future<void> downloadVideo(String videoId,
-      {void Function(double progress)? onProgress}) async {
+  Future<void> downloadVideo(String videoId, {void Function(double progress)? onProgress}) async {
+    await recordAnalyticsEvent(_db, 'DOWNLOAD_STARTED', videoId: videoId);
+    try {
+      await _downloadVideoInner(videoId, onProgress: onProgress);
+    } catch (e) {
+      await recordAnalyticsEvent(_db, 'DOWNLOAD_FAILED', videoId: videoId, payload: {'reason': e.runtimeType.toString()});
+      if (e is FileSystemException) {
+        await recordAnalyticsEvent(_db, 'STORAGE_ERROR', videoId: videoId, payload: {'stage': 'video_download'});
+      }
+      rethrow;
+    }
+  }
+
+  Future<void> _downloadVideoInner(String videoId, {void Function(double progress)? onProgress}) async {
     final metaResp = await _api.dio.get('/videos/$videoId');
     final meta = TrainingVideo.fromJson(metaResp.data);
 
     if (!meta.hasFile) {
-      throw VideoDownloadException(
-          'No video file has been uploaded for "${meta.title}" yet.');
+      throw VideoDownloadException('No video file has been uploaded for "${meta.title}" yet.');
     }
     if (meta.fileSize == null || meta.checksum == null) {
-      throw VideoDownloadException(
-          'Video metadata is missing size/checksum information.');
+      throw VideoDownloadException('Video metadata is missing size/checksum information.');
     }
 
     final dir = await _videoDir();
@@ -93,8 +103,7 @@ class VideoManager {
     }
 
     final startByte = await file.exists() ? await file.length() : 0;
-    final sink =
-        file.openWrite(mode: startByte > 0 ? FileMode.append : FileMode.write);
+    final sink = file.openWrite(mode: startByte > 0 ? FileMode.append : FileMode.write);
 
     try {
       final response = await _api.dio.get<List<int>>(
@@ -144,23 +153,22 @@ class VideoManager {
 
   Future<void> _markDownloaded(TrainingVideo meta, String localPath) async {
     await _db.into(_db.cachedVideos).insertOnConflictUpdate(
-          CachedVideosCompanion.insert(
-            id: meta.id,
-            title: meta.title,
-            description: Value(meta.description),
-            moduleId: Value(meta.moduleId),
-            durationSeconds: Value(meta.durationSeconds),
-            language: meta.language,
-            offlineAvailable: true,
-            status: meta.status,
-            hasFile: true,
-            localPath: Value(localPath),
-          ),
-        );
+      CachedVideosCompanion.insert(
+        id: meta.id,
+        title: meta.title,
+        description: Value(meta.description),
+        moduleId: Value(meta.moduleId),
+        durationSeconds: Value(meta.durationSeconds),
+        language: meta.language,
+        offlineAvailable: true,
+        status: meta.status,
+        hasFile: true,
+        localPath: Value(localPath),
+      ),
+    );
   }
 
-  Future<CachedVideoRow?> getLocalVideo(String videoId) =>
-      _db.getVideo(videoId);
+  Future<CachedVideoRow?> getLocalVideo(String videoId) => _db.getVideo(videoId);
 
   /// Master prompt §24's "storage management": deletes a downloaded video's
   /// local file to free space, clearing its local availability record.

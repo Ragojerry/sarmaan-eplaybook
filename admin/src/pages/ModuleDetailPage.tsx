@@ -1,9 +1,12 @@
 import { useState } from "react";
 import { useParams, Link } from "react-router-dom";
-import { useQuery, useMutation } from "@tanstack/react-query";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { api } from "../services/api";
 import { useAuth } from "../services/auth";
 import AuthenticatedImage from "../components/AuthenticatedImage";
+import ModuleTranslationsPanel from "../components/ModuleTranslationsPanel";
+import ModuleDetailsEditor from "../components/ModuleDetailsEditor";
+import SectionEditor from "../components/SectionEditor";
 import { Module, ModuleTranslation, ContentSection, Language, ContentType } from "../types/api";
 
 const WORKFLOW_STAGES = ["DRAFT", "PROGRAMME_REVIEW", "LOCALISATION_REVIEW", "TECHNICAL_QA", "PUBLISHED"];
@@ -57,6 +60,8 @@ export default function ModuleDetailPage() {
     null,
   );
 
+  const queryClient = useQueryClient();
+  const [editingId, setEditingId] = useState<string | null>(null);
   const canEdit = user?.role === "CONTENT_ADMIN" || user?.role === "SUPER_ADMIN";
 
   const { data: module } = useQuery<Module>({
@@ -157,7 +162,22 @@ export default function ModuleDetailPage() {
       <h1 className="text-xl font-semibold mt-2 mb-1">
         {module.module_code} — {module.title}
       </h1>
-      <p className="text-sm text-gray-500 mb-6">Module status: {module.status}</p>
+      <p className="text-sm text-gray-500 mb-2">Module status: {module.status}</p>
+      <Link to={`/content/${module.id}/quiz`} className="inline-block text-sm underline mb-6">
+        Manage the module quiz →
+      </Link>
+
+      {canEdit && (
+        <ModuleDetailsEditor
+          key={module.updated_at}
+          module={module}
+          translation={englishTranslation}
+          onSaved={() => {
+            queryClient.invalidateQueries({ queryKey: ["module", moduleId] });
+            refetchTranslations();
+          }}
+        />
+      )}
 
       <div className="bg-white border rounded-lg p-4 mb-6">
         <h2 className="text-sm font-medium mb-3">Content governance workflow (English)</h2>
@@ -227,6 +247,8 @@ export default function ModuleDetailPage() {
         )}
       </div>
 
+      <ModuleTranslationsPanel moduleId={module.id} />
+
       <div className="bg-white border rounded-lg p-4">
         <div className="flex items-center justify-between mb-3">
           <h2 className="text-sm font-medium">Content sections (structured, no raw HTML)</h2>
@@ -293,6 +315,16 @@ export default function ModuleDetailPage() {
           <ul className="divide-y">
             {sections.map((s) => (
               <li key={s.id} className="py-3 flex items-start justify-between gap-4">
+                {editingId === s.id ? (
+                  <SectionEditor
+                    section={s}
+                    onDone={(saved) => {
+                      setEditingId(null);
+                      if (saved) refetchSections();
+                    }}
+                  />
+                ) : (
+                <>
                 <div className="flex-1">
                   <span className="text-xs uppercase text-gray-400">{s.content_type}</span>
                   {s.title && <p className="text-sm font-medium">{s.title}</p>}
@@ -320,12 +352,19 @@ export default function ModuleDetailPage() {
                   )}
                 </div>
                 {canEdit && (
-                  <button
-                    onClick={() => deleteSection.mutate(s.id)}
-                    className="text-xs text-red-500 hover:underline shrink-0"
-                  >
-                    Delete
-                  </button>
+                  <div className="shrink-0 flex gap-3">
+                    <button onClick={() => setEditingId(s.id)} className="text-xs text-blue-600 hover:underline">
+                      Edit
+                    </button>
+                    <button
+                      onClick={() => deleteSection.mutate(s.id)}
+                      className="text-xs text-red-500 hover:underline"
+                    >
+                      Delete
+                    </button>
+                  </div>
+                )}
+                </>
                 )}
               </li>
             ))}

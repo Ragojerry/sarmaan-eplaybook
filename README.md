@@ -17,8 +17,12 @@ sequence. **Do not assume every phase is finished**; check the phase status belo
 - [x] Phase 6 — Prototype content migration — see `docs/content-migration.md`
 - [x] Phase 7 — Mobile application — see `docs/mobile-app.md`
 - [x] Phase 8 — Offline storage — see `docs/offline-storage.md`
-- [x] Phase 9 — Offline video (this commit) — see `docs/offline-video.md`
-- [ ] Phase 10 onward — RAG, offline AI, sync, analytics/audit, packaging, production hardening
+- [x] Phase 9 — Offline video — see `docs/offline-video.md`
+- [x] Phases 10–11 (redesigned) — Offline question answering, extractive + cited (this commit) — see `docs/offline-qa.md`
+- [x] Phase 12 — Synchronisation (see below)
+- [x] Phase 13 — Audit trail + usage analytics (see below)
+- [x] Backlog before 14 — admin video upload, real fonts, translation import/export, synonym pass (see `docs/languages.md`)
+- [ ] Phase 14 onward — Android packaging, full testing, production hardening
 
 **Resolved:** offline video is in MVP scope; AI/RAG assistant is in MVP scope; platform target is
 Android + iOS (mobile app is Flutter for this reason).
@@ -135,3 +139,26 @@ The mobile app talks to the backend at `http://10.0.2.2:8000` by default when ru
   `video_player`). Storage-usage display computes actual on-disk bytes for videos and training
   images; honestly omits AI/Available-space figures rather than fabricate them. See
   `docs/offline-video.md`.
+- `offline question answering` (Phases 10-11, redesigned): extractive BM25 engine implemented twice
+  (Python server, Dart phone) with a shared test-vector contract. 88/88 backend tests pass (65 new), including
+  real-content questions and the dose-ambiguity cases; migration verified from empty DB, `alembic check` clean,
+  downgrade/upgrade round-trip. All 32 Dart files parse with a real Dart grammar. **Not run: Dart compile/test —
+  run `dart run build_runner build --delete-conflicting-outputs`, `flutter analyze`, `flutter test`** (the Dart
+  parity test is the proof the phone answers like the server). See `docs/offline-qa.md`.
+- `synchronisation` (Phase 12): idempotent `/sync/progress|ai-questions|analytics` (per-item results, merge
+  rules, 200-item batches), release packaging on publish (frozen package + SHA-256 + rebuilt Q&A index) and
+  `/sync/release/*`; phone sync engine with health-checked connectivity, backoff, opt-in analytics, and an
+  atomic download→validate→stage→apply→verify→activate installer that keeps the old release on any failure.
+  101/101 backend tests (13 new), migration `b5d2f8a91c37` verified (upgrade/downgrade/`alembic check`).
+  **Not run: Dart compile/analyze/test** (parses cleanly with a real Dart grammar). Run `flutter pub get`,
+  `dart run build_runner build --delete-conflicting-outputs`, `flutter analyze`, `flutter test`. See `docs/sync.md`.
+- `audit + analytics` (Phase 13): audit now records failed sign-ins (with IP, never the password), video uploads and
+  required-offline changes; `GET /audit` (filters, paging, formula-safe CSV export; Super/Content Admin and Technical
+  Reviewer only); `GET /analytics/usage` and `/analytics/questions` (devices, daily activity, module/video usage,
+  CDD progress, release adoption by distinct device, unanswered-question gaps); admin portal **Audit log** and
+  **Analytics** pages (`tsc` clean, production build OK). Phone emits the §50 events only with opt-in consent.
+  111/111 backend tests (23 new); migration `c8e4a1f06d52` verified (upgrade/downgrade/`alembic check`).
+  **Not run: Dart compile/analyze/test** (parses cleanly). See `docs/analytics-audit.md`.
+
+- Module quizzes (7 question types, 90% pass to complete a module): see `docs/quiz.md`.
+- User areas, activity reports, CSV export and Power BI API: see `docs/reports.md`.

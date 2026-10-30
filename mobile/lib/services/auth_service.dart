@@ -1,5 +1,7 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../db/local_database.dart';
+import '../offline/content_sync_service.dart' show localDatabaseProvider;
 import 'api_client.dart';
 import '../models/api_models.dart';
 
@@ -19,8 +21,9 @@ class AuthState {
 
 class AuthNotifier extends StateNotifier<AuthState> {
   final ApiClient _api;
+  final LocalDatabase _db;
 
-  AuthNotifier(this._api) : super(const AuthState(loading: true)) {
+  AuthNotifier(this._api, this._db) : super(const AuthState(loading: true)) {
     _restoreSession();
   }
 
@@ -32,7 +35,7 @@ class AuthNotifier extends StateNotifier<AuthState> {
         return;
       }
       final resp = await _api.dio.get('/auth/me');
-      state = AuthState(user: UserProfile.fromJson(resp.data), loading: false);
+      await _setUser(UserProfile.fromJson(resp.data));
     } catch (_) {
       // Covers both a genuinely invalid/expired token (server rejected
       // /auth/me, refresh also failed) AND a storage-layer failure reading
@@ -54,7 +57,15 @@ class AuthNotifier extends StateNotifier<AuthState> {
     final resp = await _api.dio.post('/auth/login', data: {'username': username, 'password': password});
     await _api.saveTokens(accessToken: resp.data['access_token'], refreshToken: resp.data['refresh_token']);
     final meResp = await _api.dio.get('/auth/me');
-    state = AuthState(user: UserProfile.fromJson(meResp.data), loading: false);
+    await _setUser(UserProfile.fromJson(meResp.data));
+  }
+
+  /// Points the local database at THIS user before the signed-in state is
+  /// published, so no screen can read the previous person's progress.
+  Future<void> _setUser(UserProfile user) async {
+    _db.setActiveUser(user.id);
+    await _db.adoptAnonymousAnalytics();
+    state = AuthState(user: user, loading: false);
   }
 
   Future<void> logout() async {
@@ -69,11 +80,12 @@ class AuthNotifier extends StateNotifier<AuthState> {
       // UI they can't get out of.
     } finally {
       await _api.clearTokens();
+      _db.setActiveUser(null);
       state = state.copyWith(loading: false, clearUser: true);
     }
   }
 }
 
 final authProvider = StateNotifierProvider<AuthNotifier, AuthState>(
-  (ref) => AuthNotifier(ref.read(apiClientProvider)),
+  (ref) => AuthNotifier(ref.read(apiClientProvider), ref.read(localDatabaseProvider)),
 );

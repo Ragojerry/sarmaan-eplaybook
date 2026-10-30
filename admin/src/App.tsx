@@ -5,17 +5,18 @@ import ModuleDetailPage from "./pages/ModuleDetailPage";
 import ReleasesPage from "./pages/ReleasesPage";
 import LanguagesPage from "./pages/LanguagesPage";
 import AnalyticsPage from "./pages/AnalyticsPage";
+import AuditLogPage from "./pages/AuditLogPage";
+import VideosPage from "./pages/VideosPage";
+import UsersPage from "./pages/UsersPage";
+import BoundariesPage from "./pages/BoundariesPage";
+import ReportsPage from "./pages/ReportsPage";
+import SessionsPage from "./pages/SessionsPage";
+import QuizEditorPage from "./pages/QuizEditorPage";
 import LoginPage from "./pages/LoginPage";
 import AdminLayout from "./layouts/AdminLayout";
 import ProtectedRoute from "./components/ProtectedRoute";
 
-/**
- * Phase 5 scope: real dashboard/content/module-detail/release/language
- * screens, all behind authentication. AnalyticsPage stays a Phase-2 stub —
- * it's not in the master prompt's explicit Phase 5 admin list (dashboard,
- * modules, content, languages, releases); a dedicated deep-dive analytics
- * screen beyond the dashboard's charts is future work, not required here.
- */
+/** Dashboard, content, module detail, releases, languages, analytics (Phase 13) and audit log (Phase 13), all behind authentication. */
 export default function App() {
   return (
     <Routes>
@@ -30,9 +31,16 @@ export default function App() {
         <Route path="/" element={<DashboardPage />} />
         <Route path="/content" element={<ContentPage />} />
         <Route path="/content/:moduleId" element={<ModuleDetailPage />} />
+        <Route path="/content/:moduleId/quiz" element={<QuizEditorPage />} />
+        <Route path="/videos" element={<VideosPage />} />
         <Route path="/releases" element={<ReleasesPage />} />
         <Route path="/languages" element={<LanguagesPage />} />
         <Route path="/analytics" element={<AnalyticsPage />} />
+        <Route path="/audit" element={<AuditLogPage />} />
+        <Route path="/users" element={<UsersPage />} />
+        <Route path="/areas" element={<BoundariesPage />} />
+        <Route path="/sessions" element={<SessionsPage />} />
+        <Route path="/reports" element={<ReportsPage />} />
         <Route
           path="*"
           element={

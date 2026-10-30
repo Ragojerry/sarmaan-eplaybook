@@ -75,3 +75,11 @@ python3 -m alembic upgrade head
 in generated migrations — autogenerate doesn't add this import by default, and migrations will fail at
 runtime (`NameError`) without it. Always check a freshly generated migration file's imports before running it
 if it touches `rag_chunks.embedding` or any future vector column.
+
+## 6. Update — Phase 10 revised (`rag_chunks` → `content_chunks`)
+
+`rag_chunks` (pgvector, never populated) was dropped by migration `a7c3e91d2b54` and replaced by
+`content_chunks` (module_id, module_code, section_id, section_title, language, source_title, chunk_text),
+indexed on `(module_id, language)`. Ranking is done in application code, so no vector column or FTS index is
+needed. The initial migration still runs `CREATE EXTENSION vector` (history), but no table uses it any more.
+Rebuild chunks with `python3 -m scripts.build_content_index`. See `docs/offline-qa.md`.

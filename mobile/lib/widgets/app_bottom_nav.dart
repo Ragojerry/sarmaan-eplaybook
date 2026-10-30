@@ -16,6 +16,7 @@ class AppBottomNav extends StatelessWidget {
     ('/home', Icons.home_outlined, 'Home'),
     ('/modules', Icons.menu_book_outlined, 'Modules'),
     ('/videos', Icons.play_circle_outline, 'Videos'),
+    ('/ai', Icons.chat_bubble_outline, 'Ask'),
     ('/about', Icons.info_outline, 'About'),
   ];
 

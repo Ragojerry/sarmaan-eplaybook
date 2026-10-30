@@ -5,7 +5,7 @@ from sqlalchemy.orm import Session
 
 from app.database import get_db
 from app.auth.dependencies import get_current_user, require_roles
-from app.models import User, Language
+from app.models import ContentChunk, Language, ModuleTranslation, SectionTranslation, User
 from app.models.audit_log import AuditLog
 from app.models.enums import RoleName, AuditAction
 from app.schemas.language import LanguageCreate, LanguageUpdate, LanguageResponse
@@ -67,3 +67,42 @@ def update_language(
     db.commit()
     db.refresh(language)
     return language
+
+
+@router.delete("/{language_id}", status_code=status.HTTP_204_NO_CONTENT)
+def delete_language(
+    language_id: uuid.UUID,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(require_roles(RoleName.CONTENT_ADMIN)),
+):
+    """Removes a language that was added by mistake. Refused for the default
+    language, and for any language that people or translations already use, so
+    nothing a learner or translator relies on can disappear."""
+    language = db.get(Language, language_id)
+    if language is None:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Language not found")
+    if language.is_default or language.code == "en":
+        raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail="The default language cannot be deleted.")
+    users = db.query(User).filter_by(language_id=language.id).count()
+    translations = (
+        db.query(ModuleTranslation).filter_by(language_id=language.id).count()
+        + db.query(SectionTranslation).filter_by(language_id=language.id).count()
+    )
+    if users or translations:
+        raise HTTPException(
+            status_code=status.HTTP_409_CONFLICT,
+            detail=f"In use: {users} user(s) and {translations} translation record(s) use this language.",
+        )
+    code = language.code
+    db.query(ContentChunk).filter_by(language=code).delete()
+    db.add(
+        AuditLog(
+            user_id=current_user.id,
+            action=AuditAction.CONTENT_EDIT,
+            entity_type="language",
+            entity_id=language.id,
+            details={"deleted": True, "code": code},
+        )
+    )
+    db.delete(language)
+    db.commit()

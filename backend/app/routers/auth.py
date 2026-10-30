@@ -5,7 +5,7 @@ master prompt specifies (§52): login, refresh, logout, me.
 import uuid
 from datetime import datetime, timezone
 
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, Request, status
 from jose import JWTError
 from sqlalchemy.orm import Session
 
@@ -28,7 +28,7 @@ router = APIRouter()
 
 
 @router.post("/login", response_model=TokenResponse)
-def login(payload: LoginRequest, db: Session = Depends(get_db)):
+def login(payload: LoginRequest, request: Request, db: Session = Depends(get_db)):
     user = db.query(User).filter_by(username=payload.username).one_or_none()
 
     # Deliberately identical error for "no such user" and "wrong password" —
@@ -37,10 +37,35 @@ def login(payload: LoginRequest, db: Session = Depends(get_db)):
         status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid username or password"
     )
 
+    ip = request.client.host if request.client else None
+
     if user is None or not verify_password(payload.password, user.password_hash):
+        # Failed sign-ins are security events (master prompt §61). The password is never recorded.
+        db.add(
+            AuditLog(
+                user_id=user.id if user else None,
+                action=AuditAction.LOGIN_FAILED,
+                entity_type="user",
+                entity_id=user.id if user else None,
+                details={"username": payload.username[:100], "reason": "invalid_credentials"},
+                ip_address=ip,
+            )
+        )
+        db.commit()
         raise invalid_credentials
 
     if user.status != UserStatus.ACTIVE:
+        db.add(
+            AuditLog(
+                user_id=user.id,
+                action=AuditAction.LOGIN_FAILED,
+                entity_type="user",
+                entity_id=user.id,
+                details={"username": payload.username[:100], "reason": f"account_{user.status.value.lower()}"},
+                ip_address=ip,
+            )
+        )
+        db.commit()
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
             detail=f"Account is {user.status.value.lower()}, not active.",
@@ -58,7 +83,7 @@ def login(payload: LoginRequest, db: Session = Depends(get_db)):
         )
     )
     user.last_login_at = datetime.now(timezone.utc)
-    db.add(AuditLog(user_id=user.id, action=AuditAction.LOGIN, entity_type="user", entity_id=user.id))
+    db.add(AuditLog(user_id=user.id, action=AuditAction.LOGIN, entity_type="user", entity_id=user.id, ip_address=ip))
     db.commit()
 
     return TokenResponse(access_token=access_token, refresh_token=refresh_token_str)

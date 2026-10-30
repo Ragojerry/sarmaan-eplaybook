@@ -5,11 +5,14 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_tts/flutter_tts.dart';
 import 'package:go_router/go_router.dart';
 
+import '../sync/analytics_recorder.dart';
 import '../db/local_database.dart';
 import '../models/api_models.dart';
 import '../offline/content_sync_service.dart';
+import '../quiz/quiz_grader.dart';
 import '../theme/app_theme.dart';
 import '../widgets/offline_aware_image.dart';
+import 'quiz_screen.dart' show localQuizCountProvider, localBestQuizProvider;
 
 /// Phase 8: reads from the LOCAL cache — never the network — matching
 /// master prompt §18's offline-first requirement exactly ("module reading"
@@ -18,9 +21,12 @@ import '../widgets/offline_aware_image.dart';
 /// pure local reader on top of it. Adapts cached Drift rows back into the
 /// same ContentSection/ModuleTranslation shapes Phase 7 used, so the
 /// per-ContentType rendering switch below doesn't need to change at all.
-final localModuleTranslationProvider = FutureProvider.family<ModuleTranslation?, String>((ref, moduleId) async {
+final localModuleTranslationProvider = FutureProvider.autoDispose.family<ModuleTranslation?, String>((ref, moduleId) async {
   final db = ref.read(localDatabaseProvider);
-  final row = await db.getTranslationForModule(moduleId, 'en');
+  // The person's language when a published translation is cached, else English.
+  final code = (await db.getSetting('selected_language_code')) ?? 'en';
+  final row = (code != 'en' ? await db.getTranslationForModule(moduleId, code) : null) ??
+      await db.getTranslationForModule(moduleId, 'en');
   if (row == null) return null;
   return ModuleTranslation(
     id: row.id,
@@ -34,20 +40,36 @@ final localModuleTranslationProvider = FutureProvider.family<ModuleTranslation?,
   );
 });
 
-final localModuleSectionsProvider = FutureProvider.family<List<ContentSection>, String>((ref, moduleId) async {
+final localModuleSectionsProvider = FutureProvider.autoDispose.family<List<ContentSection>, String>((ref, moduleId) async {
   final db = ref.read(localDatabaseProvider);
   final rows = await db.getSectionsForModule(moduleId);
+  // Translated sections replace the English text per section; structure
+  // (type, order, pictures) always comes from the English section, and any
+  // section without a published translation stays in English.
+  final code = (await db.getSetting('selected_language_code')) ?? 'en';
+  final translated = {
+    if (code != 'en')
+      for (final s in await db.getSectionTranslations(moduleId, code)) s.sectionId: s,
+  };
   return [
     for (final row in rows)
-      ContentSection(
-        id: row.id,
-        moduleId: row.moduleId,
-        sectionNumber: row.sectionNumber,
-        title: row.title,
-        contentType: row.contentType,
-        content: Map<String, dynamic>.from(jsonDecode(row.contentJson) as Map),
-        sortOrder: row.sortOrder,
-      ),
+      () {
+        final english = Map<String, dynamic>.from(jsonDecode(row.contentJson) as Map);
+        final tr = translated[row.id];
+        final content = tr == null
+            ? english
+            : {...english, ...Map<String, dynamic>.from(jsonDecode(tr.contentJson) as Map)};
+        final trTitle = tr?.title;
+        return ContentSection(
+          id: row.id,
+          moduleId: row.moduleId,
+          sectionNumber: row.sectionNumber,
+          title: (trTitle != null && trTitle.isNotEmpty) ? trTitle : row.title,
+          contentType: row.contentType,
+          content: content,
+          sortOrder: row.sortOrder,
+        );
+      }(),
   ];
 });
 
@@ -77,17 +99,61 @@ class ReaderScreen extends ConsumerStatefulWidget {
 class _ReaderScreenState extends ConsumerState<ReaderScreen> {
   final FlutterTts _tts = FlutterTts();
   bool _speaking = false;
+  final ScrollController _scroll = ScrollController();
+  late final LocalDatabase _db;
+  List<ContentSection> _loadedSections = const [];
+  int _savedPercent = 0;
+  int _pendingPercent = 0;
+  String? _pendingWhere;
 
   @override
   void initState() {
     super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      ref.read(localDatabaseProvider).upsertProgress(moduleId: widget.moduleId);
+    _db = ref.read(localDatabaseProvider);
+    _scroll.addListener(_onScroll);
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      final db = ref.read(localDatabaseProvider);
+      final existing = await db.getProgressForModule(widget.moduleId);
+      _savedPercent = existing?.progressPercent ?? 0;
+      await db.upsertProgress(moduleId: widget.moduleId);
+      recordAnalyticsEvent(db, 'MODULE_OPEN', moduleId: widget.moduleId);
     });
+  }
+
+  /// Reading progress = how far down the module the learner has scrolled,
+  /// never decreasing and capped at 99 until they tap "Mark as complete".
+  void _onScroll() {
+    if (!_scroll.hasClients) return;
+    final max = _scroll.position.maxScrollExtent;
+    if (max <= 0) return;
+    final fraction = (_scroll.position.pixels / max).clamp(0.0, 1.0);
+    final percent = (fraction * 99).round();
+    if (percent <= _pendingPercent) return;
+    _pendingPercent = percent;
+    if (_loadedSections.isNotEmpty) {
+      var i = (fraction * (_loadedSections.length - 1)).floor().clamp(0, _loadedSections.length - 1);
+      for (; i >= 0; i--) {
+        if (_loadedSections[i].contentType == 'HEADING') {
+          _pendingWhere = _loadedSections[i].content['text'] as String?;
+          break;
+        }
+      }
+    }
+    if (percent >= _savedPercent + 5) _flushProgress();
+  }
+
+  Future<void> _flushProgress() async {
+    if (_pendingPercent <= _savedPercent) return;
+    final existing = await _db.getProgressForModule(widget.moduleId);
+    if (existing?.completed ?? false) return;
+    _savedPercent = _pendingPercent;
+    await _db.upsertProgress(moduleId: widget.moduleId, progressPercent: _pendingPercent, lastSection: _pendingWhere);
   }
 
   @override
   void dispose() {
+    _flushProgress();
+    _scroll.dispose();
     _tts.stop();
     super.dispose();
   }
@@ -108,17 +174,106 @@ class _ReaderScreenState extends ConsumerState<ReaderScreen> {
 
   Future<void> _markComplete() async {
     final db = ref.read(localDatabaseProvider);
+    // A module with a quiz can be completed only after a passing attempt (>= 90%).
+    if (await db.countQuizQuestions(widget.moduleId) > 0 && !await db.hasPassedQuiz(widget.moduleId)) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Pass the quiz with 90% or more to complete this module.')),
+        );
+      }
+      return;
+    }
     await db.upsertProgress(moduleId: widget.moduleId, progressPercent: 100, completed: true);
     await db.enqueueSync(
       'progress',
-      jsonEncode({'module_id': widget.moduleId, 'completed': true, 'completed_at': DateTime.now().toIso8601String()}),
+      jsonEncode({'module_id': widget.moduleId, 'completed': true, 'completed_at': DateTime.now().toUtc().toIso8601String()}),
     );
+    await recordAnalyticsEvent(db, 'MODULE_COMPLETE', moduleId: widget.moduleId);
     ref.invalidate(localProgressProvider(widget.moduleId));
     if (mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Marked complete. Will sync to your account when online.')),
       );
     }
+  }
+
+  /// Quiz modules: a card that opens the quiz (passing it completes the
+  /// module). Modules with no quiz keep the plain "Mark as complete" button.
+  Widget _completionArea(bool completed) {
+    final count = ref.watch(localQuizCountProvider(widget.moduleId)).valueOrNull ?? 0;
+    final best = ref.watch(localBestQuizProvider(widget.moduleId)).valueOrNull;
+    if (count == 0) {
+      return OutlinedButton.icon(
+        onPressed: completed ? null : _markComplete,
+        icon: Icon(completed ? Icons.check_circle : Icons.check_circle_outline, size: 18),
+        label: Text(completed ? 'Completed' : 'Mark as complete'),
+        style: completed
+            ? OutlinedButton.styleFrom(
+                backgroundColor: AppColors.tealDeep,
+                foregroundColor: AppColors.sand,
+                side: const BorderSide(color: AppColors.tealDeep),
+              )
+            : null,
+      );
+    }
+    final passed = best?.passed ?? false;
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        Container(
+          padding: const EdgeInsets.all(16),
+          decoration: BoxDecoration(
+            color: AppColors.white,
+            borderRadius: BorderRadius.circular(AppRadius.medium),
+            border: Border.all(color: passed ? AppColors.teal : AppColors.line),
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                children: [
+                  Icon(passed ? Icons.check_circle : Icons.quiz_outlined, size: 20, color: AppColors.teal),
+                  const SizedBox(width: 8),
+                  Text(
+                    passed ? 'Quiz passed' : 'Module quiz',
+                    style: const TextStyle(fontWeight: FontWeight.w800, fontSize: 15, color: AppColors.tealDeep),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 6),
+              Text(
+                '$count questions. You need $kQuizPassMark% to complete this module.'
+                '${best != null ? ' Best score: ${best.scorePercent}%.' : ''}',
+                style: const TextStyle(fontSize: 12.5, height: 1.4, color: AppColors.textSecondary),
+              ),
+              const SizedBox(height: 12),
+              SizedBox(
+                width: double.infinity,
+                child: FilledButton(
+                  onPressed: () => context.go('/quiz/${widget.moduleId}'),
+                  style: FilledButton.styleFrom(backgroundColor: AppColors.tealDeep, foregroundColor: AppColors.sand),
+                  child: Text(best == null ? 'Take the quiz' : (passed ? 'Retake quiz' : 'Try again')),
+                ),
+              ),
+            ],
+          ),
+        ),
+        const SizedBox(height: 12),
+        OutlinedButton.icon(
+          // Active only once the best attempt is 90% or more.
+          onPressed: (completed || !passed) ? null : _markComplete,
+          icon: Icon(completed ? Icons.check_circle : Icons.check_circle_outline, size: 18),
+          label: Text(completed ? 'Completed' : 'Mark as complete'),
+          style: completed
+              ? OutlinedButton.styleFrom(
+                  backgroundColor: AppColors.tealDeep,
+                  foregroundColor: AppColors.sand,
+                  side: const BorderSide(color: AppColors.tealDeep),
+                )
+              : null,
+        ),
+      ],
+    );
   }
 
   @override
@@ -133,7 +288,9 @@ class _ReaderScreenState extends ConsumerState<ReaderScreen> {
         leading: BackButton(onPressed: () => context.go('/modules')),
       ),
       body: sectionsAsync.when(
-        data: (sections) => sections.isEmpty
+        data: (sections) {
+          _loadedSections = sections;
+          return sections.isEmpty
             ? const Center(
                 child: Padding(
                   padding: EdgeInsets.all(24),
@@ -144,6 +301,7 @@ class _ReaderScreenState extends ConsumerState<ReaderScreen> {
                 ),
               )
             : ListView(
+                controller: _scroll,
                 padding: const EdgeInsets.fromLTRB(22, 18, 22, 28),
                 children: [
                   translationAsync.maybeWhen(
@@ -155,32 +313,13 @@ class _ReaderScreenState extends ConsumerState<ReaderScreen> {
                   for (final section in sections) _buildSection(context, section),
                   const SizedBox(height: 22),
                   progressAsync.when(
-                    data: (progress) {
-                      final completed = progress?.completed ?? false;
-                      return Row(
-                        children: [
-                          Expanded(
-                            child: OutlinedButton.icon(
-                              onPressed: completed ? null : _markComplete,
-                              icon: Icon(completed ? Icons.check_circle : Icons.check_circle_outline, size: 18),
-                              label: Text(completed ? 'Completed' : 'Mark as complete'),
-                              style: completed
-                                  ? OutlinedButton.styleFrom(
-                                      backgroundColor: AppColors.tealDeep,
-                                      foregroundColor: AppColors.sand,
-                                      side: const BorderSide(color: AppColors.tealDeep),
-                                    )
-                                  : null,
-                            ),
-                          ),
-                        ],
-                      );
-                    },
+                    data: (progress) => _completionArea(progress?.completed ?? false),
                     loading: () => const SizedBox.shrink(),
                     error: (_, __) => const SizedBox.shrink(),
                   ),
                 ],
-              ),
+              );
+        },
         loading: () => const Center(child: CircularProgressIndicator()),
         error: (e, _) => Center(child: Text('Could not load content: $e')),
       ),
@@ -296,8 +435,18 @@ class _ReaderScreenState extends ConsumerState<ReaderScreen> {
         );
 
       case 'TABLE':
-        final headers = (section.content['headers'] as List?)?.cast<String>() ?? [];
-        final rows = (section.content['rows'] as List?)?.cast<List>() ?? [];
+        final headers = ((section.content['headers'] as List?) ?? const []).map((h) => h.toString()).toList();
+        final rows = ((section.content['rows'] as List?) ?? const [])
+            .map((r) => r is List ? r.map((c) => c.toString()).toList() : <String>[r.toString()])
+            .toList();
+        // DataTable asserts at least one column and equal cell counts per row,
+        // so size to the widest row/header and pad the rest with blanks.
+        var width = headers.length;
+        for (final r in rows) {
+          if (r.length > width) width = r.length;
+        }
+        if (width == 0) return const SizedBox.shrink();
+        final hasHeaders = headers.any((h) => h.trim().isNotEmpty);
         return Container(
           margin: const EdgeInsets.only(bottom: 16),
           decoration: BoxDecoration(border: Border.all(color: AppColors.line), borderRadius: BorderRadius.circular(10)),
@@ -305,6 +454,7 @@ class _ReaderScreenState extends ConsumerState<ReaderScreen> {
           child: SingleChildScrollView(
             scrollDirection: Axis.horizontal,
             child: DataTable(
+              headingRowHeight: hasHeaders ? null : 0,
               headingRowColor: WidgetStateProperty.all(AppColors.tealSoft),
               headingTextStyle: const TextStyle(
                 fontWeight: FontWeight.w700,
@@ -313,10 +463,15 @@ class _ReaderScreenState extends ConsumerState<ReaderScreen> {
                 letterSpacing: 0.3,
               ),
               dataTextStyle: const TextStyle(fontSize: 11.5, color: AppColors.readerBody),
-              columns: [for (final h in headers) DataColumn(label: Text(h.toUpperCase()))],
+              columns: [
+                for (var i = 0; i < width; i++)
+                  DataColumn(label: Text(i < headers.length ? headers[i].toUpperCase() : '')),
+              ],
               rows: [
                 for (final row in rows)
-                  DataRow(cells: [for (final cell in row) DataCell(Text(cell.toString()))]),
+                  DataRow(cells: [
+                    for (var i = 0; i < width; i++) DataCell(Text(i < row.length ? row[i] : '')),
+                  ]),
               ],
             ),
           ),

@@ -1,0 +1,5 @@
+country,state,lga,ward,facility
+Nigeria,Example State,Example LGA 1,Example Ward A,Example Health Facility 1
+Nigeria,Example State,Example LGA 1,Example Ward A,Example Health Facility 2
+Nigeria,Example State,Example LGA 1,Example Ward B,
+Nigeria,Example State,Example LGA 2,,

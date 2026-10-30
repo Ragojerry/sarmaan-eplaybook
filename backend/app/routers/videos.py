@@ -9,21 +9,71 @@ the full file's checksum only once every byte has arrived.
 import hashlib
 import uuid
 from pathlib import Path
+from typing import Iterator
 
-from fastapi import APIRouter, Depends, HTTPException, Request, UploadFile, status
-from fastapi.responses import Response
+from fastapi import APIRouter, Depends, Form, HTTPException, Request, UploadFile, status
+from fastapi.responses import FileResponse, StreamingResponse
+from pydantic import BaseModel, Field
 from sqlalchemy.orm import Session
 
 from app.database import get_db
 from app.config import get_settings
 from app.auth.dependencies import get_current_user, require_roles
 from app.models import User, Video
-from app.models.enums import RoleName
+from app.models.audit_log import AuditLog
+from app.models import Module
+from app.models.enums import AuditAction, RoleName, VideoStatus
 
 router = APIRouter()
 settings = get_settings()
 
 CONTENT_EDITORS = (RoleName.CONTENT_ADMIN,)
+# Roles that may see videos that are not published yet (drafts, archived).
+DRAFT_VIEWERS = (
+    RoleName.SUPER_ADMIN,
+    RoleName.CONTENT_ADMIN,
+    RoleName.PROGRAM_REVIEWER,
+    RoleName.LOCALISATION_REVIEWER,
+    RoleName.TECHNICAL_REVIEWER,
+)
+NO_FILE = "NOT_YET_UPLOADED"
+ALLOWED_MIME = {"video/mp4", "video/webm"}
+CHUNK = 1024 * 1024
+
+
+class VideoCreate(BaseModel):
+    title: str = Field(min_length=1, max_length=255)
+    description: str | None = None
+    module_id: uuid.UUID | None = None
+    language: str = Field(default="en", max_length=10)
+    duration_seconds: int | None = Field(default=None, ge=0)
+    required_offline: bool = False
+
+
+class VideoUpdate(BaseModel):
+    title: str | None = Field(default=None, min_length=1, max_length=255)
+    description: str | None = None
+    module_id: uuid.UUID | None = None
+    language: str | None = Field(default=None, max_length=10)
+    duration_seconds: int | None = Field(default=None, ge=0)
+    required_offline: bool | None = None
+    status: VideoStatus | None = None
+
+
+def _can_see_drafts(user: User) -> bool:
+    return user.role in DRAFT_VIEWERS
+
+
+def _sniff_ok(head: bytes) -> bool:
+    """Checks the file really is an MP4 (`ftyp` box) or WebM/Matroska (EBML header), whatever its name or declared type."""
+    return head[4:8] == b"ftyp" or head[:4] == b"\x1a\x45\xdf\xa3"
+
+
+def _video_path(video: Video) -> Path:
+    root = Path(settings.storage_local_path)
+    if not root.is_absolute():
+        root = Path(__file__).resolve().parents[2] / root
+    return root.parent / video.storage_path
 
 
 def _video_root() -> Path:
@@ -56,14 +106,54 @@ def _serialize(video: Video) -> dict:
 
 @router.get("")
 def list_videos(db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
-    videos = db.query(Video).order_by(Video.title).all()
-    return [_serialize(v) for v in videos]
+    q = db.query(Video)
+    if not _can_see_drafts(current_user):
+        q = q.filter(Video.status == VideoStatus.PUBLISHED)  # learners only ever see approved videos
+    return [_serialize(v) for v in q.order_by(Video.title).all()]
+
+
+@router.post("", status_code=status.HTTP_201_CREATED)
+def create_video(
+    payload: VideoCreate,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(require_roles(*CONTENT_EDITORS)),
+):
+    """Creates the video's record (DRAFT, no file). The footage is attached with POST /videos/{id}/file."""
+    if payload.module_id and db.get(Module, payload.module_id) is None:
+        raise HTTPException(status_code=status.HTTP_422_UNPROCESSABLE_ENTITY, detail="Unknown module_id")
+    video = Video(
+        title=payload.title.strip(),
+        description=payload.description,
+        module_id=payload.module_id,
+        filename=NO_FILE,
+        storage_path=NO_FILE,
+        mime_type="video/mp4",
+        language=payload.language,
+        duration_seconds=payload.duration_seconds,
+        required_offline=payload.required_offline,
+        offline_available=False,
+        status=VideoStatus.DRAFT,
+    )
+    db.add(video)
+    db.flush()
+    db.add(
+        AuditLog(
+            user_id=current_user.id,
+            action=AuditAction.CONTENT_CREATE,
+            entity_type="video",
+            entity_id=video.id,
+            details={"title": video.title},
+        )
+    )
+    db.commit()
+    db.refresh(video)
+    return _serialize(video)
 
 
 @router.get("/{video_id}")
 def get_video(video_id: uuid.UUID, db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
     video = db.get(Video, video_id)
-    if video is None:
+    if video is None or (video.status != VideoStatus.PUBLISHED and not _can_see_drafts(current_user)):
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Video not found")
     return _serialize(video)
 
@@ -72,18 +162,41 @@ def get_video(video_id: uuid.UUID, db: Session = Depends(get_db), current_user: 
 def update_video(
     video_id: uuid.UUID,
     required_offline: bool | None = None,
+    payload: VideoUpdate | None = None,
     db: Session = Depends(get_db),
     current_user: User = Depends(require_roles(*CONTENT_EDITORS)),
 ):
-    """Master prompt §24: "Allow administrators to define required versus
-    optional videos." Only field exposed here for now — status transitions
-    should go through a proper governance-style endpoint once video review
-    workflow is designed; that's future work, not this phase's job."""
+    """Edits metadata and moves a video between DRAFT / PUBLISHED / ARCHIVED.
+    `required_offline` is also accepted as a query parameter (Phase 9 callers).
+    A video can only be PUBLISHED once real footage has been uploaded."""
     video = db.get(Video, video_id)
     if video is None:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Video not found")
+
+    changes = payload.model_dump(exclude_unset=True) if payload else {}
     if required_offline is not None:
-        video.required_offline = required_offline
+        changes["required_offline"] = required_offline
+
+    if "module_id" in changes and changes["module_id"] and db.get(Module, changes["module_id"]) is None:
+        raise HTTPException(status_code=status.HTTP_422_UNPROCESSABLE_ENTITY, detail="Unknown module_id")
+    has_file = video.filename != NO_FILE
+    if changes.get("status") == VideoStatus.PUBLISHED and not has_file:
+        raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail="Upload the video file before publishing it.")
+
+    for field, value in changes.items():
+        setattr(video, field, value)
+    video.offline_available = has_file and video.status == VideoStatus.PUBLISHED
+
+    if changes:
+        db.add(
+            AuditLog(
+                user_id=current_user.id,
+                action=AuditAction.VIDEO_UPDATE,
+                entity_type="video",
+                entity_id=video.id,
+                details={k: (v.value if hasattr(v, "value") else str(v)) for k, v in changes.items()},
+            )
+        )
     db.commit()
     db.refresh(video)
     return _serialize(video)
@@ -93,29 +206,92 @@ def update_video(
 async def upload_video_file(
     video_id: uuid.UUID,
     file: UploadFile,
+    duration_seconds: int | None = Form(default=None, ge=0),
     db: Session = Depends(get_db),
     current_user: User = Depends(require_roles(*CONTENT_EDITORS)),
 ):
+    """Streams the upload to disk (never holding the whole file in memory),
+    enforces a size cap, checks it really is MP4/WebM, and records its SHA-256.
+    Replacing the footage of a PUBLISHED video sends it back to DRAFT so the
+    new footage is re-approved before learners get it."""
     video = db.get(Video, video_id)
     if video is None:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Video not found")
 
-    data = await file.read()
-    if not data:
-        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Uploaded file is empty")
+    if (file.content_type or "") not in ALLOWED_MIME:
+        raise HTTPException(
+            status_code=status.HTTP_415_UNSUPPORTED_MEDIA_TYPE, detail="Only MP4 (H.264) or WebM video is accepted."
+        )
 
-    checksum = hashlib.sha256(data).hexdigest()
-    filename = f"{video_id}_{file.filename}"
+    max_bytes = settings.max_video_upload_mb * 1024 * 1024
+    safe_name = "".join(ch for ch in (file.filename or "video.mp4") if ch.isalnum() or ch in "._-") or "video.mp4"
+    filename = f"{video_id}_{uuid.uuid4().hex[:8]}_{safe_name}"
     path = _video_root() / filename
-    path.write_bytes(data)
+    tmp = path.with_suffix(path.suffix + ".part")
+
+    digest = hashlib.sha256()
+    size = 0
+    head = b""
+    try:
+        with open(tmp, "wb") as out:
+            while True:
+                chunk = await file.read(CHUNK)
+                if not chunk:
+                    break
+                if size == 0:
+                    head = chunk[:16]
+                size += len(chunk)
+                if size > max_bytes:
+                    raise HTTPException(
+                        status_code=status.HTTP_413_REQUEST_ENTITY_TOO_LARGE,
+                        detail=f"Video is larger than the {settings.max_video_upload_mb} MB limit.",
+                    )
+                digest.update(chunk)
+                out.write(chunk)
+        if size == 0:
+            raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Uploaded file is empty")
+        if not _sniff_ok(head):
+            raise HTTPException(
+                status_code=status.HTTP_415_UNSUPPORTED_MEDIA_TYPE, detail="The file is not a valid MP4 or WebM video."
+            )
+        tmp.replace(path)
+    except BaseException:
+        tmp.unlink(missing_ok=True)
+        raise
+
+    old = None if video.filename == NO_FILE else _video_path(video)
+    was_published = video.status == VideoStatus.PUBLISHED
+    checksum = digest.hexdigest()
 
     video.filename = filename
     video.storage_path = f"videos/{filename}"
-    video.mime_type = file.content_type or "video/mp4"
-    video.file_size = len(data)
+    video.mime_type = file.content_type
+    video.file_size = size
     video.checksum = checksum
+    if duration_seconds is not None:
+        video.duration_seconds = duration_seconds
+    if was_published:
+        video.status = VideoStatus.DRAFT
+        video.offline_available = False
+    db.add(
+        AuditLog(
+            user_id=current_user.id,
+            action=AuditAction.VIDEO_UPLOAD,
+            entity_type="video",
+            entity_id=video.id,
+            details={
+                "filename": file.filename,
+                "size_bytes": size,
+                "sha256": checksum,
+                "replaced_existing": old is not None,
+                "returned_to_draft": was_published,
+            },
+        )
+    )
     db.commit()
     db.refresh(video)
+    if old is not None and old != path:
+        old.unlink(missing_ok=True)  # only after the new file and row are safely committed
     return _serialize(video)
 
 
@@ -127,15 +303,12 @@ def download_video_file(
     current_user: User = Depends(get_current_user),
 ):
     video = db.get(Video, video_id)
-    if video is None:
+    if video is None or (video.status != VideoStatus.PUBLISHED and not _can_see_drafts(current_user)):
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Video not found")
-    if video.filename == "NOT_YET_UPLOADED":
+    if video.filename == NO_FILE:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="No video file has been uploaded yet")
 
-    root = Path(settings.storage_local_path)
-    if not root.is_absolute():
-        root = Path(__file__).resolve().parents[2] / root
-    path = root.parent / video.storage_path
+    path = _video_path(video)
     if not path.is_file():
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
@@ -146,15 +319,9 @@ def download_video_file(
     range_header = request.headers.get("range")
 
     if range_header is None:
-        # Full-file response, still advertising range support so a client
-        # that starts a fresh download knows resume is available if the
-        # connection drops partway through.
-        data = path.read_bytes()
-        return Response(
-            content=data,
-            media_type=video.mime_type,
-            headers={"Accept-Ranges": "bytes", "Content-Length": str(file_size)},
-        )
+        # Whole file, streamed from disk; still advertises range support so an
+        # interrupted download can resume.
+        return FileResponse(path, media_type=video.mime_type, headers={"Accept-Ranges": "bytes"})
 
     # Parse "bytes=<start>-<end>" (end is optional — means "to EOF").
     try:
@@ -171,17 +338,26 @@ def download_video_file(
             detail=f"Range not satisfiable for a {file_size}-byte file",
         )
 
-    with open(path, "rb") as f:
-        f.seek(start)
-        chunk = f.read(end - start + 1)
+    length = end - start + 1
 
-    return Response(
-        content=chunk,
+    def _stream() -> Iterator[bytes]:
+        with open(path, "rb") as f:
+            f.seek(start)
+            remaining = length
+            while remaining > 0:
+                data = f.read(min(CHUNK, remaining))
+                if not data:
+                    break
+                remaining -= len(data)
+                yield data
+
+    return StreamingResponse(
+        _stream(),
         status_code=status.HTTP_206_PARTIAL_CONTENT,
         media_type=video.mime_type,
         headers={
             "Content-Range": f"bytes {start}-{end}/{file_size}",
             "Accept-Ranges": "bytes",
-            "Content-Length": str(len(chunk)),
+            "Content-Length": str(length),
         },
     )

@@ -7,14 +7,18 @@ but nothing could actually deliver the bytes until now. Matches the
 import uuid
 from pathlib import Path
 
-from fastapi import APIRouter, Depends, HTTPException, status
+import hashlib
+
+from fastapi import APIRouter, Depends, File, HTTPException, UploadFile, status
 from fastapi.responses import FileResponse
 from sqlalchemy.orm import Session
 
 from app.database import get_db
 from app.config import get_settings
-from app.auth.dependencies import get_current_user
+from app.auth.dependencies import get_current_user, require_roles
 from app.models import User, MediaAsset
+from app.models.audit_log import AuditLog
+from app.models.enums import AuditAction, MediaAssetType, RoleName
 
 router = APIRouter()
 settings = get_settings()
@@ -28,6 +32,75 @@ def _media_root() -> Path:
     if not root.is_absolute():
         root = Path(__file__).resolve().parents[2] / root
     return root.resolve()
+
+
+MAX_IMAGE_BYTES = 5 * 1024 * 1024
+_IMAGE_SIGNATURES = (
+    (b"\xff\xd8\xff", "image/jpeg", ".jpg"),
+    (b"\x89PNG\r\n\x1a\n", "image/png", ".png"),
+)
+
+
+def _sniff_image(head: bytes):
+    for sig, mime, ext in _IMAGE_SIGNATURES:
+        if head.startswith(sig):
+            return mime, ext
+    if head[:4] == b"RIFF" and head[8:12] == b"WEBP":
+        return "image/webp", ".webp"
+    return None
+
+
+@router.get("")
+def list_media(
+    asset_type: MediaAssetType | None = None,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(require_roles(RoleName.CONTENT_ADMIN, RoleName.PROGRAM_REVIEWER,
+                                               RoleName.LOCALISATION_REVIEWER, RoleName.TECHNICAL_REVIEWER)),
+):
+    """Media library listing for authoring screens (e.g. choosing a quiz picture)."""
+    q = db.query(MediaAsset)
+    if asset_type:
+        q = q.filter(MediaAsset.asset_type == asset_type)
+    return [
+        {"id": str(a.id), "asset_type": a.asset_type.value, "filename": a.filename, "mime_type": a.mime_type,
+         "alt": (a.asset_metadata or {}).get("alt")}
+        for a in q.order_by(MediaAsset.filename).limit(500).all()
+    ]
+
+
+@router.post("/images", status_code=status.HTTP_201_CREATED)
+async def upload_image(
+    file: UploadFile = File(...),
+    alt: str | None = None,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(require_roles(RoleName.CONTENT_ADMIN)),
+):
+    """Adds a JPEG/PNG/WebP (max 5 MB) to the media library. The file type is
+    checked from the bytes, not the filename."""
+    data = await file.read(MAX_IMAGE_BYTES + 1)
+    if len(data) > MAX_IMAGE_BYTES:
+        raise HTTPException(status_code=status.HTTP_413_REQUEST_ENTITY_TOO_LARGE, detail="Image is larger than 5 MB.")
+    kind = _sniff_image(data[:16]) if data else None
+    if kind is None:
+        raise HTTPException(status_code=status.HTTP_415_UNSUPPORTED_MEDIA_TYPE, detail="Please upload a JPEG, PNG or WebP picture.")
+    mime, ext = kind
+    digest = hashlib.sha256(data).hexdigest()
+    rel = f"images/upload-{digest[:16]}{ext}"
+    dest = _media_root() / rel
+    dest.parent.mkdir(parents=True, exist_ok=True)
+    if not dest.exists():
+        dest.write_bytes(data)
+    safe_name = "".join(ch for ch in (file.filename or "picture") if ch.isalnum() or ch in "-_. ")[:120] or f"picture{ext}"
+    asset = MediaAsset(
+        asset_type=MediaAssetType.IMAGE, filename=safe_name, storage_path=rel, mime_type=mime,
+        size_bytes=len(data), checksum=digest, asset_metadata={"alt": (alt or "").strip()[:300]} if alt else {},
+    )
+    db.add(asset)
+    db.flush()
+    db.add(AuditLog(user_id=current_user.id, action=AuditAction.CONTENT_CREATE, entity_type="media_asset",
+                    entity_id=asset.id, details={"filename": safe_name, "size": len(data)}))
+    db.commit()
+    return {"id": str(asset.id), "filename": asset.filename, "mime_type": mime}
 
 
 @router.get("/{media_id}")

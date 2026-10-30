@@ -116,3 +116,185 @@ export interface Dashboard {
   download_failures_7d: number;
   sync_failures_7d: number;
 }
+
+// ---------- Phase 13: audit + usage ----------
+
+export interface AuditEntry {
+  id: string;
+  created_at: string;
+  action: string;
+  entity_type: string | null;
+  entity_id: string | null;
+  details: Record<string, unknown>;
+  ip_address: string | null;
+  user_id: string | null;
+  username: string | null;
+  user_role: string | null;
+}
+
+export interface AuditPage {
+  total: number;
+  limit: number;
+  offset: number;
+  items: AuditEntry[];
+}
+
+export interface UsageReport {
+  days: number;
+  since: string;
+  devices: { active_1d: number; active_7d: number; active_30d: number };
+  daily: { date: string; events: number; devices: number }[];
+  events_by_type: { event_type: string; count: number }[];
+  modules: {
+    module_id: string;
+    module_code: string;
+    title: string;
+    opens: number;
+    completions: number;
+    cdds_started: number;
+    cdds_completed: number;
+  }[];
+  videos: { video_id: string; title: string; opens: number; completions: number; playback_failures: number }[];
+  technical: {
+    download_failures: number;
+    sync_failures: number;
+    app_errors: number;
+    storage_errors: number;
+    playback_failures: number;
+  };
+  current_release_code: string | null;
+  current_release_devices: number;
+  release_adoption_percent: number | null;
+  release_adoption: { release_code: string; devices: number }[];
+  languages: { language_code: string; count: number }[];
+  note: string;
+}
+
+export interface QuestionCount {
+  question: string;
+  count: number;
+  last_asked: string;
+}
+
+export interface QuestionsReport {
+  days: number;
+  total: number;
+  matched: number;
+  unmatched: number;
+  answer_rate_percent: number | null;
+  top_unanswered: QuestionCount[];
+  top_answered: QuestionCount[];
+}
+
+// ---------- Videos (admin management) ----------
+
+export type VideoStatus = "DRAFT" | "PUBLISHED" | "ARCHIVED";
+
+export interface TrainingVideo {
+  id: string;
+  title: string;
+  description: string | null;
+  module_id: string | null;
+  duration_seconds: number | null;
+  file_size: number | null;
+  checksum: string | null;
+  language: string;
+  offline_available: boolean;
+  required_offline: boolean;
+  status: VideoStatus;
+  has_file: boolean;
+}
+
+// ---------- Users (SUPER_ADMIN) ----------
+
+export interface ManagedUser {
+  id: string;
+  username: string;
+  email: string;
+  first_name: string;
+  last_name: string;
+  phone: string | null;
+  team_code: string | null;
+  role: string;
+  status: string;
+  country_id: string | null;
+  state_id: string | null;
+  lga_id: string | null;
+  ward_id: string | null;
+  facility_id: string | null;
+  country_name: string | null;
+  state_name: string | null;
+  lga_name: string | null;
+  ward_name: string | null;
+  facility_name: string | null;
+  training_session_id: string | null;
+  session_name: string | null;
+  session_start_date: string | null;
+  session_end_date: string | null;
+  session_status: string | null;
+  training_attempt: number;
+  training_restarted_at: string | null;
+  last_login_at: string | null;
+  created_at: string;
+}
+
+export type BoundaryLevel = "COUNTRY" | "STATE" | "LGA" | "WARD" | "FACILITY";
+
+export interface Boundary {
+  id: string;
+  level: BoundaryLevel;
+  name: string;
+  code: string | null;
+  parent_id: string | null;
+}
+
+export type ReportRow = Record<string, string | number | null>;
+
+// ---------- Quiz ----------
+
+export type QuestionType =
+  | "MULTIPLE_CHOICE"
+  | "TRUE_FALSE"
+  | "MULTIPLE_SELECT"
+  | "MATCHING"
+  | "ORDERING"
+  | "IMAGE_CHOICE"
+  | "NUMERIC";
+
+export interface QuizQuestionRow {
+  id: string;
+  module_id: string;
+  question_type: QuestionType;
+  prompt: string;
+  content: Record<string, unknown>;
+  explanation: string | null;
+  sort_order: number;
+  is_active: boolean;
+}
+
+export interface QuizSummaryRow {
+  module_id: string;
+  questions: number;
+  pass_mark: number;
+  attempts: number;
+  learners_passed: number;
+}
+
+export interface MediaItem {
+  id: string;
+  asset_type: string;
+  filename: string;
+  mime_type: string;
+  alt: string | null;
+}
+
+export interface TrainingSession {
+  id: string;
+  name: string;
+  description: string | null;
+  start_date: string;
+  end_date: string;
+  status: "UPCOMING" | "ONGOING" | "ENDED";
+  user_count: number;
+  created_at: string;
+}

@@ -12,6 +12,8 @@ from app.auth.dependencies import get_current_user, require_roles
 from app.models import User, ContentRelease
 from app.models.audit_log import AuditLog
 from app.models.enums import RoleName, ReleaseStatus, AuditAction
+from app.ai.indexer import rebuild_all_chunks
+from app.releases.packager import build_package, write_package
 from app.schemas.release import ContentReleaseCreate, ContentReleaseResponse
 
 router = APIRouter()
@@ -62,6 +64,23 @@ def publish_release(
     if release.status == ReleaseStatus.PUBLISHED:
         raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail="Release is already published")
 
+    # Publishing is the moment content becomes visible to devices, so the Q&A
+    # index and the frozen package are (re)built here, in the same transaction
+    # as the status change: if either fails, nothing is published.
+    try:
+        rebuild_all_chunks(db)
+        package = build_package(db, release)
+        if package["counts"]["modules"] == 0:
+            raise ValueError("no published modules with an approved translation to ship")
+        _, size, checksum = write_package(package, release.release_code)
+    except Exception as exc:  # noqa: BLE001
+        db.rollback()
+        raise HTTPException(
+            status_code=status.HTTP_422_UNPROCESSABLE_ENTITY, detail=f"Could not build release package: {exc}"
+        ) from exc
+
+    release.package_size = size
+    release.checksum = checksum
     release.status = ReleaseStatus.PUBLISHED
     release.approved_by = current_user.id
     release.published_at = datetime.now(timezone.utc)

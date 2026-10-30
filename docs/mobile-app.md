@@ -4,7 +4,7 @@
 
 Phase 7's screen list: splash, language, consent, login, home, modules, reader, videos, about.
 That's it — no more. Specifically **not** in this phase, even though earlier scaffolding had stub
-files for them: offline content download/`/downloading` (Phase 8/9), release/`/updates` (Phase 12),
+files for them: offline content download/`/downloading` (Phase 8/9), release/`/updates` (now built, Phase 12 — see docs/sync.md),
 and the AI assistant/`/ai` (Phase 10/11). Routing to those now would mean either broken destinations
 or fresh fake stubs — the exact problem this whole project replaces. Their screen files still exist
 under `lib/screens/` for when those phases actually build them out; they're just not wired into

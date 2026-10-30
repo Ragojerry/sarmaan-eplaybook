@@ -141,6 +141,30 @@ class ContentSyncService {
       }
     }
 
+    await syncQuizzes();
+
+    // Q&A passages (revised Phases 10/11). Kept separate from the content
+    // sync's success: if this fails the modules are still usable, and the Ask
+    // screen degrades gracefully (server fallback, or a clear "nothing
+    // downloaded yet" message) rather than the whole sync reporting failure.
+    try {
+      final chunksResp = await _api.dio.get('/ai/chunks', queryParameters: {'language': 'en'});
+      final chunks = chunksResp.data as List;
+      await _db.replaceChunks('en', [
+        for (final c in chunks)
+          ContentChunksCompanion.insert(
+            id: c['id'] as String,
+            moduleId: c['module_id'] as String,
+            moduleCode: c['module_code'] as String,
+            sectionId: Value(c['section_id'] as String?),
+            sectionTitle: Value(c['section_title'] as String?),
+            language: c['language'] as String,
+            sourceTitle: c['source_title'] as String,
+            chunkText: c['chunk_text'] as String,
+          ),
+      ]);
+    } catch (_) {}
+
     await _db.recordInstalledRelease(
       releaseCode: 'local-sync-${DateTime.now().toIso8601String()}',
       version: '1.0.0',
@@ -154,6 +178,78 @@ class ContentSyncService {
       mediaDownloaded: mediaDownloaded,
       mediaFailed: mediaFailed,
     );
+  }
+
+  /// Downloads the published translations for the language the person chose
+  /// (nothing to do for English). Text that has no published translation simply
+  /// stays in English on the phone. Never throws.
+  Future<void> syncTranslations(String languageCode) async {
+    if (languageCode == 'en') return;
+    try {
+      final resp = await _api.dio.get('/sync/translations', queryParameters: {'language': languageCode});
+      final mods = ((resp.data as Map)['modules'] as List).cast<Map<String, dynamic>>();
+      final known = {for (final m in await _db.getAllModules()) m.id};
+      final moduleRows = <CachedTranslationsCompanion>[];
+      final sectionRows = <CachedSectionTranslationsCompanion>[];
+      for (final m in mods) {
+        final moduleId = m['module_id'] as String;
+        if (!known.contains(moduleId)) continue;
+        moduleRows.add(CachedTranslationsCompanion.insert(
+          id: '$moduleId:$languageCode',
+          moduleId: moduleId,
+          languageId: 'lang-$languageCode',
+          languageCode: languageCode,
+          title: m['title'] as String,
+          description: Value(m['description'] as String?),
+          body: Value(m['body'] as String?),
+          audioText: Value(m['audio_text'] as String?),
+          status: 'PUBLISHED',
+        ));
+        for (final s in (m['sections'] as List).cast<Map<String, dynamic>>()) {
+          sectionRows.add(CachedSectionTranslationsCompanion.insert(
+            sectionId: s['section_id'] as String,
+            moduleId: moduleId,
+            languageCode: languageCode,
+            title: Value(s['title'] as String?),
+            contentJson: jsonEncode(s['content']),
+          ));
+        }
+      }
+      // Modules with no published translation any more are cleared too.
+      await _db.replaceLanguageTranslations(languageCode, known, moduleRows, sectionRows);
+    } catch (_) {}
+  }
+
+  /// Downloads every module quiz (questions + answers; the phone grades) and
+  /// any quiz pictures. Independent of release installs so quizzes reach the
+  /// phone on every sync. Never throws: a failure just leaves the old quizzes.
+  Future<void> syncQuizzes() async {
+    try {
+      final quizResp = await _api.dio.get('/sync/quiz-questions');
+      final byModule = <String, List<Map<String, dynamic>>>{};
+      for (final q in (quizResp.data as List).cast<Map<String, dynamic>>()) {
+        byModule.putIfAbsent(q['module_id'] as String, () => []).add(q);
+      }
+      for (final m in await _db.getAllModules()) {
+        final qs = byModule[m.id] ?? const <Map<String, dynamic>>[];
+        await _db.replaceQuizForModule(m.id, [
+          for (final q in qs)
+            CachedQuizQuestionsCompanion.insert(
+              id: q['id'] as String,
+              moduleId: m.id,
+              questionType: q['question_type'] as String,
+              prompt: q['prompt'] as String,
+              contentJson: jsonEncode(q['content']),
+              explanation: Value(q['explanation'] as String?),
+              sortOrder: q['sort_order'] as int,
+            ),
+        ]);
+        for (final q in qs) {
+          final assetId = (q['content'] as Map?)?['media_asset_id'] as String?;
+          if (assetId != null) await _downloadMediaIfNeeded(assetId);
+        }
+      }
+    } catch (_) {}
   }
 
   /// Downloads one media asset if it isn't already cached with a verified

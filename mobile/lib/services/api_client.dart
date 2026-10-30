@@ -6,14 +6,12 @@ import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 /// admin/src/services/api.ts, so both clients behave identically against
 /// the same backend contract.
 ///
-/// Base URL: 10.0.2.2 is the Android emulator's alias for the host
-/// machine's localhost — this only works for a local dev backend reached
-/// from an emulator. A real device on the same network needs the host's
-/// actual LAN IP instead; a production build needs a real deployed API URL.
-/// This should become a build-time config value before Phase 14 (Android
-/// packaging), not a hardcoded constant.
+/// Base URL is a build-time value:
+///   flutter build apk --dart-define=API_BASE_URL=https://d1eortf8qang6z.cloudfront.net
+/// Without it, the default 10.0.2.2 is the Android emulator's alias for the
+/// host machine's localhost, i.e. a local dev backend.
 class ApiClient {
-  static const String _baseUrl = 'http://10.0.2.2:8000';
+  static const String _baseUrl = String.fromEnvironment('API_BASE_URL', defaultValue: 'http://10.0.2.2:8000');
   static const _accessTokenKey = 'sarmaan_access_token';
   static const _refreshTokenKey = 'sarmaan_refresh_token';
 

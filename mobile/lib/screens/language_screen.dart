@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -5,6 +7,7 @@ import 'package:go_router/go_router.dart';
 import '../models/api_models.dart';
 import '../services/auth_service.dart';
 import '../services/settings_service.dart';
+import '../sync/sync_engine.dart';
 import '../theme/app_theme.dart';
 
 /// Used only when nothing has ever been cached yet (a genuinely fresh
@@ -33,7 +36,10 @@ const _bundledLanguages = [
 /// correct to display (cache or bundled), and a network hiccup here would
 /// otherwise stall the very first thing a new user sees.
 class LanguageScreen extends ConsumerStatefulWidget {
-  const LanguageScreen({super.key});
+  /// true when opened from About to change language (saves, syncs, returns Home)
+  /// instead of continuing the first-run flow.
+  final bool changing;
+  const LanguageScreen({super.key, this.changing = false});
 
   @override
   ConsumerState<LanguageScreen> createState() => _LanguageScreenState();
@@ -50,6 +56,7 @@ class _LanguageScreenState extends ConsumerState<LanguageScreen> {
   }
 
   Future<void> _loadInitial() async {
+    _selectedCode = await ref.read(settingsServiceProvider).getSelectedLanguageCode();
     final cached = await ref.read(settingsServiceProvider).getCachedLanguages();
     if (cached != null && cached.isNotEmpty) {
       _applyLanguageList(cached);
@@ -92,6 +99,12 @@ class _LanguageScreenState extends ConsumerState<LanguageScreen> {
   Future<void> _continue() async {
     if (_selectedCode == null) return;
     await ref.read(settingsServiceProvider).setSelectedLanguageCode(_selectedCode!);
+    if (widget.changing) {
+      // Fetch that language's published translations now (it also runs on every sync).
+      unawaited(ref.read(syncEngineProvider.notifier).syncNow(manual: true).catchError((_) {}));
+      if (mounted) context.go('/home');
+      return;
+    }
     if (mounted) context.go('/consent');
   }
 

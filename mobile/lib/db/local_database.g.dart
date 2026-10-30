@@ -2341,6 +2341,13 @@ class $LocalProgressTable extends LocalProgress
       defaultConstraints:
           GeneratedColumn.constraintIsAlways('CHECK ("synced" IN (0, 1))'),
       defaultValue: const Constant(false));
+  static const VerificationMeta _userIdMeta = const VerificationMeta('userId');
+  @override
+  late final GeneratedColumn<String> userId = GeneratedColumn<String>(
+      'user_id', aliasedName, false,
+      type: DriftSqlType.string,
+      requiredDuringInsert: false,
+      defaultValue: const Constant(''));
   @override
   List<GeneratedColumn> get $columns => [
         id,
@@ -2350,7 +2357,8 @@ class $LocalProgressTable extends LocalProgress
         lastSection,
         lastOpenedAt,
         completedAt,
-        synced
+        synced,
+        userId
       ];
   @override
   String get aliasedName => _alias ?? actualTableName;
@@ -2403,6 +2411,10 @@ class $LocalProgressTable extends LocalProgress
       context.handle(_syncedMeta,
           synced.isAcceptableOrUnknown(data['synced']!, _syncedMeta));
     }
+    if (data.containsKey('user_id')) {
+      context.handle(_userIdMeta,
+          userId.isAcceptableOrUnknown(data['user_id']!, _userIdMeta));
+    }
     return context;
   }
 
@@ -2428,6 +2440,8 @@ class $LocalProgressTable extends LocalProgress
           .read(DriftSqlType.dateTime, data['${effectivePrefix}completed_at']),
       synced: attachedDatabase.typeMapping
           .read(DriftSqlType.bool, data['${effectivePrefix}synced'])!,
+      userId: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}user_id'])!,
     );
   }
 
@@ -2447,6 +2461,9 @@ class LocalProgressRow extends DataClass
   final DateTime? lastOpenedAt;
   final DateTime? completedAt;
   final bool synced;
+
+  /// Owner of this row: every account on a shared phone keeps its own progress.
+  final String userId;
   const LocalProgressRow(
       {required this.id,
       required this.moduleId,
@@ -2455,7 +2472,8 @@ class LocalProgressRow extends DataClass
       this.lastSection,
       this.lastOpenedAt,
       this.completedAt,
-      required this.synced});
+      required this.synced,
+      required this.userId});
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
     final map = <String, Expression>{};
@@ -2473,6 +2491,7 @@ class LocalProgressRow extends DataClass
       map['completed_at'] = Variable<DateTime>(completedAt);
     }
     map['synced'] = Variable<bool>(synced);
+    map['user_id'] = Variable<String>(userId);
     return map;
   }
 
@@ -2492,6 +2511,7 @@ class LocalProgressRow extends DataClass
           ? const Value.absent()
           : Value(completedAt),
       synced: Value(synced),
+      userId: Value(userId),
     );
   }
 
@@ -2507,6 +2527,7 @@ class LocalProgressRow extends DataClass
       lastOpenedAt: serializer.fromJson<DateTime?>(json['lastOpenedAt']),
       completedAt: serializer.fromJson<DateTime?>(json['completedAt']),
       synced: serializer.fromJson<bool>(json['synced']),
+      userId: serializer.fromJson<String>(json['userId']),
     );
   }
   @override
@@ -2521,6 +2542,7 @@ class LocalProgressRow extends DataClass
       'lastOpenedAt': serializer.toJson<DateTime?>(lastOpenedAt),
       'completedAt': serializer.toJson<DateTime?>(completedAt),
       'synced': serializer.toJson<bool>(synced),
+      'userId': serializer.toJson<String>(userId),
     };
   }
 
@@ -2532,7 +2554,8 @@ class LocalProgressRow extends DataClass
           Value<String?> lastSection = const Value.absent(),
           Value<DateTime?> lastOpenedAt = const Value.absent(),
           Value<DateTime?> completedAt = const Value.absent(),
-          bool? synced}) =>
+          bool? synced,
+          String? userId}) =>
       LocalProgressRow(
         id: id ?? this.id,
         moduleId: moduleId ?? this.moduleId,
@@ -2543,6 +2566,7 @@ class LocalProgressRow extends DataClass
             lastOpenedAt.present ? lastOpenedAt.value : this.lastOpenedAt,
         completedAt: completedAt.present ? completedAt.value : this.completedAt,
         synced: synced ?? this.synced,
+        userId: userId ?? this.userId,
       );
   LocalProgressRow copyWithCompanion(LocalProgressCompanion data) {
     return LocalProgressRow(
@@ -2560,6 +2584,7 @@ class LocalProgressRow extends DataClass
       completedAt:
           data.completedAt.present ? data.completedAt.value : this.completedAt,
       synced: data.synced.present ? data.synced.value : this.synced,
+      userId: data.userId.present ? data.userId.value : this.userId,
     );
   }
 
@@ -2573,14 +2598,15 @@ class LocalProgressRow extends DataClass
           ..write('lastSection: $lastSection, ')
           ..write('lastOpenedAt: $lastOpenedAt, ')
           ..write('completedAt: $completedAt, ')
-          ..write('synced: $synced')
+          ..write('synced: $synced, ')
+          ..write('userId: $userId')
           ..write(')'))
         .toString();
   }
 
   @override
   int get hashCode => Object.hash(id, moduleId, progressPercent, completed,
-      lastSection, lastOpenedAt, completedAt, synced);
+      lastSection, lastOpenedAt, completedAt, synced, userId);
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
@@ -2592,7 +2618,8 @@ class LocalProgressRow extends DataClass
           other.lastSection == this.lastSection &&
           other.lastOpenedAt == this.lastOpenedAt &&
           other.completedAt == this.completedAt &&
-          other.synced == this.synced);
+          other.synced == this.synced &&
+          other.userId == this.userId);
 }
 
 class LocalProgressCompanion extends UpdateCompanion<LocalProgressRow> {
@@ -2604,6 +2631,7 @@ class LocalProgressCompanion extends UpdateCompanion<LocalProgressRow> {
   final Value<DateTime?> lastOpenedAt;
   final Value<DateTime?> completedAt;
   final Value<bool> synced;
+  final Value<String> userId;
   const LocalProgressCompanion({
     this.id = const Value.absent(),
     this.moduleId = const Value.absent(),
@@ -2613,6 +2641,7 @@ class LocalProgressCompanion extends UpdateCompanion<LocalProgressRow> {
     this.lastOpenedAt = const Value.absent(),
     this.completedAt = const Value.absent(),
     this.synced = const Value.absent(),
+    this.userId = const Value.absent(),
   });
   LocalProgressCompanion.insert({
     this.id = const Value.absent(),
@@ -2623,6 +2652,7 @@ class LocalProgressCompanion extends UpdateCompanion<LocalProgressRow> {
     this.lastOpenedAt = const Value.absent(),
     this.completedAt = const Value.absent(),
     this.synced = const Value.absent(),
+    this.userId = const Value.absent(),
   }) : moduleId = Value(moduleId);
   static Insertable<LocalProgressRow> custom({
     Expression<int>? id,
@@ -2633,6 +2663,7 @@ class LocalProgressCompanion extends UpdateCompanion<LocalProgressRow> {
     Expression<DateTime>? lastOpenedAt,
     Expression<DateTime>? completedAt,
     Expression<bool>? synced,
+    Expression<String>? userId,
   }) {
     return RawValuesInsertable({
       if (id != null) 'id': id,
@@ -2643,6 +2674,7 @@ class LocalProgressCompanion extends UpdateCompanion<LocalProgressRow> {
       if (lastOpenedAt != null) 'last_opened_at': lastOpenedAt,
       if (completedAt != null) 'completed_at': completedAt,
       if (synced != null) 'synced': synced,
+      if (userId != null) 'user_id': userId,
     });
   }
 
@@ -2654,7 +2686,8 @@ class LocalProgressCompanion extends UpdateCompanion<LocalProgressRow> {
       Value<String?>? lastSection,
       Value<DateTime?>? lastOpenedAt,
       Value<DateTime?>? completedAt,
-      Value<bool>? synced}) {
+      Value<bool>? synced,
+      Value<String>? userId}) {
     return LocalProgressCompanion(
       id: id ?? this.id,
       moduleId: moduleId ?? this.moduleId,
@@ -2664,6 +2697,7 @@ class LocalProgressCompanion extends UpdateCompanion<LocalProgressRow> {
       lastOpenedAt: lastOpenedAt ?? this.lastOpenedAt,
       completedAt: completedAt ?? this.completedAt,
       synced: synced ?? this.synced,
+      userId: userId ?? this.userId,
     );
   }
 
@@ -2694,6 +2728,9 @@ class LocalProgressCompanion extends UpdateCompanion<LocalProgressRow> {
     if (synced.present) {
       map['synced'] = Variable<bool>(synced.value);
     }
+    if (userId.present) {
+      map['user_id'] = Variable<String>(userId.value);
+    }
     return map;
   }
 
@@ -2707,7 +2744,8 @@ class LocalProgressCompanion extends UpdateCompanion<LocalProgressRow> {
           ..write('lastSection: $lastSection, ')
           ..write('lastOpenedAt: $lastOpenedAt, ')
           ..write('completedAt: $completedAt, ')
-          ..write('synced: $synced')
+          ..write('synced: $synced, ')
+          ..write('userId: $userId')
           ..write(')'))
         .toString();
   }
@@ -2752,9 +2790,16 @@ class $PendingSyncTable extends PendingSync
   late final GeneratedColumn<DateTime> syncedAt = GeneratedColumn<DateTime>(
       'synced_at', aliasedName, true,
       type: DriftSqlType.dateTime, requiredDuringInsert: false);
+  static const VerificationMeta _userIdMeta = const VerificationMeta('userId');
+  @override
+  late final GeneratedColumn<String> userId = GeneratedColumn<String>(
+      'user_id', aliasedName, false,
+      type: DriftSqlType.string,
+      requiredDuringInsert: false,
+      defaultValue: const Constant(''));
   @override
   List<GeneratedColumn> get $columns =>
-      [id, entityType, payloadJson, createdAt, syncedAt];
+      [id, entityType, payloadJson, createdAt, syncedAt, userId];
   @override
   String get aliasedName => _alias ?? actualTableName;
   @override
@@ -2794,6 +2839,10 @@ class $PendingSyncTable extends PendingSync
       context.handle(_syncedAtMeta,
           syncedAt.isAcceptableOrUnknown(data['synced_at']!, _syncedAtMeta));
     }
+    if (data.containsKey('user_id')) {
+      context.handle(_userIdMeta,
+          userId.isAcceptableOrUnknown(data['user_id']!, _userIdMeta));
+    }
     return context;
   }
 
@@ -2813,6 +2862,8 @@ class $PendingSyncTable extends PendingSync
           .read(DriftSqlType.dateTime, data['${effectivePrefix}created_at'])!,
       syncedAt: attachedDatabase.typeMapping
           .read(DriftSqlType.dateTime, data['${effectivePrefix}synced_at']),
+      userId: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}user_id'])!,
     );
   }
 
@@ -2828,12 +2879,14 @@ class PendingSyncRow extends DataClass implements Insertable<PendingSyncRow> {
   final String payloadJson;
   final DateTime createdAt;
   final DateTime? syncedAt;
+  final String userId;
   const PendingSyncRow(
       {required this.id,
       required this.entityType,
       required this.payloadJson,
       required this.createdAt,
-      this.syncedAt});
+      this.syncedAt,
+      required this.userId});
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
     final map = <String, Expression>{};
@@ -2844,6 +2897,7 @@ class PendingSyncRow extends DataClass implements Insertable<PendingSyncRow> {
     if (!nullToAbsent || syncedAt != null) {
       map['synced_at'] = Variable<DateTime>(syncedAt);
     }
+    map['user_id'] = Variable<String>(userId);
     return map;
   }
 
@@ -2856,6 +2910,7 @@ class PendingSyncRow extends DataClass implements Insertable<PendingSyncRow> {
       syncedAt: syncedAt == null && nullToAbsent
           ? const Value.absent()
           : Value(syncedAt),
+      userId: Value(userId),
     );
   }
 
@@ -2868,6 +2923,7 @@ class PendingSyncRow extends DataClass implements Insertable<PendingSyncRow> {
       payloadJson: serializer.fromJson<String>(json['payloadJson']),
       createdAt: serializer.fromJson<DateTime>(json['createdAt']),
       syncedAt: serializer.fromJson<DateTime?>(json['syncedAt']),
+      userId: serializer.fromJson<String>(json['userId']),
     );
   }
   @override
@@ -2879,6 +2935,7 @@ class PendingSyncRow extends DataClass implements Insertable<PendingSyncRow> {
       'payloadJson': serializer.toJson<String>(payloadJson),
       'createdAt': serializer.toJson<DateTime>(createdAt),
       'syncedAt': serializer.toJson<DateTime?>(syncedAt),
+      'userId': serializer.toJson<String>(userId),
     };
   }
 
@@ -2887,13 +2944,15 @@ class PendingSyncRow extends DataClass implements Insertable<PendingSyncRow> {
           String? entityType,
           String? payloadJson,
           DateTime? createdAt,
-          Value<DateTime?> syncedAt = const Value.absent()}) =>
+          Value<DateTime?> syncedAt = const Value.absent(),
+          String? userId}) =>
       PendingSyncRow(
         id: id ?? this.id,
         entityType: entityType ?? this.entityType,
         payloadJson: payloadJson ?? this.payloadJson,
         createdAt: createdAt ?? this.createdAt,
         syncedAt: syncedAt.present ? syncedAt.value : this.syncedAt,
+        userId: userId ?? this.userId,
       );
   PendingSyncRow copyWithCompanion(PendingSyncCompanion data) {
     return PendingSyncRow(
@@ -2904,6 +2963,7 @@ class PendingSyncRow extends DataClass implements Insertable<PendingSyncRow> {
           data.payloadJson.present ? data.payloadJson.value : this.payloadJson,
       createdAt: data.createdAt.present ? data.createdAt.value : this.createdAt,
       syncedAt: data.syncedAt.present ? data.syncedAt.value : this.syncedAt,
+      userId: data.userId.present ? data.userId.value : this.userId,
     );
   }
 
@@ -2914,14 +2974,15 @@ class PendingSyncRow extends DataClass implements Insertable<PendingSyncRow> {
           ..write('entityType: $entityType, ')
           ..write('payloadJson: $payloadJson, ')
           ..write('createdAt: $createdAt, ')
-          ..write('syncedAt: $syncedAt')
+          ..write('syncedAt: $syncedAt, ')
+          ..write('userId: $userId')
           ..write(')'))
         .toString();
   }
 
   @override
   int get hashCode =>
-      Object.hash(id, entityType, payloadJson, createdAt, syncedAt);
+      Object.hash(id, entityType, payloadJson, createdAt, syncedAt, userId);
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
@@ -2930,7 +2991,8 @@ class PendingSyncRow extends DataClass implements Insertable<PendingSyncRow> {
           other.entityType == this.entityType &&
           other.payloadJson == this.payloadJson &&
           other.createdAt == this.createdAt &&
-          other.syncedAt == this.syncedAt);
+          other.syncedAt == this.syncedAt &&
+          other.userId == this.userId);
 }
 
 class PendingSyncCompanion extends UpdateCompanion<PendingSyncRow> {
@@ -2939,12 +3001,14 @@ class PendingSyncCompanion extends UpdateCompanion<PendingSyncRow> {
   final Value<String> payloadJson;
   final Value<DateTime> createdAt;
   final Value<DateTime?> syncedAt;
+  final Value<String> userId;
   const PendingSyncCompanion({
     this.id = const Value.absent(),
     this.entityType = const Value.absent(),
     this.payloadJson = const Value.absent(),
     this.createdAt = const Value.absent(),
     this.syncedAt = const Value.absent(),
+    this.userId = const Value.absent(),
   });
   PendingSyncCompanion.insert({
     this.id = const Value.absent(),
@@ -2952,6 +3016,7 @@ class PendingSyncCompanion extends UpdateCompanion<PendingSyncRow> {
     required String payloadJson,
     required DateTime createdAt,
     this.syncedAt = const Value.absent(),
+    this.userId = const Value.absent(),
   })  : entityType = Value(entityType),
         payloadJson = Value(payloadJson),
         createdAt = Value(createdAt);
@@ -2961,6 +3026,7 @@ class PendingSyncCompanion extends UpdateCompanion<PendingSyncRow> {
     Expression<String>? payloadJson,
     Expression<DateTime>? createdAt,
     Expression<DateTime>? syncedAt,
+    Expression<String>? userId,
   }) {
     return RawValuesInsertable({
       if (id != null) 'id': id,
@@ -2968,6 +3034,7 @@ class PendingSyncCompanion extends UpdateCompanion<PendingSyncRow> {
       if (payloadJson != null) 'payload_json': payloadJson,
       if (createdAt != null) 'created_at': createdAt,
       if (syncedAt != null) 'synced_at': syncedAt,
+      if (userId != null) 'user_id': userId,
     });
   }
 
@@ -2976,13 +3043,15 @@ class PendingSyncCompanion extends UpdateCompanion<PendingSyncRow> {
       Value<String>? entityType,
       Value<String>? payloadJson,
       Value<DateTime>? createdAt,
-      Value<DateTime?>? syncedAt}) {
+      Value<DateTime?>? syncedAt,
+      Value<String>? userId}) {
     return PendingSyncCompanion(
       id: id ?? this.id,
       entityType: entityType ?? this.entityType,
       payloadJson: payloadJson ?? this.payloadJson,
       createdAt: createdAt ?? this.createdAt,
       syncedAt: syncedAt ?? this.syncedAt,
+      userId: userId ?? this.userId,
     );
   }
 
@@ -3004,6 +3073,9 @@ class PendingSyncCompanion extends UpdateCompanion<PendingSyncRow> {
     if (syncedAt.present) {
       map['synced_at'] = Variable<DateTime>(syncedAt.value);
     }
+    if (userId.present) {
+      map['user_id'] = Variable<String>(userId.value);
+    }
     return map;
   }
 
@@ -3014,7 +3086,8 @@ class PendingSyncCompanion extends UpdateCompanion<PendingSyncRow> {
           ..write('entityType: $entityType, ')
           ..write('payloadJson: $payloadJson, ')
           ..write('createdAt: $createdAt, ')
-          ..write('syncedAt: $syncedAt')
+          ..write('syncedAt: $syncedAt, ')
+          ..write('userId: $userId')
           ..write(')'))
         .toString();
   }
@@ -3613,9 +3686,16 @@ class $LocalAiQuestionsTable extends LocalAiQuestions
       defaultConstraints:
           GeneratedColumn.constraintIsAlways('CHECK ("synced" IN (0, 1))'),
       defaultValue: const Constant(false));
+  static const VerificationMeta _userIdMeta = const VerificationMeta('userId');
+  @override
+  late final GeneratedColumn<String> userId = GeneratedColumn<String>(
+      'user_id', aliasedName, false,
+      type: DriftSqlType.string,
+      requiredDuringInsert: false,
+      defaultValue: const Constant(''));
   @override
   List<GeneratedColumn> get $columns =>
-      [id, question, answer, matched, askedAt, synced];
+      [id, question, answer, matched, askedAt, synced, userId];
   @override
   String get aliasedName => _alias ?? actualTableName;
   @override
@@ -3653,6 +3733,10 @@ class $LocalAiQuestionsTable extends LocalAiQuestions
       context.handle(_syncedMeta,
           synced.isAcceptableOrUnknown(data['synced']!, _syncedMeta));
     }
+    if (data.containsKey('user_id')) {
+      context.handle(_userIdMeta,
+          userId.isAcceptableOrUnknown(data['user_id']!, _userIdMeta));
+    }
     return context;
   }
 
@@ -3674,6 +3758,8 @@ class $LocalAiQuestionsTable extends LocalAiQuestions
           .read(DriftSqlType.dateTime, data['${effectivePrefix}asked_at'])!,
       synced: attachedDatabase.typeMapping
           .read(DriftSqlType.bool, data['${effectivePrefix}synced'])!,
+      userId: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}user_id'])!,
     );
   }
 
@@ -3691,13 +3777,15 @@ class LocalAiQuestionRow extends DataClass
   final bool matched;
   final DateTime askedAt;
   final bool synced;
+  final String userId;
   const LocalAiQuestionRow(
       {required this.id,
       required this.question,
       this.answer,
       required this.matched,
       required this.askedAt,
-      required this.synced});
+      required this.synced,
+      required this.userId});
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
     final map = <String, Expression>{};
@@ -3709,6 +3797,7 @@ class LocalAiQuestionRow extends DataClass
     map['matched'] = Variable<bool>(matched);
     map['asked_at'] = Variable<DateTime>(askedAt);
     map['synced'] = Variable<bool>(synced);
+    map['user_id'] = Variable<String>(userId);
     return map;
   }
 
@@ -3721,6 +3810,7 @@ class LocalAiQuestionRow extends DataClass
       matched: Value(matched),
       askedAt: Value(askedAt),
       synced: Value(synced),
+      userId: Value(userId),
     );
   }
 
@@ -3734,6 +3824,7 @@ class LocalAiQuestionRow extends DataClass
       matched: serializer.fromJson<bool>(json['matched']),
       askedAt: serializer.fromJson<DateTime>(json['askedAt']),
       synced: serializer.fromJson<bool>(json['synced']),
+      userId: serializer.fromJson<String>(json['userId']),
     );
   }
   @override
@@ -3746,6 +3837,7 @@ class LocalAiQuestionRow extends DataClass
       'matched': serializer.toJson<bool>(matched),
       'askedAt': serializer.toJson<DateTime>(askedAt),
       'synced': serializer.toJson<bool>(synced),
+      'userId': serializer.toJson<String>(userId),
     };
   }
 
@@ -3755,7 +3847,8 @@ class LocalAiQuestionRow extends DataClass
           Value<String?> answer = const Value.absent(),
           bool? matched,
           DateTime? askedAt,
-          bool? synced}) =>
+          bool? synced,
+          String? userId}) =>
       LocalAiQuestionRow(
         id: id ?? this.id,
         question: question ?? this.question,
@@ -3763,6 +3856,7 @@ class LocalAiQuestionRow extends DataClass
         matched: matched ?? this.matched,
         askedAt: askedAt ?? this.askedAt,
         synced: synced ?? this.synced,
+        userId: userId ?? this.userId,
       );
   LocalAiQuestionRow copyWithCompanion(LocalAiQuestionsCompanion data) {
     return LocalAiQuestionRow(
@@ -3772,6 +3866,7 @@ class LocalAiQuestionRow extends DataClass
       matched: data.matched.present ? data.matched.value : this.matched,
       askedAt: data.askedAt.present ? data.askedAt.value : this.askedAt,
       synced: data.synced.present ? data.synced.value : this.synced,
+      userId: data.userId.present ? data.userId.value : this.userId,
     );
   }
 
@@ -3783,14 +3878,15 @@ class LocalAiQuestionRow extends DataClass
           ..write('answer: $answer, ')
           ..write('matched: $matched, ')
           ..write('askedAt: $askedAt, ')
-          ..write('synced: $synced')
+          ..write('synced: $synced, ')
+          ..write('userId: $userId')
           ..write(')'))
         .toString();
   }
 
   @override
   int get hashCode =>
-      Object.hash(id, question, answer, matched, askedAt, synced);
+      Object.hash(id, question, answer, matched, askedAt, synced, userId);
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
@@ -3800,7 +3896,8 @@ class LocalAiQuestionRow extends DataClass
           other.answer == this.answer &&
           other.matched == this.matched &&
           other.askedAt == this.askedAt &&
-          other.synced == this.synced);
+          other.synced == this.synced &&
+          other.userId == this.userId);
 }
 
 class LocalAiQuestionsCompanion extends UpdateCompanion<LocalAiQuestionRow> {
@@ -3810,6 +3907,7 @@ class LocalAiQuestionsCompanion extends UpdateCompanion<LocalAiQuestionRow> {
   final Value<bool> matched;
   final Value<DateTime> askedAt;
   final Value<bool> synced;
+  final Value<String> userId;
   const LocalAiQuestionsCompanion({
     this.id = const Value.absent(),
     this.question = const Value.absent(),
@@ -3817,6 +3915,7 @@ class LocalAiQuestionsCompanion extends UpdateCompanion<LocalAiQuestionRow> {
     this.matched = const Value.absent(),
     this.askedAt = const Value.absent(),
     this.synced = const Value.absent(),
+    this.userId = const Value.absent(),
   });
   LocalAiQuestionsCompanion.insert({
     this.id = const Value.absent(),
@@ -3825,6 +3924,7 @@ class LocalAiQuestionsCompanion extends UpdateCompanion<LocalAiQuestionRow> {
     this.matched = const Value.absent(),
     required DateTime askedAt,
     this.synced = const Value.absent(),
+    this.userId = const Value.absent(),
   })  : question = Value(question),
         askedAt = Value(askedAt);
   static Insertable<LocalAiQuestionRow> custom({
@@ -3834,6 +3934,7 @@ class LocalAiQuestionsCompanion extends UpdateCompanion<LocalAiQuestionRow> {
     Expression<bool>? matched,
     Expression<DateTime>? askedAt,
     Expression<bool>? synced,
+    Expression<String>? userId,
   }) {
     return RawValuesInsertable({
       if (id != null) 'id': id,
@@ -3842,6 +3943,7 @@ class LocalAiQuestionsCompanion extends UpdateCompanion<LocalAiQuestionRow> {
       if (matched != null) 'matched': matched,
       if (askedAt != null) 'asked_at': askedAt,
       if (synced != null) 'synced': synced,
+      if (userId != null) 'user_id': userId,
     });
   }
 
@@ -3851,7 +3953,8 @@ class LocalAiQuestionsCompanion extends UpdateCompanion<LocalAiQuestionRow> {
       Value<String?>? answer,
       Value<bool>? matched,
       Value<DateTime>? askedAt,
-      Value<bool>? synced}) {
+      Value<bool>? synced,
+      Value<String>? userId}) {
     return LocalAiQuestionsCompanion(
       id: id ?? this.id,
       question: question ?? this.question,
@@ -3859,6 +3962,7 @@ class LocalAiQuestionsCompanion extends UpdateCompanion<LocalAiQuestionRow> {
       matched: matched ?? this.matched,
       askedAt: askedAt ?? this.askedAt,
       synced: synced ?? this.synced,
+      userId: userId ?? this.userId,
     );
   }
 
@@ -3883,6 +3987,9 @@ class LocalAiQuestionsCompanion extends UpdateCompanion<LocalAiQuestionRow> {
     if (synced.present) {
       map['synced'] = Variable<bool>(synced.value);
     }
+    if (userId.present) {
+      map['user_id'] = Variable<String>(userId.value);
+    }
     return map;
   }
 
@@ -3894,7 +4001,8 @@ class LocalAiQuestionsCompanion extends UpdateCompanion<LocalAiQuestionRow> {
           ..write('answer: $answer, ')
           ..write('matched: $matched, ')
           ..write('askedAt: $askedAt, ')
-          ..write('synced: $synced')
+          ..write('synced: $synced, ')
+          ..write('userId: $userId')
           ..write(')'))
         .toString();
   }
@@ -4207,6 +4315,1721 @@ class RagMetadataCompanion extends UpdateCompanion<RagMetadataRow> {
   }
 }
 
+class $ContentChunksTable extends ContentChunks
+    with TableInfo<$ContentChunksTable, ContentChunkRow> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $ContentChunksTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<String> id = GeneratedColumn<String>(
+      'id', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _moduleIdMeta =
+      const VerificationMeta('moduleId');
+  @override
+  late final GeneratedColumn<String> moduleId = GeneratedColumn<String>(
+      'module_id', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _moduleCodeMeta =
+      const VerificationMeta('moduleCode');
+  @override
+  late final GeneratedColumn<String> moduleCode = GeneratedColumn<String>(
+      'module_code', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _sectionIdMeta =
+      const VerificationMeta('sectionId');
+  @override
+  late final GeneratedColumn<String> sectionId = GeneratedColumn<String>(
+      'section_id', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _sectionTitleMeta =
+      const VerificationMeta('sectionTitle');
+  @override
+  late final GeneratedColumn<String> sectionTitle = GeneratedColumn<String>(
+      'section_title', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _languageMeta =
+      const VerificationMeta('language');
+  @override
+  late final GeneratedColumn<String> language = GeneratedColumn<String>(
+      'language', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _sourceTitleMeta =
+      const VerificationMeta('sourceTitle');
+  @override
+  late final GeneratedColumn<String> sourceTitle = GeneratedColumn<String>(
+      'source_title', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _chunkTextMeta =
+      const VerificationMeta('chunkText');
+  @override
+  late final GeneratedColumn<String> chunkText = GeneratedColumn<String>(
+      'chunk_text', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  @override
+  List<GeneratedColumn> get $columns => [
+        id,
+        moduleId,
+        moduleCode,
+        sectionId,
+        sectionTitle,
+        language,
+        sourceTitle,
+        chunkText
+      ];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'content_chunks';
+  @override
+  VerificationContext validateIntegrity(Insertable<ContentChunkRow> instance,
+      {bool isInserting = false}) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    } else if (isInserting) {
+      context.missing(_idMeta);
+    }
+    if (data.containsKey('module_id')) {
+      context.handle(_moduleIdMeta,
+          moduleId.isAcceptableOrUnknown(data['module_id']!, _moduleIdMeta));
+    } else if (isInserting) {
+      context.missing(_moduleIdMeta);
+    }
+    if (data.containsKey('module_code')) {
+      context.handle(
+          _moduleCodeMeta,
+          moduleCode.isAcceptableOrUnknown(
+              data['module_code']!, _moduleCodeMeta));
+    } else if (isInserting) {
+      context.missing(_moduleCodeMeta);
+    }
+    if (data.containsKey('section_id')) {
+      context.handle(_sectionIdMeta,
+          sectionId.isAcceptableOrUnknown(data['section_id']!, _sectionIdMeta));
+    }
+    if (data.containsKey('section_title')) {
+      context.handle(
+          _sectionTitleMeta,
+          sectionTitle.isAcceptableOrUnknown(
+              data['section_title']!, _sectionTitleMeta));
+    }
+    if (data.containsKey('language')) {
+      context.handle(_languageMeta,
+          language.isAcceptableOrUnknown(data['language']!, _languageMeta));
+    } else if (isInserting) {
+      context.missing(_languageMeta);
+    }
+    if (data.containsKey('source_title')) {
+      context.handle(
+          _sourceTitleMeta,
+          sourceTitle.isAcceptableOrUnknown(
+              data['source_title']!, _sourceTitleMeta));
+    } else if (isInserting) {
+      context.missing(_sourceTitleMeta);
+    }
+    if (data.containsKey('chunk_text')) {
+      context.handle(_chunkTextMeta,
+          chunkText.isAcceptableOrUnknown(data['chunk_text']!, _chunkTextMeta));
+    } else if (isInserting) {
+      context.missing(_chunkTextMeta);
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  ContentChunkRow map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return ContentChunkRow(
+      id: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}id'])!,
+      moduleId: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}module_id'])!,
+      moduleCode: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}module_code'])!,
+      sectionId: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}section_id']),
+      sectionTitle: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}section_title']),
+      language: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}language'])!,
+      sourceTitle: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}source_title'])!,
+      chunkText: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}chunk_text'])!,
+    );
+  }
+
+  @override
+  $ContentChunksTable createAlias(String alias) {
+    return $ContentChunksTable(attachedDatabase, alias);
+  }
+}
+
+class ContentChunkRow extends DataClass implements Insertable<ContentChunkRow> {
+  final String id;
+  final String moduleId;
+  final String moduleCode;
+  final String? sectionId;
+  final String? sectionTitle;
+  final String language;
+  final String sourceTitle;
+  final String chunkText;
+  const ContentChunkRow(
+      {required this.id,
+      required this.moduleId,
+      required this.moduleCode,
+      this.sectionId,
+      this.sectionTitle,
+      required this.language,
+      required this.sourceTitle,
+      required this.chunkText});
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id'] = Variable<String>(id);
+    map['module_id'] = Variable<String>(moduleId);
+    map['module_code'] = Variable<String>(moduleCode);
+    if (!nullToAbsent || sectionId != null) {
+      map['section_id'] = Variable<String>(sectionId);
+    }
+    if (!nullToAbsent || sectionTitle != null) {
+      map['section_title'] = Variable<String>(sectionTitle);
+    }
+    map['language'] = Variable<String>(language);
+    map['source_title'] = Variable<String>(sourceTitle);
+    map['chunk_text'] = Variable<String>(chunkText);
+    return map;
+  }
+
+  ContentChunksCompanion toCompanion(bool nullToAbsent) {
+    return ContentChunksCompanion(
+      id: Value(id),
+      moduleId: Value(moduleId),
+      moduleCode: Value(moduleCode),
+      sectionId: sectionId == null && nullToAbsent
+          ? const Value.absent()
+          : Value(sectionId),
+      sectionTitle: sectionTitle == null && nullToAbsent
+          ? const Value.absent()
+          : Value(sectionTitle),
+      language: Value(language),
+      sourceTitle: Value(sourceTitle),
+      chunkText: Value(chunkText),
+    );
+  }
+
+  factory ContentChunkRow.fromJson(Map<String, dynamic> json,
+      {ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return ContentChunkRow(
+      id: serializer.fromJson<String>(json['id']),
+      moduleId: serializer.fromJson<String>(json['moduleId']),
+      moduleCode: serializer.fromJson<String>(json['moduleCode']),
+      sectionId: serializer.fromJson<String?>(json['sectionId']),
+      sectionTitle: serializer.fromJson<String?>(json['sectionTitle']),
+      language: serializer.fromJson<String>(json['language']),
+      sourceTitle: serializer.fromJson<String>(json['sourceTitle']),
+      chunkText: serializer.fromJson<String>(json['chunkText']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<String>(id),
+      'moduleId': serializer.toJson<String>(moduleId),
+      'moduleCode': serializer.toJson<String>(moduleCode),
+      'sectionId': serializer.toJson<String?>(sectionId),
+      'sectionTitle': serializer.toJson<String?>(sectionTitle),
+      'language': serializer.toJson<String>(language),
+      'sourceTitle': serializer.toJson<String>(sourceTitle),
+      'chunkText': serializer.toJson<String>(chunkText),
+    };
+  }
+
+  ContentChunkRow copyWith(
+          {String? id,
+          String? moduleId,
+          String? moduleCode,
+          Value<String?> sectionId = const Value.absent(),
+          Value<String?> sectionTitle = const Value.absent(),
+          String? language,
+          String? sourceTitle,
+          String? chunkText}) =>
+      ContentChunkRow(
+        id: id ?? this.id,
+        moduleId: moduleId ?? this.moduleId,
+        moduleCode: moduleCode ?? this.moduleCode,
+        sectionId: sectionId.present ? sectionId.value : this.sectionId,
+        sectionTitle:
+            sectionTitle.present ? sectionTitle.value : this.sectionTitle,
+        language: language ?? this.language,
+        sourceTitle: sourceTitle ?? this.sourceTitle,
+        chunkText: chunkText ?? this.chunkText,
+      );
+  ContentChunkRow copyWithCompanion(ContentChunksCompanion data) {
+    return ContentChunkRow(
+      id: data.id.present ? data.id.value : this.id,
+      moduleId: data.moduleId.present ? data.moduleId.value : this.moduleId,
+      moduleCode:
+          data.moduleCode.present ? data.moduleCode.value : this.moduleCode,
+      sectionId: data.sectionId.present ? data.sectionId.value : this.sectionId,
+      sectionTitle: data.sectionTitle.present
+          ? data.sectionTitle.value
+          : this.sectionTitle,
+      language: data.language.present ? data.language.value : this.language,
+      sourceTitle:
+          data.sourceTitle.present ? data.sourceTitle.value : this.sourceTitle,
+      chunkText: data.chunkText.present ? data.chunkText.value : this.chunkText,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('ContentChunkRow(')
+          ..write('id: $id, ')
+          ..write('moduleId: $moduleId, ')
+          ..write('moduleCode: $moduleCode, ')
+          ..write('sectionId: $sectionId, ')
+          ..write('sectionTitle: $sectionTitle, ')
+          ..write('language: $language, ')
+          ..write('sourceTitle: $sourceTitle, ')
+          ..write('chunkText: $chunkText')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(id, moduleId, moduleCode, sectionId,
+      sectionTitle, language, sourceTitle, chunkText);
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is ContentChunkRow &&
+          other.id == this.id &&
+          other.moduleId == this.moduleId &&
+          other.moduleCode == this.moduleCode &&
+          other.sectionId == this.sectionId &&
+          other.sectionTitle == this.sectionTitle &&
+          other.language == this.language &&
+          other.sourceTitle == this.sourceTitle &&
+          other.chunkText == this.chunkText);
+}
+
+class ContentChunksCompanion extends UpdateCompanion<ContentChunkRow> {
+  final Value<String> id;
+  final Value<String> moduleId;
+  final Value<String> moduleCode;
+  final Value<String?> sectionId;
+  final Value<String?> sectionTitle;
+  final Value<String> language;
+  final Value<String> sourceTitle;
+  final Value<String> chunkText;
+  final Value<int> rowid;
+  const ContentChunksCompanion({
+    this.id = const Value.absent(),
+    this.moduleId = const Value.absent(),
+    this.moduleCode = const Value.absent(),
+    this.sectionId = const Value.absent(),
+    this.sectionTitle = const Value.absent(),
+    this.language = const Value.absent(),
+    this.sourceTitle = const Value.absent(),
+    this.chunkText = const Value.absent(),
+    this.rowid = const Value.absent(),
+  });
+  ContentChunksCompanion.insert({
+    required String id,
+    required String moduleId,
+    required String moduleCode,
+    this.sectionId = const Value.absent(),
+    this.sectionTitle = const Value.absent(),
+    required String language,
+    required String sourceTitle,
+    required String chunkText,
+    this.rowid = const Value.absent(),
+  })  : id = Value(id),
+        moduleId = Value(moduleId),
+        moduleCode = Value(moduleCode),
+        language = Value(language),
+        sourceTitle = Value(sourceTitle),
+        chunkText = Value(chunkText);
+  static Insertable<ContentChunkRow> custom({
+    Expression<String>? id,
+    Expression<String>? moduleId,
+    Expression<String>? moduleCode,
+    Expression<String>? sectionId,
+    Expression<String>? sectionTitle,
+    Expression<String>? language,
+    Expression<String>? sourceTitle,
+    Expression<String>? chunkText,
+    Expression<int>? rowid,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (moduleId != null) 'module_id': moduleId,
+      if (moduleCode != null) 'module_code': moduleCode,
+      if (sectionId != null) 'section_id': sectionId,
+      if (sectionTitle != null) 'section_title': sectionTitle,
+      if (language != null) 'language': language,
+      if (sourceTitle != null) 'source_title': sourceTitle,
+      if (chunkText != null) 'chunk_text': chunkText,
+      if (rowid != null) 'rowid': rowid,
+    });
+  }
+
+  ContentChunksCompanion copyWith(
+      {Value<String>? id,
+      Value<String>? moduleId,
+      Value<String>? moduleCode,
+      Value<String?>? sectionId,
+      Value<String?>? sectionTitle,
+      Value<String>? language,
+      Value<String>? sourceTitle,
+      Value<String>? chunkText,
+      Value<int>? rowid}) {
+    return ContentChunksCompanion(
+      id: id ?? this.id,
+      moduleId: moduleId ?? this.moduleId,
+      moduleCode: moduleCode ?? this.moduleCode,
+      sectionId: sectionId ?? this.sectionId,
+      sectionTitle: sectionTitle ?? this.sectionTitle,
+      language: language ?? this.language,
+      sourceTitle: sourceTitle ?? this.sourceTitle,
+      chunkText: chunkText ?? this.chunkText,
+      rowid: rowid ?? this.rowid,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<String>(id.value);
+    }
+    if (moduleId.present) {
+      map['module_id'] = Variable<String>(moduleId.value);
+    }
+    if (moduleCode.present) {
+      map['module_code'] = Variable<String>(moduleCode.value);
+    }
+    if (sectionId.present) {
+      map['section_id'] = Variable<String>(sectionId.value);
+    }
+    if (sectionTitle.present) {
+      map['section_title'] = Variable<String>(sectionTitle.value);
+    }
+    if (language.present) {
+      map['language'] = Variable<String>(language.value);
+    }
+    if (sourceTitle.present) {
+      map['source_title'] = Variable<String>(sourceTitle.value);
+    }
+    if (chunkText.present) {
+      map['chunk_text'] = Variable<String>(chunkText.value);
+    }
+    if (rowid.present) {
+      map['rowid'] = Variable<int>(rowid.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('ContentChunksCompanion(')
+          ..write('id: $id, ')
+          ..write('moduleId: $moduleId, ')
+          ..write('moduleCode: $moduleCode, ')
+          ..write('sectionId: $sectionId, ')
+          ..write('sectionTitle: $sectionTitle, ')
+          ..write('language: $language, ')
+          ..write('sourceTitle: $sourceTitle, ')
+          ..write('chunkText: $chunkText, ')
+          ..write('rowid: $rowid')
+          ..write(')'))
+        .toString();
+  }
+}
+
+class $CachedQuizQuestionsTable extends CachedQuizQuestions
+    with TableInfo<$CachedQuizQuestionsTable, CachedQuizQuestionRow> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $CachedQuizQuestionsTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<String> id = GeneratedColumn<String>(
+      'id', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _moduleIdMeta =
+      const VerificationMeta('moduleId');
+  @override
+  late final GeneratedColumn<String> moduleId = GeneratedColumn<String>(
+      'module_id', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _questionTypeMeta =
+      const VerificationMeta('questionType');
+  @override
+  late final GeneratedColumn<String> questionType = GeneratedColumn<String>(
+      'question_type', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _promptMeta = const VerificationMeta('prompt');
+  @override
+  late final GeneratedColumn<String> prompt = GeneratedColumn<String>(
+      'prompt', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _contentJsonMeta =
+      const VerificationMeta('contentJson');
+  @override
+  late final GeneratedColumn<String> contentJson = GeneratedColumn<String>(
+      'content_json', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _explanationMeta =
+      const VerificationMeta('explanation');
+  @override
+  late final GeneratedColumn<String> explanation = GeneratedColumn<String>(
+      'explanation', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _sortOrderMeta =
+      const VerificationMeta('sortOrder');
+  @override
+  late final GeneratedColumn<int> sortOrder = GeneratedColumn<int>(
+      'sort_order', aliasedName, false,
+      type: DriftSqlType.int, requiredDuringInsert: true);
+  @override
+  List<GeneratedColumn> get $columns =>
+      [id, moduleId, questionType, prompt, contentJson, explanation, sortOrder];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'cached_quiz_questions';
+  @override
+  VerificationContext validateIntegrity(
+      Insertable<CachedQuizQuestionRow> instance,
+      {bool isInserting = false}) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    } else if (isInserting) {
+      context.missing(_idMeta);
+    }
+    if (data.containsKey('module_id')) {
+      context.handle(_moduleIdMeta,
+          moduleId.isAcceptableOrUnknown(data['module_id']!, _moduleIdMeta));
+    } else if (isInserting) {
+      context.missing(_moduleIdMeta);
+    }
+    if (data.containsKey('question_type')) {
+      context.handle(
+          _questionTypeMeta,
+          questionType.isAcceptableOrUnknown(
+              data['question_type']!, _questionTypeMeta));
+    } else if (isInserting) {
+      context.missing(_questionTypeMeta);
+    }
+    if (data.containsKey('prompt')) {
+      context.handle(_promptMeta,
+          prompt.isAcceptableOrUnknown(data['prompt']!, _promptMeta));
+    } else if (isInserting) {
+      context.missing(_promptMeta);
+    }
+    if (data.containsKey('content_json')) {
+      context.handle(
+          _contentJsonMeta,
+          contentJson.isAcceptableOrUnknown(
+              data['content_json']!, _contentJsonMeta));
+    } else if (isInserting) {
+      context.missing(_contentJsonMeta);
+    }
+    if (data.containsKey('explanation')) {
+      context.handle(
+          _explanationMeta,
+          explanation.isAcceptableOrUnknown(
+              data['explanation']!, _explanationMeta));
+    }
+    if (data.containsKey('sort_order')) {
+      context.handle(_sortOrderMeta,
+          sortOrder.isAcceptableOrUnknown(data['sort_order']!, _sortOrderMeta));
+    } else if (isInserting) {
+      context.missing(_sortOrderMeta);
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  CachedQuizQuestionRow map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return CachedQuizQuestionRow(
+      id: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}id'])!,
+      moduleId: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}module_id'])!,
+      questionType: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}question_type'])!,
+      prompt: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}prompt'])!,
+      contentJson: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}content_json'])!,
+      explanation: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}explanation']),
+      sortOrder: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}sort_order'])!,
+    );
+  }
+
+  @override
+  $CachedQuizQuestionsTable createAlias(String alias) {
+    return $CachedQuizQuestionsTable(attachedDatabase, alias);
+  }
+}
+
+class CachedQuizQuestionRow extends DataClass
+    implements Insertable<CachedQuizQuestionRow> {
+  final String id;
+  final String moduleId;
+  final String questionType;
+  final String prompt;
+  final String contentJson;
+  final String? explanation;
+  final int sortOrder;
+  const CachedQuizQuestionRow(
+      {required this.id,
+      required this.moduleId,
+      required this.questionType,
+      required this.prompt,
+      required this.contentJson,
+      this.explanation,
+      required this.sortOrder});
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id'] = Variable<String>(id);
+    map['module_id'] = Variable<String>(moduleId);
+    map['question_type'] = Variable<String>(questionType);
+    map['prompt'] = Variable<String>(prompt);
+    map['content_json'] = Variable<String>(contentJson);
+    if (!nullToAbsent || explanation != null) {
+      map['explanation'] = Variable<String>(explanation);
+    }
+    map['sort_order'] = Variable<int>(sortOrder);
+    return map;
+  }
+
+  CachedQuizQuestionsCompanion toCompanion(bool nullToAbsent) {
+    return CachedQuizQuestionsCompanion(
+      id: Value(id),
+      moduleId: Value(moduleId),
+      questionType: Value(questionType),
+      prompt: Value(prompt),
+      contentJson: Value(contentJson),
+      explanation: explanation == null && nullToAbsent
+          ? const Value.absent()
+          : Value(explanation),
+      sortOrder: Value(sortOrder),
+    );
+  }
+
+  factory CachedQuizQuestionRow.fromJson(Map<String, dynamic> json,
+      {ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return CachedQuizQuestionRow(
+      id: serializer.fromJson<String>(json['id']),
+      moduleId: serializer.fromJson<String>(json['moduleId']),
+      questionType: serializer.fromJson<String>(json['questionType']),
+      prompt: serializer.fromJson<String>(json['prompt']),
+      contentJson: serializer.fromJson<String>(json['contentJson']),
+      explanation: serializer.fromJson<String?>(json['explanation']),
+      sortOrder: serializer.fromJson<int>(json['sortOrder']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<String>(id),
+      'moduleId': serializer.toJson<String>(moduleId),
+      'questionType': serializer.toJson<String>(questionType),
+      'prompt': serializer.toJson<String>(prompt),
+      'contentJson': serializer.toJson<String>(contentJson),
+      'explanation': serializer.toJson<String?>(explanation),
+      'sortOrder': serializer.toJson<int>(sortOrder),
+    };
+  }
+
+  CachedQuizQuestionRow copyWith(
+          {String? id,
+          String? moduleId,
+          String? questionType,
+          String? prompt,
+          String? contentJson,
+          Value<String?> explanation = const Value.absent(),
+          int? sortOrder}) =>
+      CachedQuizQuestionRow(
+        id: id ?? this.id,
+        moduleId: moduleId ?? this.moduleId,
+        questionType: questionType ?? this.questionType,
+        prompt: prompt ?? this.prompt,
+        contentJson: contentJson ?? this.contentJson,
+        explanation: explanation.present ? explanation.value : this.explanation,
+        sortOrder: sortOrder ?? this.sortOrder,
+      );
+  CachedQuizQuestionRow copyWithCompanion(CachedQuizQuestionsCompanion data) {
+    return CachedQuizQuestionRow(
+      id: data.id.present ? data.id.value : this.id,
+      moduleId: data.moduleId.present ? data.moduleId.value : this.moduleId,
+      questionType: data.questionType.present
+          ? data.questionType.value
+          : this.questionType,
+      prompt: data.prompt.present ? data.prompt.value : this.prompt,
+      contentJson:
+          data.contentJson.present ? data.contentJson.value : this.contentJson,
+      explanation:
+          data.explanation.present ? data.explanation.value : this.explanation,
+      sortOrder: data.sortOrder.present ? data.sortOrder.value : this.sortOrder,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('CachedQuizQuestionRow(')
+          ..write('id: $id, ')
+          ..write('moduleId: $moduleId, ')
+          ..write('questionType: $questionType, ')
+          ..write('prompt: $prompt, ')
+          ..write('contentJson: $contentJson, ')
+          ..write('explanation: $explanation, ')
+          ..write('sortOrder: $sortOrder')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(
+      id, moduleId, questionType, prompt, contentJson, explanation, sortOrder);
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is CachedQuizQuestionRow &&
+          other.id == this.id &&
+          other.moduleId == this.moduleId &&
+          other.questionType == this.questionType &&
+          other.prompt == this.prompt &&
+          other.contentJson == this.contentJson &&
+          other.explanation == this.explanation &&
+          other.sortOrder == this.sortOrder);
+}
+
+class CachedQuizQuestionsCompanion
+    extends UpdateCompanion<CachedQuizQuestionRow> {
+  final Value<String> id;
+  final Value<String> moduleId;
+  final Value<String> questionType;
+  final Value<String> prompt;
+  final Value<String> contentJson;
+  final Value<String?> explanation;
+  final Value<int> sortOrder;
+  final Value<int> rowid;
+  const CachedQuizQuestionsCompanion({
+    this.id = const Value.absent(),
+    this.moduleId = const Value.absent(),
+    this.questionType = const Value.absent(),
+    this.prompt = const Value.absent(),
+    this.contentJson = const Value.absent(),
+    this.explanation = const Value.absent(),
+    this.sortOrder = const Value.absent(),
+    this.rowid = const Value.absent(),
+  });
+  CachedQuizQuestionsCompanion.insert({
+    required String id,
+    required String moduleId,
+    required String questionType,
+    required String prompt,
+    required String contentJson,
+    this.explanation = const Value.absent(),
+    required int sortOrder,
+    this.rowid = const Value.absent(),
+  })  : id = Value(id),
+        moduleId = Value(moduleId),
+        questionType = Value(questionType),
+        prompt = Value(prompt),
+        contentJson = Value(contentJson),
+        sortOrder = Value(sortOrder);
+  static Insertable<CachedQuizQuestionRow> custom({
+    Expression<String>? id,
+    Expression<String>? moduleId,
+    Expression<String>? questionType,
+    Expression<String>? prompt,
+    Expression<String>? contentJson,
+    Expression<String>? explanation,
+    Expression<int>? sortOrder,
+    Expression<int>? rowid,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (moduleId != null) 'module_id': moduleId,
+      if (questionType != null) 'question_type': questionType,
+      if (prompt != null) 'prompt': prompt,
+      if (contentJson != null) 'content_json': contentJson,
+      if (explanation != null) 'explanation': explanation,
+      if (sortOrder != null) 'sort_order': sortOrder,
+      if (rowid != null) 'rowid': rowid,
+    });
+  }
+
+  CachedQuizQuestionsCompanion copyWith(
+      {Value<String>? id,
+      Value<String>? moduleId,
+      Value<String>? questionType,
+      Value<String>? prompt,
+      Value<String>? contentJson,
+      Value<String?>? explanation,
+      Value<int>? sortOrder,
+      Value<int>? rowid}) {
+    return CachedQuizQuestionsCompanion(
+      id: id ?? this.id,
+      moduleId: moduleId ?? this.moduleId,
+      questionType: questionType ?? this.questionType,
+      prompt: prompt ?? this.prompt,
+      contentJson: contentJson ?? this.contentJson,
+      explanation: explanation ?? this.explanation,
+      sortOrder: sortOrder ?? this.sortOrder,
+      rowid: rowid ?? this.rowid,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<String>(id.value);
+    }
+    if (moduleId.present) {
+      map['module_id'] = Variable<String>(moduleId.value);
+    }
+    if (questionType.present) {
+      map['question_type'] = Variable<String>(questionType.value);
+    }
+    if (prompt.present) {
+      map['prompt'] = Variable<String>(prompt.value);
+    }
+    if (contentJson.present) {
+      map['content_json'] = Variable<String>(contentJson.value);
+    }
+    if (explanation.present) {
+      map['explanation'] = Variable<String>(explanation.value);
+    }
+    if (sortOrder.present) {
+      map['sort_order'] = Variable<int>(sortOrder.value);
+    }
+    if (rowid.present) {
+      map['rowid'] = Variable<int>(rowid.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('CachedQuizQuestionsCompanion(')
+          ..write('id: $id, ')
+          ..write('moduleId: $moduleId, ')
+          ..write('questionType: $questionType, ')
+          ..write('prompt: $prompt, ')
+          ..write('contentJson: $contentJson, ')
+          ..write('explanation: $explanation, ')
+          ..write('sortOrder: $sortOrder, ')
+          ..write('rowid: $rowid')
+          ..write(')'))
+        .toString();
+  }
+}
+
+class $LocalQuizAttemptsTable extends LocalQuizAttempts
+    with TableInfo<$LocalQuizAttemptsTable, LocalQuizAttemptRow> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $LocalQuizAttemptsTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<int> id = GeneratedColumn<int>(
+      'id', aliasedName, false,
+      hasAutoIncrement: true,
+      type: DriftSqlType.int,
+      requiredDuringInsert: false,
+      defaultConstraints:
+          GeneratedColumn.constraintIsAlways('PRIMARY KEY AUTOINCREMENT'));
+  static const VerificationMeta _userIdMeta = const VerificationMeta('userId');
+  @override
+  late final GeneratedColumn<String> userId = GeneratedColumn<String>(
+      'user_id', aliasedName, false,
+      type: DriftSqlType.string,
+      requiredDuringInsert: false,
+      defaultValue: const Constant(''));
+  static const VerificationMeta _moduleIdMeta =
+      const VerificationMeta('moduleId');
+  @override
+  late final GeneratedColumn<String> moduleId = GeneratedColumn<String>(
+      'module_id', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _clientIdMeta =
+      const VerificationMeta('clientId');
+  @override
+  late final GeneratedColumn<String> clientId = GeneratedColumn<String>(
+      'client_id', aliasedName, false,
+      type: DriftSqlType.string,
+      requiredDuringInsert: true,
+      defaultConstraints: GeneratedColumn.constraintIsAlways('UNIQUE'));
+  static const VerificationMeta _correctCountMeta =
+      const VerificationMeta('correctCount');
+  @override
+  late final GeneratedColumn<int> correctCount = GeneratedColumn<int>(
+      'correct_count', aliasedName, false,
+      type: DriftSqlType.int, requiredDuringInsert: true);
+  static const VerificationMeta _totalCountMeta =
+      const VerificationMeta('totalCount');
+  @override
+  late final GeneratedColumn<int> totalCount = GeneratedColumn<int>(
+      'total_count', aliasedName, false,
+      type: DriftSqlType.int, requiredDuringInsert: true);
+  static const VerificationMeta _scorePercentMeta =
+      const VerificationMeta('scorePercent');
+  @override
+  late final GeneratedColumn<int> scorePercent = GeneratedColumn<int>(
+      'score_percent', aliasedName, false,
+      type: DriftSqlType.int, requiredDuringInsert: true);
+  static const VerificationMeta _passedMeta = const VerificationMeta('passed');
+  @override
+  late final GeneratedColumn<bool> passed = GeneratedColumn<bool>(
+      'passed', aliasedName, false,
+      type: DriftSqlType.bool,
+      requiredDuringInsert: true,
+      defaultConstraints:
+          GeneratedColumn.constraintIsAlways('CHECK ("passed" IN (0, 1))'));
+  static const VerificationMeta _resultsJsonMeta =
+      const VerificationMeta('resultsJson');
+  @override
+  late final GeneratedColumn<String> resultsJson = GeneratedColumn<String>(
+      'results_json', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _takenAtMeta =
+      const VerificationMeta('takenAt');
+  @override
+  late final GeneratedColumn<DateTime> takenAt = GeneratedColumn<DateTime>(
+      'taken_at', aliasedName, false,
+      type: DriftSqlType.dateTime, requiredDuringInsert: true);
+  static const VerificationMeta _syncedMeta = const VerificationMeta('synced');
+  @override
+  late final GeneratedColumn<bool> synced = GeneratedColumn<bool>(
+      'synced', aliasedName, false,
+      type: DriftSqlType.bool,
+      requiredDuringInsert: false,
+      defaultConstraints:
+          GeneratedColumn.constraintIsAlways('CHECK ("synced" IN (0, 1))'),
+      defaultValue: const Constant(false));
+  @override
+  List<GeneratedColumn> get $columns => [
+        id,
+        userId,
+        moduleId,
+        clientId,
+        correctCount,
+        totalCount,
+        scorePercent,
+        passed,
+        resultsJson,
+        takenAt,
+        synced
+      ];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'local_quiz_attempts';
+  @override
+  VerificationContext validateIntegrity(
+      Insertable<LocalQuizAttemptRow> instance,
+      {bool isInserting = false}) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    }
+    if (data.containsKey('user_id')) {
+      context.handle(_userIdMeta,
+          userId.isAcceptableOrUnknown(data['user_id']!, _userIdMeta));
+    }
+    if (data.containsKey('module_id')) {
+      context.handle(_moduleIdMeta,
+          moduleId.isAcceptableOrUnknown(data['module_id']!, _moduleIdMeta));
+    } else if (isInserting) {
+      context.missing(_moduleIdMeta);
+    }
+    if (data.containsKey('client_id')) {
+      context.handle(_clientIdMeta,
+          clientId.isAcceptableOrUnknown(data['client_id']!, _clientIdMeta));
+    } else if (isInserting) {
+      context.missing(_clientIdMeta);
+    }
+    if (data.containsKey('correct_count')) {
+      context.handle(
+          _correctCountMeta,
+          correctCount.isAcceptableOrUnknown(
+              data['correct_count']!, _correctCountMeta));
+    } else if (isInserting) {
+      context.missing(_correctCountMeta);
+    }
+    if (data.containsKey('total_count')) {
+      context.handle(
+          _totalCountMeta,
+          totalCount.isAcceptableOrUnknown(
+              data['total_count']!, _totalCountMeta));
+    } else if (isInserting) {
+      context.missing(_totalCountMeta);
+    }
+    if (data.containsKey('score_percent')) {
+      context.handle(
+          _scorePercentMeta,
+          scorePercent.isAcceptableOrUnknown(
+              data['score_percent']!, _scorePercentMeta));
+    } else if (isInserting) {
+      context.missing(_scorePercentMeta);
+    }
+    if (data.containsKey('passed')) {
+      context.handle(_passedMeta,
+          passed.isAcceptableOrUnknown(data['passed']!, _passedMeta));
+    } else if (isInserting) {
+      context.missing(_passedMeta);
+    }
+    if (data.containsKey('results_json')) {
+      context.handle(
+          _resultsJsonMeta,
+          resultsJson.isAcceptableOrUnknown(
+              data['results_json']!, _resultsJsonMeta));
+    } else if (isInserting) {
+      context.missing(_resultsJsonMeta);
+    }
+    if (data.containsKey('taken_at')) {
+      context.handle(_takenAtMeta,
+          takenAt.isAcceptableOrUnknown(data['taken_at']!, _takenAtMeta));
+    } else if (isInserting) {
+      context.missing(_takenAtMeta);
+    }
+    if (data.containsKey('synced')) {
+      context.handle(_syncedMeta,
+          synced.isAcceptableOrUnknown(data['synced']!, _syncedMeta));
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  LocalQuizAttemptRow map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return LocalQuizAttemptRow(
+      id: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}id'])!,
+      userId: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}user_id'])!,
+      moduleId: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}module_id'])!,
+      clientId: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}client_id'])!,
+      correctCount: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}correct_count'])!,
+      totalCount: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}total_count'])!,
+      scorePercent: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}score_percent'])!,
+      passed: attachedDatabase.typeMapping
+          .read(DriftSqlType.bool, data['${effectivePrefix}passed'])!,
+      resultsJson: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}results_json'])!,
+      takenAt: attachedDatabase.typeMapping
+          .read(DriftSqlType.dateTime, data['${effectivePrefix}taken_at'])!,
+      synced: attachedDatabase.typeMapping
+          .read(DriftSqlType.bool, data['${effectivePrefix}synced'])!,
+    );
+  }
+
+  @override
+  $LocalQuizAttemptsTable createAlias(String alias) {
+    return $LocalQuizAttemptsTable(attachedDatabase, alias);
+  }
+}
+
+class LocalQuizAttemptRow extends DataClass
+    implements Insertable<LocalQuizAttemptRow> {
+  final int id;
+  final String userId;
+  final String moduleId;
+  final String clientId;
+  final int correctCount;
+  final int totalCount;
+  final int scorePercent;
+  final bool passed;
+  final String resultsJson;
+  final DateTime takenAt;
+  final bool synced;
+  const LocalQuizAttemptRow(
+      {required this.id,
+      required this.userId,
+      required this.moduleId,
+      required this.clientId,
+      required this.correctCount,
+      required this.totalCount,
+      required this.scorePercent,
+      required this.passed,
+      required this.resultsJson,
+      required this.takenAt,
+      required this.synced});
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id'] = Variable<int>(id);
+    map['user_id'] = Variable<String>(userId);
+    map['module_id'] = Variable<String>(moduleId);
+    map['client_id'] = Variable<String>(clientId);
+    map['correct_count'] = Variable<int>(correctCount);
+    map['total_count'] = Variable<int>(totalCount);
+    map['score_percent'] = Variable<int>(scorePercent);
+    map['passed'] = Variable<bool>(passed);
+    map['results_json'] = Variable<String>(resultsJson);
+    map['taken_at'] = Variable<DateTime>(takenAt);
+    map['synced'] = Variable<bool>(synced);
+    return map;
+  }
+
+  LocalQuizAttemptsCompanion toCompanion(bool nullToAbsent) {
+    return LocalQuizAttemptsCompanion(
+      id: Value(id),
+      userId: Value(userId),
+      moduleId: Value(moduleId),
+      clientId: Value(clientId),
+      correctCount: Value(correctCount),
+      totalCount: Value(totalCount),
+      scorePercent: Value(scorePercent),
+      passed: Value(passed),
+      resultsJson: Value(resultsJson),
+      takenAt: Value(takenAt),
+      synced: Value(synced),
+    );
+  }
+
+  factory LocalQuizAttemptRow.fromJson(Map<String, dynamic> json,
+      {ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return LocalQuizAttemptRow(
+      id: serializer.fromJson<int>(json['id']),
+      userId: serializer.fromJson<String>(json['userId']),
+      moduleId: serializer.fromJson<String>(json['moduleId']),
+      clientId: serializer.fromJson<String>(json['clientId']),
+      correctCount: serializer.fromJson<int>(json['correctCount']),
+      totalCount: serializer.fromJson<int>(json['totalCount']),
+      scorePercent: serializer.fromJson<int>(json['scorePercent']),
+      passed: serializer.fromJson<bool>(json['passed']),
+      resultsJson: serializer.fromJson<String>(json['resultsJson']),
+      takenAt: serializer.fromJson<DateTime>(json['takenAt']),
+      synced: serializer.fromJson<bool>(json['synced']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<int>(id),
+      'userId': serializer.toJson<String>(userId),
+      'moduleId': serializer.toJson<String>(moduleId),
+      'clientId': serializer.toJson<String>(clientId),
+      'correctCount': serializer.toJson<int>(correctCount),
+      'totalCount': serializer.toJson<int>(totalCount),
+      'scorePercent': serializer.toJson<int>(scorePercent),
+      'passed': serializer.toJson<bool>(passed),
+      'resultsJson': serializer.toJson<String>(resultsJson),
+      'takenAt': serializer.toJson<DateTime>(takenAt),
+      'synced': serializer.toJson<bool>(synced),
+    };
+  }
+
+  LocalQuizAttemptRow copyWith(
+          {int? id,
+          String? userId,
+          String? moduleId,
+          String? clientId,
+          int? correctCount,
+          int? totalCount,
+          int? scorePercent,
+          bool? passed,
+          String? resultsJson,
+          DateTime? takenAt,
+          bool? synced}) =>
+      LocalQuizAttemptRow(
+        id: id ?? this.id,
+        userId: userId ?? this.userId,
+        moduleId: moduleId ?? this.moduleId,
+        clientId: clientId ?? this.clientId,
+        correctCount: correctCount ?? this.correctCount,
+        totalCount: totalCount ?? this.totalCount,
+        scorePercent: scorePercent ?? this.scorePercent,
+        passed: passed ?? this.passed,
+        resultsJson: resultsJson ?? this.resultsJson,
+        takenAt: takenAt ?? this.takenAt,
+        synced: synced ?? this.synced,
+      );
+  LocalQuizAttemptRow copyWithCompanion(LocalQuizAttemptsCompanion data) {
+    return LocalQuizAttemptRow(
+      id: data.id.present ? data.id.value : this.id,
+      userId: data.userId.present ? data.userId.value : this.userId,
+      moduleId: data.moduleId.present ? data.moduleId.value : this.moduleId,
+      clientId: data.clientId.present ? data.clientId.value : this.clientId,
+      correctCount: data.correctCount.present
+          ? data.correctCount.value
+          : this.correctCount,
+      totalCount:
+          data.totalCount.present ? data.totalCount.value : this.totalCount,
+      scorePercent: data.scorePercent.present
+          ? data.scorePercent.value
+          : this.scorePercent,
+      passed: data.passed.present ? data.passed.value : this.passed,
+      resultsJson:
+          data.resultsJson.present ? data.resultsJson.value : this.resultsJson,
+      takenAt: data.takenAt.present ? data.takenAt.value : this.takenAt,
+      synced: data.synced.present ? data.synced.value : this.synced,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('LocalQuizAttemptRow(')
+          ..write('id: $id, ')
+          ..write('userId: $userId, ')
+          ..write('moduleId: $moduleId, ')
+          ..write('clientId: $clientId, ')
+          ..write('correctCount: $correctCount, ')
+          ..write('totalCount: $totalCount, ')
+          ..write('scorePercent: $scorePercent, ')
+          ..write('passed: $passed, ')
+          ..write('resultsJson: $resultsJson, ')
+          ..write('takenAt: $takenAt, ')
+          ..write('synced: $synced')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(id, userId, moduleId, clientId, correctCount,
+      totalCount, scorePercent, passed, resultsJson, takenAt, synced);
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is LocalQuizAttemptRow &&
+          other.id == this.id &&
+          other.userId == this.userId &&
+          other.moduleId == this.moduleId &&
+          other.clientId == this.clientId &&
+          other.correctCount == this.correctCount &&
+          other.totalCount == this.totalCount &&
+          other.scorePercent == this.scorePercent &&
+          other.passed == this.passed &&
+          other.resultsJson == this.resultsJson &&
+          other.takenAt == this.takenAt &&
+          other.synced == this.synced);
+}
+
+class LocalQuizAttemptsCompanion extends UpdateCompanion<LocalQuizAttemptRow> {
+  final Value<int> id;
+  final Value<String> userId;
+  final Value<String> moduleId;
+  final Value<String> clientId;
+  final Value<int> correctCount;
+  final Value<int> totalCount;
+  final Value<int> scorePercent;
+  final Value<bool> passed;
+  final Value<String> resultsJson;
+  final Value<DateTime> takenAt;
+  final Value<bool> synced;
+  const LocalQuizAttemptsCompanion({
+    this.id = const Value.absent(),
+    this.userId = const Value.absent(),
+    this.moduleId = const Value.absent(),
+    this.clientId = const Value.absent(),
+    this.correctCount = const Value.absent(),
+    this.totalCount = const Value.absent(),
+    this.scorePercent = const Value.absent(),
+    this.passed = const Value.absent(),
+    this.resultsJson = const Value.absent(),
+    this.takenAt = const Value.absent(),
+    this.synced = const Value.absent(),
+  });
+  LocalQuizAttemptsCompanion.insert({
+    this.id = const Value.absent(),
+    this.userId = const Value.absent(),
+    required String moduleId,
+    required String clientId,
+    required int correctCount,
+    required int totalCount,
+    required int scorePercent,
+    required bool passed,
+    required String resultsJson,
+    required DateTime takenAt,
+    this.synced = const Value.absent(),
+  })  : moduleId = Value(moduleId),
+        clientId = Value(clientId),
+        correctCount = Value(correctCount),
+        totalCount = Value(totalCount),
+        scorePercent = Value(scorePercent),
+        passed = Value(passed),
+        resultsJson = Value(resultsJson),
+        takenAt = Value(takenAt);
+  static Insertable<LocalQuizAttemptRow> custom({
+    Expression<int>? id,
+    Expression<String>? userId,
+    Expression<String>? moduleId,
+    Expression<String>? clientId,
+    Expression<int>? correctCount,
+    Expression<int>? totalCount,
+    Expression<int>? scorePercent,
+    Expression<bool>? passed,
+    Expression<String>? resultsJson,
+    Expression<DateTime>? takenAt,
+    Expression<bool>? synced,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (userId != null) 'user_id': userId,
+      if (moduleId != null) 'module_id': moduleId,
+      if (clientId != null) 'client_id': clientId,
+      if (correctCount != null) 'correct_count': correctCount,
+      if (totalCount != null) 'total_count': totalCount,
+      if (scorePercent != null) 'score_percent': scorePercent,
+      if (passed != null) 'passed': passed,
+      if (resultsJson != null) 'results_json': resultsJson,
+      if (takenAt != null) 'taken_at': takenAt,
+      if (synced != null) 'synced': synced,
+    });
+  }
+
+  LocalQuizAttemptsCompanion copyWith(
+      {Value<int>? id,
+      Value<String>? userId,
+      Value<String>? moduleId,
+      Value<String>? clientId,
+      Value<int>? correctCount,
+      Value<int>? totalCount,
+      Value<int>? scorePercent,
+      Value<bool>? passed,
+      Value<String>? resultsJson,
+      Value<DateTime>? takenAt,
+      Value<bool>? synced}) {
+    return LocalQuizAttemptsCompanion(
+      id: id ?? this.id,
+      userId: userId ?? this.userId,
+      moduleId: moduleId ?? this.moduleId,
+      clientId: clientId ?? this.clientId,
+      correctCount: correctCount ?? this.correctCount,
+      totalCount: totalCount ?? this.totalCount,
+      scorePercent: scorePercent ?? this.scorePercent,
+      passed: passed ?? this.passed,
+      resultsJson: resultsJson ?? this.resultsJson,
+      takenAt: takenAt ?? this.takenAt,
+      synced: synced ?? this.synced,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<int>(id.value);
+    }
+    if (userId.present) {
+      map['user_id'] = Variable<String>(userId.value);
+    }
+    if (moduleId.present) {
+      map['module_id'] = Variable<String>(moduleId.value);
+    }
+    if (clientId.present) {
+      map['client_id'] = Variable<String>(clientId.value);
+    }
+    if (correctCount.present) {
+      map['correct_count'] = Variable<int>(correctCount.value);
+    }
+    if (totalCount.present) {
+      map['total_count'] = Variable<int>(totalCount.value);
+    }
+    if (scorePercent.present) {
+      map['score_percent'] = Variable<int>(scorePercent.value);
+    }
+    if (passed.present) {
+      map['passed'] = Variable<bool>(passed.value);
+    }
+    if (resultsJson.present) {
+      map['results_json'] = Variable<String>(resultsJson.value);
+    }
+    if (takenAt.present) {
+      map['taken_at'] = Variable<DateTime>(takenAt.value);
+    }
+    if (synced.present) {
+      map['synced'] = Variable<bool>(synced.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('LocalQuizAttemptsCompanion(')
+          ..write('id: $id, ')
+          ..write('userId: $userId, ')
+          ..write('moduleId: $moduleId, ')
+          ..write('clientId: $clientId, ')
+          ..write('correctCount: $correctCount, ')
+          ..write('totalCount: $totalCount, ')
+          ..write('scorePercent: $scorePercent, ')
+          ..write('passed: $passed, ')
+          ..write('resultsJson: $resultsJson, ')
+          ..write('takenAt: $takenAt, ')
+          ..write('synced: $synced')
+          ..write(')'))
+        .toString();
+  }
+}
+
+class $CachedSectionTranslationsTable extends CachedSectionTranslations
+    with
+        TableInfo<$CachedSectionTranslationsTable,
+            CachedSectionTranslationRow> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $CachedSectionTranslationsTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _sectionIdMeta =
+      const VerificationMeta('sectionId');
+  @override
+  late final GeneratedColumn<String> sectionId = GeneratedColumn<String>(
+      'section_id', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _moduleIdMeta =
+      const VerificationMeta('moduleId');
+  @override
+  late final GeneratedColumn<String> moduleId = GeneratedColumn<String>(
+      'module_id', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _languageCodeMeta =
+      const VerificationMeta('languageCode');
+  @override
+  late final GeneratedColumn<String> languageCode = GeneratedColumn<String>(
+      'language_code', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _titleMeta = const VerificationMeta('title');
+  @override
+  late final GeneratedColumn<String> title = GeneratedColumn<String>(
+      'title', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _contentJsonMeta =
+      const VerificationMeta('contentJson');
+  @override
+  late final GeneratedColumn<String> contentJson = GeneratedColumn<String>(
+      'content_json', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  @override
+  List<GeneratedColumn> get $columns =>
+      [sectionId, moduleId, languageCode, title, contentJson];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'cached_section_translations';
+  @override
+  VerificationContext validateIntegrity(
+      Insertable<CachedSectionTranslationRow> instance,
+      {bool isInserting = false}) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('section_id')) {
+      context.handle(_sectionIdMeta,
+          sectionId.isAcceptableOrUnknown(data['section_id']!, _sectionIdMeta));
+    } else if (isInserting) {
+      context.missing(_sectionIdMeta);
+    }
+    if (data.containsKey('module_id')) {
+      context.handle(_moduleIdMeta,
+          moduleId.isAcceptableOrUnknown(data['module_id']!, _moduleIdMeta));
+    } else if (isInserting) {
+      context.missing(_moduleIdMeta);
+    }
+    if (data.containsKey('language_code')) {
+      context.handle(
+          _languageCodeMeta,
+          languageCode.isAcceptableOrUnknown(
+              data['language_code']!, _languageCodeMeta));
+    } else if (isInserting) {
+      context.missing(_languageCodeMeta);
+    }
+    if (data.containsKey('title')) {
+      context.handle(
+          _titleMeta, title.isAcceptableOrUnknown(data['title']!, _titleMeta));
+    }
+    if (data.containsKey('content_json')) {
+      context.handle(
+          _contentJsonMeta,
+          contentJson.isAcceptableOrUnknown(
+              data['content_json']!, _contentJsonMeta));
+    } else if (isInserting) {
+      context.missing(_contentJsonMeta);
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {sectionId, languageCode};
+  @override
+  CachedSectionTranslationRow map(Map<String, dynamic> data,
+      {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return CachedSectionTranslationRow(
+      sectionId: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}section_id'])!,
+      moduleId: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}module_id'])!,
+      languageCode: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}language_code'])!,
+      title: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}title']),
+      contentJson: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}content_json'])!,
+    );
+  }
+
+  @override
+  $CachedSectionTranslationsTable createAlias(String alias) {
+    return $CachedSectionTranslationsTable(attachedDatabase, alias);
+  }
+}
+
+class CachedSectionTranslationRow extends DataClass
+    implements Insertable<CachedSectionTranslationRow> {
+  final String sectionId;
+  final String moduleId;
+  final String languageCode;
+  final String? title;
+  final String contentJson;
+  const CachedSectionTranslationRow(
+      {required this.sectionId,
+      required this.moduleId,
+      required this.languageCode,
+      this.title,
+      required this.contentJson});
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['section_id'] = Variable<String>(sectionId);
+    map['module_id'] = Variable<String>(moduleId);
+    map['language_code'] = Variable<String>(languageCode);
+    if (!nullToAbsent || title != null) {
+      map['title'] = Variable<String>(title);
+    }
+    map['content_json'] = Variable<String>(contentJson);
+    return map;
+  }
+
+  CachedSectionTranslationsCompanion toCompanion(bool nullToAbsent) {
+    return CachedSectionTranslationsCompanion(
+      sectionId: Value(sectionId),
+      moduleId: Value(moduleId),
+      languageCode: Value(languageCode),
+      title:
+          title == null && nullToAbsent ? const Value.absent() : Value(title),
+      contentJson: Value(contentJson),
+    );
+  }
+
+  factory CachedSectionTranslationRow.fromJson(Map<String, dynamic> json,
+      {ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return CachedSectionTranslationRow(
+      sectionId: serializer.fromJson<String>(json['sectionId']),
+      moduleId: serializer.fromJson<String>(json['moduleId']),
+      languageCode: serializer.fromJson<String>(json['languageCode']),
+      title: serializer.fromJson<String?>(json['title']),
+      contentJson: serializer.fromJson<String>(json['contentJson']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'sectionId': serializer.toJson<String>(sectionId),
+      'moduleId': serializer.toJson<String>(moduleId),
+      'languageCode': serializer.toJson<String>(languageCode),
+      'title': serializer.toJson<String?>(title),
+      'contentJson': serializer.toJson<String>(contentJson),
+    };
+  }
+
+  CachedSectionTranslationRow copyWith(
+          {String? sectionId,
+          String? moduleId,
+          String? languageCode,
+          Value<String?> title = const Value.absent(),
+          String? contentJson}) =>
+      CachedSectionTranslationRow(
+        sectionId: sectionId ?? this.sectionId,
+        moduleId: moduleId ?? this.moduleId,
+        languageCode: languageCode ?? this.languageCode,
+        title: title.present ? title.value : this.title,
+        contentJson: contentJson ?? this.contentJson,
+      );
+  CachedSectionTranslationRow copyWithCompanion(
+      CachedSectionTranslationsCompanion data) {
+    return CachedSectionTranslationRow(
+      sectionId: data.sectionId.present ? data.sectionId.value : this.sectionId,
+      moduleId: data.moduleId.present ? data.moduleId.value : this.moduleId,
+      languageCode: data.languageCode.present
+          ? data.languageCode.value
+          : this.languageCode,
+      title: data.title.present ? data.title.value : this.title,
+      contentJson:
+          data.contentJson.present ? data.contentJson.value : this.contentJson,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('CachedSectionTranslationRow(')
+          ..write('sectionId: $sectionId, ')
+          ..write('moduleId: $moduleId, ')
+          ..write('languageCode: $languageCode, ')
+          ..write('title: $title, ')
+          ..write('contentJson: $contentJson')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode =>
+      Object.hash(sectionId, moduleId, languageCode, title, contentJson);
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is CachedSectionTranslationRow &&
+          other.sectionId == this.sectionId &&
+          other.moduleId == this.moduleId &&
+          other.languageCode == this.languageCode &&
+          other.title == this.title &&
+          other.contentJson == this.contentJson);
+}
+
+class CachedSectionTranslationsCompanion
+    extends UpdateCompanion<CachedSectionTranslationRow> {
+  final Value<String> sectionId;
+  final Value<String> moduleId;
+  final Value<String> languageCode;
+  final Value<String?> title;
+  final Value<String> contentJson;
+  final Value<int> rowid;
+  const CachedSectionTranslationsCompanion({
+    this.sectionId = const Value.absent(),
+    this.moduleId = const Value.absent(),
+    this.languageCode = const Value.absent(),
+    this.title = const Value.absent(),
+    this.contentJson = const Value.absent(),
+    this.rowid = const Value.absent(),
+  });
+  CachedSectionTranslationsCompanion.insert({
+    required String sectionId,
+    required String moduleId,
+    required String languageCode,
+    this.title = const Value.absent(),
+    required String contentJson,
+    this.rowid = const Value.absent(),
+  })  : sectionId = Value(sectionId),
+        moduleId = Value(moduleId),
+        languageCode = Value(languageCode),
+        contentJson = Value(contentJson);
+  static Insertable<CachedSectionTranslationRow> custom({
+    Expression<String>? sectionId,
+    Expression<String>? moduleId,
+    Expression<String>? languageCode,
+    Expression<String>? title,
+    Expression<String>? contentJson,
+    Expression<int>? rowid,
+  }) {
+    return RawValuesInsertable({
+      if (sectionId != null) 'section_id': sectionId,
+      if (moduleId != null) 'module_id': moduleId,
+      if (languageCode != null) 'language_code': languageCode,
+      if (title != null) 'title': title,
+      if (contentJson != null) 'content_json': contentJson,
+      if (rowid != null) 'rowid': rowid,
+    });
+  }
+
+  CachedSectionTranslationsCompanion copyWith(
+      {Value<String>? sectionId,
+      Value<String>? moduleId,
+      Value<String>? languageCode,
+      Value<String?>? title,
+      Value<String>? contentJson,
+      Value<int>? rowid}) {
+    return CachedSectionTranslationsCompanion(
+      sectionId: sectionId ?? this.sectionId,
+      moduleId: moduleId ?? this.moduleId,
+      languageCode: languageCode ?? this.languageCode,
+      title: title ?? this.title,
+      contentJson: contentJson ?? this.contentJson,
+      rowid: rowid ?? this.rowid,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (sectionId.present) {
+      map['section_id'] = Variable<String>(sectionId.value);
+    }
+    if (moduleId.present) {
+      map['module_id'] = Variable<String>(moduleId.value);
+    }
+    if (languageCode.present) {
+      map['language_code'] = Variable<String>(languageCode.value);
+    }
+    if (title.present) {
+      map['title'] = Variable<String>(title.value);
+    }
+    if (contentJson.present) {
+      map['content_json'] = Variable<String>(contentJson.value);
+    }
+    if (rowid.present) {
+      map['rowid'] = Variable<int>(rowid.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('CachedSectionTranslationsCompanion(')
+          ..write('sectionId: $sectionId, ')
+          ..write('moduleId: $moduleId, ')
+          ..write('languageCode: $languageCode, ')
+          ..write('title: $title, ')
+          ..write('contentJson: $contentJson, ')
+          ..write('rowid: $rowid')
+          ..write(')'))
+        .toString();
+  }
+}
+
 abstract class _$LocalDatabase extends GeneratedDatabase {
   _$LocalDatabase(QueryExecutor e) : super(e);
   $LocalDatabaseManager get managers => $LocalDatabaseManager(this);
@@ -4224,6 +6047,13 @@ abstract class _$LocalDatabase extends GeneratedDatabase {
   late final $LocalAiQuestionsTable localAiQuestions =
       $LocalAiQuestionsTable(this);
   late final $RagMetadataTable ragMetadata = $RagMetadataTable(this);
+  late final $ContentChunksTable contentChunks = $ContentChunksTable(this);
+  late final $CachedQuizQuestionsTable cachedQuizQuestions =
+      $CachedQuizQuestionsTable(this);
+  late final $LocalQuizAttemptsTable localQuizAttempts =
+      $LocalQuizAttemptsTable(this);
+  late final $CachedSectionTranslationsTable cachedSectionTranslations =
+      $CachedSectionTranslationsTable(this);
   @override
   Iterable<TableInfo<Table, Object?>> get allTables =>
       allSchemaEntities.whereType<TableInfo<Table, Object?>>();
@@ -4239,7 +6069,11 @@ abstract class _$LocalDatabase extends GeneratedDatabase {
         appSettings,
         installedReleases,
         localAiQuestions,
-        ragMetadata
+        ragMetadata,
+        contentChunks,
+        cachedQuizQuestions,
+        localQuizAttempts,
+        cachedSectionTranslations
       ];
 }
 
@@ -5387,6 +7221,7 @@ typedef $$LocalProgressTableCreateCompanionBuilder = LocalProgressCompanion
   Value<DateTime?> lastOpenedAt,
   Value<DateTime?> completedAt,
   Value<bool> synced,
+  Value<String> userId,
 });
 typedef $$LocalProgressTableUpdateCompanionBuilder = LocalProgressCompanion
     Function({
@@ -5398,6 +7233,7 @@ typedef $$LocalProgressTableUpdateCompanionBuilder = LocalProgressCompanion
   Value<DateTime?> lastOpenedAt,
   Value<DateTime?> completedAt,
   Value<bool> synced,
+  Value<String> userId,
 });
 
 class $$LocalProgressTableFilterComposer
@@ -5433,6 +7269,9 @@ class $$LocalProgressTableFilterComposer
 
   ColumnFilters<bool> get synced => $composableBuilder(
       column: $table.synced, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get userId => $composableBuilder(
+      column: $table.userId, builder: (column) => ColumnFilters(column));
 }
 
 class $$LocalProgressTableOrderingComposer
@@ -5469,6 +7308,9 @@ class $$LocalProgressTableOrderingComposer
 
   ColumnOrderings<bool> get synced => $composableBuilder(
       column: $table.synced, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get userId => $composableBuilder(
+      column: $table.userId, builder: (column) => ColumnOrderings(column));
 }
 
 class $$LocalProgressTableAnnotationComposer
@@ -5503,6 +7345,9 @@ class $$LocalProgressTableAnnotationComposer
 
   GeneratedColumn<bool> get synced =>
       $composableBuilder(column: $table.synced, builder: (column) => column);
+
+  GeneratedColumn<String> get userId =>
+      $composableBuilder(column: $table.userId, builder: (column) => column);
 }
 
 class $$LocalProgressTableTableManager extends RootTableManager<
@@ -5540,6 +7385,7 @@ class $$LocalProgressTableTableManager extends RootTableManager<
             Value<DateTime?> lastOpenedAt = const Value.absent(),
             Value<DateTime?> completedAt = const Value.absent(),
             Value<bool> synced = const Value.absent(),
+            Value<String> userId = const Value.absent(),
           }) =>
               LocalProgressCompanion(
             id: id,
@@ -5550,6 +7396,7 @@ class $$LocalProgressTableTableManager extends RootTableManager<
             lastOpenedAt: lastOpenedAt,
             completedAt: completedAt,
             synced: synced,
+            userId: userId,
           ),
           createCompanionCallback: ({
             Value<int> id = const Value.absent(),
@@ -5560,6 +7407,7 @@ class $$LocalProgressTableTableManager extends RootTableManager<
             Value<DateTime?> lastOpenedAt = const Value.absent(),
             Value<DateTime?> completedAt = const Value.absent(),
             Value<bool> synced = const Value.absent(),
+            Value<String> userId = const Value.absent(),
           }) =>
               LocalProgressCompanion.insert(
             id: id,
@@ -5570,6 +7418,7 @@ class $$LocalProgressTableTableManager extends RootTableManager<
             lastOpenedAt: lastOpenedAt,
             completedAt: completedAt,
             synced: synced,
+            userId: userId,
           ),
           withReferenceMapper: (p0) => p0
               .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
@@ -5600,6 +7449,7 @@ typedef $$PendingSyncTableCreateCompanionBuilder = PendingSyncCompanion
   required String payloadJson,
   required DateTime createdAt,
   Value<DateTime?> syncedAt,
+  Value<String> userId,
 });
 typedef $$PendingSyncTableUpdateCompanionBuilder = PendingSyncCompanion
     Function({
@@ -5608,6 +7458,7 @@ typedef $$PendingSyncTableUpdateCompanionBuilder = PendingSyncCompanion
   Value<String> payloadJson,
   Value<DateTime> createdAt,
   Value<DateTime?> syncedAt,
+  Value<String> userId,
 });
 
 class $$PendingSyncTableFilterComposer
@@ -5633,6 +7484,9 @@ class $$PendingSyncTableFilterComposer
 
   ColumnFilters<DateTime> get syncedAt => $composableBuilder(
       column: $table.syncedAt, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get userId => $composableBuilder(
+      column: $table.userId, builder: (column) => ColumnFilters(column));
 }
 
 class $$PendingSyncTableOrderingComposer
@@ -5658,6 +7512,9 @@ class $$PendingSyncTableOrderingComposer
 
   ColumnOrderings<DateTime> get syncedAt => $composableBuilder(
       column: $table.syncedAt, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get userId => $composableBuilder(
+      column: $table.userId, builder: (column) => ColumnOrderings(column));
 }
 
 class $$PendingSyncTableAnnotationComposer
@@ -5683,6 +7540,9 @@ class $$PendingSyncTableAnnotationComposer
 
   GeneratedColumn<DateTime> get syncedAt =>
       $composableBuilder(column: $table.syncedAt, builder: (column) => column);
+
+  GeneratedColumn<String> get userId =>
+      $composableBuilder(column: $table.userId, builder: (column) => column);
 }
 
 class $$PendingSyncTableTableManager extends RootTableManager<
@@ -5716,6 +7576,7 @@ class $$PendingSyncTableTableManager extends RootTableManager<
             Value<String> payloadJson = const Value.absent(),
             Value<DateTime> createdAt = const Value.absent(),
             Value<DateTime?> syncedAt = const Value.absent(),
+            Value<String> userId = const Value.absent(),
           }) =>
               PendingSyncCompanion(
             id: id,
@@ -5723,6 +7584,7 @@ class $$PendingSyncTableTableManager extends RootTableManager<
             payloadJson: payloadJson,
             createdAt: createdAt,
             syncedAt: syncedAt,
+            userId: userId,
           ),
           createCompanionCallback: ({
             Value<int> id = const Value.absent(),
@@ -5730,6 +7592,7 @@ class $$PendingSyncTableTableManager extends RootTableManager<
             required String payloadJson,
             required DateTime createdAt,
             Value<DateTime?> syncedAt = const Value.absent(),
+            Value<String> userId = const Value.absent(),
           }) =>
               PendingSyncCompanion.insert(
             id: id,
@@ -5737,6 +7600,7 @@ class $$PendingSyncTableTableManager extends RootTableManager<
             payloadJson: payloadJson,
             createdAt: createdAt,
             syncedAt: syncedAt,
+            userId: userId,
           ),
           withReferenceMapper: (p0) => p0
               .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
@@ -6083,6 +7947,7 @@ typedef $$LocalAiQuestionsTableCreateCompanionBuilder
   Value<bool> matched,
   required DateTime askedAt,
   Value<bool> synced,
+  Value<String> userId,
 });
 typedef $$LocalAiQuestionsTableUpdateCompanionBuilder
     = LocalAiQuestionsCompanion Function({
@@ -6092,6 +7957,7 @@ typedef $$LocalAiQuestionsTableUpdateCompanionBuilder
   Value<bool> matched,
   Value<DateTime> askedAt,
   Value<bool> synced,
+  Value<String> userId,
 });
 
 class $$LocalAiQuestionsTableFilterComposer
@@ -6120,6 +7986,9 @@ class $$LocalAiQuestionsTableFilterComposer
 
   ColumnFilters<bool> get synced => $composableBuilder(
       column: $table.synced, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get userId => $composableBuilder(
+      column: $table.userId, builder: (column) => ColumnFilters(column));
 }
 
 class $$LocalAiQuestionsTableOrderingComposer
@@ -6148,6 +8017,9 @@ class $$LocalAiQuestionsTableOrderingComposer
 
   ColumnOrderings<bool> get synced => $composableBuilder(
       column: $table.synced, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get userId => $composableBuilder(
+      column: $table.userId, builder: (column) => ColumnOrderings(column));
 }
 
 class $$LocalAiQuestionsTableAnnotationComposer
@@ -6176,6 +8048,9 @@ class $$LocalAiQuestionsTableAnnotationComposer
 
   GeneratedColumn<bool> get synced =>
       $composableBuilder(column: $table.synced, builder: (column) => column);
+
+  GeneratedColumn<String> get userId =>
+      $composableBuilder(column: $table.userId, builder: (column) => column);
 }
 
 class $$LocalAiQuestionsTableTableManager extends RootTableManager<
@@ -6212,6 +8087,7 @@ class $$LocalAiQuestionsTableTableManager extends RootTableManager<
             Value<bool> matched = const Value.absent(),
             Value<DateTime> askedAt = const Value.absent(),
             Value<bool> synced = const Value.absent(),
+            Value<String> userId = const Value.absent(),
           }) =>
               LocalAiQuestionsCompanion(
             id: id,
@@ -6220,6 +8096,7 @@ class $$LocalAiQuestionsTableTableManager extends RootTableManager<
             matched: matched,
             askedAt: askedAt,
             synced: synced,
+            userId: userId,
           ),
           createCompanionCallback: ({
             Value<int> id = const Value.absent(),
@@ -6228,6 +8105,7 @@ class $$LocalAiQuestionsTableTableManager extends RootTableManager<
             Value<bool> matched = const Value.absent(),
             required DateTime askedAt,
             Value<bool> synced = const Value.absent(),
+            Value<String> userId = const Value.absent(),
           }) =>
               LocalAiQuestionsCompanion.insert(
             id: id,
@@ -6236,6 +8114,7 @@ class $$LocalAiQuestionsTableTableManager extends RootTableManager<
             matched: matched,
             askedAt: askedAt,
             synced: synced,
+            userId: userId,
           ),
           withReferenceMapper: (p0) => p0
               .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
@@ -6428,6 +8307,879 @@ typedef $$RagMetadataTableProcessedTableManager = ProcessedTableManager<
     ),
     RagMetadataRow,
     PrefetchHooks Function()>;
+typedef $$ContentChunksTableCreateCompanionBuilder = ContentChunksCompanion
+    Function({
+  required String id,
+  required String moduleId,
+  required String moduleCode,
+  Value<String?> sectionId,
+  Value<String?> sectionTitle,
+  required String language,
+  required String sourceTitle,
+  required String chunkText,
+  Value<int> rowid,
+});
+typedef $$ContentChunksTableUpdateCompanionBuilder = ContentChunksCompanion
+    Function({
+  Value<String> id,
+  Value<String> moduleId,
+  Value<String> moduleCode,
+  Value<String?> sectionId,
+  Value<String?> sectionTitle,
+  Value<String> language,
+  Value<String> sourceTitle,
+  Value<String> chunkText,
+  Value<int> rowid,
+});
+
+class $$ContentChunksTableFilterComposer
+    extends Composer<_$LocalDatabase, $ContentChunksTable> {
+  $$ContentChunksTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<String> get id => $composableBuilder(
+      column: $table.id, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get moduleId => $composableBuilder(
+      column: $table.moduleId, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get moduleCode => $composableBuilder(
+      column: $table.moduleCode, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get sectionId => $composableBuilder(
+      column: $table.sectionId, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get sectionTitle => $composableBuilder(
+      column: $table.sectionTitle, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get language => $composableBuilder(
+      column: $table.language, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get sourceTitle => $composableBuilder(
+      column: $table.sourceTitle, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get chunkText => $composableBuilder(
+      column: $table.chunkText, builder: (column) => ColumnFilters(column));
+}
+
+class $$ContentChunksTableOrderingComposer
+    extends Composer<_$LocalDatabase, $ContentChunksTable> {
+  $$ContentChunksTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<String> get id => $composableBuilder(
+      column: $table.id, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get moduleId => $composableBuilder(
+      column: $table.moduleId, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get moduleCode => $composableBuilder(
+      column: $table.moduleCode, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get sectionId => $composableBuilder(
+      column: $table.sectionId, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get sectionTitle => $composableBuilder(
+      column: $table.sectionTitle,
+      builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get language => $composableBuilder(
+      column: $table.language, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get sourceTitle => $composableBuilder(
+      column: $table.sourceTitle, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get chunkText => $composableBuilder(
+      column: $table.chunkText, builder: (column) => ColumnOrderings(column));
+}
+
+class $$ContentChunksTableAnnotationComposer
+    extends Composer<_$LocalDatabase, $ContentChunksTable> {
+  $$ContentChunksTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<String> get id =>
+      $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<String> get moduleId =>
+      $composableBuilder(column: $table.moduleId, builder: (column) => column);
+
+  GeneratedColumn<String> get moduleCode => $composableBuilder(
+      column: $table.moduleCode, builder: (column) => column);
+
+  GeneratedColumn<String> get sectionId =>
+      $composableBuilder(column: $table.sectionId, builder: (column) => column);
+
+  GeneratedColumn<String> get sectionTitle => $composableBuilder(
+      column: $table.sectionTitle, builder: (column) => column);
+
+  GeneratedColumn<String> get language =>
+      $composableBuilder(column: $table.language, builder: (column) => column);
+
+  GeneratedColumn<String> get sourceTitle => $composableBuilder(
+      column: $table.sourceTitle, builder: (column) => column);
+
+  GeneratedColumn<String> get chunkText =>
+      $composableBuilder(column: $table.chunkText, builder: (column) => column);
+}
+
+class $$ContentChunksTableTableManager extends RootTableManager<
+    _$LocalDatabase,
+    $ContentChunksTable,
+    ContentChunkRow,
+    $$ContentChunksTableFilterComposer,
+    $$ContentChunksTableOrderingComposer,
+    $$ContentChunksTableAnnotationComposer,
+    $$ContentChunksTableCreateCompanionBuilder,
+    $$ContentChunksTableUpdateCompanionBuilder,
+    (
+      ContentChunkRow,
+      BaseReferences<_$LocalDatabase, $ContentChunksTable, ContentChunkRow>
+    ),
+    ContentChunkRow,
+    PrefetchHooks Function()> {
+  $$ContentChunksTableTableManager(
+      _$LocalDatabase db, $ContentChunksTable table)
+      : super(TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$ContentChunksTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$ContentChunksTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$ContentChunksTableAnnotationComposer($db: db, $table: table),
+          updateCompanionCallback: ({
+            Value<String> id = const Value.absent(),
+            Value<String> moduleId = const Value.absent(),
+            Value<String> moduleCode = const Value.absent(),
+            Value<String?> sectionId = const Value.absent(),
+            Value<String?> sectionTitle = const Value.absent(),
+            Value<String> language = const Value.absent(),
+            Value<String> sourceTitle = const Value.absent(),
+            Value<String> chunkText = const Value.absent(),
+            Value<int> rowid = const Value.absent(),
+          }) =>
+              ContentChunksCompanion(
+            id: id,
+            moduleId: moduleId,
+            moduleCode: moduleCode,
+            sectionId: sectionId,
+            sectionTitle: sectionTitle,
+            language: language,
+            sourceTitle: sourceTitle,
+            chunkText: chunkText,
+            rowid: rowid,
+          ),
+          createCompanionCallback: ({
+            required String id,
+            required String moduleId,
+            required String moduleCode,
+            Value<String?> sectionId = const Value.absent(),
+            Value<String?> sectionTitle = const Value.absent(),
+            required String language,
+            required String sourceTitle,
+            required String chunkText,
+            Value<int> rowid = const Value.absent(),
+          }) =>
+              ContentChunksCompanion.insert(
+            id: id,
+            moduleId: moduleId,
+            moduleCode: moduleCode,
+            sectionId: sectionId,
+            sectionTitle: sectionTitle,
+            language: language,
+            sourceTitle: sourceTitle,
+            chunkText: chunkText,
+            rowid: rowid,
+          ),
+          withReferenceMapper: (p0) => p0
+              .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
+              .toList(),
+          prefetchHooksCallback: null,
+        ));
+}
+
+typedef $$ContentChunksTableProcessedTableManager = ProcessedTableManager<
+    _$LocalDatabase,
+    $ContentChunksTable,
+    ContentChunkRow,
+    $$ContentChunksTableFilterComposer,
+    $$ContentChunksTableOrderingComposer,
+    $$ContentChunksTableAnnotationComposer,
+    $$ContentChunksTableCreateCompanionBuilder,
+    $$ContentChunksTableUpdateCompanionBuilder,
+    (
+      ContentChunkRow,
+      BaseReferences<_$LocalDatabase, $ContentChunksTable, ContentChunkRow>
+    ),
+    ContentChunkRow,
+    PrefetchHooks Function()>;
+typedef $$CachedQuizQuestionsTableCreateCompanionBuilder
+    = CachedQuizQuestionsCompanion Function({
+  required String id,
+  required String moduleId,
+  required String questionType,
+  required String prompt,
+  required String contentJson,
+  Value<String?> explanation,
+  required int sortOrder,
+  Value<int> rowid,
+});
+typedef $$CachedQuizQuestionsTableUpdateCompanionBuilder
+    = CachedQuizQuestionsCompanion Function({
+  Value<String> id,
+  Value<String> moduleId,
+  Value<String> questionType,
+  Value<String> prompt,
+  Value<String> contentJson,
+  Value<String?> explanation,
+  Value<int> sortOrder,
+  Value<int> rowid,
+});
+
+class $$CachedQuizQuestionsTableFilterComposer
+    extends Composer<_$LocalDatabase, $CachedQuizQuestionsTable> {
+  $$CachedQuizQuestionsTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<String> get id => $composableBuilder(
+      column: $table.id, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get moduleId => $composableBuilder(
+      column: $table.moduleId, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get questionType => $composableBuilder(
+      column: $table.questionType, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get prompt => $composableBuilder(
+      column: $table.prompt, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get contentJson => $composableBuilder(
+      column: $table.contentJson, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get explanation => $composableBuilder(
+      column: $table.explanation, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<int> get sortOrder => $composableBuilder(
+      column: $table.sortOrder, builder: (column) => ColumnFilters(column));
+}
+
+class $$CachedQuizQuestionsTableOrderingComposer
+    extends Composer<_$LocalDatabase, $CachedQuizQuestionsTable> {
+  $$CachedQuizQuestionsTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<String> get id => $composableBuilder(
+      column: $table.id, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get moduleId => $composableBuilder(
+      column: $table.moduleId, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get questionType => $composableBuilder(
+      column: $table.questionType,
+      builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get prompt => $composableBuilder(
+      column: $table.prompt, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get contentJson => $composableBuilder(
+      column: $table.contentJson, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get explanation => $composableBuilder(
+      column: $table.explanation, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<int> get sortOrder => $composableBuilder(
+      column: $table.sortOrder, builder: (column) => ColumnOrderings(column));
+}
+
+class $$CachedQuizQuestionsTableAnnotationComposer
+    extends Composer<_$LocalDatabase, $CachedQuizQuestionsTable> {
+  $$CachedQuizQuestionsTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<String> get id =>
+      $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<String> get moduleId =>
+      $composableBuilder(column: $table.moduleId, builder: (column) => column);
+
+  GeneratedColumn<String> get questionType => $composableBuilder(
+      column: $table.questionType, builder: (column) => column);
+
+  GeneratedColumn<String> get prompt =>
+      $composableBuilder(column: $table.prompt, builder: (column) => column);
+
+  GeneratedColumn<String> get contentJson => $composableBuilder(
+      column: $table.contentJson, builder: (column) => column);
+
+  GeneratedColumn<String> get explanation => $composableBuilder(
+      column: $table.explanation, builder: (column) => column);
+
+  GeneratedColumn<int> get sortOrder =>
+      $composableBuilder(column: $table.sortOrder, builder: (column) => column);
+}
+
+class $$CachedQuizQuestionsTableTableManager extends RootTableManager<
+    _$LocalDatabase,
+    $CachedQuizQuestionsTable,
+    CachedQuizQuestionRow,
+    $$CachedQuizQuestionsTableFilterComposer,
+    $$CachedQuizQuestionsTableOrderingComposer,
+    $$CachedQuizQuestionsTableAnnotationComposer,
+    $$CachedQuizQuestionsTableCreateCompanionBuilder,
+    $$CachedQuizQuestionsTableUpdateCompanionBuilder,
+    (
+      CachedQuizQuestionRow,
+      BaseReferences<_$LocalDatabase, $CachedQuizQuestionsTable,
+          CachedQuizQuestionRow>
+    ),
+    CachedQuizQuestionRow,
+    PrefetchHooks Function()> {
+  $$CachedQuizQuestionsTableTableManager(
+      _$LocalDatabase db, $CachedQuizQuestionsTable table)
+      : super(TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$CachedQuizQuestionsTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$CachedQuizQuestionsTableOrderingComposer(
+                  $db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$CachedQuizQuestionsTableAnnotationComposer(
+                  $db: db, $table: table),
+          updateCompanionCallback: ({
+            Value<String> id = const Value.absent(),
+            Value<String> moduleId = const Value.absent(),
+            Value<String> questionType = const Value.absent(),
+            Value<String> prompt = const Value.absent(),
+            Value<String> contentJson = const Value.absent(),
+            Value<String?> explanation = const Value.absent(),
+            Value<int> sortOrder = const Value.absent(),
+            Value<int> rowid = const Value.absent(),
+          }) =>
+              CachedQuizQuestionsCompanion(
+            id: id,
+            moduleId: moduleId,
+            questionType: questionType,
+            prompt: prompt,
+            contentJson: contentJson,
+            explanation: explanation,
+            sortOrder: sortOrder,
+            rowid: rowid,
+          ),
+          createCompanionCallback: ({
+            required String id,
+            required String moduleId,
+            required String questionType,
+            required String prompt,
+            required String contentJson,
+            Value<String?> explanation = const Value.absent(),
+            required int sortOrder,
+            Value<int> rowid = const Value.absent(),
+          }) =>
+              CachedQuizQuestionsCompanion.insert(
+            id: id,
+            moduleId: moduleId,
+            questionType: questionType,
+            prompt: prompt,
+            contentJson: contentJson,
+            explanation: explanation,
+            sortOrder: sortOrder,
+            rowid: rowid,
+          ),
+          withReferenceMapper: (p0) => p0
+              .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
+              .toList(),
+          prefetchHooksCallback: null,
+        ));
+}
+
+typedef $$CachedQuizQuestionsTableProcessedTableManager = ProcessedTableManager<
+    _$LocalDatabase,
+    $CachedQuizQuestionsTable,
+    CachedQuizQuestionRow,
+    $$CachedQuizQuestionsTableFilterComposer,
+    $$CachedQuizQuestionsTableOrderingComposer,
+    $$CachedQuizQuestionsTableAnnotationComposer,
+    $$CachedQuizQuestionsTableCreateCompanionBuilder,
+    $$CachedQuizQuestionsTableUpdateCompanionBuilder,
+    (
+      CachedQuizQuestionRow,
+      BaseReferences<_$LocalDatabase, $CachedQuizQuestionsTable,
+          CachedQuizQuestionRow>
+    ),
+    CachedQuizQuestionRow,
+    PrefetchHooks Function()>;
+typedef $$LocalQuizAttemptsTableCreateCompanionBuilder
+    = LocalQuizAttemptsCompanion Function({
+  Value<int> id,
+  Value<String> userId,
+  required String moduleId,
+  required String clientId,
+  required int correctCount,
+  required int totalCount,
+  required int scorePercent,
+  required bool passed,
+  required String resultsJson,
+  required DateTime takenAt,
+  Value<bool> synced,
+});
+typedef $$LocalQuizAttemptsTableUpdateCompanionBuilder
+    = LocalQuizAttemptsCompanion Function({
+  Value<int> id,
+  Value<String> userId,
+  Value<String> moduleId,
+  Value<String> clientId,
+  Value<int> correctCount,
+  Value<int> totalCount,
+  Value<int> scorePercent,
+  Value<bool> passed,
+  Value<String> resultsJson,
+  Value<DateTime> takenAt,
+  Value<bool> synced,
+});
+
+class $$LocalQuizAttemptsTableFilterComposer
+    extends Composer<_$LocalDatabase, $LocalQuizAttemptsTable> {
+  $$LocalQuizAttemptsTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<int> get id => $composableBuilder(
+      column: $table.id, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get userId => $composableBuilder(
+      column: $table.userId, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get moduleId => $composableBuilder(
+      column: $table.moduleId, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get clientId => $composableBuilder(
+      column: $table.clientId, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<int> get correctCount => $composableBuilder(
+      column: $table.correctCount, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<int> get totalCount => $composableBuilder(
+      column: $table.totalCount, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<int> get scorePercent => $composableBuilder(
+      column: $table.scorePercent, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<bool> get passed => $composableBuilder(
+      column: $table.passed, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get resultsJson => $composableBuilder(
+      column: $table.resultsJson, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<DateTime> get takenAt => $composableBuilder(
+      column: $table.takenAt, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<bool> get synced => $composableBuilder(
+      column: $table.synced, builder: (column) => ColumnFilters(column));
+}
+
+class $$LocalQuizAttemptsTableOrderingComposer
+    extends Composer<_$LocalDatabase, $LocalQuizAttemptsTable> {
+  $$LocalQuizAttemptsTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<int> get id => $composableBuilder(
+      column: $table.id, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get userId => $composableBuilder(
+      column: $table.userId, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get moduleId => $composableBuilder(
+      column: $table.moduleId, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get clientId => $composableBuilder(
+      column: $table.clientId, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<int> get correctCount => $composableBuilder(
+      column: $table.correctCount,
+      builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<int> get totalCount => $composableBuilder(
+      column: $table.totalCount, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<int> get scorePercent => $composableBuilder(
+      column: $table.scorePercent,
+      builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<bool> get passed => $composableBuilder(
+      column: $table.passed, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get resultsJson => $composableBuilder(
+      column: $table.resultsJson, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<DateTime> get takenAt => $composableBuilder(
+      column: $table.takenAt, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<bool> get synced => $composableBuilder(
+      column: $table.synced, builder: (column) => ColumnOrderings(column));
+}
+
+class $$LocalQuizAttemptsTableAnnotationComposer
+    extends Composer<_$LocalDatabase, $LocalQuizAttemptsTable> {
+  $$LocalQuizAttemptsTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<int> get id =>
+      $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<String> get userId =>
+      $composableBuilder(column: $table.userId, builder: (column) => column);
+
+  GeneratedColumn<String> get moduleId =>
+      $composableBuilder(column: $table.moduleId, builder: (column) => column);
+
+  GeneratedColumn<String> get clientId =>
+      $composableBuilder(column: $table.clientId, builder: (column) => column);
+
+  GeneratedColumn<int> get correctCount => $composableBuilder(
+      column: $table.correctCount, builder: (column) => column);
+
+  GeneratedColumn<int> get totalCount => $composableBuilder(
+      column: $table.totalCount, builder: (column) => column);
+
+  GeneratedColumn<int> get scorePercent => $composableBuilder(
+      column: $table.scorePercent, builder: (column) => column);
+
+  GeneratedColumn<bool> get passed =>
+      $composableBuilder(column: $table.passed, builder: (column) => column);
+
+  GeneratedColumn<String> get resultsJson => $composableBuilder(
+      column: $table.resultsJson, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get takenAt =>
+      $composableBuilder(column: $table.takenAt, builder: (column) => column);
+
+  GeneratedColumn<bool> get synced =>
+      $composableBuilder(column: $table.synced, builder: (column) => column);
+}
+
+class $$LocalQuizAttemptsTableTableManager extends RootTableManager<
+    _$LocalDatabase,
+    $LocalQuizAttemptsTable,
+    LocalQuizAttemptRow,
+    $$LocalQuizAttemptsTableFilterComposer,
+    $$LocalQuizAttemptsTableOrderingComposer,
+    $$LocalQuizAttemptsTableAnnotationComposer,
+    $$LocalQuizAttemptsTableCreateCompanionBuilder,
+    $$LocalQuizAttemptsTableUpdateCompanionBuilder,
+    (
+      LocalQuizAttemptRow,
+      BaseReferences<_$LocalDatabase, $LocalQuizAttemptsTable,
+          LocalQuizAttemptRow>
+    ),
+    LocalQuizAttemptRow,
+    PrefetchHooks Function()> {
+  $$LocalQuizAttemptsTableTableManager(
+      _$LocalDatabase db, $LocalQuizAttemptsTable table)
+      : super(TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$LocalQuizAttemptsTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$LocalQuizAttemptsTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$LocalQuizAttemptsTableAnnotationComposer(
+                  $db: db, $table: table),
+          updateCompanionCallback: ({
+            Value<int> id = const Value.absent(),
+            Value<String> userId = const Value.absent(),
+            Value<String> moduleId = const Value.absent(),
+            Value<String> clientId = const Value.absent(),
+            Value<int> correctCount = const Value.absent(),
+            Value<int> totalCount = const Value.absent(),
+            Value<int> scorePercent = const Value.absent(),
+            Value<bool> passed = const Value.absent(),
+            Value<String> resultsJson = const Value.absent(),
+            Value<DateTime> takenAt = const Value.absent(),
+            Value<bool> synced = const Value.absent(),
+          }) =>
+              LocalQuizAttemptsCompanion(
+            id: id,
+            userId: userId,
+            moduleId: moduleId,
+            clientId: clientId,
+            correctCount: correctCount,
+            totalCount: totalCount,
+            scorePercent: scorePercent,
+            passed: passed,
+            resultsJson: resultsJson,
+            takenAt: takenAt,
+            synced: synced,
+          ),
+          createCompanionCallback: ({
+            Value<int> id = const Value.absent(),
+            Value<String> userId = const Value.absent(),
+            required String moduleId,
+            required String clientId,
+            required int correctCount,
+            required int totalCount,
+            required int scorePercent,
+            required bool passed,
+            required String resultsJson,
+            required DateTime takenAt,
+            Value<bool> synced = const Value.absent(),
+          }) =>
+              LocalQuizAttemptsCompanion.insert(
+            id: id,
+            userId: userId,
+            moduleId: moduleId,
+            clientId: clientId,
+            correctCount: correctCount,
+            totalCount: totalCount,
+            scorePercent: scorePercent,
+            passed: passed,
+            resultsJson: resultsJson,
+            takenAt: takenAt,
+            synced: synced,
+          ),
+          withReferenceMapper: (p0) => p0
+              .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
+              .toList(),
+          prefetchHooksCallback: null,
+        ));
+}
+
+typedef $$LocalQuizAttemptsTableProcessedTableManager = ProcessedTableManager<
+    _$LocalDatabase,
+    $LocalQuizAttemptsTable,
+    LocalQuizAttemptRow,
+    $$LocalQuizAttemptsTableFilterComposer,
+    $$LocalQuizAttemptsTableOrderingComposer,
+    $$LocalQuizAttemptsTableAnnotationComposer,
+    $$LocalQuizAttemptsTableCreateCompanionBuilder,
+    $$LocalQuizAttemptsTableUpdateCompanionBuilder,
+    (
+      LocalQuizAttemptRow,
+      BaseReferences<_$LocalDatabase, $LocalQuizAttemptsTable,
+          LocalQuizAttemptRow>
+    ),
+    LocalQuizAttemptRow,
+    PrefetchHooks Function()>;
+typedef $$CachedSectionTranslationsTableCreateCompanionBuilder
+    = CachedSectionTranslationsCompanion Function({
+  required String sectionId,
+  required String moduleId,
+  required String languageCode,
+  Value<String?> title,
+  required String contentJson,
+  Value<int> rowid,
+});
+typedef $$CachedSectionTranslationsTableUpdateCompanionBuilder
+    = CachedSectionTranslationsCompanion Function({
+  Value<String> sectionId,
+  Value<String> moduleId,
+  Value<String> languageCode,
+  Value<String?> title,
+  Value<String> contentJson,
+  Value<int> rowid,
+});
+
+class $$CachedSectionTranslationsTableFilterComposer
+    extends Composer<_$LocalDatabase, $CachedSectionTranslationsTable> {
+  $$CachedSectionTranslationsTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<String> get sectionId => $composableBuilder(
+      column: $table.sectionId, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get moduleId => $composableBuilder(
+      column: $table.moduleId, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get languageCode => $composableBuilder(
+      column: $table.languageCode, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get title => $composableBuilder(
+      column: $table.title, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get contentJson => $composableBuilder(
+      column: $table.contentJson, builder: (column) => ColumnFilters(column));
+}
+
+class $$CachedSectionTranslationsTableOrderingComposer
+    extends Composer<_$LocalDatabase, $CachedSectionTranslationsTable> {
+  $$CachedSectionTranslationsTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<String> get sectionId => $composableBuilder(
+      column: $table.sectionId, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get moduleId => $composableBuilder(
+      column: $table.moduleId, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get languageCode => $composableBuilder(
+      column: $table.languageCode,
+      builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get title => $composableBuilder(
+      column: $table.title, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get contentJson => $composableBuilder(
+      column: $table.contentJson, builder: (column) => ColumnOrderings(column));
+}
+
+class $$CachedSectionTranslationsTableAnnotationComposer
+    extends Composer<_$LocalDatabase, $CachedSectionTranslationsTable> {
+  $$CachedSectionTranslationsTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<String> get sectionId =>
+      $composableBuilder(column: $table.sectionId, builder: (column) => column);
+
+  GeneratedColumn<String> get moduleId =>
+      $composableBuilder(column: $table.moduleId, builder: (column) => column);
+
+  GeneratedColumn<String> get languageCode => $composableBuilder(
+      column: $table.languageCode, builder: (column) => column);
+
+  GeneratedColumn<String> get title =>
+      $composableBuilder(column: $table.title, builder: (column) => column);
+
+  GeneratedColumn<String> get contentJson => $composableBuilder(
+      column: $table.contentJson, builder: (column) => column);
+}
+
+class $$CachedSectionTranslationsTableTableManager extends RootTableManager<
+    _$LocalDatabase,
+    $CachedSectionTranslationsTable,
+    CachedSectionTranslationRow,
+    $$CachedSectionTranslationsTableFilterComposer,
+    $$CachedSectionTranslationsTableOrderingComposer,
+    $$CachedSectionTranslationsTableAnnotationComposer,
+    $$CachedSectionTranslationsTableCreateCompanionBuilder,
+    $$CachedSectionTranslationsTableUpdateCompanionBuilder,
+    (
+      CachedSectionTranslationRow,
+      BaseReferences<_$LocalDatabase, $CachedSectionTranslationsTable,
+          CachedSectionTranslationRow>
+    ),
+    CachedSectionTranslationRow,
+    PrefetchHooks Function()> {
+  $$CachedSectionTranslationsTableTableManager(
+      _$LocalDatabase db, $CachedSectionTranslationsTable table)
+      : super(TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$CachedSectionTranslationsTableFilterComposer(
+                  $db: db, $table: table),
+          createOrderingComposer: () =>
+              $$CachedSectionTranslationsTableOrderingComposer(
+                  $db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$CachedSectionTranslationsTableAnnotationComposer(
+                  $db: db, $table: table),
+          updateCompanionCallback: ({
+            Value<String> sectionId = const Value.absent(),
+            Value<String> moduleId = const Value.absent(),
+            Value<String> languageCode = const Value.absent(),
+            Value<String?> title = const Value.absent(),
+            Value<String> contentJson = const Value.absent(),
+            Value<int> rowid = const Value.absent(),
+          }) =>
+              CachedSectionTranslationsCompanion(
+            sectionId: sectionId,
+            moduleId: moduleId,
+            languageCode: languageCode,
+            title: title,
+            contentJson: contentJson,
+            rowid: rowid,
+          ),
+          createCompanionCallback: ({
+            required String sectionId,
+            required String moduleId,
+            required String languageCode,
+            Value<String?> title = const Value.absent(),
+            required String contentJson,
+            Value<int> rowid = const Value.absent(),
+          }) =>
+              CachedSectionTranslationsCompanion.insert(
+            sectionId: sectionId,
+            moduleId: moduleId,
+            languageCode: languageCode,
+            title: title,
+            contentJson: contentJson,
+            rowid: rowid,
+          ),
+          withReferenceMapper: (p0) => p0
+              .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
+              .toList(),
+          prefetchHooksCallback: null,
+        ));
+}
+
+typedef $$CachedSectionTranslationsTableProcessedTableManager
+    = ProcessedTableManager<
+        _$LocalDatabase,
+        $CachedSectionTranslationsTable,
+        CachedSectionTranslationRow,
+        $$CachedSectionTranslationsTableFilterComposer,
+        $$CachedSectionTranslationsTableOrderingComposer,
+        $$CachedSectionTranslationsTableAnnotationComposer,
+        $$CachedSectionTranslationsTableCreateCompanionBuilder,
+        $$CachedSectionTranslationsTableUpdateCompanionBuilder,
+        (
+          CachedSectionTranslationRow,
+          BaseReferences<_$LocalDatabase, $CachedSectionTranslationsTable,
+              CachedSectionTranslationRow>
+        ),
+        CachedSectionTranslationRow,
+        PrefetchHooks Function()>;
 
 class $LocalDatabaseManager {
   final _$LocalDatabase _db;
@@ -6454,4 +9206,13 @@ class $LocalDatabaseManager {
       $$LocalAiQuestionsTableTableManager(_db, _db.localAiQuestions);
   $$RagMetadataTableTableManager get ragMetadata =>
       $$RagMetadataTableTableManager(_db, _db.ragMetadata);
+  $$ContentChunksTableTableManager get contentChunks =>
+      $$ContentChunksTableTableManager(_db, _db.contentChunks);
+  $$CachedQuizQuestionsTableTableManager get cachedQuizQuestions =>
+      $$CachedQuizQuestionsTableTableManager(_db, _db.cachedQuizQuestions);
+  $$LocalQuizAttemptsTableTableManager get localQuizAttempts =>
+      $$LocalQuizAttemptsTableTableManager(_db, _db.localQuizAttempts);
+  $$CachedSectionTranslationsTableTableManager get cachedSectionTranslations =>
+      $$CachedSectionTranslationsTableTableManager(
+          _db, _db.cachedSectionTranslations);
 }
