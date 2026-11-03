@@ -126,6 +126,33 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     }
   }
 
+  /// The Home "Sync" button: upload what is waiting, check for new content,
+  /// and install an optional update straight away (tapping it asks for that).
+  Future<void> _syncAndUpdate() async {
+    final engine = ref.read(syncEngineProvider.notifier);
+    var installed = false;
+    try {
+      await engine.syncNow(manual: true);
+      if (!mounted) return;
+      if (ref.read(syncEngineProvider).availableRelease != null) {
+        await engine.installAvailableUpdate();
+        installed = ref.read(syncEngineProvider).availableRelease == null;
+      }
+    } catch (_) {
+      // The engine records the problem in its status; reported below.
+    }
+    if (!mounted) return;
+    final snap = ref.read(syncEngineProvider);
+    final text = switch (snap.status) {
+      SyncStatus.offline => 'You are offline. Your progress will upload when you are back online.',
+      SyncStatus.syncError => snap.message ?? 'Could not sync. Check your connection and try again.',
+      _ => installed ? 'Update installed. You have the latest content.' : 'Synced. You have the latest content.',
+    };
+    ScaffoldMessenger.of(context)
+      ..hideCurrentSnackBar()
+      ..showSnackBar(SnackBar(content: Text(text)));
+  }
+
   Future<void> _runSync() async {
     setState(() {
       _syncing = true;
@@ -196,6 +223,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
             if (searching)
               _buildSearchResults(modules)
             else ...[
+              _SyncCard(snap: snap, onSync: _syncAndUpdate),
               if (snap.availableRelease != null) _UpdateBanner(release: snap.availableRelease!),
               ..._buildContinueReading(modules, extras),
               const _SectionLabel('SARMAAN-II · AZM MDA MODULES'),
@@ -392,8 +420,10 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                   ),
                 ),
                 if (updateAvailable) _updatePill(),
-                GestureDetector(
-                  onTap: () => context.go('/updates'),
+                // Connection status only; syncing lives in the Sync & update card.
+                Semantics(
+                  label: online ? 'Online' : 'Offline',
+                  excludeSemantics: true,
                   child: Container(
                     padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 4),
                     decoration: BoxDecoration(
@@ -497,6 +527,91 @@ class _CodeBadge extends StatelessWidget {
           style: const TextStyle(fontFamily: AppFonts.mono, fontSize: 9.5, fontWeight: FontWeight.w700, color: AppColors.goldDeep),
         ),
       );
+}
+
+String _syncedAgo(DateTime? t) {
+  if (t == null) return 'Not synced yet';
+  final d = DateTime.now().difference(t);
+  if (d.inMinutes < 1) return 'Synced just now';
+  if (d.inHours < 1) return 'Synced ${d.inMinutes} min ago';
+  if (d.inDays < 1) return 'Synced ${d.inHours} h ago';
+  return 'Synced ${d.inDays} d ago';
+}
+
+/// "Sync & update" card: last sync time, changes waiting to upload, and a
+/// button that syncs and installs any waiting content update.
+class _SyncCard extends StatelessWidget {
+  final SyncSnapshot snap;
+  final VoidCallback onSync;
+  const _SyncCard({required this.snap, required this.onSync});
+
+  @override
+  Widget build(BuildContext context) {
+    final busy = snap.status == SyncStatus.syncing || snap.installing;
+    final waiting = snap.pendingCount;
+    final String detail;
+    if (snap.installing) {
+      final pct = (snap.installFraction * 100).round();
+      detail = 'Installing update${pct > 0 ? ' · $pct%' : '…'}';
+    } else if (busy) {
+      detail = 'Syncing…';
+    } else {
+      detail = '${_syncedAgo(snap.lastSyncedAt)}'
+          '${waiting > 0 ? ' · $waiting waiting to upload' : ''}';
+    }
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(22, 16, 22, 0),
+      child: Container(
+        padding: const EdgeInsets.fromLTRB(14, 10, 10, 10),
+        decoration: BoxDecoration(
+          color: AppColors.white,
+          borderRadius: BorderRadius.circular(AppRadius.medium),
+          border: Border.all(color: AppColors.line),
+        ),
+        child: Row(
+          children: [
+            SizedBox(
+              width: 22,
+              height: 22,
+              child: busy
+                  ? const Padding(padding: EdgeInsets.all(3), child: CircularProgressIndicator(strokeWidth: 2))
+                  : const Icon(Icons.sync, size: 22, color: AppColors.teal),
+            ),
+            const SizedBox(width: 12),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const Text(
+                    'Sync & update',
+                    style: TextStyle(fontSize: 13.5, fontWeight: FontWeight.w700, color: AppColors.ink),
+                  ),
+                  const SizedBox(height: 2),
+                  Text(
+                    detail,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: const TextStyle(fontSize: 11, color: AppColors.textSecondary),
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(width: 8),
+            FilledButton(
+              onPressed: busy ? null : onSync,
+              style: FilledButton.styleFrom(
+                backgroundColor: AppColors.tealDeep,
+                foregroundColor: AppColors.sand,
+                padding: const EdgeInsets.symmetric(horizontal: 16),
+                visualDensity: VisualDensity.compact,
+              ),
+              child: const Text('Sync'),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
 }
 
 /// Amber banner shown when a newer content release is waiting to download.
