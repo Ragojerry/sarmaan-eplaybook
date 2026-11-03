@@ -219,6 +219,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                               _ModuleCard(
                                 module: m,
                                 completed: extras?.progress[m.id]?.completed ?? false,
+                                percent: extras?.progress[m.id]?.progressPercent ?? 0,
                                 sectionCount: extras?.sectionCounts[m.id],
                               ),
                           ],
@@ -242,80 +243,23 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     );
   }
 
+  /// One card per module the learner has started but not finished, most
+  /// recently opened first, each showing that module's own progress.
   List<Widget> _buildContinueReading(List<CachedModuleRow> modules, HomeExtras? extras) {
     if (extras == null) return const [];
-    LocalProgressRow? latest;
-    for (final p in extras.progress.values) {
-      if (p.completed || p.progressPercent <= 0 || p.lastOpenedAt == null) continue;
-      if (latest == null || p.lastOpenedAt!.isAfter(latest.lastOpenedAt!)) latest = p;
-    }
-    final picked = latest;
-    if (picked == null) return const [];
-    final matches = modules.where((m) => m.id == picked.moduleId);
-    if (matches.isEmpty) return const [];
-    final module = matches.first;
-    final where = picked.lastSection;
+    final byId = {for (final m in modules) m.id: m};
+    final started = [
+      for (final p in extras.progress.values)
+        if (!p.completed && p.progressPercent > 0 && byId.containsKey(p.moduleId)) p,
+    ]..sort((a, b) => (b.lastOpenedAt ?? DateTime(0)).compareTo(a.lastOpenedAt ?? DateTime(0)));
+    if (started.isEmpty) return const [];
     return [
       const _SectionLabel('CONTINUE READING'),
-      Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 22),
-        child: GestureDetector(
-          onTap: () => context.go('/reader/${module.id}'),
-          child: Container(
-            padding: const EdgeInsets.all(14),
-            decoration: BoxDecoration(
-              color: AppColors.white,
-              borderRadius: BorderRadius.circular(AppRadius.medium),
-              border: Border.all(color: AppColors.line),
-            ),
-            child: Row(
-              children: [
-                Container(
-                  width: 52,
-                  height: 52,
-                  alignment: Alignment.center,
-                  decoration: BoxDecoration(color: AppColors.tealSoft, borderRadius: BorderRadius.circular(12)),
-                  child: Text(
-                    module.moduleCode,
-                    style: const TextStyle(fontFamily: AppFonts.mono, fontWeight: FontWeight.w700, color: AppColors.tealDeep),
-                  ),
-                ),
-                const SizedBox(width: 14),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        module.title,
-                        maxLines: 2,
-                        overflow: TextOverflow.ellipsis,
-                        style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w700, height: 1.3, color: AppColors.ink),
-                      ),
-                      const SizedBox(height: 3),
-                      Text(
-                        '${picked.progressPercent}% complete${where != null && where.isNotEmpty ? ' · $where' : ''}',
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                        style: const TextStyle(fontSize: 11.5, color: AppColors.textSecondary),
-                      ),
-                      const SizedBox(height: 8),
-                      ClipRRect(
-                        borderRadius: BorderRadius.circular(4),
-                        child: LinearProgressIndicator(
-                          value: picked.progressPercent / 100,
-                          minHeight: 6,
-                          backgroundColor: AppColors.sandDeep,
-                          valueColor: const AlwaysStoppedAnimation(AppColors.teal),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ],
-            ),
-          ),
+      for (var i = 0; i < started.length; i++)
+        Padding(
+          padding: EdgeInsets.fromLTRB(22, i == 0 ? 0 : 10, 22, 0),
+          child: _ContinueCard(module: byId[started[i].moduleId]!, progress: started[i]),
         ),
-      ),
     ];
   }
 
@@ -602,14 +546,83 @@ class _UpdateBanner extends StatelessWidget {
   }
 }
 
+/// A "Continue reading" card: code tile, title, "N% complete · section" and a bar.
+class _ContinueCard extends StatelessWidget {
+  final CachedModuleRow module;
+  final LocalProgressRow progress;
+  const _ContinueCard({required this.module, required this.progress});
+
+  @override
+  Widget build(BuildContext context) {
+    final where = progress.lastSection;
+    return GestureDetector(
+      onTap: () => context.go('/reader/${module.id}'),
+      child: Container(
+        padding: const EdgeInsets.all(14),
+        decoration: BoxDecoration(
+          color: AppColors.white,
+          borderRadius: BorderRadius.circular(AppRadius.medium),
+          border: Border.all(color: AppColors.line),
+        ),
+        child: Row(
+          children: [
+            Container(
+              width: 52,
+              height: 52,
+              alignment: Alignment.center,
+              decoration: BoxDecoration(color: AppColors.tealSoft, borderRadius: BorderRadius.circular(12)),
+              child: Text(
+                module.moduleCode,
+                style: const TextStyle(fontFamily: AppFonts.mono, fontWeight: FontWeight.w700, color: AppColors.tealDeep),
+              ),
+            ),
+            const SizedBox(width: 14),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    module.title,
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                    style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w700, height: 1.3, color: AppColors.ink),
+                  ),
+                  const SizedBox(height: 3),
+                  Text(
+                    '${progress.progressPercent}% complete${where != null && where.isNotEmpty ? ' · $where' : ''}',
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: const TextStyle(fontSize: 11.5, color: AppColors.textSecondary),
+                  ),
+                  const SizedBox(height: 8),
+                  ClipRRect(
+                    borderRadius: BorderRadius.circular(4),
+                    child: LinearProgressIndicator(
+                      value: progress.progressPercent / 100,
+                      minHeight: 6,
+                      backgroundColor: AppColors.sandDeep,
+                      valueColor: const AlwaysStoppedAnimation(AppColors.teal),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
 /// Matches the prototype's `.module-card`: code badge, completion tick,
 /// bold title, and a "N sections · offline" meta line.
 class _ModuleCard extends StatelessWidget {
   final CachedModuleRow module;
   final bool completed;
+  final int percent;
   final int? sectionCount;
 
-  const _ModuleCard({required this.module, this.completed = false, this.sectionCount});
+  const _ModuleCard({required this.module, this.completed = false, this.percent = 0, this.sectionCount});
 
   @override
   Widget build(BuildContext context) {
@@ -648,7 +661,8 @@ class _ModuleCard extends StatelessWidget {
                 const SizedBox(width: 4),
                 Expanded(
                   child: Text(
-                    '${sectionCount != null ? '$sectionCount sections · ' : ''}offline',
+                    '${sectionCount != null ? '$sectionCount sections · ' : ''}'
+                    '${!completed && percent > 0 ? '$percent% read' : 'offline'}',
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                     style: const TextStyle(fontSize: 10.5, color: AppColors.textSecondary),
@@ -656,6 +670,18 @@ class _ModuleCard extends StatelessWidget {
                 ),
               ],
             ),
+            if (!completed && percent > 0) ...[
+              const SizedBox(height: 6),
+              ClipRRect(
+                borderRadius: BorderRadius.circular(3),
+                child: LinearProgressIndicator(
+                  value: percent / 100,
+                  minHeight: 4,
+                  backgroundColor: AppColors.sandDeep,
+                  valueColor: const AlwaysStoppedAnimation(AppColors.teal),
+                ),
+              ),
+            ],
           ],
         ),
       ),

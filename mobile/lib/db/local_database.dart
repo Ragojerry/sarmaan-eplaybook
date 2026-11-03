@@ -271,6 +271,9 @@ class LocalQuizAttempts extends Table {
 class LocalDatabase extends _$LocalDatabase {
   LocalDatabase() : super(_openConnection());
 
+  /// Tests run against an in-memory database.
+  LocalDatabase.forTesting(super.executor);
+
   // v2 (Phases 10/11 revised): added ContentChunks. Devices already on v1
   // (every install since Phase 8) get the table via onUpgrade — without this,
   // the Ask screen would crash with "no such table: content_chunks".
@@ -521,15 +524,29 @@ class LocalDatabase extends _$LocalDatabase {
 
   // ---------- Progress ----------
 
-  Future<LocalProgressRow?> getProgressForModule(String moduleId) =>
-      (select(localProgress)..where((p) => p.moduleId.equals(moduleId) & p.userId.equals(_uid))).getSingleOrNull();
+  /// Older builds could store two rows for one module when two saves raced;
+  /// reading the furthest-along row (rather than demanding exactly one) keeps
+  /// such a module's progress working, and every write below updates them all.
+  Future<LocalProgressRow?> getProgressForModule(String moduleId) => (select(localProgress)
+        ..where((p) => p.moduleId.equals(moduleId) & p.userId.equals(_uid))
+        ..orderBy([
+          (p) => OrderingTerm.desc(p.completed),
+          (p) => OrderingTerm.desc(p.progressPercent),
+        ])
+        ..limit(1))
+      .getSingleOrNull();
 
+  /// Read-then-write inside a transaction, so two saves for the same module
+  /// (opening the reader while a scroll save is in flight) cannot both insert.
   Future<void> upsertProgress({
     required String moduleId,
     int? progressPercent,
     bool? completed,
     String? lastSection,
-  }) async {
+  }) =>
+      transaction(() => _upsertProgress(moduleId, progressPercent, completed, lastSection));
+
+  Future<void> _upsertProgress(String moduleId, int? progressPercent, bool? completed, String? lastSection) async {
     final existing = await getProgressForModule(moduleId);
     final now = DateTime.now();
     if (existing == null) {
@@ -572,7 +589,8 @@ class LocalDatabase extends _$LocalDatabase {
     String? lastSection,
     DateTime? lastOpenedAt,
     DateTime? completedAt,
-  }) async {
+  }) =>
+      transaction(() async {
     final local = await getProgressForModule(moduleId);
     if (local == null) {
       await into(localProgress).insert(
@@ -603,7 +621,7 @@ class LocalDatabase extends _$LocalDatabase {
         ),
       );
     }
-  }
+  });
 
   // ---------- Training restart ----------
 

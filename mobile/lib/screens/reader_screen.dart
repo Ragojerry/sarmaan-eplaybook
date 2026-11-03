@@ -73,7 +73,8 @@ final localModuleSectionsProvider = FutureProvider.autoDispose.family<List<Conte
   ];
 });
 
-final localProgressProvider = FutureProvider.family<LocalProgressRow?, String>((ref, moduleId) async {
+// autoDispose: re-read each time a module is opened, never a stale copy.
+final localProgressProvider = FutureProvider.autoDispose.family<LocalProgressRow?, String>((ref, moduleId) async {
   final db = ref.read(localDatabaseProvider);
   return db.getProgressForModule(moduleId);
 });

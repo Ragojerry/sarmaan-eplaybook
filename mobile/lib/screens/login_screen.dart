@@ -24,6 +24,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
   final _formKey = GlobalKey<FormState>();
   String? _error;
   bool _submitting = false;
+  bool _showPassword = false;
 
   Future<void> _submit() async {
     if (!_formKey.currentState!.validate()) return;
@@ -110,8 +111,17 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                 const SizedBox(height: 12),
                 TextFormField(
                   controller: _passwordController,
-                  decoration: const InputDecoration(labelText: 'Password'),
-                  obscureText: true,
+                  decoration: InputDecoration(
+                    labelText: 'Password',
+                    suffixIcon: IconButton(
+                      icon: Icon(_showPassword ? Icons.visibility_off_outlined : Icons.visibility_outlined),
+                      tooltip: _showPassword ? 'Hide password' : 'Show password',
+                      onPressed: () => setState(() => _showPassword = !_showPassword),
+                    ),
+                  ),
+                  obscureText: !_showPassword,
+                  enableSuggestions: false,
+                  autocorrect: false,
                   validator: (v) => (v == null || v.isEmpty) ? 'Required' : null,
                 ),
                 const SizedBox(height: 24),
