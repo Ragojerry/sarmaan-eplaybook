@@ -162,7 +162,10 @@ class _QuizScreenState extends ConsumerState<QuizScreen> {
   }
 
   Future<void> _load() async {
-    final rows = await ref.read(localDatabaseProvider).getQuizQuestions(widget.moduleId);
+    final db = ref.read(localDatabaseProvider);
+    final rows = await db.getQuizQuestions(widget.moduleId);
+    // Starting the quiz takes the module to 80% (never lowers it).
+    if (rows.isNotEmpty) await db.raiseProgress(widget.moduleId, LocalDatabase.quizStartedPercent);
     if (!mounted) return;
     setState(() {
       _qs = [for (final r in rows) _Q(r, _rng)];

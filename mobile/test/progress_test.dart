@@ -55,4 +55,20 @@ void main() {
     db.setActiveUser('user-2');
     expect(await db.getAllProgress(), isEmpty);
   });
+
+  test('reading 50%, quiz 80%, complete 100%, never going down', () async {
+    await db.raiseProgress('m1', 30, lastSection: 'Dosing');
+    await db.raiseProgress('m1', LocalDatabase.readingPercent);
+    expect((await db.getProgressForModule('m1'))!.progressPercent, 50);
+
+    await db.raiseProgress('m1', LocalDatabase.quizStartedPercent);
+    await db.raiseProgress('m1', LocalDatabase.readingPercent); // re-reading after the quiz
+    expect((await db.getProgressForModule('m1'))!.progressPercent, 80);
+
+    await db.upsertProgress(moduleId: 'm1', progressPercent: 100, completed: true);
+    await db.raiseProgress('m1', LocalDatabase.quizStartedPercent); // retaking the quiz
+    final done = (await db.getProgressForModule('m1'))!;
+    expect(done.progressPercent, 100);
+    expect(done.completed, isTrue);
+  });
 }

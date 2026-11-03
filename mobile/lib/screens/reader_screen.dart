@@ -122,13 +122,13 @@ class _ReaderScreenState extends ConsumerState<ReaderScreen> {
   }
 
   /// Reading progress = how far down the module the learner has scrolled,
-  /// never decreasing and capped at 99 until they tap "Mark as complete".
+  /// scaled to 0-50% (the quiz and "Mark as complete" earn the rest).
   void _onScroll() {
     if (!_scroll.hasClients) return;
     final max = _scroll.position.maxScrollExtent;
     if (max <= 0) return;
     final fraction = (_scroll.position.pixels / max).clamp(0.0, 1.0);
-    final percent = (fraction * 99).round();
+    final percent = (fraction * LocalDatabase.readingPercent).round();
     if (percent <= _pendingPercent) return;
     _pendingPercent = percent;
     if (_loadedSections.isNotEmpty) {
@@ -145,10 +145,8 @@ class _ReaderScreenState extends ConsumerState<ReaderScreen> {
 
   Future<void> _flushProgress() async {
     if (_pendingPercent <= _savedPercent) return;
-    final existing = await _db.getProgressForModule(widget.moduleId);
-    if (existing?.completed ?? false) return;
     _savedPercent = _pendingPercent;
-    await _db.upsertProgress(moduleId: widget.moduleId, progressPercent: _pendingPercent, lastSection: _pendingWhere);
+    await _db.raiseProgress(widget.moduleId, _pendingPercent, lastSection: _pendingWhere);
   }
 
   @override

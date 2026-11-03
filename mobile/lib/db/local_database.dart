@@ -576,6 +576,19 @@ class LocalDatabase extends _$LocalDatabase {
     }
   }
 
+  /// Progress milestones: reading the whole module is worth 50%, opening its
+  /// quiz 80%; only "Mark as complete" reaches 100%.
+  static const readingPercent = 50;
+  static const quizStartedPercent = 80;
+
+  /// Moves a module's progress up to [percent]. Never lowers it and never
+  /// touches a completed module, so re-reading after starting the quiz keeps 80%.
+  Future<void> raiseProgress(String moduleId, int percent, {String? lastSection}) => transaction(() async {
+      final existing = await getProgressForModule(moduleId);
+      if (existing != null && (existing.completed || existing.progressPercent >= percent)) return;
+      await _upsertProgress(moduleId, percent, null, lastSection);
+    });
+
   Future<List<LocalProgressRow>> getAllProgress() =>
       (select(localProgress)..where((p) => p.userId.equals(_uid))).get();
 
