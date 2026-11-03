@@ -84,3 +84,4 @@ protecting the links. List published builds with
 |---|---|---|
 | 0.1.0 | 2026-10-30 | `6bdf2c4a31b980ff9578389954348c05755ab0dafd1a84804db36cbd36fdfcb6` |
 | 0.1.1 | 2026-10-30 | `54bee08978c951b5b41931450c991cce1a14b921ea8394630dbb78417ec7b954` |
+| 0.1.2 | 2026-11-03 | `278c8d848df6cd2777246c022df5a736409aa5ebbb260168ebdcf53c87c8d1a8` |
