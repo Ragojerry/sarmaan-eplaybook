@@ -117,7 +117,7 @@ def test_answer_vectors(case):
 
 # ---------- real migrated content ----------
 GOOD = [
-    ("What age group is eligible for azithromycin?", {"M1", "M2"}, ["1–59 months"], []),
+    ("What age group is eligible for azithromycin?", {"M1", "M2"}, ["59 months"], []),
     ("What should I do if the child vomits after the medicine?", {"M4"}, ["re-dose", "5 minutes"], []),
     ("How much AZM should I give to a 3 month old?", {"M4"}, ["3–4 months", "3 ml"], ["5–11 months"]),
     # A 4-month-old must get the 3-4 month row, NOT the "5-11 months: 4 ml" row.
@@ -128,6 +128,20 @@ GOOD = [
     ("Who do I report safeguarding concerns to?", {"M6"}, ["concerns@malariaconsortium.org"], []),
     ("What are the signs of an allergic reaction?", {"M3"}, ["Swelling"], []),
     ("How do I mark a house after visiting?", {"M4"}, ["chalk"], []),
+    # Simple questions that used to get a wrong answer (a house-marking code
+    # for two of the app's own suggested questions).
+    ("Who is eligible for AZM?", {"M1", "M2"}, ["1 and 59 months"], ["AZM/26"]),
+    ("Which children should receive azithromycin?", {"M1", "M2"}, ["59 months"], ["AZM/26", "In the field"]),
+    ("How much AZM should a child receive?", {"M4"}, ["2 ml", "3 ml", "4 ml"], ["AZM/26"]),
+    ("What is the dose for a 6 month old baby?", {"M4"}, ["5–11 months", "4 ml"], ["3–4 months", "1–2 months"]),
+    ("What is the dose for a 2 year old?", {"M4"}, ["12–59 months", "dose pole"], ["2 ml", "can stand"]),
+    ("Can I give AZM to a child under 1 month?", {"M2"}, ["between 1 and 59 months"], []),
+    ("What is AZM?", {"M1"}, ["stands for azithromycin"], ["In the field"]),
+    ("What is a CDD?", {"M1"}, ["Community Drug Distributors"], []),
+    ("How many times is AZM given?", {"M1"}, ["once every six months"], []),
+    ("What is the MUAC cut off for malnutrition?", {"M2"}, ["< 11.5 cm"], []),
+    ("What are the danger signs?", {"M3"}, ["convulsion"], []),
+    ("How do I prepare the suspension?", {"M4"}, ["15 ml of clean water"], []),
 ]
 
 
@@ -144,7 +158,11 @@ def test_real_questions_get_correct_cited_answers(real_chunks, question, modules
     assert 0.5 <= r["confidence"] <= 1.0
 
 
-@pytest.mark.parametrize("question", ["What is the capital of France?", "pizza recipe", "what is it?", "   ??  "])
+@pytest.mark.parametrize("question", [
+    "What is the capital of France?", "pizza recipe", "what is it?", "   ??  ",
+    # Built around a word the materials never use: refuse rather than guess.
+    "What is the role of a CDD?", "How should I store the medicine?", "What does SARMAAN stand for?",
+])
 def test_unsupported_questions_get_strict_fallback_not_a_guess(real_chunks, question):
     r = qa.answer_question(question, real_chunks)
     assert r["matched"] is False
@@ -243,3 +261,19 @@ def test_years_are_read_as_months_so_a_toddler_never_gets_an_infant_dose(real_ch
     assert qa.normalize_ages("dose for a 2 year old") == "dose for a 24 months old"
     r = qa.answer_question("how much AZM for a 2 year old", real_chunks)
     assert "1–2 months" not in r["answer"]
+
+
+@pytest.mark.parametrize("greeting", ["Hello", "hi!", "Good morning", "thank you", "Sannu"])
+def test_greetings_get_a_friendly_reply_with_suggestions(real_chunks, greeting):
+    r = qa.answer_question(greeting, real_chunks)
+    assert r["matched"] is False
+    assert r["answer"] == qa.GREETING_MESSAGE
+    assert r["suggestions"]
+
+
+def test_example_codes_never_answer_a_question(real_chunks):
+    """House-marking example codes (AZM/26/1/...) count half, so they only
+    come up when nothing explains the topic better."""
+    for q in ["Who is eligible for AZM?", "How much AZM should a child receive?", "Which children get AZM?"]:
+        r = qa.answer_question(q, real_chunks)
+        assert "AZM/26" not in r["answer"], (q, r["answer"])

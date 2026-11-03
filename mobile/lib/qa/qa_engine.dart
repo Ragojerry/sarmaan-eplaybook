@@ -7,8 +7,11 @@
 /// here, change it in Python, regenerate the vectors, and re-run both suites.
 ///
 /// Pipeline: tokenize -> drop stopwords -> light stemming -> synonym
-/// expansion into "concepts" -> BM25 -> sentence-level re-rank -> verbatim
-/// sentence extraction -> citation -> strict refusal when evidence is thin.
+/// expansion into "concepts" -> BM25 candidate chunks -> sentence scoring
+/// (rare words weigh more, matching section headings help, dose questions
+/// prefer "N ml" sentences, definition questions prefer defining sentences,
+/// example codes count half) -> verbatim sentence extraction -> citation ->
+/// refusal when the evidence covers less than half the question's weight.
 /// No model, no network, nothing generated: every word of an answer is copied
 /// from approved training content.
 ///
@@ -25,6 +28,9 @@ const double _b = 0.75;
 const String kFallbackMessage =
     "I couldn't find a reliable answer to this question in your downloaded training materials.";
 
+const String kGreetingMessage =
+    'Hello! I answer questions from your AZM training modules. Ask in your own words, or tap one of the questions below.';
+
 const List<String> kSuggestions = [
   'Who is eligible for AZM?',
   'How much AZM should a child receive?',
@@ -34,10 +40,10 @@ const List<String> kSuggestions = [
 
 final Set<String> kStopwords = ('a about above after again all also am an and any are as at be because been before being below between '
         'both but by can could did do does doing down during each few for from further had has have having he her '
-        'here hers him his how i if in into is it its just me more most my no nor not of off on once only or other '
+        'here hers him his how i if in into is it its just me more most my no nor not of off on only or other '
         'our out over own same she should so some such than that the their them then there these they this those '
         'through to too under until up very was we were what when where which while who whom why will with would '
-        'you your')
+        'you your many now please tell give given gives giving receive received receives receiving get gets got')
     .split(' ')
     .toSet();
 
@@ -48,21 +54,26 @@ const List<List<String>> kSynonymGroups = [
   ['much', 'amount', 'quantity', 'volume', 'ml', 'dose', 'dosage', 'dosing'],
   ['prepare', 'mix', 'reconstitute', 'dissolve', 'shake', 'dilute'],
   ['child', 'children', 'infant', 'baby', 'toddler', 'kid', 'kids'],
-  ['age', 'aged', 'old', 'older', 'year', 'years', 'month', 'months', 'young', 'younger', 'newborn', 'neonate'],
-  ['eligible', 'eligibility', 'qualify', 'allowed', 'receive'],
+  ['age', 'aged', 'old', 'older', 'year', 'years', 'month', 'months', 'young', 'younger', 'newborn', 'neonate', 'group'],
+  ['eligible', 'eligibility', 'qualify', 'allowed', 'target', 'targets', 'targeted'],
   ['sick', 'ill', 'unwell', 'illness'],
   ['fever', 'temperature', 'hot'],
   ['refer', 'referral', 'referred', 'facility', 'clinic', 'hospital'],
   ['report', 'contact', 'email', 'concern', 'complaint', 'escalate'],
   ['malnutrition', 'malnourished', 'muac', 'wasting', 'sam', 'thin', 'skinny', 'underweight', 'emaciated', 'armband'],
-  ['allergy', 'allergic', 'allergies', 'reaction', 'rash', 'swelling'],
+  ['allergy', 'allergic', 'allergies', 'reaction', 'rash', 'swelling', 'swollen', 'swell'],
   ['photo', 'photograph', 'picture', 'camera'],
   ['house', 'home', 'household', 'compound', 'chalk', 'mark', 'marking', 'marked'],
   ['record', 'recording', 'card', 'register'],
   ['caregiver', 'parent', 'mother', 'guardian', 'mum'],
   ['safeguard', 'safeguarding', 'abuse', 'abused', 'protection', 'protect', 'harm', 'exploitation', 'misconduct'],
   ['pregnant', 'pregnancy', 'anc', 'antenatal'],
+  ['often', 'frequency', 'frequently', 'once', 'twice', 'times', 'annually', 'biannually', 'interval'],
+  ['cut', 'cutoff', 'threshold', 'range', 'classification', 'classify', 'level'],
 ];
+
+final Set<String> kGreetings =
+    'hi hello hey hiya good morning afternoon evening day thanks thank you ok okay greetings sannu salam'.split(' ').toSet();
 
 // ---------------------------------------------------------------- models
 
@@ -266,12 +277,39 @@ final RegExp _yearsRe = RegExp(r'\b(\d{1,2})\s*(?:-|\s)?\s*(?:years?|yrs?)\b', c
 String normalizeAges(String question) =>
     question.replaceAllMapped(_yearsRe, (m) => '${int.parse(m.group(1)!) * 12} months');
 
-/// One concept per distinct (synonym-expanded) question term.
+final RegExp _definitionQ = RegExp(
+    r"^\s*(?:what\s+(?:is|are|does|do)|what's|whats|define|meaning\s+of|who\s+(?:is|are))\b",
+    caseSensitive: false);
+final RegExp _definitionWords =
+    RegExp(r'\b(?:stands?\s+for|full\s+(?:meaning|form)|meaning|means?|definition|define)\b', caseSensitive: false);
+final RegExp _whoGets =
+    RegExp(r'^\s*(?:who|which)\b.*\b(?:receive[sd]?|get|gets|given|give)\b', caseSensitive: false);
+
+bool isDefinitionQuestion(String question) => _definitionQ.hasMatch(question);
+
+/// How much / dose questions: the answer should state an amount.
+bool isQuantityQuestion(String question) {
+  final terms = contentTerms(question).toSet();
+  return terms.contains('much') || terms.intersection(const {'dos', 'dosag', 'amount', 'quantity', 'volum', 'ml'}).isNotEmpty;
+}
+
+/// 'Which children should receive AZM?' asks who is eligible, though it never
+/// says so; the verbs themselves are stopwords.
+bool isEligibilityQuestion(String question) => _whoGets.hasMatch(question);
+
+bool isGreeting(String question) {
+  final tokens = tokenize(question);
+  return tokens.isNotEmpty && tokens.every(kGreetings.contains);
+}
+
+/// One concept per distinct (synonym-expanded) question term. Wording that
+/// only says "define this" (stand for, meaning) is not a concept.
 List<Set<String>> buildConcepts(String question) {
-  question = normalizeAges(question);
+  final terms = contentTerms(normalizeAges(question).replaceAll(_definitionWords, ' '));
+  if (isEligibilityQuestion(question)) terms.add(stem('eligible'));
   final concepts = <Set<String>>[];
   final seen = <String>{};
-  for (final term in contentTerms(question)) {
+  for (final term in terms) {
     final c = expand(term);
     final key = (c.toList()..sort()).join('|');
     if (!seen.add(key)) continue;
@@ -304,15 +342,13 @@ class _Ranked {
   final QaDoc doc;
   final int scoreI;
   final int matched;
-  int sentCov = 0;
+  List<_Scored> scored = const [];
+  int best = 0;
 
   _Ranked(this.doc, this.scoreI, this.matched);
 }
 
-List<_Ranked> _rank(List<Set<String>> concepts, QaIndex index) {
-  final docs = index.docs;
-  final avgdl = index.avgdl;
-  if (concepts.isEmpty || docs.isEmpty || avgdl == 0) return [];
+List<double> _idfs(List<Set<String>> concepts, List<QaDoc> docs) {
   final n = docs.length;
   final idfs = <double>[];
   for (final c in concepts) {
@@ -327,6 +363,14 @@ List<_Ranked> _rank(List<Set<String>> concepts, QaIndex index) {
     }
     idfs.add(math.log(1 + (n - df + 0.5) / (df + 0.5)));
   }
+  return idfs;
+}
+
+List<_Ranked> _rank(List<Set<String>> concepts, QaIndex index) {
+  final docs = index.docs;
+  final avgdl = index.avgdl;
+  if (concepts.isEmpty || docs.isEmpty || avgdl == 0) return [];
+  final idfs = _idfs(concepts, docs);
   final results = <_Ranked>[];
   for (final d in docs) {
     var score = 0.0;
@@ -405,54 +449,103 @@ bool _conceptHit(Set<String> stems, List<List<int>> ranges, Set<String> concept)
   return false;
 }
 
-int _sentenceCoverage(String sentence, List<Set<String>> concepts) {
-  final stems = _docTerms(sentence).toSet();
-  final ranges = _ranges(sentence);
-  var covered = 0;
-  for (final c in concepts) {
-    if (_conceptHit(stems, ranges, c)) covered += 1;
-  }
-  return covered;
-}
+final RegExp _ml = RegExp(r'\b[0-9]+(?:\.[0-9]+)?\s?ml\b', caseSensitive: false);
+final RegExp _code = RegExp(r'[A-Za-z0-9]+(?:/[A-Za-z0-9]+){3,}');
+final RegExp _parenText = RegExp(r'\(([^)]*)\)');
+const Set<String> _definingVerbs = {'stands', 'means', 'refers'};
+const Set<String> _linkingVerbs = {'is', 'are'};
 
-int _bestSentenceCov(String chunkText, List<Set<String>> concepts) {
+const int kQuantityBonus = 2000;
+const int kDefinesBonus = 2000;
+const int kDescribesBonus = 1000;
+
+/// kDefinesBonus if the sentence spells a question term out: 'Community Drug
+/// Distributors (CDDs)', 'AZM stands for ...'; kDescribesBonus for
+/// 'Safeguarding is ...'; else 0. Only a one-word bracket is an abbreviation;
+/// '(that would suggest >59 months)' defines nothing.
+int _definitionBonus(String sentence, List<Set<String>> concepts) {
+  for (final m in _parenText.allMatches(sentence)) {
+    final inside = tokenize(m.group(1)!);
+    if (inside.length == 1 && concepts.any((c) => c.contains(stem(inside[0])))) return kDefinesBonus;
+  }
+  final tokens = tokenize(sentence);
   var best = 0;
-  for (final sentence in splitSentences(chunkText)) {
-    final c = _sentenceCoverage(sentence, concepts);
-    if (c > best) best = c;
+  for (var i = 0; i < tokens.length - 1; i++) {
+    final st = stem(tokens[i]);
+    if (!concepts.any((c) => c.contains(st))) continue;
+    if (_definingVerbs.contains(tokens[i + 1])) return kDefinesBonus;
+    if (_linkingVerbs.contains(tokens[i + 1])) best = kDescribesBonus;
   }
   return best;
 }
 
-class _Scored {
-  final int i;
-  final int cov;
-  final String s;
-
-  _Scored(this.i, this.cov, this.s);
+List<bool> _hits(String sentence, List<Set<String>> concepts) {
+  final stems = _docTerms(sentence).toSet();
+  final ranges = _ranges(sentence);
+  return [for (final c in concepts) _conceptHit(stems, ranges, c)];
 }
 
-/// The most relevant sentence(s), verbatim. A second sentence is added only
-/// when it is AS relevant as the first. Empty if no sentence matches.
-List<String> bestSentences(String chunkText, List<Set<String>> concepts, {int limit = 2}) {
-  final sentences = splitSentences(chunkText);
-  final scored = <_Scored>[];
+class _Scored {
+  final int i;
+  final int score;
+  final int covered;
+  final String s;
+  final Set<int> hitSet;
+
+  _Scored(this.i, this.score, this.covered, this.s, this.hitSet);
+}
+
+/// Every sentence that hits at least one concept, best first. A hit in the
+/// sentence counts twice a concept's weight; a hit in the chunk's section
+/// heading adds it once.
+List<_Scored> _scoreSentences(QaChunk chunk, List<Set<String>> concepts, List<int> weights, bool quantity, bool definition) {
+  final titleHits = _hits(chunk.sectionTitle ?? '', concepts);
+  final out = <_Scored>[];
+  final sentences = splitSentences(chunk.chunkText);
   for (var i = 0; i < sentences.length; i++) {
-    final cov = _sentenceCoverage(sentences[i], concepts);
-    if (cov > 0) scored.add(_Scored(i, cov, sentences[i]));
+    final sent = sentences[i];
+    final hits = _hits(sent, concepts);
+    if (!hits.contains(true)) continue;
+    var score = 0;
+    var covered = 0;
+    for (var j = 0; j < weights.length; j++) {
+      if (hits[j]) score += 2 * weights[j];
+      if (titleHits[j]) score += weights[j];
+      if (hits[j] || titleHits[j]) covered += weights[j];
+    }
+    if (quantity && _ml.hasMatch(sent)) score += kQuantityBonus;
+    if (definition) score += _definitionBonus(sent, concepts);
+    if (_code.hasMatch(sent)) score ~/= 2; // an example code line is not an explanation
+    final hitSet = {for (var j = 0; j < concepts.length; j++) if (hits[j] || titleHits[j]) j};
+    out.add(_Scored(i, score, covered, sent, hitSet));
   }
-  if (scored.isEmpty) return [];
-  scored.sort((a, b) {
-    final c = b.cov.compareTo(a.cov);
+  out.sort((a, b) {
+    final c = b.score.compareTo(a.score);
     if (c != 0) return c;
     return a.i.compareTo(b.i);
   });
-  final chosen = <_Scored>[scored[0]];
-  if (limit > 1 && scored.length > 1 && scored[1].cov == scored[0].cov) {
-    chosen.add(scored[1]);
+  return out;
+}
+
+/// The best sentence verbatim, plus any sentence scoring exactly as well (the
+/// rows of a dose table), in reading order. Outside dose questions, one more
+/// sentence is added if it covers a part of the question the best one does
+/// not and scores at least a third as well: 'Who is eligible?' gets 'given
+/// only to children 1-59 months' beside 'younger ... not eligible'.
+List<String> _bestSentences(List<_Scored> scored, bool quantity, {int limit = 3}) {
+  if (scored.isEmpty) return [];
+  final top = scored[0];
+  final chosen = scored.where((x) => x.score == top.score).take(limit).toList();
+  if (!quantity && chosen.length == 1) {
+    for (final x in scored.skip(1)) {
+      if (x.hitSet.difference(top.hitSet).isNotEmpty && x.score * 3 >= top.score) {
+        chosen.add(x);
+        break;
+      }
+    }
   }
   chosen.sort((a, b) => a.i.compareTo(b.i));
-  return chosen.map((c) => c.s).toList();
+  return chosen.map((x) => x.s).toList();
 }
 
 int _pct(int matched, int total) => (100 * matched + total ~/ 2) ~/ total;
@@ -467,8 +560,8 @@ AnswerSource _source(QaChunk chunk, String snippet) => AnswerSource(
       snippet: snippet,
     );
 
-AnswerResult _fallback([int confidencePct = 0]) => AnswerResult(
-      answer: kFallbackMessage,
+AnswerResult _fallback([int confidencePct = 0, String message = kFallbackMessage]) => AnswerResult(
+      answer: message,
       matched: false,
       confidence: confidencePct / 100,
       offline: false,
@@ -478,21 +571,25 @@ AnswerResult _fallback([int confidencePct = 0]) => AnswerResult(
 
 /// Answers [question] from [chunks], or returns the strict fallback.
 AnswerResult answerQuestion(String question, List<QaChunk> chunks, {int minCoveragePct = kDefaultMinCoveragePct}) {
+  if (isGreeting(question)) return _fallback(0, kGreetingMessage);
   final index = buildIndex(chunks);
   final concepts = buildConcepts(question);
   final ranked = _rank(concepts, index);
   final candidates = ranked.where((r) => r.matched > 0 && r.scoreI > 0).toList();
   if (candidates.isEmpty) return _fallback();
 
-  // Re-rank: the chunk holding the single sentence that covers the most
-  // question concepts wins; chunk-level coverage, then BM25, break ties.
+  // Words found in nearly every chunk ("AZM", "child") weigh little; rare
+  // ones ("eligible", "vomit") decide which sentence answers the question.
+  final weights = [for (final idf in _idfs(concepts, index.docs)) (idf * 1000 + 0.5).floor()];
+  final total = weights.fold<int>(0, (a, b) => a + b);
+  final quantity = isQuantityQuestion(question);
+  final definition = isDefinitionQuestion(question);
   for (final r in candidates) {
-    r.sentCov = _bestSentenceCov(r.doc.chunk.chunkText, concepts);
+    r.scored = _scoreSentences(r.doc.chunk, concepts, weights, quantity, definition);
+    r.best = r.scored.isEmpty ? 0 : r.scored[0].score;
   }
   candidates.sort((a, b) {
-    var c = b.sentCov.compareTo(a.sentCov);
-    if (c != 0) return c;
-    c = b.matched.compareTo(a.matched);
+    var c = b.best.compareTo(a.best);
     if (c != 0) return c;
     c = b.scoreI.compareTo(a.scoreI);
     if (c != 0) return c;
@@ -500,20 +597,19 @@ AnswerResult answerQuestion(String question, List<QaChunk> chunks, {int minCover
   });
 
   final best = candidates[0];
-  final coveragePct = _pct(best.matched, concepts.length);
-  if (best.sentCov == 0 || coveragePct < minCoveragePct) return _fallback(coveragePct);
+  if (best.scored.isEmpty) return _fallback();
+  final coveragePct = _pct(best.scored[0].covered, total);
+  if (coveragePct < minCoveragePct) return _fallback(coveragePct);
 
   final bestChunk = best.doc.chunk;
-  final sentences = bestSentences(bestChunk.chunkText, concepts, limit: 2);
+  final sentences = _bestSentences(best.scored, quantity);
   final sources = <AnswerSource>[_source(bestChunk, sentences[0])];
 
   for (final r in candidates.skip(1)) {
     if (sources.length >= 3) break;
-    final minCov = best.sentCov < 2 ? best.sentCov : 2;
-    if (r.sentCov < minCov || _pct(r.matched, concepts.length) < minCoveragePct) continue;
-    if (r.scoreI * 2 < best.scoreI) continue;
-    final sn = bestSentences(r.doc.chunk.chunkText, concepts, limit: 1);
-    if (sn.isNotEmpty) sources.add(_source(r.doc.chunk, sn[0]));
+    if (r.scored.isEmpty || r.best * 2 < best.best) continue;
+    if (_pct(r.scored[0].covered, total) < minCoveragePct) continue;
+    sources.add(_source(r.doc.chunk, r.scored[0].s));
   }
 
   return AnswerResult(

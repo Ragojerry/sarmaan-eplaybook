@@ -37,6 +37,13 @@
   "for",
   "from",
   "further",
+  "get",
+  "gets",
+  "give",
+  "given",
+  "gives",
+  "giving",
+  "got",
   "had",
   "has",
   "have",
@@ -56,6 +63,7 @@
   "it",
   "its",
   "just",
+  "many",
   "me",
   "more",
   "most",
@@ -63,10 +71,10 @@
   "no",
   "nor",
   "not",
+  "now",
   "of",
   "off",
   "on",
-  "once",
   "only",
   "or",
   "other",
@@ -74,12 +82,18 @@
   "out",
   "over",
   "own",
+  "please",
+  "receive",
+  "received",
+  "receives",
+  "receiving",
   "same",
   "she",
   "should",
   "so",
   "some",
   "such",
+  "tell",
   "than",
   "that",
   "the",
@@ -186,14 +200,17 @@
    "young",
    "younger",
    "newborn",
-   "neonate"
+   "neonate",
+   "group"
   ],
   [
    "eligible",
    "eligibility",
    "qualify",
    "allowed",
-   "receive"
+   "target",
+   "targets",
+   "targeted"
   ],
   [
    "sick",
@@ -240,7 +257,9 @@
    "allergies",
    "reaction",
    "rash",
-   "swelling"
+   "swelling",
+   "swollen",
+   "swell"
   ],
   [
    "photo",
@@ -287,6 +306,26 @@
    "pregnancy",
    "anc",
    "antenatal"
+  ],
+  [
+   "often",
+   "frequency",
+   "frequently",
+   "once",
+   "twice",
+   "times",
+   "annually",
+   "biannually",
+   "interval"
+  ],
+  [
+   "cut",
+   "cutoff",
+   "threshold",
+   "range",
+   "classification",
+   "classify",
+   "level"
   ]
  ],
  "tokenize": [
@@ -443,7 +482,6 @@
    "expected": [
     "much",
     "azm",
-    "giv",
     "3",
     "month",
     "old"
@@ -530,6 +568,51 @@
    "source_title": "Azithromycin Drug Administration and Recording",
    "section_title": "AZM Powdered Oral Suspension (POS)",
    "chunk_text": "Check the expiry date before use. Reconstitute with 15 ml of clean water to obtain a 30 ml suspension. Each bottle serves 4 children. Shake vigorously before each use to keep the suspension consistent. Step — measure the exact dose shown by DIGIT HCM using the provided calibrated cup."
+  },
+  {
+   "id": "c8",
+   "module_id": null,
+   "section_id": null,
+   "module_code": "M2",
+   "source_title": "Determination of Eligibility for AZM Drug Administration",
+   "section_title": "Age eligibility",
+   "chunk_text": "AZM is given only to healthy children between 1 and 59 months. Children younger than 1 month, or 60 months and older, are not eligible. Ask to see the child's health card (green card), ask the caregiver, or use a calendar of local events to estimate age. 1–2 months: cannot hold head/neck steady upright. 3–4 months: can. 5–11 months: can crawl and sit unaided. 12–59 months: can stand, walk or run — but cannot raise an arm over the head to touch the opposite ear, and cannot stand or jump on one foot (that would suggest >59 months, ineligible)."
+  },
+  {
+   "id": "c9",
+   "module_id": null,
+   "section_id": null,
+   "module_code": "M4",
+   "source_title": "Azithromycin Drug Administration and Recording",
+   "section_title": "House-marking codes",
+   "chunk_text": "Every visited house is chalk-marked so no child is missed: Program / Year / Round / Team code / House no. / Eligible-given / Status Step — mark the house in chalk immediately after the visit — before moving to the next compound. AZM/26/1/56708/021/3/3/C — completed, all 3 eligible children dosed. AZM/26/1/56708/021/3/1/R — needs a revisit, only 1 of 3 dosed. AZM/26/1/56708/021/0/0/E — all children excluded."
+  },
+  {
+   "id": "c10",
+   "module_id": null,
+   "section_id": null,
+   "module_code": "M1",
+   "source_title": "Introduction to Azithromycin (AZM) Drug Administration",
+   "section_title": "What is AZM?",
+   "chunk_text": "In the field — a CDD introduces the AZM visit to a household before assessing the children present. AZM stands for Azithromycin, a broad-spectrum antibiotic used in the prevention and treatment of bacterial infections including acute lower respiratory tract infections, skin and soft-tissue infections, and gastro-enteric infections. It also offers some protection against malaria caused by Plasmodium falciparum. Why it matters: Azithromycin reduces childhood mortality by preventing and treating common childhood infections — Malaria, Pneumonia and Diarrhoea."
+  },
+  {
+   "id": "c11",
+   "module_id": null,
+   "section_id": null,
+   "module_code": "M1",
+   "source_title": "Introduction to Azithromycin (AZM) Drug Administration",
+   "section_title": "How it's delivered",
+   "chunk_text": "Door-to-door, by trained Community Drug Distributors (CDDs), supervised by health workers, LGA, State and National teams. Administration and reconciliation are done through the DIGIT HCM app installed on the CDD's own Android phone. Job aid tools: AZM Job Aid · Sample AZM Powdered Oral Suspension (POS) · DIGIT HCM app"
+  },
+  {
+   "id": "c12",
+   "module_id": null,
+   "section_id": null,
+   "module_code": "M4",
+   "source_title": "Azithromycin Drug Administration and Recording",
+   "section_title": "Recording & cohort tracking",
+   "chunk_text": "Every child's details, dose and date are recorded on the Child Record Card, kept by the caregiver for two years across all four rounds. Step — the completed Child Record Card stays with the caregiver — bring it to every future round. Cohort tracking follows the same children across rounds to monitor safety, coverage and adherence over time. Why it matters — a child who received AZM last round should also receive it this round, so progress can be tracked reliably."
   }
  ],
  "answers": [
@@ -537,9 +620,10 @@
    "question": "What age group is eligible for azithromycin?",
    "expected": {
     "matched": true,
-    "confidence": 0.75,
-    "answer": "AZM Drug Administration targets children aged 1–59 months.",
+    "confidence": 0.93,
+    "answer": "AZM is given only to healthy children between 1 and 59 months. Children younger than 1 month, or 60 months and older, are not eligible.",
     "source_ids": [
+     "c8",
      "c4"
     ]
    }
@@ -551,7 +635,8 @@
     "confidence": 1.0,
     "answer": "re-dose if the child vomits within 5 minutes",
     "source_ids": [
-     "c1"
+     "c1",
+     "c2"
     ]
    }
   },
@@ -559,7 +644,7 @@
    "question": "How much AZM should I give to a 3 month old?",
    "expected": {
     "matched": true,
-    "confidence": 1.0,
+    "confidence": 0.96,
     "answer": "Age (1–11 months): 3–4 months; Dose: 3 ml.",
     "source_ids": [
      "c1"
@@ -570,7 +655,7 @@
    "question": "How much AZM should I give to a 4 month old?",
    "expected": {
     "matched": true,
-    "confidence": 1.0,
+    "confidence": 0.95,
     "answer": "Age (1–11 months): 3–4 months; Dose: 3 ml.",
     "source_ids": [
      "c1"
@@ -581,10 +666,12 @@
    "question": "How much AZM should I give to a 2 year old?",
    "expected": {
     "matched": true,
-    "confidence": 0.8,
+    "confidence": 0.98,
     "answer": "For children 12–59 months, use the dose pole to measure height; the DIGIT HCM app (or the pole itself) shows the matching dose.",
     "source_ids": [
-     "c1"
+     "c1",
+     "c8",
+     "c4"
     ]
    }
   },
@@ -592,10 +679,11 @@
    "question": "My baby threw up the medicine, what now?",
    "expected": {
     "matched": true,
-    "confidence": 0.75,
+    "confidence": 1.0,
     "answer": "re-dose if the child vomits within 5 minutes",
     "source_ids": [
-     "c1"
+     "c1",
+     "c2"
     ]
    }
   },
@@ -603,10 +691,12 @@
    "question": "How much AZM should I give to a 8 month old?",
    "expected": {
     "matched": true,
-    "confidence": 0.8,
+    "confidence": 0.98,
     "answer": "Age (1–11 months): 5–11 months; Dose: 4 ml.",
     "source_ids": [
-     "c1"
+     "c1",
+     "c8",
+     "c4"
     ]
    }
   },
@@ -625,7 +715,7 @@
    "question": "What is the MUAC measurement for severe acute malnutrition?",
    "expected": {
     "matched": true,
-    "confidence": 0.75,
+    "confidence": 0.57,
     "answer": "MUAC range: < 11.5 cm; Classification: Severe Acute Malnutrition; Action: Refer to health facility immediately.",
     "source_ids": [
      "c6",
@@ -693,6 +783,160 @@
     "confidence": 0.0,
     "answer": "I couldn't find a reliable answer to this question in your downloaded training materials.",
     "source_ids": []
+   }
+  },
+  {
+   "question": "Who is eligible for AZM?",
+   "expected": {
+    "matched": true,
+    "confidence": 0.9,
+    "answer": "AZM is given only to healthy children between 1 and 59 months. Children younger than 1 month, or 60 months and older, are not eligible.",
+    "source_ids": [
+     "c8",
+     "c4",
+     "c9"
+    ]
+   }
+  },
+  {
+   "question": "Which children should receive azithromycin?",
+   "expected": {
+    "matched": true,
+    "confidence": 0.91,
+    "answer": "AZM is given only to healthy children between 1 and 59 months. Children younger than 1 month, or 60 months and older, are not eligible.",
+    "source_ids": [
+     "c8",
+     "c4",
+     "c9"
+    ]
+   }
+  },
+  {
+   "question": "How much AZM should a child receive?",
+   "expected": {
+    "matched": true,
+    "confidence": 0.81,
+    "answer": "Age (1–11 months): 1–2 months; Dose: 2 ml. Age (1–11 months): 3–4 months; Dose: 3 ml. Age (1–11 months): 5–11 months; Dose: 4 ml.",
+    "source_ids": [
+     "c1",
+     "c7"
+    ]
+   }
+  },
+  {
+   "question": "What is the dose for a 6 month old baby?",
+   "expected": {
+    "matched": true,
+    "confidence": 0.96,
+    "answer": "Age (1–11 months): 5–11 months; Dose: 4 ml.",
+    "source_ids": [
+     "c1",
+     "c4",
+     "c8"
+    ]
+   }
+  },
+  {
+   "question": "What is the dose for a 2 year old?",
+   "expected": {
+    "matched": true,
+    "confidence": 1.0,
+    "answer": "For children 12–59 months, use the dose pole to measure height; the DIGIT HCM app (or the pole itself) shows the matching dose.",
+    "source_ids": [
+     "c1",
+     "c4",
+     "c8"
+    ]
+   }
+  },
+  {
+   "question": "What is AZM?",
+   "expected": {
+    "matched": true,
+    "confidence": 1.0,
+    "answer": "AZM stands for Azithromycin, a broad-spectrum antibiotic used in the prevention and treatment of bacterial infections including acute lower respiratory tract infections, skin and soft-tissue infections, and gastro-enteric infections.",
+    "source_ids": [
+     "c10",
+     "c1",
+     "c8"
+    ]
+   }
+  },
+  {
+   "question": "What does AZM stand for?",
+   "expected": {
+    "matched": true,
+    "confidence": 1.0,
+    "answer": "AZM stands for Azithromycin, a broad-spectrum antibiotic used in the prevention and treatment of bacterial infections including acute lower respiratory tract infections, skin and soft-tissue infections, and gastro-enteric infections.",
+    "source_ids": [
+     "c10",
+     "c1",
+     "c8"
+    ]
+   }
+  },
+  {
+   "question": "What is a CDD?",
+   "expected": {
+    "matched": true,
+    "confidence": 1.0,
+    "answer": "Door-to-door, by trained Community Drug Distributors (CDDs), supervised by health workers, LGA, State and National teams.",
+    "source_ids": [
+     "c11",
+     "c5"
+    ]
+   }
+  },
+  {
+   "question": "How many times is AZM given?",
+   "expected": {
+    "matched": true,
+    "confidence": 0.93,
+    "answer": "It is given once every six months (bi-annually).",
+    "source_ids": [
+     "c4",
+     "c12"
+    ]
+   }
+  },
+  {
+   "question": "What is the MUAC cut off for malnutrition?",
+   "expected": {
+    "matched": true,
+    "confidence": 1.0,
+    "answer": "MUAC range: ≥ 12.5 cm; Classification: Normal; Action: No immediate action. MUAC range: 11.5 – 12.4 cm; Classification: Moderate Acute Malnutrition; Action: Refer to health facility for counselling. MUAC range: < 11.5 cm; Classification: Severe Acute Malnutrition; Action: Refer to health facility immediately.",
+    "source_ids": [
+     "c6"
+    ]
+   }
+  },
+  {
+   "question": "What is the role of a CDD?",
+   "expected": {
+    "matched": false,
+    "confidence": 0.21,
+    "answer": "I couldn't find a reliable answer to this question in your downloaded training materials.",
+    "source_ids": []
+   }
+  },
+  {
+   "question": "Hello",
+   "expected": {
+    "matched": false,
+    "confidence": 0.0,
+    "answer": "Hello! I answer questions from your AZM training modules. Ask in your own words, or tap one of the questions below.",
+    "source_ids": []
+   }
+  },
+  {
+   "question": "swollen face after medicine",
+   "expected": {
+    "matched": true,
+    "confidence": 1.0,
+    "answer": "Swelling of the face, mouth, tongue or other body parts; nausea or severe vomiting for more than 2 hours; skin rash, itching or blistering; severe weakness; loss of appetite; abdominal pain; diarrhoea; headache; unusual behaviour; yellowing of skin or eyes.",
+    "source_ids": [
+     "c2"
+    ]
    }
   }
  ]

@@ -2,9 +2,11 @@
 Deterministic extractive question answering (revised Phases 10/11).
 
 Pipeline: tokenize -> drop stopwords -> light stemming -> synonym expansion
-into "concepts" -> BM25 ranking over content chunks -> coverage check ->
-extract the best sentences verbatim -> cite the source -> refuse when the
-evidence is too thin. No embedding model, no vector DB, no LLM, and
+into "concepts" -> BM25 candidate chunks -> sentence scoring (rare words
+weigh more, matching section headings help, dose questions prefer "N ml"
+sentences, definition questions prefer defining sentences, example codes
+count half) -> extract the best sentences verbatim -> cite the source ->
+refuse when the evidence covers less than half the question's weight. No embedding model, no vector DB, no LLM, and
 therefore no possibility of a fabricated health answer: every word of an
 answer is copied from approved training content.
 
@@ -27,6 +29,11 @@ DEFAULT_MIN_COVERAGE_PCT = 50
 
 FALLBACK_MESSAGE = "I couldn't find a reliable answer to this question in your downloaded training materials."
 
+GREETING_MESSAGE = (
+    "Hello! I answer questions from your AZM training modules. "
+    "Ask in your own words, or tap one of the questions below."
+)
+
 SUGGESTIONS = [
     "Who is eligible for AZM?",
     "How much AZM should a child receive?",
@@ -37,10 +44,10 @@ SUGGESTIONS = [
 STOPWORDS = frozenset(
     "a about above after again all also am an and any are as at be because been before being below between "
     "both but by can could did do does doing down during each few for from further had has have having he her "
-    "here hers him his how i if in into is it its just me more most my no nor not of off on once only or other "
+    "here hers him his how i if in into is it its just me more most my no nor not of off on only or other "
     "our out over own same she should so some such than that the their them then there these they this those "
     "through to too under until up very was we were what when where which while who whom why will with would "
-    "you your".split()
+    "you your many now please tell give given gives giving receive received receives receiving get gets got".split()
 )
 
 # Single-word synonym groups. A query term expands to every group containing
@@ -53,21 +60,28 @@ SYNONYM_GROUPS = [
     ["much", "amount", "quantity", "volume", "ml", "dose", "dosage", "dosing"],
     ["prepare", "mix", "reconstitute", "dissolve", "shake", "dilute"],
     ["child", "children", "infant", "baby", "toddler", "kid", "kids"],
-    ["age", "aged", "old", "older", "year", "years", "month", "months", "young", "younger", "newborn", "neonate"],
-    ["eligible", "eligibility", "qualify", "allowed", "receive"],
+    ["age", "aged", "old", "older", "year", "years", "month", "months", "young", "younger", "newborn", "neonate",
+     "group"],
+    ["eligible", "eligibility", "qualify", "allowed", "target", "targets", "targeted"],
     ["sick", "ill", "unwell", "illness"],
     ["fever", "temperature", "hot"],
     ["refer", "referral", "referred", "facility", "clinic", "hospital"],
     ["report", "contact", "email", "concern", "complaint", "escalate"],
     ["malnutrition", "malnourished", "muac", "wasting", "sam", "thin", "skinny", "underweight", "emaciated", "armband"],
-    ["allergy", "allergic", "allergies", "reaction", "rash", "swelling"],
+    ["allergy", "allergic", "allergies", "reaction", "rash", "swelling", "swollen", "swell"],
     ["photo", "photograph", "picture", "camera"],
     ["house", "home", "household", "compound", "chalk", "mark", "marking", "marked"],
     ["record", "recording", "card", "register"],
     ["caregiver", "parent", "mother", "guardian", "mum"],
     ["safeguard", "safeguarding", "abuse", "abused", "protection", "protect", "harm", "exploitation", "misconduct"],
     ["pregnant", "pregnancy", "anc", "antenatal"],
+    ["often", "frequency", "frequently", "once", "twice", "times", "annually", "biannually", "interval"],
+    ["cut", "cutoff", "threshold", "range", "classification", "classify", "level"],
 ]
+
+GREETINGS = frozenset(
+    "hi hello hey hiya good morning afternoon evening day thanks thank you ok okay greetings sannu salam".split()
+)
 
 
 def _is_number(token):
@@ -157,12 +171,47 @@ def normalize_ages(question):
     return _YEARS_RE.sub(lambda m: f"{int(m.group(1)) * 12} months", question)
 
 
+_DEFINITION_Q = re.compile(
+    r"^\s*(?:what\s+(?:is|are|does|do)|what's|whats|define|meaning\s+of|who\s+(?:is|are))\b", re.IGNORECASE
+)
+_DEFINITION_WORDS = re.compile(
+    r"\b(?:stands?\s+for|full\s+(?:meaning|form)|meaning|means?|definition|define)\b", re.IGNORECASE
+)
+
+
+def is_definition_question(question):
+    return _DEFINITION_Q.search(question) is not None
+
+
+def is_quantity_question(question):
+    """How much / dose questions: the answer should state an amount."""
+    terms = set(content_terms(question))
+    return "much" in terms or bool(terms & {"dos", "dosag", "amount", "quantity", "volum", "ml"})
+
+
+_WHO_GETS = re.compile(r"^\s*(?:who|which)\b.*\b(?:receive[sd]?|get|gets|given|give)\b", re.IGNORECASE)
+
+
+def is_eligibility_question(question):
+    """'Which children should receive AZM?' asks who is eligible, though it
+    never says so; the verbs themselves are stopwords."""
+    return _WHO_GETS.search(question) is not None
+
+
+def is_greeting(question):
+    tokens = tokenize(question)
+    return bool(tokens) and all(t in GREETINGS for t in tokens)
+
+
 def build_concepts(question):
-    question = normalize_ages(question)
-    """One concept per distinct (synonym-expanded) question term."""
+    """One concept per distinct (synonym-expanded) question term. Wording
+    that only says "define this" (stand for, meaning) is not a concept."""
+    terms = content_terms(_DEFINITION_WORDS.sub(" ", normalize_ages(question)))
+    if is_eligibility_question(question):
+        terms.append(stem("eligible"))
     concepts = []
     seen = set()
-    for term in content_terms(question):
+    for term in terms:
         c = expand(term)
         key = "|".join(sorted(c))
         if key in seen:
@@ -191,11 +240,7 @@ def build_index(chunks):
     return {"docs": docs, "avgdl": avgdl}
 
 
-def rank(concepts, index):
-    docs = index["docs"]
-    avgdl = index["avgdl"]
-    if not concepts or not docs or avgdl == 0:
-        return []
+def _idfs(concepts, docs):
     n = len(docs)
     idfs = []
     for c in concepts:
@@ -206,6 +251,15 @@ def rank(concepts, index):
                     df += 1
                     break
         idfs.append(math.log(1 + (n - df + 0.5) / (df + 0.5)))
+    return idfs
+
+
+def rank(concepts, index):
+    docs = index["docs"]
+    avgdl = index["avgdl"]
+    if not concepts or not docs or avgdl == 0:
+        return []
+    idfs = _idfs(concepts, docs)
     results = []
     for d in docs:
         score = 0.0
@@ -272,44 +326,94 @@ def _concept_hit(stems, ranges, concept):
     return False
 
 
-def _sentence_coverage(sentence, concepts):
-    stems = set(_doc_terms(sentence))
-    ranges = _ranges(sentence)
-    covered = 0
-    for c in concepts:
-        if _concept_hit(stems, ranges, c):
-            covered += 1
-    return covered
+_ML = re.compile(r"\b[0-9]+(?:\.[0-9]+)?\s?ml\b", re.IGNORECASE)
+_CODE = re.compile(r"[A-Za-z0-9]+(?:/[A-Za-z0-9]+){3,}")
+_PAREN_TEXT = re.compile(r"\(([^)]*)\)")
+_DEFINING_VERBS = frozenset(["stands", "means", "refers"])
+_LINKING_VERBS = frozenset(["is", "are"])
+
+QUANTITY_BONUS = 2000
+DEFINES_BONUS = 2000
+DESCRIBES_BONUS = 1000
 
 
-def _best_sentence_cov(chunk_text, concepts):
+def _definition_bonus(sentence, concepts):
+    """DEFINES_BONUS if the sentence spells a question term out: 'Community
+    Drug Distributors (CDDs)', 'AZM stands for ...'; DESCRIBES_BONUS for
+    'Safeguarding is ...'; else 0. Only a one-word bracket is an
+    abbreviation; '(that would suggest >59 months)' defines nothing."""
+    for m in _PAREN_TEXT.finditer(sentence):
+        inside = tokenize(m.group(1))
+        if len(inside) == 1 and any(stem(inside[0]) in c for c in concepts):
+            return DEFINES_BONUS
+    tokens = tokenize(sentence)
     best = 0
-    for sentence in split_sentences(chunk_text):
-        c = _sentence_coverage(sentence, concepts)
-        if c > best:
-            best = c
+    for i in range(len(tokens) - 1):
+        st = stem(tokens[i])
+        if not any(st in c for c in concepts):
+            continue
+        if tokens[i + 1] in _DEFINING_VERBS:
+            return DEFINES_BONUS
+        if tokens[i + 1] in _LINKING_VERBS:
+            best = DESCRIBES_BONUS
     return best
 
 
-def best_sentences(chunk_text, concepts, limit=2):
-    """The most relevant sentence(s), verbatim. A second sentence is added
-    only when it is AS relevant as the first (covers the same number of
-    question concepts) — so a 'severe malnutrition' question returns the
-    severe row, not the moderate one too. [] if no sentence matches."""
-    sentences = split_sentences(chunk_text)
-    scored = []
-    for i, sent in enumerate(sentences):
-        cov = _sentence_coverage(sent, concepts)
-        if cov > 0:
-            scored.append((i, cov, sent))
+def _hits(sentence, concepts):
+    stems = set(_doc_terms(sentence))
+    ranges = _ranges(sentence)
+    return [_concept_hit(stems, ranges, c) for c in concepts]
+
+
+def _score_sentences(chunk, concepts, weights, quantity, definition):
+    """[(index, score, covered_weight, sentence, hit_concepts)] for every
+    sentence that hits at least one concept, best first. A hit in the
+    sentence counts twice a concept's weight; a hit in the chunk's section
+    heading adds it once."""
+    title_hits = _hits(chunk.get("section_title") or "", concepts)
+    out = []
+    for i, sent in enumerate(split_sentences(chunk["chunk_text"])):
+        hits = _hits(sent, concepts)
+        if not any(hits):
+            continue
+        score = 0
+        covered = 0
+        for j, w in enumerate(weights):
+            if hits[j]:
+                score += 2 * w
+            if title_hits[j]:
+                score += w
+            if hits[j] or title_hits[j]:
+                covered += w
+        if quantity and _ML.search(sent):
+            score += QUANTITY_BONUS
+        if definition:
+            score += _definition_bonus(sent, concepts)
+        if _CODE.search(sent):
+            score //= 2  # an example code line is not an explanation
+        hit_set = frozenset(j for j in range(len(concepts)) if hits[j] or title_hits[j])
+        out.append((i, score, covered, sent, hit_set))
+    out.sort(key=lambda x: (-x[1], x[0]))
+    return out
+
+
+def best_sentences(scored, quantity, limit=3):
+    """The best sentence verbatim, plus any sentence scoring exactly as well
+    (the rows of a dose table), in reading order. Outside dose questions, one
+    more sentence is added if it covers a part of the question the best one
+    does not and scores at least a third as well: 'Who is eligible?' gets
+    'given only to children 1-59 months' beside 'younger ... not eligible'."""
     if not scored:
         return []
-    scored.sort(key=lambda x: (-x[1], x[0]))
-    chosen = [scored[0]]
-    if limit > 1 and len(scored) > 1 and scored[1][1] == scored[0][1]:
-        chosen.append(scored[1])
+    top = scored[0]
+    chosen = [x for x in scored if x[1] == top[1]][:limit]
+    if not quantity and len(chosen) == 1:
+        for x in scored[1:]:
+            if x[4] - top[4] and x[1] * 3 >= top[1]:
+                chosen.append(x)
+                break
     chosen.sort(key=lambda x: x[0])
-    return [c[2] for c in chosen]
+    return [x[3] for x in chosen]
 
 
 def _pct(matched, total):
@@ -328,9 +432,9 @@ def _source(chunk, snippet):
     }
 
 
-def _fallback(confidence_pct=0):
+def _fallback(confidence_pct=0, message=FALLBACK_MESSAGE):
     return {
-        "answer": FALLBACK_MESSAGE,
+        "answer": message,
         "matched": False,
         "confidence": confidence_pct / 100,
         "offline": False,
@@ -340,6 +444,8 @@ def _fallback(confidence_pct=0):
 
 
 def answer_question(question, chunks_or_index, min_coverage_pct=DEFAULT_MIN_COVERAGE_PCT):
+    if is_greeting(question):
+        return _fallback(0, GREETING_MESSAGE)
     index = chunks_or_index if isinstance(chunks_or_index, dict) else build_index(chunks_or_index)
     concepts = build_concepts(question)
     ranked = rank(concepts, index)
@@ -347,32 +453,36 @@ def answer_question(question, chunks_or_index, min_coverage_pct=DEFAULT_MIN_COVE
     if not candidates:
         return _fallback()
 
-    # Re-rank: the chunk holding the single sentence that covers the most
-    # question concepts wins; chunk-level concept coverage, then BM25, break
-    # ties. (Pure BM25 favoured short chunks that merely repeat common words.)
+    # Words found in nearly every chunk ("AZM", "child") weigh little; rare
+    # ones ("eligible", "vomit") decide which sentence answers the question.
+    weights = [int(idf * 1000 + 0.5) for idf in _idfs(concepts, index["docs"])]
+    total = sum(weights)
+    quantity = is_quantity_question(question)
+    definition = is_definition_question(question)
     for r in candidates:
-        r["sent_cov"] = _best_sentence_cov(r["doc"]["chunk"]["chunk_text"], concepts)
-    candidates.sort(key=lambda r: (-r["sent_cov"], -r["matched"], -r["score_i"], r["doc"]["chunk"]["id"]))
+        r["scored"] = _score_sentences(r["doc"]["chunk"], concepts, weights, quantity, definition)
+        r["best"] = r["scored"][0][1] if r["scored"] else 0
+    candidates.sort(key=lambda r: (-r["best"], -r["score_i"], r["doc"]["chunk"]["id"]))
 
     best = candidates[0]
-    coverage_pct = _pct(best["matched"], len(concepts))
-    if best["sent_cov"] == 0 or coverage_pct < min_coverage_pct:
+    if not best["scored"]:
+        return _fallback()
+    coverage_pct = _pct(best["scored"][0][2], total)
+    if coverage_pct < min_coverage_pct:
         return _fallback(coverage_pct)
 
     best_chunk = best["doc"]["chunk"]
-    sentences = best_sentences(best_chunk["chunk_text"], concepts, limit=2)
+    sentences = best_sentences(best["scored"], quantity)
     sources = [_source(best_chunk, sentences[0])]
 
     for r in candidates[1:]:
         if len(sources) >= 3:
             break
-        if r["sent_cov"] < min(2, best["sent_cov"]) or _pct(r["matched"], len(concepts)) < min_coverage_pct:
+        if not r["scored"] or r["best"] * 2 < best["best"]:
             continue
-        if r["score_i"] * 2 < best["score_i"]:
+        if _pct(r["scored"][0][2], total) < min_coverage_pct:
             continue
-        sn = best_sentences(r["doc"]["chunk"]["chunk_text"], concepts, limit=1)
-        if sn:
-            sources.append(_source(r["doc"]["chunk"], sn[0]))
+        sources.append(_source(r["doc"]["chunk"], r["scored"][0][3]))
 
     return {
         "answer": " ".join(sentences),

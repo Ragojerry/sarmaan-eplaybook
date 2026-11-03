@@ -36,7 +36,7 @@ STEM = [
 ]
 CONTENT_TERMS = [
     ("What should I do if the child vomits after the medicine?", ["child", "vomit", "medicin"]),
-    ("How much AZM should I give to a 3 month old?", ["much", "azm", "giv", "3", "month", "old"]),
+    ("How much AZM should I give to a 3 month old?", ["much", "azm", "3", "month", "old"]),
     ("What is the capital of France?", ["capital", "franc"]),
     ("Children aged 1\u201359 months", ["children", "aged", "1", "59", "month"]),
 ]
@@ -48,6 +48,11 @@ FIXTURE_TITLES = [
     ("M6", "During the AZM campaign"),
     ("M2", "SARMAAN-II pilot: MUAC & ANC assessment"),
     ("M4", "AZM Powdered Oral Suspension (POS)"),
+    ("M2", "Age eligibility"),
+    ("M4", "House-marking codes"),
+    ("M1", "What is AZM?"),
+    ("M1", "How it's delivered"),
+    ("M4", "Recording & cohort tracking"),
 ]
 QUESTIONS = [
     "What age group is eligible for azithromycin?",
@@ -65,6 +70,19 @@ QUESTIONS = [
     "What is the capital of France?",
     "pizza recipe",
     "what is it?",
+    "Who is eligible for AZM?",
+    "Which children should receive azithromycin?",
+    "How much AZM should a child receive?",
+    "What is the dose for a 6 month old baby?",
+    "What is the dose for a 2 year old?",
+    "What is AZM?",
+    "What does AZM stand for?",
+    "What is a CDD?",
+    "How many times is AZM given?",
+    "What is the MUAC cut off for malnutrition?",
+    "What is the role of a CDD?",
+    "Hello",
+    "swollen face after medicine",
 ]
 
 
