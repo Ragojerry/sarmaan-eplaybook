@@ -47,6 +47,11 @@ max) are stored in Postgres (`reference_documents`, original file included), so
 they are covered by database backups and never touched by a redeploy. Phones that
 are online ask the server first (8 s limit), then answer on the device.
 
+Curated answers (admin portal > Curated answers, table `faq_entries`) are checked
+before everything else, on the server and on phones. Approved answers are live
+online at once; they reach phones as extra passages (`faq_questions` set) in the
+next release package or content sync.
+
 ## Redeploy the admin portal
 
 ```powershell

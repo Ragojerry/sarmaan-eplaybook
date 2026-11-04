@@ -1,7 +1,9 @@
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
+import { Link } from "react-router-dom";
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid } from "recharts";
 import { api } from "../services/api";
+import { useAuth } from "../services/auth";
 import { QuestionsReport, UsageReport } from "../types/api";
 
 const PERIODS = [7, 30, 90];
@@ -27,6 +29,8 @@ function Empty({ children }: { children: string }) {
  * statistics, so the page says so rather than implying full coverage.
  */
 export default function AnalyticsPage() {
+  const { user } = useAuth();
+  const canAnswer = user?.role === "CONTENT_ADMIN" || user?.role === "SUPER_ADMIN";
   const [days, setDays] = useState(30);
 
   const usage = useQuery<UsageReport>({
@@ -196,7 +200,14 @@ export default function AnalyticsPage() {
                     {q.top_unanswered.map((x) => (
                       <li key={x.question} className="flex justify-between gap-3 border-t pt-1">
                         <span>{x.question}</span>
-                        <span className="text-gray-500 shrink-0">×{x.count}</span>
+                        <span className="text-gray-500 shrink-0 space-x-2">
+                          <span>×{x.count}</span>
+                          {canAnswer && (
+                            <Link to={`/answers?question=${encodeURIComponent(x.question)}`} className="text-xs text-blue-700 underline">
+                              Answer this
+                            </Link>
+                          )}
+                        </span>
                       </li>
                     ))}
                   </ul>

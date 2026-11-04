@@ -184,6 +184,16 @@ class RagMetadata extends Table {
   Set<Column> get primaryKey => {id};
 }
 
+/// `faq_questions` from the server (a list, or absent) as stored in
+/// [ContentChunks.faqQuestions].
+String? encodeFaqQuestions(Object? json) {
+  final list = [for (final q in (json as List?) ?? const []) (q as String).trim()];
+  return list.isEmpty ? null : list.join('\n');
+}
+
+List<String> decodeFaqQuestions(String? column) =>
+    column == null ? const [] : [for (final q in column.split('\n')) if (q.trim().isNotEmpty) q];
+
 /// Revised Phases 10/11: the passages the on-device Q&A engine searches.
 /// Downloaded from GET /ai/chunks by ContentSyncService; one row per heading
 /// group of a published module (same chunks the server uses, so answers match
@@ -199,6 +209,8 @@ class ContentChunks extends Table {
   TextColumn get language => text()();
   TextColumn get sourceTitle => text()(); // the module's title
   TextColumn get chunkText => text()();
+  // Curated answers only: the questions this answers, one per line.
+  TextColumn get faqQuestions => text().nullable()();
 
   @override
   Set<Column> get primaryKey => {id};
@@ -282,7 +294,7 @@ class LocalDatabase extends _$LocalDatabase {
   // (user_id), so a second account on the same phone starts fresh and each
   // person resumes exactly where they stopped.
   @override
-  int get schemaVersion => 5;
+  int get schemaVersion => 6;
 
   String? _activeUserId;
 
@@ -317,6 +329,10 @@ class LocalDatabase extends _$LocalDatabase {
           }
           if (from < 5) {
             await m.createTable(cachedSectionTranslations);
+          }
+          if (from >= 2 && from < 6) {
+            // (A database older than 2 just created the table with the column.)
+            await m.addColumn(contentChunks, contentChunks.faqQuestions);
           }
           if (from < 3) {
             await m.addColumn(localProgress, localProgress.userId);

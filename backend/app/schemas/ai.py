@@ -35,3 +35,4 @@ class ChunkOut(BaseModel):
     language: str
     source_title: str
     chunk_text: str
+    faq_questions: list[str] | None = None  # set on curated answers: the questions they answer

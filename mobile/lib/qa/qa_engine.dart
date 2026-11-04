@@ -7,7 +7,9 @@
 /// here, change it in Python, regenerate the vectors, and re-run both suites.
 ///
 /// Pipeline: tokenize -> drop stopwords -> light stemming -> synonym
-/// expansion into "concepts" -> BM25 candidate chunks -> sentence scoring
+/// expansion into "concepts" -> a trainer-approved curated answer whose
+/// question matches (chunks with [QaChunk.faqQuestions]; see [matchFaq]) ->
+/// BM25 candidate chunks -> sentence scoring
 /// (rare words weigh more, matching section headings help, dose questions
 /// prefer "N ml" sentences, definition questions prefer defining sentences,
 /// example codes count half) -> verbatim sentence extraction -> citation ->
@@ -22,6 +24,7 @@ library;
 import 'dart:math' as math;
 
 const int kDefaultMinCoveragePct = 50;
+const int kFaqMinPct = 67; // share of terms a curated question and the user's must have in common, both ways
 const double _k1 = 1.5;
 const double _b = 0.75;
 
@@ -86,6 +89,9 @@ class QaChunk {
   final String? sectionTitle;
   final String chunkText;
 
+  /// Set on a curated answer: the question it answers and its other wordings.
+  final List<String> faqQuestions;
+
   const QaChunk({
     required this.id,
     this.moduleId,
@@ -94,6 +100,7 @@ class QaChunk {
     required this.sourceTitle,
     this.sectionTitle,
     required this.chunkText,
+    this.faqQuestions = const [],
   });
 
   factory QaChunk.fromJson(Map<String, dynamic> j) => QaChunk(
@@ -104,6 +111,7 @@ class QaChunk {
         sourceTitle: j['source_title'] as String,
         sectionTitle: j['section_title'] as String?,
         chunkText: j['chunk_text'] as String,
+        faqQuestions: [for (final q in (j['faq_questions'] as List?) ?? const []) q as String],
       );
 }
 
@@ -577,10 +585,71 @@ AnswerResult _fallback([int confidencePct = 0, String message = kFallbackMessage
       suggestions: List<String>.from(kSuggestions),
     );
 
+Set<String> _numbers(List<Set<String>> concepts) => {
+      for (final c in concepts)
+        for (final s in c)
+          if (_isNumber(s)) s,
+    };
+
+/// % of [concepts] that share a stem with some concept in [other].
+int _sharedPct(List<Set<String>> concepts, List<Set<String>> other) {
+  var hit = 0;
+  for (final c in concepts) {
+    for (final o in other) {
+      if (c.intersection(o).isNotEmpty) {
+        hit++;
+        break;
+      }
+    }
+  }
+  return _pct(hit, concepts.length);
+}
+
+/// The curated answer whose question (or one of its other wordings) best
+/// matches, with its %, or null. Both questions must share at least
+/// [kFaqMinPct] of their terms, each way, and exactly the same numbers: a
+/// curated answer for an 8-month-old must never answer a 3-month-old.
+(QaChunk, int)? matchFaq(String question, List<QaChunk> chunks) {
+  final concepts = buildConcepts(question);
+  if (concepts.isEmpty) return null;
+  final numbers = _numbers(concepts);
+  (QaChunk, int)? best;
+  for (final ch in chunks) {
+    for (final phrasing in ch.faqQuestions) {
+      final other = buildConcepts(phrasing);
+      if (other.isEmpty) continue;
+      final otherNumbers = _numbers(other);
+      if (otherNumbers.length != numbers.length || !otherNumbers.containsAll(numbers)) continue;
+      final a = _sharedPct(concepts, other);
+      final b = _sharedPct(other, concepts);
+      final pct = a < b ? a : b;
+      if (pct < kFaqMinPct) continue;
+      if (best == null || pct > best.$2 || (pct == best.$2 && ch.id.compareTo(best.$1.id) < 0)) {
+        best = (ch, pct);
+      }
+    }
+  }
+  return best;
+}
+
 /// Answers [question] from [chunks], or returns the strict fallback.
 AnswerResult answerQuestion(String question, List<QaChunk> chunks, {int minCoveragePct = kDefaultMinCoveragePct}) {
   if (isGreeting(question)) return _fallback(0, kGreetingMessage);
-  final index = buildIndex(chunks);
+  final faq = matchFaq(question, chunks);
+  if (faq != null) {
+    final (ch, pct) = faq;
+    return AnswerResult(
+      answer: ch.chunkText,
+      matched: true,
+      confidence: pct / 100,
+      offline: false,
+      sources: [_source(ch, splitSentences(ch.chunkText).first)],
+      suggestions: const [],
+    );
+  }
+  // A curated answer only makes sense next to its own question ("Give 4 ml"
+  // answers "...an 8 month old?"), so it is never searched as a passage.
+  final index = buildIndex([for (final ch in chunks) if (ch.faqQuestions.isEmpty) ch]);
   final concepts = buildConcepts(question);
   final ranked = _rank(concepts, index);
   final candidates = ranked.where((r) => r.matched > 0 && r.scoreI > 0).toList();

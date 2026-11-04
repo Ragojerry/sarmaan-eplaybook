@@ -17,6 +17,7 @@ from app.models.ai_question_log import AiQuestionLog
 from app.models.analytics_event import AnalyticsEvent
 from app.models.content_chunk import ContentChunk
 from app.models.reference_document import ReferenceDocument, ReferencePassage
+from app.models.faq_entry import FaqEntry
 from app.models.audit_log import AuditLog
 from app.models.boundary import AdminBoundary
 from app.models.api_key import ApiKey
@@ -42,6 +43,7 @@ __all__ = [
     "ContentChunk",
     "ReferenceDocument",
     "ReferencePassage",
+    "FaqEntry",
     "AuditLog",
     "AdminBoundary",
     "ApiKey",

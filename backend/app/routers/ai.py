@@ -15,6 +15,7 @@ from fastapi import APIRouter, Depends, Query
 from sqlalchemy.orm import Session
 
 from app.ai import qa_engine
+from app.ai.faq import faq_chunks
 from app.auth.dependencies import get_current_user
 from app.config import get_settings
 from app.database import get_db
@@ -46,7 +47,7 @@ def _load_chunks(db: Session, language: str) -> list[dict]:
             "chunk_text": c.chunk_text,
         }
         for c in rows
-    ]
+    ] + faq_chunks(db, language)
 
 
 def _load_reference_chunks(db: Session, language: str) -> list[dict]:

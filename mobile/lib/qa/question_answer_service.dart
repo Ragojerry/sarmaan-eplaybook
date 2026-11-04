@@ -78,6 +78,7 @@ class QuestionAnswerService {
             sourceTitle: r.sourceTitle,
             sectionTitle: r.sectionTitle,
             chunkText: r.chunkText,
+            faqQuestions: decodeFaqQuestions(r.faqQuestions),
           ),
       ];
       result = answerQuestion(q, chunks).copyWith(offline: true);

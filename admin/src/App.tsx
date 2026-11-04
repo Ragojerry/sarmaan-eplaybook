@@ -8,6 +8,7 @@ import AnalyticsPage from "./pages/AnalyticsPage";
 import AuditLogPage from "./pages/AuditLogPage";
 import VideosPage from "./pages/VideosPage";
 import ReferencesPage from "./pages/ReferencesPage";
+import AnswersPage from "./pages/AnswersPage";
 import UsersPage from "./pages/UsersPage";
 import BoundariesPage from "./pages/BoundariesPage";
 import ReportsPage from "./pages/ReportsPage";
@@ -35,6 +36,7 @@ export default function App() {
         <Route path="/content/:moduleId/quiz" element={<QuizEditorPage />} />
         <Route path="/videos" element={<VideosPage />} />
         <Route path="/references" element={<ReferencesPage />} />
+        <Route path="/answers" element={<AnswersPage />} />
         <Route path="/releases" element={<ReleasesPage />} />
         <Route path="/languages" element={<LanguagesPage />} />
         <Route path="/analytics" element={<AnalyticsPage />} />

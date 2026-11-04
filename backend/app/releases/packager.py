@@ -19,6 +19,7 @@ from pathlib import Path
 
 from sqlalchemy.orm import Session
 
+from app.ai.faq import faq_chunks
 from app.config import get_settings
 from app.quiz.grading import PASS_MARK
 from app.models import (
@@ -173,7 +174,7 @@ def build_package(db: Session, release: ContentRelease) -> dict:
         }
         for c in chunk_rows
         if str(c.module_id) in published_module_ids
-    ]
+    ] + [f for f in faq_chunks(db) if f["module_id"] in published_module_ids]
 
     return {
         "schema_version": SCHEMA_VERSION,

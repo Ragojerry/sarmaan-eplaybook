@@ -322,3 +322,23 @@ export interface ReferencePassage {
   heading: string | null;
   text: string;
 }
+
+export type FaqStatus = "DRAFT" | "APPROVED" | "ARCHIVED";
+
+export interface FaqEntry {
+  id: string;
+  question: string;
+  alternates: string | null;
+  answer: string;
+  module_id: string;
+  module_code: string | null;
+  module_title: string | null;
+  language: string;
+  status: FaqStatus;
+  source_question: string | null;
+  created_by: string | null;
+  approved_by: string | null;
+  approved_at: string | null;
+  created_at: string | null;
+  updated_at: string | null;
+}

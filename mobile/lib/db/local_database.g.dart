@@ -4368,6 +4368,12 @@ class $ContentChunksTable extends ContentChunks
   late final GeneratedColumn<String> chunkText = GeneratedColumn<String>(
       'chunk_text', aliasedName, false,
       type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _faqQuestionsMeta =
+      const VerificationMeta('faqQuestions');
+  @override
+  late final GeneratedColumn<String> faqQuestions = GeneratedColumn<String>(
+      'faq_questions', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
   @override
   List<GeneratedColumn> get $columns => [
         id,
@@ -4377,7 +4383,8 @@ class $ContentChunksTable extends ContentChunks
         sectionTitle,
         language,
         sourceTitle,
-        chunkText
+        chunkText,
+        faqQuestions
       ];
   @override
   String get aliasedName => _alias ?? actualTableName;
@@ -4438,6 +4445,12 @@ class $ContentChunksTable extends ContentChunks
     } else if (isInserting) {
       context.missing(_chunkTextMeta);
     }
+    if (data.containsKey('faq_questions')) {
+      context.handle(
+          _faqQuestionsMeta,
+          faqQuestions.isAcceptableOrUnknown(
+              data['faq_questions']!, _faqQuestionsMeta));
+    }
     return context;
   }
 
@@ -4463,6 +4476,8 @@ class $ContentChunksTable extends ContentChunks
           .read(DriftSqlType.string, data['${effectivePrefix}source_title'])!,
       chunkText: attachedDatabase.typeMapping
           .read(DriftSqlType.string, data['${effectivePrefix}chunk_text'])!,
+      faqQuestions: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}faq_questions']),
     );
   }
 
@@ -4481,6 +4496,7 @@ class ContentChunkRow extends DataClass implements Insertable<ContentChunkRow> {
   final String language;
   final String sourceTitle;
   final String chunkText;
+  final String? faqQuestions;
   const ContentChunkRow(
       {required this.id,
       required this.moduleId,
@@ -4489,7 +4505,8 @@ class ContentChunkRow extends DataClass implements Insertable<ContentChunkRow> {
       this.sectionTitle,
       required this.language,
       required this.sourceTitle,
-      required this.chunkText});
+      required this.chunkText,
+      this.faqQuestions});
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
     final map = <String, Expression>{};
@@ -4505,6 +4522,9 @@ class ContentChunkRow extends DataClass implements Insertable<ContentChunkRow> {
     map['language'] = Variable<String>(language);
     map['source_title'] = Variable<String>(sourceTitle);
     map['chunk_text'] = Variable<String>(chunkText);
+    if (!nullToAbsent || faqQuestions != null) {
+      map['faq_questions'] = Variable<String>(faqQuestions);
+    }
     return map;
   }
 
@@ -4522,6 +4542,9 @@ class ContentChunkRow extends DataClass implements Insertable<ContentChunkRow> {
       language: Value(language),
       sourceTitle: Value(sourceTitle),
       chunkText: Value(chunkText),
+      faqQuestions: faqQuestions == null && nullToAbsent
+          ? const Value.absent()
+          : Value(faqQuestions),
     );
   }
 
@@ -4537,6 +4560,7 @@ class ContentChunkRow extends DataClass implements Insertable<ContentChunkRow> {
       language: serializer.fromJson<String>(json['language']),
       sourceTitle: serializer.fromJson<String>(json['sourceTitle']),
       chunkText: serializer.fromJson<String>(json['chunkText']),
+      faqQuestions: serializer.fromJson<String?>(json['faqQuestions']),
     );
   }
   @override
@@ -4551,6 +4575,7 @@ class ContentChunkRow extends DataClass implements Insertable<ContentChunkRow> {
       'language': serializer.toJson<String>(language),
       'sourceTitle': serializer.toJson<String>(sourceTitle),
       'chunkText': serializer.toJson<String>(chunkText),
+      'faqQuestions': serializer.toJson<String?>(faqQuestions),
     };
   }
 
@@ -4562,7 +4587,8 @@ class ContentChunkRow extends DataClass implements Insertable<ContentChunkRow> {
           Value<String?> sectionTitle = const Value.absent(),
           String? language,
           String? sourceTitle,
-          String? chunkText}) =>
+          String? chunkText,
+          Value<String?> faqQuestions = const Value.absent()}) =>
       ContentChunkRow(
         id: id ?? this.id,
         moduleId: moduleId ?? this.moduleId,
@@ -4573,6 +4599,8 @@ class ContentChunkRow extends DataClass implements Insertable<ContentChunkRow> {
         language: language ?? this.language,
         sourceTitle: sourceTitle ?? this.sourceTitle,
         chunkText: chunkText ?? this.chunkText,
+        faqQuestions:
+            faqQuestions.present ? faqQuestions.value : this.faqQuestions,
       );
   ContentChunkRow copyWithCompanion(ContentChunksCompanion data) {
     return ContentChunkRow(
@@ -4588,6 +4616,9 @@ class ContentChunkRow extends DataClass implements Insertable<ContentChunkRow> {
       sourceTitle:
           data.sourceTitle.present ? data.sourceTitle.value : this.sourceTitle,
       chunkText: data.chunkText.present ? data.chunkText.value : this.chunkText,
+      faqQuestions: data.faqQuestions.present
+          ? data.faqQuestions.value
+          : this.faqQuestions,
     );
   }
 
@@ -4601,14 +4632,15 @@ class ContentChunkRow extends DataClass implements Insertable<ContentChunkRow> {
           ..write('sectionTitle: $sectionTitle, ')
           ..write('language: $language, ')
           ..write('sourceTitle: $sourceTitle, ')
-          ..write('chunkText: $chunkText')
+          ..write('chunkText: $chunkText, ')
+          ..write('faqQuestions: $faqQuestions')
           ..write(')'))
         .toString();
   }
 
   @override
   int get hashCode => Object.hash(id, moduleId, moduleCode, sectionId,
-      sectionTitle, language, sourceTitle, chunkText);
+      sectionTitle, language, sourceTitle, chunkText, faqQuestions);
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
@@ -4620,7 +4652,8 @@ class ContentChunkRow extends DataClass implements Insertable<ContentChunkRow> {
           other.sectionTitle == this.sectionTitle &&
           other.language == this.language &&
           other.sourceTitle == this.sourceTitle &&
-          other.chunkText == this.chunkText);
+          other.chunkText == this.chunkText &&
+          other.faqQuestions == this.faqQuestions);
 }
 
 class ContentChunksCompanion extends UpdateCompanion<ContentChunkRow> {
@@ -4632,6 +4665,7 @@ class ContentChunksCompanion extends UpdateCompanion<ContentChunkRow> {
   final Value<String> language;
   final Value<String> sourceTitle;
   final Value<String> chunkText;
+  final Value<String?> faqQuestions;
   final Value<int> rowid;
   const ContentChunksCompanion({
     this.id = const Value.absent(),
@@ -4642,6 +4676,7 @@ class ContentChunksCompanion extends UpdateCompanion<ContentChunkRow> {
     this.language = const Value.absent(),
     this.sourceTitle = const Value.absent(),
     this.chunkText = const Value.absent(),
+    this.faqQuestions = const Value.absent(),
     this.rowid = const Value.absent(),
   });
   ContentChunksCompanion.insert({
@@ -4653,6 +4688,7 @@ class ContentChunksCompanion extends UpdateCompanion<ContentChunkRow> {
     required String language,
     required String sourceTitle,
     required String chunkText,
+    this.faqQuestions = const Value.absent(),
     this.rowid = const Value.absent(),
   })  : id = Value(id),
         moduleId = Value(moduleId),
@@ -4669,6 +4705,7 @@ class ContentChunksCompanion extends UpdateCompanion<ContentChunkRow> {
     Expression<String>? language,
     Expression<String>? sourceTitle,
     Expression<String>? chunkText,
+    Expression<String>? faqQuestions,
     Expression<int>? rowid,
   }) {
     return RawValuesInsertable({
@@ -4680,6 +4717,7 @@ class ContentChunksCompanion extends UpdateCompanion<ContentChunkRow> {
       if (language != null) 'language': language,
       if (sourceTitle != null) 'source_title': sourceTitle,
       if (chunkText != null) 'chunk_text': chunkText,
+      if (faqQuestions != null) 'faq_questions': faqQuestions,
       if (rowid != null) 'rowid': rowid,
     });
   }
@@ -4693,6 +4731,7 @@ class ContentChunksCompanion extends UpdateCompanion<ContentChunkRow> {
       Value<String>? language,
       Value<String>? sourceTitle,
       Value<String>? chunkText,
+      Value<String?>? faqQuestions,
       Value<int>? rowid}) {
     return ContentChunksCompanion(
       id: id ?? this.id,
@@ -4703,6 +4742,7 @@ class ContentChunksCompanion extends UpdateCompanion<ContentChunkRow> {
       language: language ?? this.language,
       sourceTitle: sourceTitle ?? this.sourceTitle,
       chunkText: chunkText ?? this.chunkText,
+      faqQuestions: faqQuestions ?? this.faqQuestions,
       rowid: rowid ?? this.rowid,
     );
   }
@@ -4734,6 +4774,9 @@ class ContentChunksCompanion extends UpdateCompanion<ContentChunkRow> {
     if (chunkText.present) {
       map['chunk_text'] = Variable<String>(chunkText.value);
     }
+    if (faqQuestions.present) {
+      map['faq_questions'] = Variable<String>(faqQuestions.value);
+    }
     if (rowid.present) {
       map['rowid'] = Variable<int>(rowid.value);
     }
@@ -4751,6 +4794,7 @@ class ContentChunksCompanion extends UpdateCompanion<ContentChunkRow> {
           ..write('language: $language, ')
           ..write('sourceTitle: $sourceTitle, ')
           ..write('chunkText: $chunkText, ')
+          ..write('faqQuestions: $faqQuestions, ')
           ..write('rowid: $rowid')
           ..write(')'))
         .toString();
@@ -8317,6 +8361,7 @@ typedef $$ContentChunksTableCreateCompanionBuilder = ContentChunksCompanion
   required String language,
   required String sourceTitle,
   required String chunkText,
+  Value<String?> faqQuestions,
   Value<int> rowid,
 });
 typedef $$ContentChunksTableUpdateCompanionBuilder = ContentChunksCompanion
@@ -8329,6 +8374,7 @@ typedef $$ContentChunksTableUpdateCompanionBuilder = ContentChunksCompanion
   Value<String> language,
   Value<String> sourceTitle,
   Value<String> chunkText,
+  Value<String?> faqQuestions,
   Value<int> rowid,
 });
 
@@ -8364,6 +8410,9 @@ class $$ContentChunksTableFilterComposer
 
   ColumnFilters<String> get chunkText => $composableBuilder(
       column: $table.chunkText, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get faqQuestions => $composableBuilder(
+      column: $table.faqQuestions, builder: (column) => ColumnFilters(column));
 }
 
 class $$ContentChunksTableOrderingComposer
@@ -8399,6 +8448,10 @@ class $$ContentChunksTableOrderingComposer
 
   ColumnOrderings<String> get chunkText => $composableBuilder(
       column: $table.chunkText, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get faqQuestions => $composableBuilder(
+      column: $table.faqQuestions,
+      builder: (column) => ColumnOrderings(column));
 }
 
 class $$ContentChunksTableAnnotationComposer
@@ -8433,6 +8486,9 @@ class $$ContentChunksTableAnnotationComposer
 
   GeneratedColumn<String> get chunkText =>
       $composableBuilder(column: $table.chunkText, builder: (column) => column);
+
+  GeneratedColumn<String> get faqQuestions => $composableBuilder(
+      column: $table.faqQuestions, builder: (column) => column);
 }
 
 class $$ContentChunksTableTableManager extends RootTableManager<
@@ -8470,6 +8526,7 @@ class $$ContentChunksTableTableManager extends RootTableManager<
             Value<String> language = const Value.absent(),
             Value<String> sourceTitle = const Value.absent(),
             Value<String> chunkText = const Value.absent(),
+            Value<String?> faqQuestions = const Value.absent(),
             Value<int> rowid = const Value.absent(),
           }) =>
               ContentChunksCompanion(
@@ -8481,6 +8538,7 @@ class $$ContentChunksTableTableManager extends RootTableManager<
             language: language,
             sourceTitle: sourceTitle,
             chunkText: chunkText,
+            faqQuestions: faqQuestions,
             rowid: rowid,
           ),
           createCompanionCallback: ({
@@ -8492,6 +8550,7 @@ class $$ContentChunksTableTableManager extends RootTableManager<
             required String language,
             required String sourceTitle,
             required String chunkText,
+            Value<String?> faqQuestions = const Value.absent(),
             Value<int> rowid = const Value.absent(),
           }) =>
               ContentChunksCompanion.insert(
@@ -8503,6 +8562,7 @@ class $$ContentChunksTableTableManager extends RootTableManager<
             language: language,
             sourceTitle: sourceTitle,
             chunkText: chunkText,
+            faqQuestions: faqQuestions,
             rowid: rowid,
           ),
           withReferenceMapper: (p0) => p0

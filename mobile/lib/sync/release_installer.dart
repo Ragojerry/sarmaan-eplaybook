@@ -223,6 +223,7 @@ class ReleaseInstaller {
                 language: c['language'] as String,
                 sourceTitle: c['source_title'] as String,
                 chunkText: c['chunk_text'] as String,
+                faqQuestions: Value(encodeFaqQuestions(c['faq_questions'])),
               ),
           ]);
         }

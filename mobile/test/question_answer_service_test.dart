@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:drift/drift.dart' show Value;
 import 'package:drift/native.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:sarmaan_eplaybook/db/local_database.dart';
@@ -78,5 +79,42 @@ void main() {
     final r = await slow.ask('Who is eligible?');
     expect(r.offline, isTrue);
     expect(await queued(), 2);
+  });
+
+  test('a curated answer stored on the phone answers offline, in its own words only', () async {
+    await db.replaceChunks('en', [
+      ContentChunksCompanion.insert(
+        id: 'p1',
+        moduleId: 'm4',
+        moduleCode: 'M4',
+        sectionTitle: const Value('House-marking codes'),
+        language: 'en',
+        sourceTitle: 'Administering AZM',
+        chunkText: 'Every visited house is chalk-marked so no child is missed.',
+      ),
+      ContentChunksCompanion.insert(
+        id: 'f1',
+        moduleId: 'm4',
+        moduleCode: 'M4',
+        sectionTitle: const Value('What do I write on the door?'),
+        language: 'en',
+        sourceTitle: 'Administering AZM',
+        chunkText: 'Write the house-marking code in chalk on the door frame.',
+        faqQuestions: Value(encodeFaqQuestions(['What do I write on the door?', 'What goes on the door frame?'])),
+      ),
+    ]);
+    final service = QuestionAnswerService(db, (q, lang) async => throw Exception('offline'), maybeOnline: () async => false);
+
+    final r = await service.ask('what should I write on the door');
+    expect(r.matched, isTrue);
+    expect(r.offline, isTrue);
+    expect(r.answer, 'Write the house-marking code in chalk on the door frame.');
+    expect(r.sources.single.chunkId, 'f1');
+  });
+
+  test('curated questions survive storage', () {
+    expect(decodeFaqQuestions(encodeFaqQuestions(['A?', ' B? ', ''])), ['A?', 'B?']);
+    expect(encodeFaqQuestions(null), isNull);
+    expect(decodeFaqQuestions(null), isEmpty);
   });
 }

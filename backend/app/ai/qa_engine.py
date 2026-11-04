@@ -2,7 +2,8 @@
 Deterministic extractive question answering (revised Phases 10/11).
 
 Pipeline: tokenize -> drop stopwords -> light stemming -> synonym expansion
-into "concepts" -> BM25 candidate chunks -> sentence scoring (rare words
+into "concepts" -> a trainer-approved curated answer whose question matches
+(chunks carrying "faq_questions"; see match_faq) -> BM25 candidate chunks -> sentence scoring (rare words
 weigh more, matching section headings help, dose questions prefer "N ml"
 sentences, definition questions prefer defining sentences, example codes
 count half) -> extract the best sentences verbatim -> cite the source ->
@@ -26,6 +27,7 @@ import re
 K1 = 1.5
 B = 0.75
 DEFAULT_MIN_COVERAGE_PCT = 50
+FAQ_MIN_PCT = 67  # share of terms a curated question and the user's must have in common, both ways
 
 FALLBACK_MESSAGE = "I couldn't find a reliable answer to this question in your downloaded training materials."
 
@@ -443,10 +445,66 @@ def _fallback(confidence_pct=0, message=FALLBACK_MESSAGE):
     }
 
 
+def _numbers(concepts):
+    return set(s for c in concepts for s in c if _is_number(s))
+
+
+def _shared_pct(concepts, other):
+    """% of `concepts` that share a stem with some concept in `other`."""
+    hit = 0
+    for c in concepts:
+        for o in other:
+            if c & o:
+                hit += 1
+                break
+    return _pct(hit, len(concepts))
+
+
+def match_faq(question, chunks):
+    """-> (chunk, pct) for the curated answer whose question (or one of its
+    other wordings) best matches, or None. Both questions must share at least
+    FAQ_MIN_PCT of their terms, each way, and exactly the same numbers: a
+    curated answer for an 8-month-old must never answer a 3-month-old."""
+    concepts = build_concepts(question)
+    if not concepts:
+        return None
+    numbers = _numbers(concepts)
+    best = None
+    for ch in chunks:
+        for phrasing in ch.get("faq_questions") or []:
+            other = build_concepts(phrasing)
+            if not other or _numbers(other) != numbers:
+                continue
+            pct = min(_shared_pct(concepts, other), _shared_pct(other, concepts))
+            if pct < FAQ_MIN_PCT:
+                continue
+            if best is None or pct > best[1] or (pct == best[1] and ch["id"] < best[0]["id"]):
+                best = (ch, pct)
+    return best
+
+
 def answer_question(question, chunks_or_index, min_coverage_pct=DEFAULT_MIN_COVERAGE_PCT):
     if is_greeting(question):
         return _fallback(0, GREETING_MESSAGE)
-    index = chunks_or_index if isinstance(chunks_or_index, dict) else build_index(chunks_or_index)
+    chunks = [d["chunk"] for d in chunks_or_index["docs"]] if isinstance(chunks_or_index, dict) else chunks_or_index
+    faq = match_faq(question, chunks)
+    if faq is not None:
+        ch, pct = faq
+        return {
+            "answer": ch["chunk_text"],
+            "matched": True,
+            "confidence": pct / 100,
+            "offline": False,
+            "sources": [_source(ch, split_sentences(ch["chunk_text"])[0])],
+            "suggestions": [],
+        }
+    # A curated answer only makes sense next to its own question ("Give 4 ml"
+    # answers "...an 8 month old?"), so it is never searched as a passage.
+    passages = [ch for ch in chunks if not ch.get("faq_questions")]
+    if isinstance(chunks_or_index, dict) and len(passages) == len(chunks):
+        index = chunks_or_index
+    else:
+        index = build_index(passages)
     concepts = build_concepts(question)
     ranked = rank(concepts, index)
     candidates = [r for r in ranked if r["matched"] > 0 and r["score_i"] > 0]

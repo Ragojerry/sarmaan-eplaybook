@@ -88,6 +88,13 @@ class VideoStatus(str, enum.Enum):
     ARCHIVED = "ARCHIVED"
 
 
+class FaqStatus(str, enum.Enum):
+    """Curated answers: only APPROVED ones are used by the Ask assistant."""
+    DRAFT = "DRAFT"
+    APPROVED = "APPROVED"
+    ARCHIVED = "ARCHIVED"
+
+
 class ReferenceStatus(str, enum.Enum):
     """Reference library documents: only APPROVED ones are searched."""
     DRAFT = "DRAFT"
@@ -148,6 +155,8 @@ class AuditAction(str, enum.Enum):
     USER_UPDATE = "USER_UPDATE"
     REFERENCE_UPLOAD = "REFERENCE_UPLOAD"
     REFERENCE_UPDATE = "REFERENCE_UPDATE"
+    FAQ_CREATE = "FAQ_CREATE"
+    FAQ_UPDATE = "FAQ_UPDATE"
 
 
 class QuestionType(str, enum.Enum):

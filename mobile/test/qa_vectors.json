@@ -613,6 +613,43 @@
    "source_title": "Azithromycin Drug Administration and Recording",
    "section_title": "Recording & cohort tracking",
    "chunk_text": "Every child's details, dose and date are recorded on the Child Record Card, kept by the caregiver for two years across all four rounds. Step — the completed Child Record Card stays with the caregiver — bring it to every future round. Cohort tracking follows the same children across rounds to monitor safety, coverage and adherence over time. Why it matters — a child who received AZM last round should also receive it this round, so progress can be tracked reliably."
+  },
+  {
+   "id": "f1",
+   "module_id": null,
+   "section_id": null,
+   "module_code": "M4",
+   "source_title": "M4",
+   "section_title": "What do I write on the door?",
+   "chunk_text": "Write the house-marking code in chalk on the door frame. Write it before you leave the house.",
+   "faq_questions": [
+    "What do I write on the door?",
+    "What should I mark on the house?"
+   ]
+  },
+  {
+   "id": "f2",
+   "module_id": null,
+   "section_id": null,
+   "module_code": "M4",
+   "source_title": "M4",
+   "section_title": "How much AZM for an 8 month old?",
+   "chunk_text": "Give 4 ml with the dispensing cup.",
+   "faq_questions": [
+    "How much AZM for an 8 month old?"
+   ]
+  },
+  {
+   "id": "f3",
+   "module_id": null,
+   "section_id": null,
+   "module_code": "M2",
+   "source_title": "M2",
+   "section_title": "How do I know a child is too thin?",
+   "chunk_text": "Measure the left upper arm with the MUAC tape. Below 11.5 cm is severe acute malnutrition.",
+   "faq_questions": [
+    "How do I know a child is too thin?"
+   ]
   }
  ],
  "answers": [
@@ -691,12 +728,10 @@
    "question": "How much AZM should I give to a 8 month old?",
    "expected": {
     "matched": true,
-    "confidence": 0.98,
-    "answer": "Age (1–11 months): 5–11 months; Dose: 4 ml.",
+    "confidence": 1.0,
+    "answer": "Give 4 ml with the dispensing cup.",
     "source_ids": [
-     "c1",
-     "c8",
-     "c4"
+     "f2"
     ]
    }
   },
@@ -937,6 +972,70 @@
     "source_ids": [
      "c2"
     ]
+   }
+  },
+  {
+   "question": "What do I write on the door?",
+   "expected": {
+    "matched": true,
+    "confidence": 1.0,
+    "answer": "Write the house-marking code in chalk on the door frame. Write it before you leave the house.",
+    "source_ids": [
+     "f1"
+    ]
+   }
+  },
+  {
+   "question": "what should we mark on the home",
+   "expected": {
+    "matched": true,
+    "confidence": 1.0,
+    "answer": "Write the house-marking code in chalk on the door frame. Write it before you leave the house.",
+    "source_ids": [
+     "f1"
+    ]
+   }
+  },
+  {
+   "question": "How can I tell if a child is too thin?",
+   "expected": {
+    "matched": true,
+    "confidence": 0.67,
+    "answer": "Measure the left upper arm with the MUAC tape. Below 11.5 cm is severe acute malnutrition.",
+    "source_ids": [
+     "f3"
+    ]
+   }
+  },
+  {
+   "question": "How much AZM for a 8 month old?",
+   "expected": {
+    "matched": true,
+    "confidence": 1.0,
+    "answer": "Give 4 ml with the dispensing cup.",
+    "source_ids": [
+     "f2"
+    ]
+   }
+  },
+  {
+   "question": "How much AZM for a 3 month old?",
+   "expected": {
+    "matched": true,
+    "confidence": 0.96,
+    "answer": "Age (1–11 months): 3–4 months; Dose: 3 ml.",
+    "source_ids": [
+     "c1"
+    ]
+   }
+  },
+  {
+   "question": "write",
+   "expected": {
+    "matched": false,
+    "confidence": 0.0,
+    "answer": "I couldn't find a reliable answer to this question in your downloaded training materials.",
+    "source_ids": []
    }
   }
  ]

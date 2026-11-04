@@ -54,6 +54,15 @@ FIXTURE_TITLES = [
     ("M1", "How it's delivered"),
     ("M4", "Recording & cohort tracking"),
 ]
+# Curated answers (synthetic fixtures, not real entries): checked before the
+# passages, with exact number matching.
+FIXTURE_FAQS = [
+    ("f1", "M4", ["What do I write on the door?", "What should I mark on the house?"],
+     "Write the house-marking code in chalk on the door frame. Write it before you leave the house."),
+    ("f2", "M4", ["How much AZM for an 8 month old?"], "Give 4 ml with the dispensing cup."),
+    ("f3", "M2", ["How do I know a child is too thin?"],
+     "Measure the left upper arm with the MUAC tape. Below 11.5 cm is severe acute malnutrition."),
+]
 QUESTIONS = [
     "What age group is eligible for azithromycin?",
     "What should I do if the child vomits after the medicine?",
@@ -83,6 +92,12 @@ QUESTIONS = [
     "What is the role of a CDD?",
     "Hello",
     "swollen face after medicine",
+    "What do I write on the door?",
+    "what should we mark on the home",
+    "How can I tell if a child is too thin?",
+    "How much AZM for a 8 month old?",
+    "How much AZM for a 3 month old?",
+    "write",
 ]
 
 
@@ -103,6 +118,11 @@ def main():
             "source_title": row.source_title, "section_title": row.section_title, "chunk_text": row.chunk_text,
         })
     db.close()
+    for fid, code, questions, answer in FIXTURE_FAQS:
+        chunks.append({
+            "id": fid, "module_id": None, "section_id": None, "module_code": code, "source_title": code,
+            "section_title": questions[0], "chunk_text": answer, "faq_questions": questions,
+        })
 
     index = qa.build_index(chunks)
     answers = []
