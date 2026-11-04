@@ -15,6 +15,14 @@ class UserProfile {
   /// Field team, e.g. "0041" (shown on Home as "CDD TEAM 0041").
   final String? teamCode;
 
+  /// CDD, HEALTH_WORKER, LOGISTICIAN, MONITOR_SUPERVISOR or OTHER: decides
+  /// which role-specific modules this learner sees. Null for staff and for
+  /// learners whose role an administrator has not set yet.
+  final String? learnerRole;
+
+  /// Portal role CDD is the learner account; every other role is staff.
+  bool get isLearner => role == 'CDD';
+
   UserProfile({
     required this.id,
     required this.username,
@@ -24,6 +32,7 @@ class UserProfile {
     required this.role,
     required this.status,
     this.teamCode,
+    this.learnerRole,
   });
 
   factory UserProfile.fromJson(Map<String, dynamic> json) => UserProfile(
@@ -35,6 +44,7 @@ class UserProfile {
         role: json['role'] as String,
         status: json['status'] as String,
         teamCode: json['team_code'] as String?,
+        learnerRole: json['learner_role'] as String?,
       );
 }
 

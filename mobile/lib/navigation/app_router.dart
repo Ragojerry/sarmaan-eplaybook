@@ -33,7 +33,10 @@ final appRouterProvider = Provider<GoRouter>((ref) {
       ),
       GoRoute(
         path: '/quiz/:moduleId',
-        builder: (context, state) => QuizScreen(moduleId: state.pathParameters['moduleId']!),
+        builder: (context, state) => QuizScreen(
+          moduleId: state.pathParameters['moduleId']!,
+          testType: state.uri.queryParameters['test'] == 'pre' ? 'PRE' : 'POST',
+        ),
       ),
       GoRoute(path: '/videos', builder: (context, state) => const VideoLibraryScreen()),
       GoRoute(

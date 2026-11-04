@@ -4,6 +4,8 @@ import 'package:go_router/go_router.dart';
 
 import 'home_screen.dart' show cachedModulesProvider;
 import '../db/local_database.dart';
+import '../learning/learning_rules.dart';
+import '../learning/learning_service.dart';
 import '../theme/app_theme.dart';
 import '../widgets/app_bottom_nav.dart';
 
@@ -32,6 +34,7 @@ class _ModulesScreenState extends ConsumerState<ModulesScreen> {
   @override
   Widget build(BuildContext context) {
     final modulesAsync = ref.watch(cachedModulesProvider);
+    final learning = ref.watch(learningProvider).valueOrNull;
 
     return Scaffold(
       appBar: AppBar(title: const Text('Modules')),
@@ -66,7 +69,7 @@ class _ModulesScreenState extends ConsumerState<ModulesScreen> {
                 }
                 return ListView(
                   padding: const EdgeInsets.symmetric(vertical: 8),
-                  children: [for (final m in filtered) _ModuleRow(module: m)],
+                  children: [for (final m in filtered) _ModuleRow(module: m, state: learning?.of(m.id))],
                 );
               },
               loading: () => const Center(child: CircularProgressIndicator()),
@@ -82,8 +85,9 @@ class _ModulesScreenState extends ConsumerState<ModulesScreen> {
 
 class _ModuleRow extends StatelessWidget {
   final CachedModuleRow module;
+  final ModuleLearning? state;
 
-  const _ModuleRow({required this.module});
+  const _ModuleRow({required this.module, this.state});
 
   @override
   Widget build(BuildContext context) {
@@ -116,11 +120,21 @@ class _ModuleRow extends StatelessWidget {
                 children: [
                   Text(module.title, style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w700, color: AppColors.ink)),
                   const SizedBox(height: 2),
-                  Text(module.moduleCode, style: const TextStyle(fontSize: 10.5, color: AppColors.textMuted)),
+                  Text(
+                    state == null ? module.moduleCode : '${module.moduleCode} · ${stageLabel(state!.stage)}',
+                    style: const TextStyle(fontSize: 10.5, color: AppColors.textMuted),
+                  ),
                 ],
               ),
             ),
-            const Icon(Icons.chevron_right, color: Color(0xFFB7C0BA)),
+            Icon(
+              state?.stage == ModuleStage.locked
+                  ? Icons.lock_outline
+                  : state?.completed == true
+                      ? Icons.check_circle
+                      : Icons.chevron_right,
+              color: state?.completed == true ? AppColors.teal : const Color(0xFFB7C0BA),
+            ),
           ],
         ),
       ),

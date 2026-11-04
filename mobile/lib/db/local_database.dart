@@ -6,6 +6,8 @@ import 'package:drift/native.dart';
 import 'package:path/path.dart' as p;
 import 'package:path_provider/path_provider.dart';
 
+import '../learning/learning_rules.dart';
+
 part 'local_database.g.dart';
 
 /// Phase 8: the full local database per master prompt §19 — all 11 tables,
@@ -42,6 +44,9 @@ class CachedModules extends Table {
   TextColumn get status => text()();
   IntColumn get sortOrder => integer()();
   DateTimeColumn get cachedAt => dateTime()();
+  // GENERAL or ROLE_SPECIFIC; learnerRolesJson is a JSON list of learner roles (v7).
+  TextColumn get audience => text().withDefault(const Constant('GENERAL'))();
+  TextColumn get learnerRolesJson => text().withDefault(const Constant('[]'))();
 
   @override
   Set<Column> get primaryKey => {id};
@@ -118,6 +123,8 @@ class LocalProgress extends Table {
   TextColumn get lastSection => text().nullable()();
   DateTimeColumn get lastOpenedAt => dateTime().nullable()();
   DateTimeColumn get completedAt => dateTime().nullable()();
+  // When reading reached the end (v7). The post-test unlocks only after it.
+  DateTimeColumn get readingCompletedAt => dateTime().nullable()();
   BoolColumn get synced => boolean().withDefault(const Constant(false))();
 
   /// Owner of this row: every account on a shared phone keeps its own progress.
@@ -194,6 +201,16 @@ String? encodeFaqQuestions(Object? json) {
 List<String> decodeFaqQuestions(String? column) =>
     column == null ? const [] : [for (final q in column.split('\n')) if (q.trim().isNotEmpty) q];
 
+/// A JSON list of strings stored in a text column (e.g. a module's learner roles).
+List<String> decodeStringList(String? column) {
+  if (column == null || column.isEmpty) return const [];
+  try {
+    return [for (final v in jsonDecode(column) as List) v.toString()];
+  } catch (_) {
+    return const [];
+  }
+}
+
 /// Revised Phases 10/11: the passages the on-device Q&A engine searches.
 /// Downloaded from GET /ai/chunks by ContentSyncService; one row per heading
 /// group of a published module (same chunks the server uses, so answers match
@@ -239,6 +256,8 @@ class CachedQuizQuestions extends Table {
   TextColumn get contentJson => text()();
   TextColumn get explanation => text().nullable()();
   IntColumn get sortOrder => integer()();
+  // BOTH, PRE or POST: which test the question is in (v7).
+  TextColumn get usage => text().withDefault(const Constant('BOTH'))();
 
   @override
   Set<Column> get primaryKey => {id};
@@ -259,6 +278,11 @@ class LocalQuizAttempts extends Table {
   TextColumn get resultsJson => text()(); // [{question_id, correct}]
   DateTimeColumn get takenAt => dateTime()();
   BoolColumn get synced => boolean().withDefault(const Constant(false))();
+  // PRE or POST; LEGACY for attempts from before pre/post tests (v7), which never count.
+  TextColumn get testType => text().withDefault(const Constant('POST'))();
+  // The server's verdict once uploaded: false = it does not count (invalidReason says why).
+  BoolColumn get serverValid => boolean().nullable()();
+  TextColumn get invalidReason => text().nullable()();
 }
 
 @DriftDatabase(
@@ -293,19 +317,37 @@ class LocalDatabase extends _$LocalDatabase {
   // v3: progress, the upload queue and the question log are per user
   // (user_id), so a second account on the same phone starts fresh and each
   // person resumes exactly where they stopped.
+  // v7: learner-role audiences on modules, pre/post-test usage on questions,
+  // test type + server verdict on attempts, reading completion on progress.
   @override
-  int get schemaVersion => 6;
+  int get schemaVersion => 7;
 
   String? _activeUserId;
+  String? _learnerRole;
+  bool _staff = false;
 
   /// Whose data every progress/queue/question query below reads and writes.
   /// Set synchronously by the sign-in code BEFORE the signed-in state is
   /// published, so no screen ever reads the previous person's rows.
   String get _uid => _activeUserId ?? '';
 
-  void setActiveUser(String? userId) {
+  /// [learnerRole] and [staff] decide which cached modules this person may
+  /// see. The server already sends each role only its modules; this also
+  /// hides anything left from another account or before a role change.
+  void setActiveUser(String? userId, {String? learnerRole, bool staff = false}) {
     _activeUserId = userId;
+    _learnerRole = learnerRole;
+    _staff = staff;
   }
+
+  String? get activeLearnerRole => _learnerRole;
+
+  bool _visible(CachedModuleRow m) => moduleVisibleTo(
+        audience: m.audience,
+        learnerRoles: decodeStringList(m.learnerRolesJson),
+        staff: _staff,
+        learnerRole: _learnerRole,
+      );
 
   /// Analytics queued before anyone signed in belong to the device, not to a
   /// person; the first account to sign in adopts them.
@@ -333,6 +375,24 @@ class LocalDatabase extends _$LocalDatabase {
           if (from >= 2 && from < 6) {
             // (A database older than 2 just created the table with the column.)
             await m.addColumn(contentChunks, contentChunks.faqQuestions);
+          }
+          if (from >= 1 && from < 7) {
+            await m.addColumn(cachedModules, cachedModules.audience);
+            await m.addColumn(cachedModules, cachedModules.learnerRolesJson);
+            await m.addColumn(localProgress, localProgress.readingCompletedAt);
+            // Reading already done is kept, so the learner is not sent back to re-read.
+            await customStatement(
+              'UPDATE local_progress SET reading_completed_at = last_opened_at '
+              'WHERE progress_percent >= ${LocalDatabase.readingPercent} OR completed = 1',
+            );
+          }
+          if (from >= 4 && from < 7) {
+            await m.addColumn(cachedQuizQuestions, cachedQuizQuestions.usage);
+            await m.addColumn(localQuizAttempts, localQuizAttempts.testType);
+            await m.addColumn(localQuizAttempts, localQuizAttempts.serverValid);
+            await m.addColumn(localQuizAttempts, localQuizAttempts.invalidReason);
+            // Attempts from the single end-of-module quiz are kept as history only.
+            await customStatement("UPDATE local_quiz_attempts SET test_type = 'LEGACY'");
           }
           if (from < 3) {
             await m.addColumn(localProgress, localProgress.userId);
@@ -399,10 +459,26 @@ class LocalDatabase extends _$LocalDatabase {
     });
   }
 
-  Future<List<CachedQuizQuestionRow>> getQuizQuestions(String moduleId) => (select(cachedQuizQuestions)
-        ..where((q) => q.moduleId.equals(moduleId))
-        ..orderBy([(q) => OrderingTerm(expression: q.sortOrder)]))
-      .get();
+  /// A module's questions; with [testType] (PRE/POST) only that test's, or
+  /// every question when none is tagged for it (see learning_rules.dart).
+  Future<List<CachedQuizQuestionRow>> getQuizQuestions(String moduleId, {String? testType}) async {
+    final all = await (select(cachedQuizQuestions)
+          ..where((q) => q.moduleId.equals(moduleId))
+          ..orderBy([(q) => OrderingTerm(expression: q.sortOrder)]))
+        .get();
+    if (testType == null) return all;
+    final mine = all.where((q) => usedIn(q.usage, testType)).toList();
+    return mine.isEmpty ? all : mine;
+  }
+
+  /// Every cached question's usage, per module.
+  Future<Map<String, List<String>>> questionUsagesByModule() async {
+    final out = <String, List<String>>{};
+    for (final q in await select(cachedQuizQuestions).get()) {
+      out.putIfAbsent(q.moduleId, () => []).add(q.usage);
+    }
+    return out;
+  }
 
   Future<int> countQuizQuestions(String moduleId) async {
     final r = await (selectOnly(cachedQuizQuestions)
@@ -422,6 +498,8 @@ class LocalDatabase extends _$LocalDatabase {
     required int scorePercent,
     required bool passed,
     required String resultsJson,
+    required String testType,
+    DateTime? takenAt,
   }) async {
     await into(localQuizAttempts).insert(
       LocalQuizAttemptsCompanion.insert(
@@ -433,10 +511,58 @@ class LocalDatabase extends _$LocalDatabase {
         scorePercent: scorePercent,
         passed: passed,
         resultsJson: resultsJson,
-        takenAt: DateTime.now(),
+        takenAt: takenAt ?? DateTime.now(),
+        testType: Value(testType),
       ),
     );
   }
+
+  /// The signed-in user's attempts, oldest first.
+  Future<List<LocalQuizAttemptRow>> getQuizAttempts({String? moduleId}) => (select(localQuizAttempts)
+        ..where((a) => a.userId.equals(_uid) & (moduleId == null ? const Constant(true) : a.moduleId.equals(moduleId)))
+        ..orderBy([(a) => OrderingTerm.asc(a.takenAt)]))
+      .get();
+
+  /// Attempts the server already holds for this account (a new phone or a
+  /// reinstall): missing ones are added as synced; known ones get the
+  /// server's verdict.
+  Future<void> restoreAttemptFromServer({
+    required String clientId,
+    required String moduleId,
+    required String testType,
+    required int correct,
+    required int total,
+    required int scorePercent,
+    required bool passed,
+    required bool valid,
+    String? invalidReason,
+    required DateTime takenAt,
+  }) =>
+      transaction(() async {
+        final existing = await (select(localQuizAttempts)..where((a) => a.clientId.equals(clientId))).getSingleOrNull();
+        if (existing == null) {
+          await into(localQuizAttempts).insert(
+            LocalQuizAttemptsCompanion.insert(
+              userId: Value(_uid),
+              moduleId: moduleId,
+              clientId: clientId,
+              correctCount: correct,
+              totalCount: total,
+              scorePercent: scorePercent,
+              passed: passed,
+              resultsJson: '[]',
+              takenAt: takenAt,
+              synced: const Value(true),
+              testType: Value(testType),
+              serverValid: Value(valid),
+              invalidReason: Value(invalidReason),
+            ),
+          );
+        } else if (existing.userId == _uid) {
+          await (update(localQuizAttempts)..where((a) => a.clientId.equals(clientId)))
+              .write(LocalQuizAttemptsCompanion(serverValid: Value(valid), invalidReason: Value(invalidReason)));
+        }
+      });
 
   /// Highest-scoring attempt by the signed-in user for this module.
   Future<LocalQuizAttemptRow?> getBestQuizAttempt(String moduleId) => (select(localQuizAttempts)
@@ -456,8 +582,24 @@ class LocalDatabase extends _$LocalDatabase {
   Future<List<LocalQuizAttemptRow>> getUnsyncedQuizAttempts() =>
       (select(localQuizAttempts)..where((a) => a.synced.equals(false) & a.userId.equals(_uid))).get();
 
-  Future<void> markQuizAttemptSynced(String clientId) => (update(localQuizAttempts)..where((a) => a.clientId.equals(clientId)))
-      .write(const LocalQuizAttemptsCompanion(synced: Value(true)));
+  /// [valid] false (with [reason]) when the server stored the attempt but it
+  /// does not count, e.g. it arrived for a module this account may not open.
+  Future<void> markQuizAttemptSynced(String clientId, {bool? valid, String? reason}) =>
+      (update(localQuizAttempts)..where((a) => a.clientId.equals(clientId))).write(LocalQuizAttemptsCompanion(
+        synced: const Value(true),
+        serverValid: valid == null ? const Value.absent() : Value(valid),
+        invalidReason: valid == null ? const Value.absent() : Value(reason),
+      ));
+
+  // ---------- Test exceptions (approved by an administrator, per user) ----------
+
+  Future<Set<String>> getTestExceptions() async {
+    final raw = await getSetting('test_exceptions_$_uid');
+    return raw == null ? <String>{} : decodeStringList(raw).toSet();
+  }
+
+  Future<void> setTestExceptions(Iterable<String> moduleIds) =>
+      setSetting('test_exceptions_$_uid', jsonEncode(moduleIds.toSet().toList()..sort()));
 
   Future<void> replaceSectionsForModule(String moduleId, List<CachedSectionsCompanion> rows) async {
     await batch((batch) {
@@ -469,7 +611,15 @@ class LocalDatabase extends _$LocalDatabase {
   /// Modules in order, with title/description in the language the person
   /// chose when a published translation is cached (English otherwise).
   Future<List<CachedModuleRow>> getAllModules() async {
-    final rows = await (select(cachedModules)..orderBy([(t) => OrderingTerm(expression: t.sortOrder)])).get();
+    final rows = (await (select(cachedModules)
+              ..orderBy([
+                (t) => OrderingTerm(expression: t.sortOrder),
+                (t) => OrderingTerm(expression: t.moduleNumber),
+                (t) => OrderingTerm(expression: t.moduleCode),
+              ]))
+            .get())
+        .where(_visible)
+        .toList();
     final code = await getSetting('selected_language_code');
     if (code == null || code == 'en') return rows;
     final tr = await (select(cachedTranslations)..where((t) => t.languageCode.equals(code))).get();
@@ -483,8 +633,16 @@ class LocalDatabase extends _$LocalDatabase {
     ];
   }
 
-  Future<CachedModuleRow?> getModule(String id) =>
-      (select(cachedModules)..where((t) => t.id.equals(id))).getSingleOrNull();
+  /// Null also when the signed-in person may not see the module.
+  Future<CachedModuleRow?> getModule(String id) async {
+    final row = await (select(cachedModules)..where((t) => t.id.equals(id))).getSingleOrNull();
+    return row != null && _visible(row) ? row : null;
+  }
+
+  Future<Set<String>> visibleModuleIds() async => {
+        for (final m in await select(cachedModules).get())
+          if (_visible(m)) m.id,
+      };
 
   Future<List<CachedSectionRow>> getSectionsForModule(String moduleId) =>
       (select(cachedSections)
@@ -528,14 +686,17 @@ class LocalDatabase extends _$LocalDatabase {
   // extension required for this phase's scope; §19 lists "local search" as
   // a requirement, not specifically full-text-search tooling) ----------
 
-  Future<List<CachedModuleRow>> searchModules(String query) {
+  Future<List<CachedModuleRow>> searchModules(String query) async {
     final lower = '%${query.toLowerCase()}%';
-    return (select(cachedModules)..where((m) => m.title.lower().like(lower))).get();
+    return (await (select(cachedModules)..where((m) => m.title.lower().like(lower))).get()).where(_visible).toList();
   }
 
-  Future<List<CachedSectionRow>> searchSections(String query) {
+  Future<List<CachedSectionRow>> searchSections(String query) async {
     final lower = '%${query.toLowerCase()}%';
-    return (select(cachedSections)..where((s) => s.contentJson.lower().like(lower))).get();
+    final ids = await visibleModuleIds();
+    return (await (select(cachedSections)..where((s) => s.contentJson.lower().like(lower))).get())
+        .where((s) => ids.contains(s.moduleId))
+        .toList();
   }
 
   // ---------- Progress ----------
@@ -605,6 +766,18 @@ class LocalDatabase extends _$LocalDatabase {
       await _upsertProgress(moduleId, percent, null, lastSection);
     });
 
+  /// Records that the learner reached the end of the module (once; the first
+  /// time counts) and raises progress to [readingPercent].
+  Future<void> markReadingComplete(String moduleId, {String? lastSection}) => transaction(() async {
+        final existing = await getProgressForModule(moduleId);
+        if (existing == null || (!existing.completed && existing.progressPercent < readingPercent)) {
+          await _upsertProgress(moduleId, readingPercent, null, lastSection);
+        }
+        await (update(localProgress)
+              ..where((p) => p.moduleId.equals(moduleId) & p.userId.equals(_uid) & p.readingCompletedAt.isNull()))
+            .write(LocalProgressCompanion(readingCompletedAt: Value(DateTime.now()), synced: const Value(false)));
+      });
+
   Future<List<LocalProgressRow>> getAllProgress() =>
       (select(localProgress)..where((p) => p.userId.equals(_uid))).get();
 
@@ -618,6 +791,7 @@ class LocalDatabase extends _$LocalDatabase {
     String? lastSection,
     DateTime? lastOpenedAt,
     DateTime? completedAt,
+    DateTime? readingCompletedAt,
   }) =>
       transaction(() async {
     final local = await getProgressForModule(moduleId);
@@ -630,6 +804,7 @@ class LocalDatabase extends _$LocalDatabase {
           lastSection: Value(lastSection),
           lastOpenedAt: Value(lastOpenedAt),
           completedAt: Value(completedAt),
+          readingCompletedAt: Value(readingCompletedAt),
           synced: const Value(true),
           userId: Value(_uid),
         ),
@@ -637,6 +812,10 @@ class LocalDatabase extends _$LocalDatabase {
       return;
     }
     if (!local.synced) return;
+    if (local.readingCompletedAt == null && readingCompletedAt != null) {
+      await (update(localProgress)..where((p) => p.moduleId.equals(moduleId) & p.userId.equals(_uid)))
+          .write(LocalProgressCompanion(readingCompletedAt: Value(readingCompletedAt)));
+    }
     final serverNewer = lastOpenedAt != null && (local.lastOpenedAt == null || lastOpenedAt.isAfter(local.lastOpenedAt!));
     if (serverNewer || (completed && !local.completed)) {
       await (update(localProgress)..where((p) => p.moduleId.equals(moduleId) & p.userId.equals(_uid))).write(
@@ -760,8 +939,15 @@ class LocalDatabase extends _$LocalDatabase {
     });
   }
 
-  Future<List<ContentChunkRow>> getChunks(String language) =>
-      (select(contentChunks)..where((c) => c.language.equals(language))).get();
+  /// Search passages, minus those of cached modules the signed-in person may
+  /// not see (the server only sends a role its own passages; this covers
+  /// what is left on the phone from another account or a previous role).
+  Future<List<ContentChunkRow>> getChunks(String language) async {
+    final hidden = {for (final m in await select(cachedModules).get()) if (!_visible(m)) m.id};
+    return (await (select(contentChunks)..where((c) => c.language.equals(language))).get())
+        .where((c) => !hidden.contains(c.moduleId))
+        .toList();
+  }
 
   Future<void> logQuestion({required String question, String? answer, required bool matched}) async {
     await into(localAiQuestions).insert(
@@ -867,6 +1053,21 @@ class LocalDatabase extends _$LocalDatabase {
   // ---------- Videos (Phase 9: offline video) ----------
 
   Future<CachedVideoRow?> getVideo(String id) => (select(cachedVideos)..where((v) => v.id.equals(id))).getSingleOrNull();
+
+  /// Forgets downloaded videos that belong to modules the signed-in person may
+  /// no longer see (e.g. after a learner-role change) and returns their files
+  /// for the caller to delete. Videos without a module are for everyone.
+  Future<List<String>> removeVideosOfHiddenModules() async {
+    if (_activeUserId == null) return const [];
+    final visible = await visibleModuleIds();
+    final hidden = (await select(cachedVideos).get()).where((v) => v.moduleId != null && !visible.contains(v.moduleId));
+    final paths = <String>[];
+    for (final v in hidden) {
+      if (v.localPath != null) paths.add(v.localPath!);
+      await (delete(cachedVideos)..where((x) => x.id.equals(v.id))).go();
+    }
+    return paths;
+  }
 
   Future<void> markVideoDeleted(String id) async {
     await (update(cachedVideos)..where((v) => v.id.equals(id))).write(

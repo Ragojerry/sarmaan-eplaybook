@@ -77,6 +77,8 @@ class ContentSyncService {
           status: m['status'] as String,
           sortOrder: m['sort_order'] as int,
           cachedAt: DateTime.now(),
+          audience: Value(m['audience'] as String? ?? 'GENERAL'),
+          learnerRolesJson: Value(jsonEncode(m['learner_roles'] ?? const [])),
         ),
     ]);
 
@@ -243,6 +245,7 @@ class ContentSyncService {
               contentJson: jsonEncode(q['content']),
               explanation: Value(q['explanation'] as String?),
               sortOrder: q['sort_order'] as int,
+              usage: Value(q['usage'] as String? ?? 'BOTH'),
             ),
         ]);
         for (final q in qs) {

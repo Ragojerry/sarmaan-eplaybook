@@ -57,6 +57,17 @@ The first-launch consent screen's text (admin portal > Consent text, table
 comes before login. Phones cache all languages when they open the language
 screen online and fall back to English, then to the copy built into the app.
 
+## Learner roles and pre/post tests
+
+Backend migration `a3c8e4f61b29` (see docs/roles-and-tests.md) adds learner
+roles, module audiences and the pre-test/post-test flow. The minimum app version
+for the new flow is **0.1.8**: older apps keep syncing and receive only their
+role's content, but cannot complete modules that have questions. Before turning
+it on, confirm the module audiences and flagged accounts on the portal's "Roles &
+tests" page, and update learners' phones. To roll back, restore the pre-deploy
+dump or run `alembic downgrade f5b3d9e1a246`, which loses learner roles,
+audiences and exceptions.
+
 ## Redeploy the admin portal
 
 ```powershell

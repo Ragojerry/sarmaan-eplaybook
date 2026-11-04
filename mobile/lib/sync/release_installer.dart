@@ -21,6 +21,10 @@ class ReleaseInfo {
   final int? packageSize;
   final String? checksum;
 
+  /// Which role-filtered copy of the package the server prepared for this
+  /// account; a change (new learner role) means the content must be replaced.
+  final String? variant;
+
   const ReleaseInfo({
     required this.releaseCode,
     required this.version,
@@ -28,6 +32,7 @@ class ReleaseInfo {
     this.description,
     this.packageSize,
     this.checksum,
+    this.variant,
   });
 
   factory ReleaseInfo.fromJson(Map<String, dynamic> j) => ReleaseInfo(
@@ -37,6 +42,7 @@ class ReleaseInfo {
         description: j['description'] as String?,
         packageSize: j['package_size'] as int?,
         checksum: j['checksum'] as String?,
+        variant: j['variant'] as String?,
       );
 }
 
@@ -52,6 +58,9 @@ class InstallException implements Exception {
 }
 
 typedef InstallProgress = void Function(InstallStage stage, double fraction);
+
+/// Setting holding the installed package's variant (see ReleaseInfo.variant).
+const kInstalledVariantKey = 'installed_variant';
 
 /// Installs a content release (master prompt §56):
 ///
@@ -118,8 +127,8 @@ class ReleaseInstaller {
     final chunks = (pkg['chunks'] as List).cast<Map<String, dynamic>>();
     final counts = pkg['counts'] as Map<String, dynamic>;
     final sectionTotal = modules.fold<int>(0, (n, m) => n + (m['sections'] as List).length);
-    if (modules.isEmpty ||
-        counts['modules'] != modules.length ||
+    // A role may legitimately have no modules yet; the manifest still has to agree.
+    if (counts['modules'] != modules.length ||
         counts['sections'] != sectionTotal ||
         counts['media'] != media.length ||
         counts['chunks'] != chunks.length) {
@@ -163,6 +172,8 @@ class ReleaseInstaller {
               status: m['status'] as String,
               sortOrder: m['sort_order'] as int,
               cachedAt: now,
+              audience: Value(m['audience'] as String? ?? 'GENERAL'),
+              learnerRolesJson: Value(jsonEncode(m['learner_roles'] ?? const [])),
             ),
         ]);
         for (final m in modules) {
@@ -194,6 +205,7 @@ class ReleaseInstaller {
                 contentJson: jsonEncode(q['content']),
                 explanation: Value(q['explanation'] as String?),
                 sortOrder: q['sort_order'] as int,
+                usage: Value(q['usage'] as String? ?? 'BOTH'),
               ),
           ]);
           await _db.replaceSectionsForModule(moduleId, [
@@ -258,6 +270,7 @@ class ReleaseInstaller {
           moduleCount: modules.length,
           sectionCount: sectionTotal,
         );
+        await _db.setSetting(kInstalledVariantKey, release.variant ?? '');
       });
     } on InstallException {
       rethrow;

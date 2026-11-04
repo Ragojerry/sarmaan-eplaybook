@@ -7,12 +7,13 @@ import 'package:go_router/go_router.dart';
 
 import '../sync/analytics_recorder.dart';
 import '../db/local_database.dart';
+import '../learning/learning_rules.dart';
+import '../learning/learning_service.dart';
 import '../models/api_models.dart';
 import '../offline/content_sync_service.dart';
 import '../quiz/quiz_grader.dart';
 import '../theme/app_theme.dart';
 import '../widgets/offline_aware_image.dart';
-import 'quiz_screen.dart' show localQuizCountProvider, localBestQuizProvider;
 
 /// Phase 8: reads from the LOCAL cache — never the network — matching
 /// master prompt §18's offline-first requirement exactly ("module reading"
@@ -106,6 +107,8 @@ class _ReaderScreenState extends ConsumerState<ReaderScreen> {
   int _savedPercent = 0;
   int _pendingPercent = 0;
   String? _pendingWhere;
+  bool _canRead = false; // false until the pre-test is taken (and while locked)
+  bool _readingRecorded = false;
 
   @override
   void initState() {
@@ -114,20 +117,43 @@ class _ReaderScreenState extends ConsumerState<ReaderScreen> {
     _scroll.addListener(_onScroll);
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       final db = ref.read(localDatabaseProvider);
+      final state = (await loadLearning(db)).of(widget.moduleId);
+      _canRead = state?.canRead ?? false;
+      _readingRecorded = state?.readingDone ?? false;
+      if (!_canRead) return; // reading starts only after the pre-test
       final existing = await db.getProgressForModule(widget.moduleId);
       _savedPercent = existing?.progressPercent ?? 0;
       await db.upsertProgress(moduleId: widget.moduleId);
       recordAnalyticsEvent(db, 'MODULE_OPEN', moduleId: widget.moduleId);
+      _checkShortModule();
     });
   }
 
+  /// A module short enough to fit on the screen is read as soon as it shows.
+  void _checkShortModule() {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted || !_scroll.hasClients || _loadedSections.isEmpty) return;
+      if (_scroll.position.maxScrollExtent <= 0) _recordReadingDone();
+    });
+  }
+
+  /// Reaching the end of the module finishes reading: the post-test opens.
+  Future<void> _recordReadingDone() async {
+    if (!_canRead || _readingRecorded) return;
+    _readingRecorded = true;
+    _savedPercent = LocalDatabase.readingPercent;
+    await _db.markReadingComplete(widget.moduleId, lastSection: _pendingWhere);
+    ref.invalidate(learningProvider);
+  }
+
   /// Reading progress = how far down the module the learner has scrolled,
-  /// scaled to 0-50% (the quiz and "Mark as complete" earn the rest).
+  /// scaled to 0-50% (the post-test earns the rest).
   void _onScroll() {
-    if (!_scroll.hasClients) return;
+    if (!_scroll.hasClients || !_canRead) return;
     final max = _scroll.position.maxScrollExtent;
     if (max <= 0) return;
     final fraction = (_scroll.position.pixels / max).clamp(0.0, 1.0);
+    if (fraction >= 0.98) _recordReadingDone();
     final percent = (fraction * LocalDatabase.readingPercent).round();
     if (percent <= _pendingPercent) return;
     _pendingPercent = percent;
@@ -144,7 +170,7 @@ class _ReaderScreenState extends ConsumerState<ReaderScreen> {
   }
 
   Future<void> _flushProgress() async {
-    if (_pendingPercent <= _savedPercent) return;
+    if (!_canRead || _pendingPercent <= _savedPercent) return;
     _savedPercent = _pendingPercent;
     await _db.raiseProgress(widget.moduleId, _pendingPercent, lastSection: _pendingWhere);
   }
@@ -171,17 +197,11 @@ class _ReaderScreenState extends ConsumerState<ReaderScreen> {
     }
   }
 
+  /// Modules without tests only: modules with tests are completed by their post-test.
   Future<void> _markComplete() async {
     final db = ref.read(localDatabaseProvider);
-    // A module with a quiz can be completed only after a passing attempt (>= 90%).
-    if (await db.countQuizQuestions(widget.moduleId) > 0 && !await db.hasPassedQuiz(widget.moduleId)) {
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Pass the quiz with 90% or more to complete this module.')),
-        );
-      }
-      return;
-    }
+    final state = (await loadLearning(db)).of(widget.moduleId);
+    if (state == null || !state.unlocked || state.hasTests) return;
     await db.upsertProgress(moduleId: widget.moduleId, progressPercent: 100, completed: true);
     await db.enqueueSync(
       'progress',
@@ -189,6 +209,7 @@ class _ReaderScreenState extends ConsumerState<ReaderScreen> {
     );
     await recordAnalyticsEvent(db, 'MODULE_COMPLETE', moduleId: widget.moduleId);
     ref.invalidate(localProgressProvider(widget.moduleId));
+    ref.invalidate(learningProvider);
     if (mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Marked complete. Will sync to your account when online.')),
@@ -196,12 +217,93 @@ class _ReaderScreenState extends ConsumerState<ReaderScreen> {
     }
   }
 
-  /// Quiz modules: a card that opens the quiz (passing it completes the
-  /// module). Modules with no quiz keep the plain "Mark as complete" button.
-  Widget _completionArea(bool completed) {
-    final count = ref.watch(localQuizCountProvider(widget.moduleId)).valueOrNull ?? 0;
-    final best = ref.watch(localBestQuizProvider(widget.moduleId)).valueOrNull;
-    if (count == 0) {
+  Widget _card({required IconData icon, required String title, required String body, Widget? action, bool good = false}) {
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: AppColors.white,
+        borderRadius: BorderRadius.circular(AppRadius.medium),
+        border: Border.all(color: good ? AppColors.teal : AppColors.line),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Icon(icon, size: 20, color: AppColors.teal),
+              const SizedBox(width: 8),
+              Expanded(
+                child: Text(title, style: const TextStyle(fontWeight: FontWeight.w800, fontSize: 15, color: AppColors.tealDeep)),
+              ),
+            ],
+          ),
+          const SizedBox(height: 6),
+          Text(body, style: const TextStyle(fontSize: 12.5, height: 1.45, color: AppColors.textSecondary)),
+          if (action != null) ...[const SizedBox(height: 12), SizedBox(width: double.infinity, child: action)],
+        ],
+      ),
+    );
+  }
+
+  Widget _primary(String label, VoidCallback? onPressed) => FilledButton(
+        onPressed: onPressed,
+        style: FilledButton.styleFrom(backgroundColor: AppColors.tealDeep, foregroundColor: AppColors.sand),
+        child: Text(label),
+      );
+
+  /// Shown instead of the module when it cannot be read yet.
+  Widget _gate(LearningSnapshot learning, ModuleLearning? state) {
+    final Widget card;
+    if (state == null) {
+      card = _card(
+        icon: Icons.block,
+        title: 'Not available',
+        body: 'This module is not part of the training for your role.',
+        action: OutlinedButton(onPressed: () => context.go('/modules'), child: const Text('Back to modules')),
+      );
+    } else if (state.stage == ModuleStage.locked) {
+      final blocker = learning.blockerOf(widget.moduleId);
+      card = _card(
+        icon: Icons.lock_outline,
+        title: 'Locked',
+        body: 'Complete ${blocker?.title ?? 'the previous module'} first. Modules open one after another, '
+            'when the previous one is completed.',
+        action: blocker == null ? null : _primary('Go to ${blocker.moduleCode}', () => context.go('/reader/${blocker.id}')),
+      );
+    } else {
+      card = _card(
+        icon: Icons.quiz_outlined,
+        title: 'Start with the pre-test',
+        body: 'Before reading, answer ${state.preQuestions} questions to show what you already know. It is not a pass '
+            'or fail: it is your starting point. After reading, a post-test of at least $kQuizPassMark% and higher than '
+            'your pre-test score completes the module.',
+        action: _primary('Start the pre-test', () => context.go('/quiz/${widget.moduleId}?test=pre')),
+      );
+    }
+    return ListView(padding: const EdgeInsets.fromLTRB(22, 22, 22, 28), children: [card]);
+  }
+
+  /// Pre-test score, shown above the module once taken.
+  Widget _preTestBanner(ModuleLearning state) {
+    final pre = state.pre;
+    if (!state.hasTests || pre == null) return const SizedBox.shrink();
+    return Container(
+      margin: const EdgeInsets.only(bottom: 14),
+      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+      decoration: BoxDecoration(color: AppColors.tealSoft, borderRadius: BorderRadius.circular(10)),
+      child: Text(
+        state.completed
+            ? 'Pre-test ${pre.percent}% · completed'
+            : 'Your pre-test: ${pre.percent}% (${pre.correct}/${pre.total}). Read to the end to open the post-test.',
+        style: const TextStyle(fontSize: 12, color: AppColors.calloutGoodText),
+      ),
+    );
+  }
+
+  /// The end of the module: "Mark as complete" (no tests) or the post-test.
+  Widget _completionArea(ModuleLearning state) {
+    final completed = state.completed;
+    if (!state.hasTests) {
       return OutlinedButton.icon(
         onPressed: completed ? null : _markComplete,
         icon: Icon(completed ? Icons.check_circle : Icons.check_circle_outline, size: 18),
@@ -215,63 +317,45 @@ class _ReaderScreenState extends ConsumerState<ReaderScreen> {
             : null,
       );
     }
-    final passed = best?.passed ?? false;
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      children: [
-        Container(
-          padding: const EdgeInsets.all(16),
-          decoration: BoxDecoration(
-            color: AppColors.white,
-            borderRadius: BorderRadius.circular(AppRadius.medium),
-            border: Border.all(color: passed ? AppColors.teal : AppColors.line),
-          ),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Row(
-                children: [
-                  Icon(passed ? Icons.check_circle : Icons.quiz_outlined, size: 20, color: AppColors.teal),
-                  const SizedBox(width: 8),
-                  Text(
-                    passed ? 'Quiz passed' : 'Module quiz',
-                    style: const TextStyle(fontWeight: FontWeight.w800, fontSize: 15, color: AppColors.tealDeep),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 6),
-              Text(
-                '$count questions. You need $kQuizPassMark% to complete this module.'
-                '${best != null ? ' Best score: ${best.scorePercent}%.' : ''}',
-                style: const TextStyle(fontSize: 12.5, height: 1.4, color: AppColors.textSecondary),
-              ),
-              const SizedBox(height: 12),
-              SizedBox(
-                width: double.infinity,
-                child: FilledButton(
-                  onPressed: () => context.go('/quiz/${widget.moduleId}'),
-                  style: FilledButton.styleFrom(backgroundColor: AppColors.tealDeep, foregroundColor: AppColors.sand),
-                  child: Text(best == null ? 'Take the quiz' : (passed ? 'Retake quiz' : 'Try again')),
-                ),
-              ),
-            ],
-          ),
-        ),
-        const SizedBox(height: 12),
-        OutlinedButton.icon(
-          // Active only once the best attempt is 90% or more.
-          onPressed: (completed || !passed) ? null : _markComplete,
-          icon: Icon(completed ? Icons.check_circle : Icons.check_circle_outline, size: 18),
-          label: Text(completed ? 'Completed' : 'Mark as complete'),
-          style: completed
-              ? OutlinedButton.styleFrom(
-                  backgroundColor: AppColors.tealDeep,
-                  foregroundColor: AppColors.sand,
-                  side: const BorderSide(color: AppColors.tealDeep),
-                )
-              : null,
-        ),
-      ],
+    final pre = state.pre!;
+    final best = state.bestPost;
+    final open = '/quiz/${widget.moduleId}?test=post';
+    if (completed) {
+      final done = state.completingPost ?? best;
+      return _card(
+        icon: Icons.check_circle,
+        good: true,
+        title: 'Module completed',
+        body: 'Pre-test ${pre.percent}%${done != null ? ' · post-test ${done.percent}%' : ''}.',
+        action: OutlinedButton(onPressed: () => context.go(open), child: const Text('Practise the post-test again')),
+      );
+    }
+    if (!state.readingDone) {
+      return _card(
+        icon: Icons.menu_book_outlined,
+        title: 'Post-test',
+        body: 'Read to the end of the module to open the post-test.',
+        action: _primary('Take the post-test', null),
+      );
+    }
+    if (state.stage == ModuleStage.exception) {
+      return _card(
+        icon: Icons.hourglass_empty,
+        title: 'Waiting for approval',
+        body: 'You scored 100% on the pre-test, so a higher post-test score is not possible. Your supervisor or programme '
+            'team must approve an exception; then a post-test of at least $kQuizPassMark% completes the module. '
+            'This updates when your phone syncs.',
+      );
+    }
+    final needs = state.exceptionApproved
+        ? 'You need at least $kQuizPassMark% (exception approved for your 100% pre-test).'
+        : 'You need at least $kQuizPassMark% and more than your pre-test score (${pre.percent}%).';
+    return _card(
+      icon: Icons.quiz_outlined,
+      title: 'Post-test',
+      body: '${state.postQuestions} questions. $needs'
+          '${best != null ? ' Best so far: ${best.percent}% (${state.posts.length} attempt${state.posts.length == 1 ? '' : 's'}).' : ''}',
+      action: _primary(best == null ? 'Take the post-test' : 'Try again', () => context.go(open)),
     );
   }
 
@@ -279,7 +363,7 @@ class _ReaderScreenState extends ConsumerState<ReaderScreen> {
   Widget build(BuildContext context) {
     final translationAsync = ref.watch(localModuleTranslationProvider(widget.moduleId));
     final sectionsAsync = ref.watch(localModuleSectionsProvider(widget.moduleId));
-    final progressAsync = ref.watch(localProgressProvider(widget.moduleId));
+    final learningAsync = ref.watch(learningProvider);
 
     return Scaffold(
       appBar: AppBar(
@@ -288,6 +372,12 @@ class _ReaderScreenState extends ConsumerState<ReaderScreen> {
       ),
       body: sectionsAsync.when(
         data: (sections) {
+          final learning = learningAsync.valueOrNull;
+          if (learning == null) return const Center(child: CircularProgressIndicator());
+          final state = learning.of(widget.moduleId);
+          if (state == null || !state.canRead) return _gate(learning, state);
+          _canRead = true;
+          if (_loadedSections.isEmpty && sections.isNotEmpty) _checkShortModule();
           _loadedSections = sections;
           return sections.isEmpty
             ? const Center(
@@ -309,13 +399,10 @@ class _ReaderScreenState extends ConsumerState<ReaderScreen> {
                         : const SizedBox.shrink(),
                     orElse: () => const SizedBox.shrink(),
                   ),
+                  _preTestBanner(state),
                   for (final section in sections) _buildSection(context, section),
                   const SizedBox(height: 22),
-                  progressAsync.when(
-                    data: (progress) => _completionArea(progress?.completed ?? false),
-                    loading: () => const SizedBox.shrink(),
-                    error: (_, __) => const SizedBox.shrink(),
-                  ),
+                  _completionArea(state),
                 ],
               );
         },

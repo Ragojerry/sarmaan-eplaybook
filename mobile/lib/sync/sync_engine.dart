@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:convert';
+import 'dart:io';
 import 'dart:math';
 
 import 'package:connectivity_plus/connectivity_plus.dart';
@@ -190,10 +191,11 @@ class SyncEngine extends StateNotifier<SyncSnapshot> {
 
       // Uploads first, so a slow or failing update can never block them.
       Object? uploadError;
-      // Quiz attempts go before progress: the server only accepts a module as
-      // completed once it has seen a passing attempt.
       // A restart goes first: everything after it belongs to the new attempt.
-      for (final step in [_uploadRestart, _uploadQuizAttempts, _uploadProgress, _uploadAiQuestions, _uploadAnalytics]) {
+      // Progress goes before test attempts: the server accepts a post-test
+      // only once it knows reading was finished, and then completes the
+      // module itself (so the order of a backlog after days offline is safe).
+      for (final step in [_uploadRestart, _uploadProgress, _uploadQuizAttempts, _uploadAiQuestions, _uploadAnalytics]) {
         try {
           await step(device);
         } catch (e) {
@@ -201,18 +203,28 @@ class SyncEngine extends StateNotifier<SyncSnapshot> {
         }
       }
 
+      // A learner-role change (made by an administrator) changes which
+      // modules this account may see; the release check below then replaces
+      // the content. Progress is never deleted.
+      var roleChanged = false;
+      try {
+        roleChanged = await _ref.read(authProvider.notifier).refreshProfile();
+      } catch (_) {}
+
       try {
         // Never restore server progress while our own restart is still waiting
         // to upload - it would bring the replaced attempt straight back.
         if (await _db.countPending(entityTypes: ['training_restart']) == 0) {
           await _applyServerRestart();
+          await _pullLearning();
           await _pullProgress();
         }
       } catch (_) {
         // Restoring is best-effort; local progress keeps working regardless.
       }
 
-      await _checkRelease();
+      await _checkRelease(forceInstall: roleChanged);
+      await _removeHiddenVideos();
 
       await _db.purgeSyncedQueue();
       if (uploadError != null) throw uploadError;
@@ -258,9 +270,48 @@ class SyncEngine extends StateNotifier<SyncSnapshot> {
         lastSection: r['last_section'] as String?,
         lastOpenedAt: r['last_opened_at'] == null ? null : DateTime.parse(r['last_opened_at'] as String),
         completedAt: r['completed_at'] == null ? null : DateTime.parse(r['completed_at'] as String),
+        readingCompletedAt:
+            r['reading_completed_at'] == null ? null : DateTime.parse(r['reading_completed_at'] as String),
       );
     }
     state = state.copyWith(contentRevision: state.contentRevision + 1);
+  }
+
+  /// Downloaded videos of modules this account may no longer see are deleted
+  /// (only once the module list was refreshed for the current learner role).
+  Future<void> _removeHiddenVideos() async {
+    try {
+      for (final path in await _db.removeVideosOfHiddenModules()) {
+        final f = File(path);
+        if (await f.exists()) await f.delete();
+      }
+    } catch (_) {}
+  }
+
+  /// Pre-/post-test history the server holds for this account (so a new
+  /// phone keeps the pre-test baseline) and the 100%-pre-test exceptions an
+  /// administrator approved.
+  Future<void> _pullLearning() async {
+    final resp = await _api.dio.get('/sync/learning');
+    final data = resp.data as Map<String, dynamic>;
+    for (final a in (data['attempts'] as List).cast<Map<String, dynamic>>()) {
+      await _db.restoreAttemptFromServer(
+        clientId: a['client_id'] as String,
+        moduleId: a['module_id'] as String,
+        testType: a['test_type'] as String,
+        correct: (a['correct_count'] as num).toInt(),
+        total: (a['total_count'] as num).toInt(),
+        scorePercent: (a['score_percent'] as num).toInt(),
+        passed: a['passed'] as bool,
+        valid: a['valid'] as bool,
+        invalidReason: a['invalid_reason'] as String?,
+        takenAt: DateTime.parse(a['taken_at'] as String).toLocal(),
+      );
+    }
+    await _db.setTestExceptions([
+      for (final m in (data['modules'] as List).cast<Map<String, dynamic>>())
+        if (m['exception_approved'] == true) m['module_id'] as String,
+    ]);
   }
 
   /// One DEVICE_HEARTBEAT per UTC day (opt-in devices only) so the admin
@@ -333,11 +384,18 @@ class SyncEngine extends StateNotifier<SyncSnapshot> {
               'total_count': r.totalCount,
               'taken_at': r.takenAt.toUtc().toIso8601String(),
               'results': jsonDecode(r.resultsJson),
+              // Attempts from before pre/post tests go without a type: kept as history only.
+              if (r.testType != 'LEGACY') 'test_type': r.testType,
             },
         ],
       });
       for (final res in _results(resp)) {
-        if (_final(res['status'] as String)) await _db.markQuizAttemptSynced(res['key'] as String);
+        final status = res['status'] as String;
+        if (!_final(status)) continue;
+        // ok + a detail other than "completed" = stored but does not count.
+        final detail = res['detail'] as String?;
+        final counts = status == 'duplicate' ? null : (status == 'ok' && (detail == null || detail == 'completed'));
+        await _db.markQuizAttemptSynced(res['key'] as String, valid: counts, reason: counts == false ? detail : null);
       }
     }
   }
@@ -360,6 +418,7 @@ class SyncEngine extends StateNotifier<SyncSnapshot> {
               'last_section': r.lastSection,
               'last_opened_at': r.lastOpenedAt?.toUtc().toIso8601String(),
               'completed_at': r.completedAt?.toUtc().toIso8601String(),
+              'reading_completed_at': r.readingCompletedAt?.toUtc().toIso8601String(),
             },
         ],
       });
@@ -455,9 +514,9 @@ class SyncEngine extends StateNotifier<SyncSnapshot> {
 
   // ---------- releases ----------
 
-  Future<void> _checkRelease() async {
+  Future<void> _checkRelease({bool forceInstall = false}) async {
     try {
-      await _checkReleaseCore();
+      await _checkReleaseCore(forceInstall: forceInstall);
     } finally {
       // Quizzes and the chosen language refresh on every sync, whether or not a
       // release update is pending, and after any install (which can rewrite
@@ -470,11 +529,17 @@ class SyncEngine extends StateNotifier<SyncSnapshot> {
     }
   }
 
-  Future<void> _checkReleaseCore() async {
+  Future<void> _checkReleaseCore({bool forceInstall = false}) async {
     final installed = await _db.getCurrentRelease();
+    // "unknown" (installed by an app before 0.1.8) makes the server send this
+    // account's role-filtered copy once.
+    final variant = await _db.getSetting(kInstalledVariantKey);
     final resp = await _api.dio.get(
       '/sync/release/current',
-      queryParameters: {if (installed != null) 'installed': installed.releaseCode},
+      queryParameters: {
+        if (installed != null) 'installed': installed.releaseCode,
+        if (installed != null) 'installed_variant': (variant == null || variant.isEmpty) ? 'unknown' : variant,
+      },
     );
     final data = resp.data as Map<String, dynamic>;
     final relJson = data['release'] as Map<String, dynamic>?;
@@ -499,7 +564,11 @@ class SyncEngine extends StateNotifier<SyncSnapshot> {
     }
     // First install and mandatory updates go ahead automatically; optional
     // updates wait for the person to choose a good moment (data costs money).
-    if (release.mandatory || !hasContent) {
+    // The same release in a different variant (the learner role changed, or
+    // a module's audience did) is installed at once: it is small, and it
+    // removes modules this account may no longer see.
+    final sameReleaseNewVariant = installed?.releaseCode == release.releaseCode;
+    if (release.mandatory || !hasContent || sameReleaseNewVariant || forceInstall) {
       await _install(release);
     } else {
       state = state.copyWith(status: SyncStatus.updateAvailable, availableRelease: release);

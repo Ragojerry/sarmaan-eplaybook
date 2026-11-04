@@ -54,6 +54,22 @@ class $CachedModulesTable extends CachedModules
   late final GeneratedColumn<DateTime> cachedAt = GeneratedColumn<DateTime>(
       'cached_at', aliasedName, false,
       type: DriftSqlType.dateTime, requiredDuringInsert: true);
+  static const VerificationMeta _audienceMeta =
+      const VerificationMeta('audience');
+  @override
+  late final GeneratedColumn<String> audience = GeneratedColumn<String>(
+      'audience', aliasedName, false,
+      type: DriftSqlType.string,
+      requiredDuringInsert: false,
+      defaultValue: const Constant('GENERAL'));
+  static const VerificationMeta _learnerRolesJsonMeta =
+      const VerificationMeta('learnerRolesJson');
+  @override
+  late final GeneratedColumn<String> learnerRolesJson = GeneratedColumn<String>(
+      'learner_roles_json', aliasedName, false,
+      type: DriftSqlType.string,
+      requiredDuringInsert: false,
+      defaultValue: const Constant('[]'));
   @override
   List<GeneratedColumn> get $columns => [
         id,
@@ -63,7 +79,9 @@ class $CachedModulesTable extends CachedModules
         description,
         status,
         sortOrder,
-        cachedAt
+        cachedAt,
+        audience,
+        learnerRolesJson
       ];
   @override
   String get aliasedName => _alias ?? actualTableName;
@@ -126,6 +144,16 @@ class $CachedModulesTable extends CachedModules
     } else if (isInserting) {
       context.missing(_cachedAtMeta);
     }
+    if (data.containsKey('audience')) {
+      context.handle(_audienceMeta,
+          audience.isAcceptableOrUnknown(data['audience']!, _audienceMeta));
+    }
+    if (data.containsKey('learner_roles_json')) {
+      context.handle(
+          _learnerRolesJsonMeta,
+          learnerRolesJson.isAcceptableOrUnknown(
+              data['learner_roles_json']!, _learnerRolesJsonMeta));
+    }
     return context;
   }
 
@@ -151,6 +179,10 @@ class $CachedModulesTable extends CachedModules
           .read(DriftSqlType.int, data['${effectivePrefix}sort_order'])!,
       cachedAt: attachedDatabase.typeMapping
           .read(DriftSqlType.dateTime, data['${effectivePrefix}cached_at'])!,
+      audience: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}audience'])!,
+      learnerRolesJson: attachedDatabase.typeMapping.read(
+          DriftSqlType.string, data['${effectivePrefix}learner_roles_json'])!,
     );
   }
 
@@ -169,6 +201,8 @@ class CachedModuleRow extends DataClass implements Insertable<CachedModuleRow> {
   final String status;
   final int sortOrder;
   final DateTime cachedAt;
+  final String audience;
+  final String learnerRolesJson;
   const CachedModuleRow(
       {required this.id,
       required this.moduleCode,
@@ -177,7 +211,9 @@ class CachedModuleRow extends DataClass implements Insertable<CachedModuleRow> {
       this.description,
       required this.status,
       required this.sortOrder,
-      required this.cachedAt});
+      required this.cachedAt,
+      required this.audience,
+      required this.learnerRolesJson});
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
     final map = <String, Expression>{};
@@ -191,6 +227,8 @@ class CachedModuleRow extends DataClass implements Insertable<CachedModuleRow> {
     map['status'] = Variable<String>(status);
     map['sort_order'] = Variable<int>(sortOrder);
     map['cached_at'] = Variable<DateTime>(cachedAt);
+    map['audience'] = Variable<String>(audience);
+    map['learner_roles_json'] = Variable<String>(learnerRolesJson);
     return map;
   }
 
@@ -206,6 +244,8 @@ class CachedModuleRow extends DataClass implements Insertable<CachedModuleRow> {
       status: Value(status),
       sortOrder: Value(sortOrder),
       cachedAt: Value(cachedAt),
+      audience: Value(audience),
+      learnerRolesJson: Value(learnerRolesJson),
     );
   }
 
@@ -221,6 +261,8 @@ class CachedModuleRow extends DataClass implements Insertable<CachedModuleRow> {
       status: serializer.fromJson<String>(json['status']),
       sortOrder: serializer.fromJson<int>(json['sortOrder']),
       cachedAt: serializer.fromJson<DateTime>(json['cachedAt']),
+      audience: serializer.fromJson<String>(json['audience']),
+      learnerRolesJson: serializer.fromJson<String>(json['learnerRolesJson']),
     );
   }
   @override
@@ -235,6 +277,8 @@ class CachedModuleRow extends DataClass implements Insertable<CachedModuleRow> {
       'status': serializer.toJson<String>(status),
       'sortOrder': serializer.toJson<int>(sortOrder),
       'cachedAt': serializer.toJson<DateTime>(cachedAt),
+      'audience': serializer.toJson<String>(audience),
+      'learnerRolesJson': serializer.toJson<String>(learnerRolesJson),
     };
   }
 
@@ -246,7 +290,9 @@ class CachedModuleRow extends DataClass implements Insertable<CachedModuleRow> {
           Value<String?> description = const Value.absent(),
           String? status,
           int? sortOrder,
-          DateTime? cachedAt}) =>
+          DateTime? cachedAt,
+          String? audience,
+          String? learnerRolesJson}) =>
       CachedModuleRow(
         id: id ?? this.id,
         moduleCode: moduleCode ?? this.moduleCode,
@@ -256,6 +302,8 @@ class CachedModuleRow extends DataClass implements Insertable<CachedModuleRow> {
         status: status ?? this.status,
         sortOrder: sortOrder ?? this.sortOrder,
         cachedAt: cachedAt ?? this.cachedAt,
+        audience: audience ?? this.audience,
+        learnerRolesJson: learnerRolesJson ?? this.learnerRolesJson,
       );
   CachedModuleRow copyWithCompanion(CachedModulesCompanion data) {
     return CachedModuleRow(
@@ -271,6 +319,10 @@ class CachedModuleRow extends DataClass implements Insertable<CachedModuleRow> {
       status: data.status.present ? data.status.value : this.status,
       sortOrder: data.sortOrder.present ? data.sortOrder.value : this.sortOrder,
       cachedAt: data.cachedAt.present ? data.cachedAt.value : this.cachedAt,
+      audience: data.audience.present ? data.audience.value : this.audience,
+      learnerRolesJson: data.learnerRolesJson.present
+          ? data.learnerRolesJson.value
+          : this.learnerRolesJson,
     );
   }
 
@@ -284,14 +336,16 @@ class CachedModuleRow extends DataClass implements Insertable<CachedModuleRow> {
           ..write('description: $description, ')
           ..write('status: $status, ')
           ..write('sortOrder: $sortOrder, ')
-          ..write('cachedAt: $cachedAt')
+          ..write('cachedAt: $cachedAt, ')
+          ..write('audience: $audience, ')
+          ..write('learnerRolesJson: $learnerRolesJson')
           ..write(')'))
         .toString();
   }
 
   @override
   int get hashCode => Object.hash(id, moduleCode, moduleNumber, title,
-      description, status, sortOrder, cachedAt);
+      description, status, sortOrder, cachedAt, audience, learnerRolesJson);
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
@@ -303,7 +357,9 @@ class CachedModuleRow extends DataClass implements Insertable<CachedModuleRow> {
           other.description == this.description &&
           other.status == this.status &&
           other.sortOrder == this.sortOrder &&
-          other.cachedAt == this.cachedAt);
+          other.cachedAt == this.cachedAt &&
+          other.audience == this.audience &&
+          other.learnerRolesJson == this.learnerRolesJson);
 }
 
 class CachedModulesCompanion extends UpdateCompanion<CachedModuleRow> {
@@ -315,6 +371,8 @@ class CachedModulesCompanion extends UpdateCompanion<CachedModuleRow> {
   final Value<String> status;
   final Value<int> sortOrder;
   final Value<DateTime> cachedAt;
+  final Value<String> audience;
+  final Value<String> learnerRolesJson;
   final Value<int> rowid;
   const CachedModulesCompanion({
     this.id = const Value.absent(),
@@ -325,6 +383,8 @@ class CachedModulesCompanion extends UpdateCompanion<CachedModuleRow> {
     this.status = const Value.absent(),
     this.sortOrder = const Value.absent(),
     this.cachedAt = const Value.absent(),
+    this.audience = const Value.absent(),
+    this.learnerRolesJson = const Value.absent(),
     this.rowid = const Value.absent(),
   });
   CachedModulesCompanion.insert({
@@ -336,6 +396,8 @@ class CachedModulesCompanion extends UpdateCompanion<CachedModuleRow> {
     required String status,
     required int sortOrder,
     required DateTime cachedAt,
+    this.audience = const Value.absent(),
+    this.learnerRolesJson = const Value.absent(),
     this.rowid = const Value.absent(),
   })  : id = Value(id),
         moduleCode = Value(moduleCode),
@@ -353,6 +415,8 @@ class CachedModulesCompanion extends UpdateCompanion<CachedModuleRow> {
     Expression<String>? status,
     Expression<int>? sortOrder,
     Expression<DateTime>? cachedAt,
+    Expression<String>? audience,
+    Expression<String>? learnerRolesJson,
     Expression<int>? rowid,
   }) {
     return RawValuesInsertable({
@@ -364,6 +428,8 @@ class CachedModulesCompanion extends UpdateCompanion<CachedModuleRow> {
       if (status != null) 'status': status,
       if (sortOrder != null) 'sort_order': sortOrder,
       if (cachedAt != null) 'cached_at': cachedAt,
+      if (audience != null) 'audience': audience,
+      if (learnerRolesJson != null) 'learner_roles_json': learnerRolesJson,
       if (rowid != null) 'rowid': rowid,
     });
   }
@@ -377,6 +443,8 @@ class CachedModulesCompanion extends UpdateCompanion<CachedModuleRow> {
       Value<String>? status,
       Value<int>? sortOrder,
       Value<DateTime>? cachedAt,
+      Value<String>? audience,
+      Value<String>? learnerRolesJson,
       Value<int>? rowid}) {
     return CachedModulesCompanion(
       id: id ?? this.id,
@@ -387,6 +455,8 @@ class CachedModulesCompanion extends UpdateCompanion<CachedModuleRow> {
       status: status ?? this.status,
       sortOrder: sortOrder ?? this.sortOrder,
       cachedAt: cachedAt ?? this.cachedAt,
+      audience: audience ?? this.audience,
+      learnerRolesJson: learnerRolesJson ?? this.learnerRolesJson,
       rowid: rowid ?? this.rowid,
     );
   }
@@ -418,6 +488,12 @@ class CachedModulesCompanion extends UpdateCompanion<CachedModuleRow> {
     if (cachedAt.present) {
       map['cached_at'] = Variable<DateTime>(cachedAt.value);
     }
+    if (audience.present) {
+      map['audience'] = Variable<String>(audience.value);
+    }
+    if (learnerRolesJson.present) {
+      map['learner_roles_json'] = Variable<String>(learnerRolesJson.value);
+    }
     if (rowid.present) {
       map['rowid'] = Variable<int>(rowid.value);
     }
@@ -435,6 +511,8 @@ class CachedModulesCompanion extends UpdateCompanion<CachedModuleRow> {
           ..write('status: $status, ')
           ..write('sortOrder: $sortOrder, ')
           ..write('cachedAt: $cachedAt, ')
+          ..write('audience: $audience, ')
+          ..write('learnerRolesJson: $learnerRolesJson, ')
           ..write('rowid: $rowid')
           ..write(')'))
         .toString();
@@ -2332,6 +2410,12 @@ class $LocalProgressTable extends LocalProgress
   late final GeneratedColumn<DateTime> completedAt = GeneratedColumn<DateTime>(
       'completed_at', aliasedName, true,
       type: DriftSqlType.dateTime, requiredDuringInsert: false);
+  static const VerificationMeta _readingCompletedAtMeta =
+      const VerificationMeta('readingCompletedAt');
+  @override
+  late final GeneratedColumn<DateTime> readingCompletedAt =
+      GeneratedColumn<DateTime>('reading_completed_at', aliasedName, true,
+          type: DriftSqlType.dateTime, requiredDuringInsert: false);
   static const VerificationMeta _syncedMeta = const VerificationMeta('synced');
   @override
   late final GeneratedColumn<bool> synced = GeneratedColumn<bool>(
@@ -2357,6 +2441,7 @@ class $LocalProgressTable extends LocalProgress
         lastSection,
         lastOpenedAt,
         completedAt,
+        readingCompletedAt,
         synced,
         userId
       ];
@@ -2407,6 +2492,12 @@ class $LocalProgressTable extends LocalProgress
           completedAt.isAcceptableOrUnknown(
               data['completed_at']!, _completedAtMeta));
     }
+    if (data.containsKey('reading_completed_at')) {
+      context.handle(
+          _readingCompletedAtMeta,
+          readingCompletedAt.isAcceptableOrUnknown(
+              data['reading_completed_at']!, _readingCompletedAtMeta));
+    }
     if (data.containsKey('synced')) {
       context.handle(_syncedMeta,
           synced.isAcceptableOrUnknown(data['synced']!, _syncedMeta));
@@ -2438,6 +2529,9 @@ class $LocalProgressTable extends LocalProgress
           DriftSqlType.dateTime, data['${effectivePrefix}last_opened_at']),
       completedAt: attachedDatabase.typeMapping
           .read(DriftSqlType.dateTime, data['${effectivePrefix}completed_at']),
+      readingCompletedAt: attachedDatabase.typeMapping.read(
+          DriftSqlType.dateTime,
+          data['${effectivePrefix}reading_completed_at']),
       synced: attachedDatabase.typeMapping
           .read(DriftSqlType.bool, data['${effectivePrefix}synced'])!,
       userId: attachedDatabase.typeMapping
@@ -2460,6 +2554,7 @@ class LocalProgressRow extends DataClass
   final String? lastSection;
   final DateTime? lastOpenedAt;
   final DateTime? completedAt;
+  final DateTime? readingCompletedAt;
   final bool synced;
 
   /// Owner of this row: every account on a shared phone keeps its own progress.
@@ -2472,6 +2567,7 @@ class LocalProgressRow extends DataClass
       this.lastSection,
       this.lastOpenedAt,
       this.completedAt,
+      this.readingCompletedAt,
       required this.synced,
       required this.userId});
   @override
@@ -2489,6 +2585,9 @@ class LocalProgressRow extends DataClass
     }
     if (!nullToAbsent || completedAt != null) {
       map['completed_at'] = Variable<DateTime>(completedAt);
+    }
+    if (!nullToAbsent || readingCompletedAt != null) {
+      map['reading_completed_at'] = Variable<DateTime>(readingCompletedAt);
     }
     map['synced'] = Variable<bool>(synced);
     map['user_id'] = Variable<String>(userId);
@@ -2510,6 +2609,9 @@ class LocalProgressRow extends DataClass
       completedAt: completedAt == null && nullToAbsent
           ? const Value.absent()
           : Value(completedAt),
+      readingCompletedAt: readingCompletedAt == null && nullToAbsent
+          ? const Value.absent()
+          : Value(readingCompletedAt),
       synced: Value(synced),
       userId: Value(userId),
     );
@@ -2526,6 +2628,8 @@ class LocalProgressRow extends DataClass
       lastSection: serializer.fromJson<String?>(json['lastSection']),
       lastOpenedAt: serializer.fromJson<DateTime?>(json['lastOpenedAt']),
       completedAt: serializer.fromJson<DateTime?>(json['completedAt']),
+      readingCompletedAt:
+          serializer.fromJson<DateTime?>(json['readingCompletedAt']),
       synced: serializer.fromJson<bool>(json['synced']),
       userId: serializer.fromJson<String>(json['userId']),
     );
@@ -2541,6 +2645,7 @@ class LocalProgressRow extends DataClass
       'lastSection': serializer.toJson<String?>(lastSection),
       'lastOpenedAt': serializer.toJson<DateTime?>(lastOpenedAt),
       'completedAt': serializer.toJson<DateTime?>(completedAt),
+      'readingCompletedAt': serializer.toJson<DateTime?>(readingCompletedAt),
       'synced': serializer.toJson<bool>(synced),
       'userId': serializer.toJson<String>(userId),
     };
@@ -2554,6 +2659,7 @@ class LocalProgressRow extends DataClass
           Value<String?> lastSection = const Value.absent(),
           Value<DateTime?> lastOpenedAt = const Value.absent(),
           Value<DateTime?> completedAt = const Value.absent(),
+          Value<DateTime?> readingCompletedAt = const Value.absent(),
           bool? synced,
           String? userId}) =>
       LocalProgressRow(
@@ -2565,6 +2671,9 @@ class LocalProgressRow extends DataClass
         lastOpenedAt:
             lastOpenedAt.present ? lastOpenedAt.value : this.lastOpenedAt,
         completedAt: completedAt.present ? completedAt.value : this.completedAt,
+        readingCompletedAt: readingCompletedAt.present
+            ? readingCompletedAt.value
+            : this.readingCompletedAt,
         synced: synced ?? this.synced,
         userId: userId ?? this.userId,
       );
@@ -2583,6 +2692,9 @@ class LocalProgressRow extends DataClass
           : this.lastOpenedAt,
       completedAt:
           data.completedAt.present ? data.completedAt.value : this.completedAt,
+      readingCompletedAt: data.readingCompletedAt.present
+          ? data.readingCompletedAt.value
+          : this.readingCompletedAt,
       synced: data.synced.present ? data.synced.value : this.synced,
       userId: data.userId.present ? data.userId.value : this.userId,
     );
@@ -2598,6 +2710,7 @@ class LocalProgressRow extends DataClass
           ..write('lastSection: $lastSection, ')
           ..write('lastOpenedAt: $lastOpenedAt, ')
           ..write('completedAt: $completedAt, ')
+          ..write('readingCompletedAt: $readingCompletedAt, ')
           ..write('synced: $synced, ')
           ..write('userId: $userId')
           ..write(')'))
@@ -2605,8 +2718,17 @@ class LocalProgressRow extends DataClass
   }
 
   @override
-  int get hashCode => Object.hash(id, moduleId, progressPercent, completed,
-      lastSection, lastOpenedAt, completedAt, synced, userId);
+  int get hashCode => Object.hash(
+      id,
+      moduleId,
+      progressPercent,
+      completed,
+      lastSection,
+      lastOpenedAt,
+      completedAt,
+      readingCompletedAt,
+      synced,
+      userId);
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
@@ -2618,6 +2740,7 @@ class LocalProgressRow extends DataClass
           other.lastSection == this.lastSection &&
           other.lastOpenedAt == this.lastOpenedAt &&
           other.completedAt == this.completedAt &&
+          other.readingCompletedAt == this.readingCompletedAt &&
           other.synced == this.synced &&
           other.userId == this.userId);
 }
@@ -2630,6 +2753,7 @@ class LocalProgressCompanion extends UpdateCompanion<LocalProgressRow> {
   final Value<String?> lastSection;
   final Value<DateTime?> lastOpenedAt;
   final Value<DateTime?> completedAt;
+  final Value<DateTime?> readingCompletedAt;
   final Value<bool> synced;
   final Value<String> userId;
   const LocalProgressCompanion({
@@ -2640,6 +2764,7 @@ class LocalProgressCompanion extends UpdateCompanion<LocalProgressRow> {
     this.lastSection = const Value.absent(),
     this.lastOpenedAt = const Value.absent(),
     this.completedAt = const Value.absent(),
+    this.readingCompletedAt = const Value.absent(),
     this.synced = const Value.absent(),
     this.userId = const Value.absent(),
   });
@@ -2651,6 +2776,7 @@ class LocalProgressCompanion extends UpdateCompanion<LocalProgressRow> {
     this.lastSection = const Value.absent(),
     this.lastOpenedAt = const Value.absent(),
     this.completedAt = const Value.absent(),
+    this.readingCompletedAt = const Value.absent(),
     this.synced = const Value.absent(),
     this.userId = const Value.absent(),
   }) : moduleId = Value(moduleId);
@@ -2662,6 +2788,7 @@ class LocalProgressCompanion extends UpdateCompanion<LocalProgressRow> {
     Expression<String>? lastSection,
     Expression<DateTime>? lastOpenedAt,
     Expression<DateTime>? completedAt,
+    Expression<DateTime>? readingCompletedAt,
     Expression<bool>? synced,
     Expression<String>? userId,
   }) {
@@ -2673,6 +2800,8 @@ class LocalProgressCompanion extends UpdateCompanion<LocalProgressRow> {
       if (lastSection != null) 'last_section': lastSection,
       if (lastOpenedAt != null) 'last_opened_at': lastOpenedAt,
       if (completedAt != null) 'completed_at': completedAt,
+      if (readingCompletedAt != null)
+        'reading_completed_at': readingCompletedAt,
       if (synced != null) 'synced': synced,
       if (userId != null) 'user_id': userId,
     });
@@ -2686,6 +2815,7 @@ class LocalProgressCompanion extends UpdateCompanion<LocalProgressRow> {
       Value<String?>? lastSection,
       Value<DateTime?>? lastOpenedAt,
       Value<DateTime?>? completedAt,
+      Value<DateTime?>? readingCompletedAt,
       Value<bool>? synced,
       Value<String>? userId}) {
     return LocalProgressCompanion(
@@ -2696,6 +2826,7 @@ class LocalProgressCompanion extends UpdateCompanion<LocalProgressRow> {
       lastSection: lastSection ?? this.lastSection,
       lastOpenedAt: lastOpenedAt ?? this.lastOpenedAt,
       completedAt: completedAt ?? this.completedAt,
+      readingCompletedAt: readingCompletedAt ?? this.readingCompletedAt,
       synced: synced ?? this.synced,
       userId: userId ?? this.userId,
     );
@@ -2725,6 +2856,10 @@ class LocalProgressCompanion extends UpdateCompanion<LocalProgressRow> {
     if (completedAt.present) {
       map['completed_at'] = Variable<DateTime>(completedAt.value);
     }
+    if (readingCompletedAt.present) {
+      map['reading_completed_at'] =
+          Variable<DateTime>(readingCompletedAt.value);
+    }
     if (synced.present) {
       map['synced'] = Variable<bool>(synced.value);
     }
@@ -2744,6 +2879,7 @@ class LocalProgressCompanion extends UpdateCompanion<LocalProgressRow> {
           ..write('lastSection: $lastSection, ')
           ..write('lastOpenedAt: $lastOpenedAt, ')
           ..write('completedAt: $completedAt, ')
+          ..write('readingCompletedAt: $readingCompletedAt, ')
           ..write('synced: $synced, ')
           ..write('userId: $userId')
           ..write(')'))
@@ -4847,9 +4983,24 @@ class $CachedQuizQuestionsTable extends CachedQuizQuestions
   late final GeneratedColumn<int> sortOrder = GeneratedColumn<int>(
       'sort_order', aliasedName, false,
       type: DriftSqlType.int, requiredDuringInsert: true);
+  static const VerificationMeta _usageMeta = const VerificationMeta('usage');
   @override
-  List<GeneratedColumn> get $columns =>
-      [id, moduleId, questionType, prompt, contentJson, explanation, sortOrder];
+  late final GeneratedColumn<String> usage = GeneratedColumn<String>(
+      'usage', aliasedName, false,
+      type: DriftSqlType.string,
+      requiredDuringInsert: false,
+      defaultValue: const Constant('BOTH'));
+  @override
+  List<GeneratedColumn> get $columns => [
+        id,
+        moduleId,
+        questionType,
+        prompt,
+        contentJson,
+        explanation,
+        sortOrder,
+        usage
+      ];
   @override
   String get aliasedName => _alias ?? actualTableName;
   @override
@@ -4906,6 +5057,10 @@ class $CachedQuizQuestionsTable extends CachedQuizQuestions
     } else if (isInserting) {
       context.missing(_sortOrderMeta);
     }
+    if (data.containsKey('usage')) {
+      context.handle(
+          _usageMeta, usage.isAcceptableOrUnknown(data['usage']!, _usageMeta));
+    }
     return context;
   }
 
@@ -4929,6 +5084,8 @@ class $CachedQuizQuestionsTable extends CachedQuizQuestions
           .read(DriftSqlType.string, data['${effectivePrefix}explanation']),
       sortOrder: attachedDatabase.typeMapping
           .read(DriftSqlType.int, data['${effectivePrefix}sort_order'])!,
+      usage: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}usage'])!,
     );
   }
 
@@ -4947,6 +5104,7 @@ class CachedQuizQuestionRow extends DataClass
   final String contentJson;
   final String? explanation;
   final int sortOrder;
+  final String usage;
   const CachedQuizQuestionRow(
       {required this.id,
       required this.moduleId,
@@ -4954,7 +5112,8 @@ class CachedQuizQuestionRow extends DataClass
       required this.prompt,
       required this.contentJson,
       this.explanation,
-      required this.sortOrder});
+      required this.sortOrder,
+      required this.usage});
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
     final map = <String, Expression>{};
@@ -4967,6 +5126,7 @@ class CachedQuizQuestionRow extends DataClass
       map['explanation'] = Variable<String>(explanation);
     }
     map['sort_order'] = Variable<int>(sortOrder);
+    map['usage'] = Variable<String>(usage);
     return map;
   }
 
@@ -4981,6 +5141,7 @@ class CachedQuizQuestionRow extends DataClass
           ? const Value.absent()
           : Value(explanation),
       sortOrder: Value(sortOrder),
+      usage: Value(usage),
     );
   }
 
@@ -4995,6 +5156,7 @@ class CachedQuizQuestionRow extends DataClass
       contentJson: serializer.fromJson<String>(json['contentJson']),
       explanation: serializer.fromJson<String?>(json['explanation']),
       sortOrder: serializer.fromJson<int>(json['sortOrder']),
+      usage: serializer.fromJson<String>(json['usage']),
     );
   }
   @override
@@ -5008,6 +5170,7 @@ class CachedQuizQuestionRow extends DataClass
       'contentJson': serializer.toJson<String>(contentJson),
       'explanation': serializer.toJson<String?>(explanation),
       'sortOrder': serializer.toJson<int>(sortOrder),
+      'usage': serializer.toJson<String>(usage),
     };
   }
 
@@ -5018,7 +5181,8 @@ class CachedQuizQuestionRow extends DataClass
           String? prompt,
           String? contentJson,
           Value<String?> explanation = const Value.absent(),
-          int? sortOrder}) =>
+          int? sortOrder,
+          String? usage}) =>
       CachedQuizQuestionRow(
         id: id ?? this.id,
         moduleId: moduleId ?? this.moduleId,
@@ -5027,6 +5191,7 @@ class CachedQuizQuestionRow extends DataClass
         contentJson: contentJson ?? this.contentJson,
         explanation: explanation.present ? explanation.value : this.explanation,
         sortOrder: sortOrder ?? this.sortOrder,
+        usage: usage ?? this.usage,
       );
   CachedQuizQuestionRow copyWithCompanion(CachedQuizQuestionsCompanion data) {
     return CachedQuizQuestionRow(
@@ -5041,6 +5206,7 @@ class CachedQuizQuestionRow extends DataClass
       explanation:
           data.explanation.present ? data.explanation.value : this.explanation,
       sortOrder: data.sortOrder.present ? data.sortOrder.value : this.sortOrder,
+      usage: data.usage.present ? data.usage.value : this.usage,
     );
   }
 
@@ -5053,14 +5219,15 @@ class CachedQuizQuestionRow extends DataClass
           ..write('prompt: $prompt, ')
           ..write('contentJson: $contentJson, ')
           ..write('explanation: $explanation, ')
-          ..write('sortOrder: $sortOrder')
+          ..write('sortOrder: $sortOrder, ')
+          ..write('usage: $usage')
           ..write(')'))
         .toString();
   }
 
   @override
-  int get hashCode => Object.hash(
-      id, moduleId, questionType, prompt, contentJson, explanation, sortOrder);
+  int get hashCode => Object.hash(id, moduleId, questionType, prompt,
+      contentJson, explanation, sortOrder, usage);
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
@@ -5071,7 +5238,8 @@ class CachedQuizQuestionRow extends DataClass
           other.prompt == this.prompt &&
           other.contentJson == this.contentJson &&
           other.explanation == this.explanation &&
-          other.sortOrder == this.sortOrder);
+          other.sortOrder == this.sortOrder &&
+          other.usage == this.usage);
 }
 
 class CachedQuizQuestionsCompanion
@@ -5083,6 +5251,7 @@ class CachedQuizQuestionsCompanion
   final Value<String> contentJson;
   final Value<String?> explanation;
   final Value<int> sortOrder;
+  final Value<String> usage;
   final Value<int> rowid;
   const CachedQuizQuestionsCompanion({
     this.id = const Value.absent(),
@@ -5092,6 +5261,7 @@ class CachedQuizQuestionsCompanion
     this.contentJson = const Value.absent(),
     this.explanation = const Value.absent(),
     this.sortOrder = const Value.absent(),
+    this.usage = const Value.absent(),
     this.rowid = const Value.absent(),
   });
   CachedQuizQuestionsCompanion.insert({
@@ -5102,6 +5272,7 @@ class CachedQuizQuestionsCompanion
     required String contentJson,
     this.explanation = const Value.absent(),
     required int sortOrder,
+    this.usage = const Value.absent(),
     this.rowid = const Value.absent(),
   })  : id = Value(id),
         moduleId = Value(moduleId),
@@ -5117,6 +5288,7 @@ class CachedQuizQuestionsCompanion
     Expression<String>? contentJson,
     Expression<String>? explanation,
     Expression<int>? sortOrder,
+    Expression<String>? usage,
     Expression<int>? rowid,
   }) {
     return RawValuesInsertable({
@@ -5127,6 +5299,7 @@ class CachedQuizQuestionsCompanion
       if (contentJson != null) 'content_json': contentJson,
       if (explanation != null) 'explanation': explanation,
       if (sortOrder != null) 'sort_order': sortOrder,
+      if (usage != null) 'usage': usage,
       if (rowid != null) 'rowid': rowid,
     });
   }
@@ -5139,6 +5312,7 @@ class CachedQuizQuestionsCompanion
       Value<String>? contentJson,
       Value<String?>? explanation,
       Value<int>? sortOrder,
+      Value<String>? usage,
       Value<int>? rowid}) {
     return CachedQuizQuestionsCompanion(
       id: id ?? this.id,
@@ -5148,6 +5322,7 @@ class CachedQuizQuestionsCompanion
       contentJson: contentJson ?? this.contentJson,
       explanation: explanation ?? this.explanation,
       sortOrder: sortOrder ?? this.sortOrder,
+      usage: usage ?? this.usage,
       rowid: rowid ?? this.rowid,
     );
   }
@@ -5176,6 +5351,9 @@ class CachedQuizQuestionsCompanion
     if (sortOrder.present) {
       map['sort_order'] = Variable<int>(sortOrder.value);
     }
+    if (usage.present) {
+      map['usage'] = Variable<String>(usage.value);
+    }
     if (rowid.present) {
       map['rowid'] = Variable<int>(rowid.value);
     }
@@ -5192,6 +5370,7 @@ class CachedQuizQuestionsCompanion
           ..write('contentJson: $contentJson, ')
           ..write('explanation: $explanation, ')
           ..write('sortOrder: $sortOrder, ')
+          ..write('usage: $usage, ')
           ..write('rowid: $rowid')
           ..write(')'))
         .toString();
@@ -5281,6 +5460,29 @@ class $LocalQuizAttemptsTable extends LocalQuizAttempts
       defaultConstraints:
           GeneratedColumn.constraintIsAlways('CHECK ("synced" IN (0, 1))'),
       defaultValue: const Constant(false));
+  static const VerificationMeta _testTypeMeta =
+      const VerificationMeta('testType');
+  @override
+  late final GeneratedColumn<String> testType = GeneratedColumn<String>(
+      'test_type', aliasedName, false,
+      type: DriftSqlType.string,
+      requiredDuringInsert: false,
+      defaultValue: const Constant('POST'));
+  static const VerificationMeta _serverValidMeta =
+      const VerificationMeta('serverValid');
+  @override
+  late final GeneratedColumn<bool> serverValid = GeneratedColumn<bool>(
+      'server_valid', aliasedName, true,
+      type: DriftSqlType.bool,
+      requiredDuringInsert: false,
+      defaultConstraints: GeneratedColumn.constraintIsAlways(
+          'CHECK ("server_valid" IN (0, 1))'));
+  static const VerificationMeta _invalidReasonMeta =
+      const VerificationMeta('invalidReason');
+  @override
+  late final GeneratedColumn<String> invalidReason = GeneratedColumn<String>(
+      'invalid_reason', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
   @override
   List<GeneratedColumn> get $columns => [
         id,
@@ -5293,7 +5495,10 @@ class $LocalQuizAttemptsTable extends LocalQuizAttempts
         passed,
         resultsJson,
         takenAt,
-        synced
+        synced,
+        testType,
+        serverValid,
+        invalidReason
       ];
   @override
   String get aliasedName => _alias ?? actualTableName;
@@ -5373,6 +5578,22 @@ class $LocalQuizAttemptsTable extends LocalQuizAttempts
       context.handle(_syncedMeta,
           synced.isAcceptableOrUnknown(data['synced']!, _syncedMeta));
     }
+    if (data.containsKey('test_type')) {
+      context.handle(_testTypeMeta,
+          testType.isAcceptableOrUnknown(data['test_type']!, _testTypeMeta));
+    }
+    if (data.containsKey('server_valid')) {
+      context.handle(
+          _serverValidMeta,
+          serverValid.isAcceptableOrUnknown(
+              data['server_valid']!, _serverValidMeta));
+    }
+    if (data.containsKey('invalid_reason')) {
+      context.handle(
+          _invalidReasonMeta,
+          invalidReason.isAcceptableOrUnknown(
+              data['invalid_reason']!, _invalidReasonMeta));
+    }
     return context;
   }
 
@@ -5404,6 +5625,12 @@ class $LocalQuizAttemptsTable extends LocalQuizAttempts
           .read(DriftSqlType.dateTime, data['${effectivePrefix}taken_at'])!,
       synced: attachedDatabase.typeMapping
           .read(DriftSqlType.bool, data['${effectivePrefix}synced'])!,
+      testType: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}test_type'])!,
+      serverValid: attachedDatabase.typeMapping
+          .read(DriftSqlType.bool, data['${effectivePrefix}server_valid']),
+      invalidReason: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}invalid_reason']),
     );
   }
 
@@ -5426,6 +5653,9 @@ class LocalQuizAttemptRow extends DataClass
   final String resultsJson;
   final DateTime takenAt;
   final bool synced;
+  final String testType;
+  final bool? serverValid;
+  final String? invalidReason;
   const LocalQuizAttemptRow(
       {required this.id,
       required this.userId,
@@ -5437,7 +5667,10 @@ class LocalQuizAttemptRow extends DataClass
       required this.passed,
       required this.resultsJson,
       required this.takenAt,
-      required this.synced});
+      required this.synced,
+      required this.testType,
+      this.serverValid,
+      this.invalidReason});
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
     final map = <String, Expression>{};
@@ -5452,6 +5685,13 @@ class LocalQuizAttemptRow extends DataClass
     map['results_json'] = Variable<String>(resultsJson);
     map['taken_at'] = Variable<DateTime>(takenAt);
     map['synced'] = Variable<bool>(synced);
+    map['test_type'] = Variable<String>(testType);
+    if (!nullToAbsent || serverValid != null) {
+      map['server_valid'] = Variable<bool>(serverValid);
+    }
+    if (!nullToAbsent || invalidReason != null) {
+      map['invalid_reason'] = Variable<String>(invalidReason);
+    }
     return map;
   }
 
@@ -5468,6 +5708,13 @@ class LocalQuizAttemptRow extends DataClass
       resultsJson: Value(resultsJson),
       takenAt: Value(takenAt),
       synced: Value(synced),
+      testType: Value(testType),
+      serverValid: serverValid == null && nullToAbsent
+          ? const Value.absent()
+          : Value(serverValid),
+      invalidReason: invalidReason == null && nullToAbsent
+          ? const Value.absent()
+          : Value(invalidReason),
     );
   }
 
@@ -5486,6 +5733,9 @@ class LocalQuizAttemptRow extends DataClass
       resultsJson: serializer.fromJson<String>(json['resultsJson']),
       takenAt: serializer.fromJson<DateTime>(json['takenAt']),
       synced: serializer.fromJson<bool>(json['synced']),
+      testType: serializer.fromJson<String>(json['testType']),
+      serverValid: serializer.fromJson<bool?>(json['serverValid']),
+      invalidReason: serializer.fromJson<String?>(json['invalidReason']),
     );
   }
   @override
@@ -5503,6 +5753,9 @@ class LocalQuizAttemptRow extends DataClass
       'resultsJson': serializer.toJson<String>(resultsJson),
       'takenAt': serializer.toJson<DateTime>(takenAt),
       'synced': serializer.toJson<bool>(synced),
+      'testType': serializer.toJson<String>(testType),
+      'serverValid': serializer.toJson<bool?>(serverValid),
+      'invalidReason': serializer.toJson<String?>(invalidReason),
     };
   }
 
@@ -5517,7 +5770,10 @@ class LocalQuizAttemptRow extends DataClass
           bool? passed,
           String? resultsJson,
           DateTime? takenAt,
-          bool? synced}) =>
+          bool? synced,
+          String? testType,
+          Value<bool?> serverValid = const Value.absent(),
+          Value<String?> invalidReason = const Value.absent()}) =>
       LocalQuizAttemptRow(
         id: id ?? this.id,
         userId: userId ?? this.userId,
@@ -5530,6 +5786,10 @@ class LocalQuizAttemptRow extends DataClass
         resultsJson: resultsJson ?? this.resultsJson,
         takenAt: takenAt ?? this.takenAt,
         synced: synced ?? this.synced,
+        testType: testType ?? this.testType,
+        serverValid: serverValid.present ? serverValid.value : this.serverValid,
+        invalidReason:
+            invalidReason.present ? invalidReason.value : this.invalidReason,
       );
   LocalQuizAttemptRow copyWithCompanion(LocalQuizAttemptsCompanion data) {
     return LocalQuizAttemptRow(
@@ -5550,6 +5810,12 @@ class LocalQuizAttemptRow extends DataClass
           data.resultsJson.present ? data.resultsJson.value : this.resultsJson,
       takenAt: data.takenAt.present ? data.takenAt.value : this.takenAt,
       synced: data.synced.present ? data.synced.value : this.synced,
+      testType: data.testType.present ? data.testType.value : this.testType,
+      serverValid:
+          data.serverValid.present ? data.serverValid.value : this.serverValid,
+      invalidReason: data.invalidReason.present
+          ? data.invalidReason.value
+          : this.invalidReason,
     );
   }
 
@@ -5566,14 +5832,30 @@ class LocalQuizAttemptRow extends DataClass
           ..write('passed: $passed, ')
           ..write('resultsJson: $resultsJson, ')
           ..write('takenAt: $takenAt, ')
-          ..write('synced: $synced')
+          ..write('synced: $synced, ')
+          ..write('testType: $testType, ')
+          ..write('serverValid: $serverValid, ')
+          ..write('invalidReason: $invalidReason')
           ..write(')'))
         .toString();
   }
 
   @override
-  int get hashCode => Object.hash(id, userId, moduleId, clientId, correctCount,
-      totalCount, scorePercent, passed, resultsJson, takenAt, synced);
+  int get hashCode => Object.hash(
+      id,
+      userId,
+      moduleId,
+      clientId,
+      correctCount,
+      totalCount,
+      scorePercent,
+      passed,
+      resultsJson,
+      takenAt,
+      synced,
+      testType,
+      serverValid,
+      invalidReason);
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
@@ -5588,7 +5870,10 @@ class LocalQuizAttemptRow extends DataClass
           other.passed == this.passed &&
           other.resultsJson == this.resultsJson &&
           other.takenAt == this.takenAt &&
-          other.synced == this.synced);
+          other.synced == this.synced &&
+          other.testType == this.testType &&
+          other.serverValid == this.serverValid &&
+          other.invalidReason == this.invalidReason);
 }
 
 class LocalQuizAttemptsCompanion extends UpdateCompanion<LocalQuizAttemptRow> {
@@ -5603,6 +5888,9 @@ class LocalQuizAttemptsCompanion extends UpdateCompanion<LocalQuizAttemptRow> {
   final Value<String> resultsJson;
   final Value<DateTime> takenAt;
   final Value<bool> synced;
+  final Value<String> testType;
+  final Value<bool?> serverValid;
+  final Value<String?> invalidReason;
   const LocalQuizAttemptsCompanion({
     this.id = const Value.absent(),
     this.userId = const Value.absent(),
@@ -5615,6 +5903,9 @@ class LocalQuizAttemptsCompanion extends UpdateCompanion<LocalQuizAttemptRow> {
     this.resultsJson = const Value.absent(),
     this.takenAt = const Value.absent(),
     this.synced = const Value.absent(),
+    this.testType = const Value.absent(),
+    this.serverValid = const Value.absent(),
+    this.invalidReason = const Value.absent(),
   });
   LocalQuizAttemptsCompanion.insert({
     this.id = const Value.absent(),
@@ -5628,6 +5919,9 @@ class LocalQuizAttemptsCompanion extends UpdateCompanion<LocalQuizAttemptRow> {
     required String resultsJson,
     required DateTime takenAt,
     this.synced = const Value.absent(),
+    this.testType = const Value.absent(),
+    this.serverValid = const Value.absent(),
+    this.invalidReason = const Value.absent(),
   })  : moduleId = Value(moduleId),
         clientId = Value(clientId),
         correctCount = Value(correctCount),
@@ -5648,6 +5942,9 @@ class LocalQuizAttemptsCompanion extends UpdateCompanion<LocalQuizAttemptRow> {
     Expression<String>? resultsJson,
     Expression<DateTime>? takenAt,
     Expression<bool>? synced,
+    Expression<String>? testType,
+    Expression<bool>? serverValid,
+    Expression<String>? invalidReason,
   }) {
     return RawValuesInsertable({
       if (id != null) 'id': id,
@@ -5661,6 +5958,9 @@ class LocalQuizAttemptsCompanion extends UpdateCompanion<LocalQuizAttemptRow> {
       if (resultsJson != null) 'results_json': resultsJson,
       if (takenAt != null) 'taken_at': takenAt,
       if (synced != null) 'synced': synced,
+      if (testType != null) 'test_type': testType,
+      if (serverValid != null) 'server_valid': serverValid,
+      if (invalidReason != null) 'invalid_reason': invalidReason,
     });
   }
 
@@ -5675,7 +5975,10 @@ class LocalQuizAttemptsCompanion extends UpdateCompanion<LocalQuizAttemptRow> {
       Value<bool>? passed,
       Value<String>? resultsJson,
       Value<DateTime>? takenAt,
-      Value<bool>? synced}) {
+      Value<bool>? synced,
+      Value<String>? testType,
+      Value<bool?>? serverValid,
+      Value<String?>? invalidReason}) {
     return LocalQuizAttemptsCompanion(
       id: id ?? this.id,
       userId: userId ?? this.userId,
@@ -5688,6 +5991,9 @@ class LocalQuizAttemptsCompanion extends UpdateCompanion<LocalQuizAttemptRow> {
       resultsJson: resultsJson ?? this.resultsJson,
       takenAt: takenAt ?? this.takenAt,
       synced: synced ?? this.synced,
+      testType: testType ?? this.testType,
+      serverValid: serverValid ?? this.serverValid,
+      invalidReason: invalidReason ?? this.invalidReason,
     );
   }
 
@@ -5727,6 +6033,15 @@ class LocalQuizAttemptsCompanion extends UpdateCompanion<LocalQuizAttemptRow> {
     if (synced.present) {
       map['synced'] = Variable<bool>(synced.value);
     }
+    if (testType.present) {
+      map['test_type'] = Variable<String>(testType.value);
+    }
+    if (serverValid.present) {
+      map['server_valid'] = Variable<bool>(serverValid.value);
+    }
+    if (invalidReason.present) {
+      map['invalid_reason'] = Variable<String>(invalidReason.value);
+    }
     return map;
   }
 
@@ -5743,7 +6058,10 @@ class LocalQuizAttemptsCompanion extends UpdateCompanion<LocalQuizAttemptRow> {
           ..write('passed: $passed, ')
           ..write('resultsJson: $resultsJson, ')
           ..write('takenAt: $takenAt, ')
-          ..write('synced: $synced')
+          ..write('synced: $synced, ')
+          ..write('testType: $testType, ')
+          ..write('serverValid: $serverValid, ')
+          ..write('invalidReason: $invalidReason')
           ..write(')'))
         .toString();
   }
@@ -6131,6 +6449,8 @@ typedef $$CachedModulesTableCreateCompanionBuilder = CachedModulesCompanion
   required String status,
   required int sortOrder,
   required DateTime cachedAt,
+  Value<String> audience,
+  Value<String> learnerRolesJson,
   Value<int> rowid,
 });
 typedef $$CachedModulesTableUpdateCompanionBuilder = CachedModulesCompanion
@@ -6143,6 +6463,8 @@ typedef $$CachedModulesTableUpdateCompanionBuilder = CachedModulesCompanion
   Value<String> status,
   Value<int> sortOrder,
   Value<DateTime> cachedAt,
+  Value<String> audience,
+  Value<String> learnerRolesJson,
   Value<int> rowid,
 });
 
@@ -6178,6 +6500,13 @@ class $$CachedModulesTableFilterComposer
 
   ColumnFilters<DateTime> get cachedAt => $composableBuilder(
       column: $table.cachedAt, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get audience => $composableBuilder(
+      column: $table.audience, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get learnerRolesJson => $composableBuilder(
+      column: $table.learnerRolesJson,
+      builder: (column) => ColumnFilters(column));
 }
 
 class $$CachedModulesTableOrderingComposer
@@ -6213,6 +6542,13 @@ class $$CachedModulesTableOrderingComposer
 
   ColumnOrderings<DateTime> get cachedAt => $composableBuilder(
       column: $table.cachedAt, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get audience => $composableBuilder(
+      column: $table.audience, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get learnerRolesJson => $composableBuilder(
+      column: $table.learnerRolesJson,
+      builder: (column) => ColumnOrderings(column));
 }
 
 class $$CachedModulesTableAnnotationComposer
@@ -6247,6 +6583,12 @@ class $$CachedModulesTableAnnotationComposer
 
   GeneratedColumn<DateTime> get cachedAt =>
       $composableBuilder(column: $table.cachedAt, builder: (column) => column);
+
+  GeneratedColumn<String> get audience =>
+      $composableBuilder(column: $table.audience, builder: (column) => column);
+
+  GeneratedColumn<String> get learnerRolesJson => $composableBuilder(
+      column: $table.learnerRolesJson, builder: (column) => column);
 }
 
 class $$CachedModulesTableTableManager extends RootTableManager<
@@ -6284,6 +6626,8 @@ class $$CachedModulesTableTableManager extends RootTableManager<
             Value<String> status = const Value.absent(),
             Value<int> sortOrder = const Value.absent(),
             Value<DateTime> cachedAt = const Value.absent(),
+            Value<String> audience = const Value.absent(),
+            Value<String> learnerRolesJson = const Value.absent(),
             Value<int> rowid = const Value.absent(),
           }) =>
               CachedModulesCompanion(
@@ -6295,6 +6639,8 @@ class $$CachedModulesTableTableManager extends RootTableManager<
             status: status,
             sortOrder: sortOrder,
             cachedAt: cachedAt,
+            audience: audience,
+            learnerRolesJson: learnerRolesJson,
             rowid: rowid,
           ),
           createCompanionCallback: ({
@@ -6306,6 +6652,8 @@ class $$CachedModulesTableTableManager extends RootTableManager<
             required String status,
             required int sortOrder,
             required DateTime cachedAt,
+            Value<String> audience = const Value.absent(),
+            Value<String> learnerRolesJson = const Value.absent(),
             Value<int> rowid = const Value.absent(),
           }) =>
               CachedModulesCompanion.insert(
@@ -6317,6 +6665,8 @@ class $$CachedModulesTableTableManager extends RootTableManager<
             status: status,
             sortOrder: sortOrder,
             cachedAt: cachedAt,
+            audience: audience,
+            learnerRolesJson: learnerRolesJson,
             rowid: rowid,
           ),
           withReferenceMapper: (p0) => p0
@@ -7264,6 +7614,7 @@ typedef $$LocalProgressTableCreateCompanionBuilder = LocalProgressCompanion
   Value<String?> lastSection,
   Value<DateTime?> lastOpenedAt,
   Value<DateTime?> completedAt,
+  Value<DateTime?> readingCompletedAt,
   Value<bool> synced,
   Value<String> userId,
 });
@@ -7276,6 +7627,7 @@ typedef $$LocalProgressTableUpdateCompanionBuilder = LocalProgressCompanion
   Value<String?> lastSection,
   Value<DateTime?> lastOpenedAt,
   Value<DateTime?> completedAt,
+  Value<DateTime?> readingCompletedAt,
   Value<bool> synced,
   Value<String> userId,
 });
@@ -7310,6 +7662,10 @@ class $$LocalProgressTableFilterComposer
 
   ColumnFilters<DateTime> get completedAt => $composableBuilder(
       column: $table.completedAt, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<DateTime> get readingCompletedAt => $composableBuilder(
+      column: $table.readingCompletedAt,
+      builder: (column) => ColumnFilters(column));
 
   ColumnFilters<bool> get synced => $composableBuilder(
       column: $table.synced, builder: (column) => ColumnFilters(column));
@@ -7350,6 +7706,10 @@ class $$LocalProgressTableOrderingComposer
   ColumnOrderings<DateTime> get completedAt => $composableBuilder(
       column: $table.completedAt, builder: (column) => ColumnOrderings(column));
 
+  ColumnOrderings<DateTime> get readingCompletedAt => $composableBuilder(
+      column: $table.readingCompletedAt,
+      builder: (column) => ColumnOrderings(column));
+
   ColumnOrderings<bool> get synced => $composableBuilder(
       column: $table.synced, builder: (column) => ColumnOrderings(column));
 
@@ -7386,6 +7746,9 @@ class $$LocalProgressTableAnnotationComposer
 
   GeneratedColumn<DateTime> get completedAt => $composableBuilder(
       column: $table.completedAt, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get readingCompletedAt => $composableBuilder(
+      column: $table.readingCompletedAt, builder: (column) => column);
 
   GeneratedColumn<bool> get synced =>
       $composableBuilder(column: $table.synced, builder: (column) => column);
@@ -7428,6 +7791,7 @@ class $$LocalProgressTableTableManager extends RootTableManager<
             Value<String?> lastSection = const Value.absent(),
             Value<DateTime?> lastOpenedAt = const Value.absent(),
             Value<DateTime?> completedAt = const Value.absent(),
+            Value<DateTime?> readingCompletedAt = const Value.absent(),
             Value<bool> synced = const Value.absent(),
             Value<String> userId = const Value.absent(),
           }) =>
@@ -7439,6 +7803,7 @@ class $$LocalProgressTableTableManager extends RootTableManager<
             lastSection: lastSection,
             lastOpenedAt: lastOpenedAt,
             completedAt: completedAt,
+            readingCompletedAt: readingCompletedAt,
             synced: synced,
             userId: userId,
           ),
@@ -7450,6 +7815,7 @@ class $$LocalProgressTableTableManager extends RootTableManager<
             Value<String?> lastSection = const Value.absent(),
             Value<DateTime?> lastOpenedAt = const Value.absent(),
             Value<DateTime?> completedAt = const Value.absent(),
+            Value<DateTime?> readingCompletedAt = const Value.absent(),
             Value<bool> synced = const Value.absent(),
             Value<String> userId = const Value.absent(),
           }) =>
@@ -7461,6 +7827,7 @@ class $$LocalProgressTableTableManager extends RootTableManager<
             lastSection: lastSection,
             lastOpenedAt: lastOpenedAt,
             completedAt: completedAt,
+            readingCompletedAt: readingCompletedAt,
             synced: synced,
             userId: userId,
           ),
@@ -8596,6 +8963,7 @@ typedef $$CachedQuizQuestionsTableCreateCompanionBuilder
   required String contentJson,
   Value<String?> explanation,
   required int sortOrder,
+  Value<String> usage,
   Value<int> rowid,
 });
 typedef $$CachedQuizQuestionsTableUpdateCompanionBuilder
@@ -8607,6 +8975,7 @@ typedef $$CachedQuizQuestionsTableUpdateCompanionBuilder
   Value<String> contentJson,
   Value<String?> explanation,
   Value<int> sortOrder,
+  Value<String> usage,
   Value<int> rowid,
 });
 
@@ -8639,6 +9008,9 @@ class $$CachedQuizQuestionsTableFilterComposer
 
   ColumnFilters<int> get sortOrder => $composableBuilder(
       column: $table.sortOrder, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get usage => $composableBuilder(
+      column: $table.usage, builder: (column) => ColumnFilters(column));
 }
 
 class $$CachedQuizQuestionsTableOrderingComposer
@@ -8671,6 +9043,9 @@ class $$CachedQuizQuestionsTableOrderingComposer
 
   ColumnOrderings<int> get sortOrder => $composableBuilder(
       column: $table.sortOrder, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get usage => $composableBuilder(
+      column: $table.usage, builder: (column) => ColumnOrderings(column));
 }
 
 class $$CachedQuizQuestionsTableAnnotationComposer
@@ -8702,6 +9077,9 @@ class $$CachedQuizQuestionsTableAnnotationComposer
 
   GeneratedColumn<int> get sortOrder =>
       $composableBuilder(column: $table.sortOrder, builder: (column) => column);
+
+  GeneratedColumn<String> get usage =>
+      $composableBuilder(column: $table.usage, builder: (column) => column);
 }
 
 class $$CachedQuizQuestionsTableTableManager extends RootTableManager<
@@ -8741,6 +9119,7 @@ class $$CachedQuizQuestionsTableTableManager extends RootTableManager<
             Value<String> contentJson = const Value.absent(),
             Value<String?> explanation = const Value.absent(),
             Value<int> sortOrder = const Value.absent(),
+            Value<String> usage = const Value.absent(),
             Value<int> rowid = const Value.absent(),
           }) =>
               CachedQuizQuestionsCompanion(
@@ -8751,6 +9130,7 @@ class $$CachedQuizQuestionsTableTableManager extends RootTableManager<
             contentJson: contentJson,
             explanation: explanation,
             sortOrder: sortOrder,
+            usage: usage,
             rowid: rowid,
           ),
           createCompanionCallback: ({
@@ -8761,6 +9141,7 @@ class $$CachedQuizQuestionsTableTableManager extends RootTableManager<
             required String contentJson,
             Value<String?> explanation = const Value.absent(),
             required int sortOrder,
+            Value<String> usage = const Value.absent(),
             Value<int> rowid = const Value.absent(),
           }) =>
               CachedQuizQuestionsCompanion.insert(
@@ -8771,6 +9152,7 @@ class $$CachedQuizQuestionsTableTableManager extends RootTableManager<
             contentJson: contentJson,
             explanation: explanation,
             sortOrder: sortOrder,
+            usage: usage,
             rowid: rowid,
           ),
           withReferenceMapper: (p0) => p0
@@ -8809,6 +9191,9 @@ typedef $$LocalQuizAttemptsTableCreateCompanionBuilder
   required String resultsJson,
   required DateTime takenAt,
   Value<bool> synced,
+  Value<String> testType,
+  Value<bool?> serverValid,
+  Value<String?> invalidReason,
 });
 typedef $$LocalQuizAttemptsTableUpdateCompanionBuilder
     = LocalQuizAttemptsCompanion Function({
@@ -8823,6 +9208,9 @@ typedef $$LocalQuizAttemptsTableUpdateCompanionBuilder
   Value<String> resultsJson,
   Value<DateTime> takenAt,
   Value<bool> synced,
+  Value<String> testType,
+  Value<bool?> serverValid,
+  Value<String?> invalidReason,
 });
 
 class $$LocalQuizAttemptsTableFilterComposer
@@ -8866,6 +9254,15 @@ class $$LocalQuizAttemptsTableFilterComposer
 
   ColumnFilters<bool> get synced => $composableBuilder(
       column: $table.synced, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get testType => $composableBuilder(
+      column: $table.testType, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<bool> get serverValid => $composableBuilder(
+      column: $table.serverValid, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get invalidReason => $composableBuilder(
+      column: $table.invalidReason, builder: (column) => ColumnFilters(column));
 }
 
 class $$LocalQuizAttemptsTableOrderingComposer
@@ -8911,6 +9308,16 @@ class $$LocalQuizAttemptsTableOrderingComposer
 
   ColumnOrderings<bool> get synced => $composableBuilder(
       column: $table.synced, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get testType => $composableBuilder(
+      column: $table.testType, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<bool> get serverValid => $composableBuilder(
+      column: $table.serverValid, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get invalidReason => $composableBuilder(
+      column: $table.invalidReason,
+      builder: (column) => ColumnOrderings(column));
 }
 
 class $$LocalQuizAttemptsTableAnnotationComposer
@@ -8954,6 +9361,15 @@ class $$LocalQuizAttemptsTableAnnotationComposer
 
   GeneratedColumn<bool> get synced =>
       $composableBuilder(column: $table.synced, builder: (column) => column);
+
+  GeneratedColumn<String> get testType =>
+      $composableBuilder(column: $table.testType, builder: (column) => column);
+
+  GeneratedColumn<bool> get serverValid => $composableBuilder(
+      column: $table.serverValid, builder: (column) => column);
+
+  GeneratedColumn<String> get invalidReason => $composableBuilder(
+      column: $table.invalidReason, builder: (column) => column);
 }
 
 class $$LocalQuizAttemptsTableTableManager extends RootTableManager<
@@ -8996,6 +9412,9 @@ class $$LocalQuizAttemptsTableTableManager extends RootTableManager<
             Value<String> resultsJson = const Value.absent(),
             Value<DateTime> takenAt = const Value.absent(),
             Value<bool> synced = const Value.absent(),
+            Value<String> testType = const Value.absent(),
+            Value<bool?> serverValid = const Value.absent(),
+            Value<String?> invalidReason = const Value.absent(),
           }) =>
               LocalQuizAttemptsCompanion(
             id: id,
@@ -9009,6 +9428,9 @@ class $$LocalQuizAttemptsTableTableManager extends RootTableManager<
             resultsJson: resultsJson,
             takenAt: takenAt,
             synced: synced,
+            testType: testType,
+            serverValid: serverValid,
+            invalidReason: invalidReason,
           ),
           createCompanionCallback: ({
             Value<int> id = const Value.absent(),
@@ -9022,6 +9444,9 @@ class $$LocalQuizAttemptsTableTableManager extends RootTableManager<
             required String resultsJson,
             required DateTime takenAt,
             Value<bool> synced = const Value.absent(),
+            Value<String> testType = const Value.absent(),
+            Value<bool?> serverValid = const Value.absent(),
+            Value<String?> invalidReason = const Value.absent(),
           }) =>
               LocalQuizAttemptsCompanion.insert(
             id: id,
@@ -9035,6 +9460,9 @@ class $$LocalQuizAttemptsTableTableManager extends RootTableManager<
             resultsJson: resultsJson,
             takenAt: takenAt,
             synced: synced,
+            testType: testType,
+            serverValid: serverValid,
+            invalidReason: invalidReason,
           ),
           withReferenceMapper: (p0) => p0
               .map((e) => (e.readTable(table), BaseReferences(db, table, e)))

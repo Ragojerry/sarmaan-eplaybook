@@ -1,7 +1,7 @@
 name: sarmaan_eplaybook
 description: SARMAAN e-Playbook — offline-first CDD training app.
 publish_to: "none"
-version: 0.1.7+8
+version: 0.1.8+9
 
 environment:
   sdk: ">=3.4.0 <4.0.0"

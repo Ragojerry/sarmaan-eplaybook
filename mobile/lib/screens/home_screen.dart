@@ -3,6 +3,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../db/local_database.dart';
+import '../learning/learning_rules.dart';
+import '../learning/learning_service.dart';
 import '../models/api_models.dart' show UserProfile;
 import '../offline/content_sync_service.dart';
 import '../services/auth_service.dart';
@@ -29,7 +31,8 @@ final cachedModulesProvider = FutureProvider<List<CachedModuleRow>>((ref) async 
 class HomeExtras {
   final Map<String, LocalProgressRow> progress;
   final Map<String, int> sectionCounts;
-  const HomeExtras(this.progress, this.sectionCounts);
+  final LearningSnapshot learning;
+  const HomeExtras(this.progress, this.sectionCounts, this.learning);
 }
 
 final homeExtrasProvider = FutureProvider.autoDispose<HomeExtras>((ref) async {
@@ -40,7 +43,7 @@ final homeExtrasProvider = FutureProvider.autoDispose<HomeExtras>((ref) async {
   for (final m in modules) {
     counts[m.id] = (await db.getSectionsForModule(m.id)).length;
   }
-  return HomeExtras(progress, counts);
+  return HomeExtras(progress, counts, await loadLearning(db));
 });
 
 /// Local search index: the Q&A passages already stored on the phone.
@@ -249,6 +252,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                                 completed: extras?.progress[m.id]?.completed ?? false,
                                 percent: extras?.progress[m.id]?.progressPercent ?? 0,
                                 sectionCount: extras?.sectionCounts[m.id],
+                                stage: extras?.learning.of(m.id)?.stage,
                               ),
                           ],
                         ),
@@ -355,12 +359,14 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
 
   /// Matches the prototype's `.home-top`: teal gradient, mono greeting,
   /// serif title, online pill and a search field.
-  /// "CDD TEAM 0041" when the account has a team code, otherwise the first name.
+  /// "CDD TEAM 0041" (the learner role, e.g. "HEALTH WORKER TEAM 0041") when
+  /// the account has a team code, otherwise the first name.
   String? _who(UserProfile? user) {
     if (user == null) return null;
     final team = user.teamCode?.trim();
-    if (team != null && team.isNotEmpty) return '${user.role == 'CDD' ? 'CDD ' : ''}TEAM $team';
-    return user.firstName;
+    final role = kLearnerRoleLabels[user.learnerRole]?.toUpperCase();
+    if (team != null && team.isNotEmpty) return '${role != null ? '$role ' : ''}TEAM $team';
+    return role != null ? '${user.firstName} · $role' : user.firstName;
   }
 
   /// Header pill in the same style as the Online pill, shown only while a
@@ -736,17 +742,19 @@ class _ModuleCard extends StatelessWidget {
   final bool completed;
   final int percent;
   final int? sectionCount;
+  final ModuleStage? stage;
 
-  const _ModuleCard({required this.module, this.completed = false, this.percent = 0, this.sectionCount});
+  const _ModuleCard({required this.module, this.completed = false, this.percent = 0, this.sectionCount, this.stage});
 
   @override
   Widget build(BuildContext context) {
+    final locked = stage == ModuleStage.locked;
     return GestureDetector(
       onTap: () => context.go('/reader/${module.id}'),
       child: Container(
         padding: const EdgeInsets.all(13),
         decoration: BoxDecoration(
-          color: AppColors.white,
+          color: locked ? AppColors.sandDeep : AppColors.white,
           borderRadius: BorderRadius.circular(AppRadius.medium),
           border: Border.all(color: AppColors.line),
         ),
@@ -758,6 +766,7 @@ class _ModuleCard extends StatelessWidget {
               children: [
                 _CodeBadge(module.moduleCode),
                 if (completed) const Icon(Icons.check, size: 16, color: AppColors.teal),
+                if (locked) const Icon(Icons.lock_outline, size: 16, color: AppColors.textMuted),
               ],
             ),
             const SizedBox(height: 8),
@@ -777,7 +786,7 @@ class _ModuleCard extends StatelessWidget {
                 Expanded(
                   child: Text(
                     '${sectionCount != null ? '$sectionCount sections · ' : ''}'
-                    '${!completed && percent > 0 ? '$percent% read' : 'offline'}',
+                    '${stage != null && stage != ModuleStage.reading && !completed ? stageLabel(stage!) : !completed && percent > 0 ? '$percent% read' : 'offline'}',
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                     style: const TextStyle(fontSize: 10.5, color: AppColors.textSecondary),

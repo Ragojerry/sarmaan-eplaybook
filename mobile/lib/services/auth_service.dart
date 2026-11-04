@@ -63,9 +63,25 @@ class AuthNotifier extends StateNotifier<AuthState> {
   /// Points the local database at THIS user before the signed-in state is
   /// published, so no screen can read the previous person's progress.
   Future<void> _setUser(UserProfile user) async {
-    _db.setActiveUser(user.id);
+    _db.setActiveUser(user.id, learnerRole: user.learnerRole, staff: !user.isLearner);
     await _db.adoptAnonymousAnalytics();
     state = AuthState(user: user, loading: false);
+  }
+
+  /// Re-reads the account from the server (called by sync). Returns true when
+  /// the learner role changed, so the caller can fetch the matching content.
+  Future<bool> refreshProfile() async {
+    final current = state.user;
+    if (current == null) return false;
+    final resp = await _api.dio.get('/auth/me');
+    final fresh = UserProfile.fromJson(resp.data as Map<String, dynamic>);
+    if (fresh.id != current.id) return false;
+    final changed = fresh.learnerRole != current.learnerRole || fresh.role != current.role;
+    if (changed) {
+      _db.setActiveUser(fresh.id, learnerRole: fresh.learnerRole, staff: !fresh.isLearner);
+    }
+    state = AuthState(user: fresh, loading: false);
+    return changed;
   }
 
   Future<void> logout() async {

@@ -7,22 +7,13 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../db/local_database.dart';
+import '../learning/learning_rules.dart';
+import '../learning/learning_service.dart';
 import '../offline/content_sync_service.dart';
 import '../quiz/quiz_grader.dart';
 import '../sync/sync_engine.dart';
 import '../theme/app_theme.dart';
 import '../widgets/offline_aware_image.dart';
-
-/// Number of quiz questions on this phone for a module (0 = the module has no
-/// quiz and can be completed directly). autoDispose: re-read each time.
-final localQuizCountProvider = FutureProvider.autoDispose.family<int, String>((ref, moduleId) {
-  return ref.read(localDatabaseProvider).countQuizQuestions(moduleId);
-});
-
-/// The signed-in learner's best attempt for a module, or null.
-final localBestQuizProvider = FutureProvider.autoDispose.family<LocalQuizAttemptRow?, String>((ref, moduleId) {
-  return ref.read(localDatabaseProvider).getBestQuizAttempt(moduleId);
-});
 
 /// One question plus the learner's in-progress answer. Option/right-hand/item
 /// order is shuffled per attempt; answers are kept in ORIGINAL index space so
@@ -139,9 +130,16 @@ class _Q {
   }
 }
 
+/// The pre-test (before reading; score only, no answers shown, since the
+/// same questions may come back in the post-test) or the post-test (after
+/// reading; completes the module when it reaches 90% and beats the pre-test).
+/// Works offline: the attempt is saved on the phone and uploaded later.
 class QuizScreen extends ConsumerStatefulWidget {
   final String moduleId;
-  const QuizScreen({super.key, required this.moduleId});
+
+  /// PRE or POST.
+  final String testType;
+  const QuizScreen({super.key, required this.moduleId, this.testType = 'POST'});
 
   @override
   ConsumerState<QuizScreen> createState() => _QuizScreenState();
@@ -152,8 +150,12 @@ class _QuizScreenState extends ConsumerState<QuizScreen> {
   List<_Q>? _qs;
   int _index = 0;
   bool _submitting = false;
-  int? _correct;
-  bool? _passed;
+  String? _blocked; // why this test cannot be taken now
+  TestOutcome? _outcome;
+  String? _nextModuleId;
+  String? _nextModuleTitle;
+
+  bool get _isPre => widget.testType == 'PRE';
 
   @override
   void initState() {
@@ -163,15 +165,34 @@ class _QuizScreenState extends ConsumerState<QuizScreen> {
 
   Future<void> _load() async {
     final db = ref.read(localDatabaseProvider);
-    final rows = await db.getQuizQuestions(widget.moduleId);
-    // Starting the quiz takes the module to 80% (never lowers it).
-    if (rows.isNotEmpty) await db.raiseProgress(widget.moduleId, LocalDatabase.quizStartedPercent);
+    final learning = await loadLearning(db);
+    final state = learning.of(widget.moduleId);
+    String? blocked;
+    if (state == null) {
+      blocked = 'This module is not available for your role.';
+    } else if (state.stage == ModuleStage.locked) {
+      blocked = 'Complete ${learning.blockerOf(widget.moduleId)?.title ?? 'the previous module'} first.';
+    } else if (_isPre && !state.canTakePreTest) {
+      blocked = state.pre != null
+          ? 'You have already taken the pre-test (${state.pre!.percent}%). It is taken once, before reading.'
+          : 'This module has no pre-test.';
+    } else if (!_isPre && !state.canTakePostTest) {
+      blocked = state.pre == null
+          ? 'Take the pre-test first, then read the module.'
+          : !state.readingDone
+              ? 'Read the module to the end first. The post-test opens after reading.'
+              : 'Your pre-test score was 100%, so a higher post-test score is not possible. '
+                  'Your supervisor or programme team must approve an exception first.';
+    }
+    final rows = blocked == null ? await db.getQuizQuestions(widget.moduleId, testType: widget.testType) : const <CachedQuizQuestionRow>[];
+    // Starting the post-test takes the module to 80% (never lowers it).
+    if (!_isPre && rows.isNotEmpty) await db.raiseProgress(widget.moduleId, LocalDatabase.quizStartedPercent);
     if (!mounted) return;
     setState(() {
+      _blocked = blocked;
       _qs = [for (final r in rows) _Q(r, _rng)];
       _index = 0;
-      _correct = null;
-      _passed = null;
+      _outcome = null;
     });
   }
 
@@ -188,25 +209,42 @@ class _QuizScreenState extends ConsumerState<QuizScreen> {
     setState(() => _submitting = true);
     final db = ref.read(localDatabaseProvider);
     final correct = qs.where((q) => q.correct).length;
-    final passed = quizPassed(correct, qs.length);
-    final clientId = 'q-${DateTime.now().microsecondsSinceEpoch}-${_rng.nextInt(1 << 32).toRadixString(36)}';
-    await db.insertQuizAttempt(
-      moduleId: widget.moduleId,
-      clientId: clientId,
-      correct: correct,
-      total: qs.length,
-      scorePercent: quizScorePercent(correct, qs.length),
-      passed: passed,
-      resultsJson: jsonEncode([for (final q in qs) {'question_id': q.id, 'correct': q.correct}]),
-    );
-    ref.invalidate(localBestQuizProvider(widget.moduleId));
+    final clientId = '${_isPre ? 'pre' : 'post'}-${DateTime.now().microsecondsSinceEpoch}-${_rng.nextInt(1 << 32).toRadixString(36)}';
+    TestOutcome outcome;
+    try {
+      outcome = await recordTestAttempt(
+        db,
+        moduleId: widget.moduleId,
+        testType: widget.testType,
+        correct: correct,
+        total: qs.length,
+        clientId: clientId,
+        resultsJson: jsonEncode([for (final q in qs) {'question_id': q.id, 'correct': q.correct}]),
+      );
+    } on StateError {
+      if (mounted) setState(() => _submitting = false);
+      await _load(); // the state changed underneath (e.g. a sync); show why
+      return;
+    }
+    String? nextId;
+    String? nextTitle;
+    if (outcome.completedNow) {
+      final after = await loadLearning(db);
+      final i = after.modules.indexWhere((m) => m.id == widget.moduleId);
+      if (i >= 0 && i + 1 < after.modules.length) {
+        nextId = after.modules[i + 1].id;
+        nextTitle = after.modules[i + 1].title;
+      }
+    }
+    ref.invalidate(learningProvider);
     // Upload now if we can; otherwise the sync engine retries automatically.
     unawaited(ref.read(syncEngineProvider.notifier).syncNow().catchError((_) {}));
     if (!mounted) return;
     setState(() {
       _submitting = false;
-      _correct = correct;
-      _passed = passed;
+      _outcome = outcome;
+      _nextModuleId = nextId;
+      _nextModuleTitle = nextTitle;
     });
   }
 
@@ -216,18 +254,34 @@ class _QuizScreenState extends ConsumerState<QuizScreen> {
     return Scaffold(
       backgroundColor: AppColors.sand,
       appBar: AppBar(
-        title: const Text('Module quiz'),
+        title: Text(_isPre ? 'Pre-test' : 'Post-test'),
         leading: BackButton(onPressed: () => context.go('/reader/${widget.moduleId}')),
       ),
-      body: qs == null
-          ? const Center(child: CircularProgressIndicator())
-          : qs.isEmpty
-              ? const Center(child: Padding(padding: EdgeInsets.all(24), child: Text('This module has no quiz on this phone yet.')))
-              : _passed != null
-                  ? _buildResult(qs)
-                  : _buildQuestion(qs),
+      body: _blocked != null
+          ? _message(_blocked!)
+          : qs == null
+              ? const Center(child: CircularProgressIndicator())
+              : qs.isEmpty
+                  ? _message('This module has no test on this phone yet.')
+                  : _outcome != null
+                      ? (_isPre ? _buildPreResult(_outcome!) : _buildResult(qs, _outcome!))
+                      : _buildQuestion(qs),
     );
   }
+
+  Widget _message(String text) => Center(
+        child: Padding(
+          padding: const EdgeInsets.all(24),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text(text, textAlign: TextAlign.center, style: const TextStyle(fontSize: 14, height: 1.45, color: AppColors.ink)),
+              const SizedBox(height: 16),
+              OutlinedButton(onPressed: () => context.go('/reader/${widget.moduleId}'), child: const Text('Back to module')),
+            ],
+          ),
+        ),
+      );
 
   // ---------------------------------------------------------------- question
 
@@ -278,7 +332,7 @@ class _QuizScreenState extends ConsumerState<QuizScreen> {
                       ? null
                       : () => last ? _submit() : setState(() => _index++),
                   style: FilledButton.styleFrom(backgroundColor: AppColors.tealDeep, foregroundColor: AppColors.sand),
-                  child: Text(last ? (_submitting ? 'Submitting…' : 'Submit quiz') : 'Next'),
+                  child: Text(last ? (_submitting ? 'Submitting…' : 'Submit') : 'Next'),
                 ),
               ],
             ),
@@ -470,48 +524,117 @@ class _QuizScreenState extends ConsumerState<QuizScreen> {
 
   // ------------------------------------------------------------------ result
 
-  Widget _buildResult(List<_Q> qs) {
-    final correct = _correct!;
-    final passed = _passed!;
-    final pct = quizScorePercent(correct, qs.length);
+  /// Pre-test: the score is the learner's starting point. No answers are
+  /// shown, because the same questions may be in the post-test.
+  Widget _buildPreResult(TestOutcome o) {
+    final perfect = isPerfect(o.correct, o.total);
+    return ListView(
+      padding: const EdgeInsets.fromLTRB(22, 22, 22, 28),
+      children: [
+        Container(
+          padding: const EdgeInsets.all(18),
+          decoration: BoxDecoration(color: AppColors.tealDeep, borderRadius: BorderRadius.circular(AppRadius.medium)),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const Text('Pre-test done',
+                  style: TextStyle(fontFamily: AppFonts.serif, fontSize: 24, fontWeight: FontWeight.w700, color: AppColors.sand)),
+              const SizedBox(height: 4),
+              Text('${o.correct} of ${o.total} correct · ${o.percent}%',
+                  style: const TextStyle(fontFamily: AppFonts.mono, fontSize: 13, color: AppColors.sand)),
+              const SizedBox(height: 8),
+              Text(
+                perfect
+                    ? 'You already know this module well. To complete it, the post-test must normally score higher than '
+                        'the pre-test, which is not possible from 100%. Your supervisor or programme team will review this '
+                        'and approve an exception; then a post-test of $kQuizPassMark% or more completes the module. '
+                        'Read the module in the meantime.'
+                    : 'This is your starting point, not a pass or fail. Now read the module. The post-test opens when you '
+                        'reach the end: you need at least $kQuizPassMark% and more than ${o.percent}% to complete the module.',
+                style: const TextStyle(fontSize: 13, height: 1.45, color: AppColors.sand),
+              ),
+            ],
+          ),
+        ),
+        const SizedBox(height: 16),
+        FilledButton(
+          onPressed: () => context.go('/reader/${widget.moduleId}'),
+          style: FilledButton.styleFrom(backgroundColor: AppColors.tealDeep, foregroundColor: AppColors.sand),
+          child: const Text('Read the module'),
+        ),
+      ],
+    );
+  }
+
+  /// Post-test: both conditions, whether each was met, and what to do next.
+  Widget _buildResult(List<_Q> qs, TestOutcome o) {
+    final done = o.after.completed;
+    final pre = o.after.pre;
+    final waiting = o.after.stage == ModuleStage.exception;
+    Widget check(bool ok, String text) => Padding(
+          padding: const EdgeInsets.only(top: 6),
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Icon(ok ? Icons.check_circle : Icons.cancel, size: 18, color: done ? AppColors.sand : (ok ? AppColors.teal : AppColors.danger)),
+              const SizedBox(width: 8),
+              Expanded(
+                child: Text(text, style: TextStyle(fontSize: 13, height: 1.35, color: done ? AppColors.sand : AppColors.calloutWarningText)),
+              ),
+            ],
+          ),
+        );
+    final String next;
+    if (done) {
+      next = _nextModuleTitle != null ? 'The next module is now unlocked.' : 'You have completed this module.';
+    } else if (waiting) {
+      next = 'Your pre-test was 100%, so a higher score is not possible. Your supervisor or programme team must approve '
+          'an exception; your result is saved and will count once they do.';
+    } else if (!o.reachedPassMark) {
+      next = 'You need at least $kQuizPassMark%. Look at the answers below, re-read the module, and try the post-test again.';
+    } else {
+      next = 'You reached $kQuizPassMark%, but you need more than your pre-test score (${pre?.percent ?? 0}%). '
+          'Re-read the parts you missed and try the post-test again.';
+    }
     return ListView(
       padding: const EdgeInsets.fromLTRB(22, 22, 22, 28),
       children: [
         Container(
           padding: const EdgeInsets.all(18),
           decoration: BoxDecoration(
-            color: passed ? AppColors.tealDeep : AppColors.claySoft,
+            color: done ? AppColors.tealDeep : AppColors.claySoft,
             borderRadius: BorderRadius.circular(AppRadius.medium),
           ),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                passed ? 'You passed' : 'Not yet',
+                done ? 'Module complete' : 'Not yet',
                 style: TextStyle(
                   fontFamily: AppFonts.serif, fontSize: 24, fontWeight: FontWeight.w700,
-                  color: passed ? AppColors.sand : AppColors.calloutWarningText,
+                  color: done ? AppColors.sand : AppColors.calloutWarningText,
                 ),
               ),
               const SizedBox(height: 4),
               Text(
-                '$correct of ${qs.length} correct · $pct%',
-                style: TextStyle(fontFamily: AppFonts.mono, fontSize: 13, color: passed ? AppColors.sand : AppColors.calloutWarningText),
+                '${o.correct} of ${o.total} correct · ${o.percent}%',
+                style: TextStyle(fontFamily: AppFonts.mono, fontSize: 13, color: done ? AppColors.sand : AppColors.calloutWarningText),
               ),
-              const SizedBox(height: 8),
-              Text(
-                passed
-                    ? 'Go back to the module and tap "Mark as complete".'
-                    : 'You need $kQuizPassMark% to complete this module. Look at the answers below, re-read the module if you need to, and try again.',
-                style: TextStyle(fontSize: 13, height: 1.4, color: passed ? AppColors.sand : AppColors.calloutWarningText),
-              ),
+              const SizedBox(height: 6),
+              check(o.reachedPassMark, 'At least $kQuizPassMark% (you scored ${o.percent}%)'),
+              check(o.beatPreTest || (done && o.after.exceptionApproved),
+                  o.after.exceptionApproved && !o.beatPreTest
+                      ? 'Higher than your pre-test: not needed (exception approved for your 100% pre-test)'
+                      : 'Higher than your pre-test (${pre?.percent ?? 0}%)'),
+              const SizedBox(height: 10),
+              Text(next, style: TextStyle(fontSize: 13, height: 1.4, color: done ? AppColors.sand : AppColors.calloutWarningText)),
             ],
           ),
         ),
         const SizedBox(height: 16),
         Row(
           children: [
-            if (!passed)
+            if (!done && !waiting)
               Expanded(
                 child: FilledButton(
                   onPressed: _load,
@@ -519,11 +642,19 @@ class _QuizScreenState extends ConsumerState<QuizScreen> {
                   child: const Text('Try again'),
                 ),
               ),
-            if (!passed) const SizedBox(width: 10),
+            if (done && _nextModuleId != null)
+              Expanded(
+                child: FilledButton(
+                  onPressed: () => context.go('/reader/$_nextModuleId'),
+                  style: FilledButton.styleFrom(backgroundColor: AppColors.tealDeep, foregroundColor: AppColors.sand),
+                  child: const Text('Next module'),
+                ),
+              ),
+            const SizedBox(width: 10),
             Expanded(
               child: OutlinedButton(
                 onPressed: () => context.go('/reader/${widget.moduleId}'),
-                child: Text(passed ? 'Back to module' : 'Re-read the module'),
+                child: Text(done ? 'Back to module' : 'Re-read the module'),
               ),
             ),
           ],
