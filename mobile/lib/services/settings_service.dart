@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../db/local_database.dart';
 import '../models/api_models.dart';
+import '../models/consent_text.dart';
 import '../offline/content_sync_service.dart' show localDatabaseProvider;
 
 final settingsServiceProvider = Provider<SettingsService>((ref) => SettingsService(ref.read(localDatabaseProvider)));
@@ -21,6 +22,8 @@ class SettingsService {
   static const _cachedLanguagesKey = 'cached_languages_json';
 
   static const _analyticsConsentKey = 'analytics_consent';
+  static const _cachedConsentKey = 'cached_consent_json';
+  static const _acceptedConsentKey = 'accepted_consent';
 
   /// Opt-in anonymous usage statistics (module opens, video plays, app errors).
   /// Off unless the person turns it on; nothing is uploaded while it is off.
@@ -77,4 +80,25 @@ class SettingsService {
     ]);
     await _db.setSetting(_cachedLanguagesKey, encoded);
   }
+
+  /// Every language's consent text from GET /consent (null: never fetched).
+  Future<List<ConsentText>?> getCachedConsent() async {
+    final raw = await _db.getSetting(_cachedConsentKey);
+    if (raw == null) return null;
+    try {
+      return [for (final j in jsonDecode(raw) as List) ConsentText.fromJson(j as Map<String, dynamic>)];
+    } catch (_) {
+      return null; // unreadable cache: same as nothing cached
+    }
+  }
+
+  Future<void> setCachedConsent(List<ConsentText> texts) =>
+      _db.setSetting(_cachedConsentKey, jsonEncode([for (final t in texts) t.toJson()]));
+
+  /// Which consent text the person agreed to, e.g. "ha:3" (language:version;
+  /// version 0 is the copy built into the app).
+  Future<void> recordAcceptedConsent(ConsentText text) =>
+      _db.setSetting(_acceptedConsentKey, '${text.language}:${text.version}');
+
+  Future<String?> getAcceptedConsent() => _db.getSetting(_acceptedConsentKey);
 }

@@ -299,6 +299,17 @@ export interface TrainingSession {
   created_at: string;
 }
 
+export interface ConsentText {
+  language: string;
+  title: string;
+  body: string;
+  usage_label: string;
+  button_label: string;
+  version: number;
+  updated_at: string | null;
+  outdated: boolean;
+}
+
 export type ReferenceStatus = "DRAFT" | "APPROVED" | "ARCHIVED";
 
 export interface ReferenceDocument {

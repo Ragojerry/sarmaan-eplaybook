@@ -5,6 +5,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../models/api_models.dart';
+import '../models/consent_text.dart';
 import '../services/auth_service.dart';
 import '../services/settings_service.dart';
 import '../sync/sync_engine.dart';
@@ -89,6 +90,14 @@ class _LanguageScreenState extends ConsumerState<LanguageScreen> {
 
       await ref.read(settingsServiceProvider).setCachedLanguages(fresh);
       _applyLanguageList(fresh); // refresh screen with the up-to-date list
+
+      // The consent screen comes next and may be offline: keep every
+      // language's consent text ready (it falls back to English, then to
+      // the copy built into the app).
+      final consent = await api.dio.get('/consent');
+      await ref.read(settingsServiceProvider).setCachedConsent(
+            [for (final j in consent.data as List) ConsentText.fromJson(j as Map<String, dynamic>)],
+          );
     } catch (_) {
       // Offline, or the request failed for any other reason — keep
       // showing whatever was already on screen (cache or bundled).

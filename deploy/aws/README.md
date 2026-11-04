@@ -52,6 +52,11 @@ before everything else, on the server and on phones. Approved answers are live
 online at once; they reach phones as extra passages (`faq_questions` set) in the
 next release package or content sync.
 
+The first-launch consent screen's text (admin portal > Consent text, table
+`consent_texts`) is per language; `GET /consent` is public because the screen
+comes before login. Phones cache all languages when they open the language
+screen online and fall back to English, then to the copy built into the app.
+
 ## Redeploy the admin portal
 
 ```powershell

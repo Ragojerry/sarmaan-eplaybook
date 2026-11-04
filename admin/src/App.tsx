@@ -9,6 +9,7 @@ import AuditLogPage from "./pages/AuditLogPage";
 import VideosPage from "./pages/VideosPage";
 import ReferencesPage from "./pages/ReferencesPage";
 import AnswersPage from "./pages/AnswersPage";
+import ConsentPage from "./pages/ConsentPage";
 import UsersPage from "./pages/UsersPage";
 import BoundariesPage from "./pages/BoundariesPage";
 import ReportsPage from "./pages/ReportsPage";
@@ -37,6 +38,7 @@ export default function App() {
         <Route path="/videos" element={<VideosPage />} />
         <Route path="/references" element={<ReferencesPage />} />
         <Route path="/answers" element={<AnswersPage />} />
+        <Route path="/consent" element={<ConsentPage />} />
         <Route path="/releases" element={<ReleasesPage />} />
         <Route path="/languages" element={<LanguagesPage />} />
         <Route path="/analytics" element={<AnalyticsPage />} />

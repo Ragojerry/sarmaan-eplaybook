@@ -157,6 +157,7 @@ class AuditAction(str, enum.Enum):
     REFERENCE_UPDATE = "REFERENCE_UPDATE"
     FAQ_CREATE = "FAQ_CREATE"
     FAQ_UPDATE = "FAQ_UPDATE"
+    CONSENT_UPDATE = "CONSENT_UPDATE"
 
 
 class QuestionType(str, enum.Enum):
