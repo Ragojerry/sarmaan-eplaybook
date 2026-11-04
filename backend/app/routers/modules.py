@@ -13,9 +13,10 @@ from app.database import get_db
 from app.auth.dependencies import get_current_user, require_roles
 from app.content import translation_io
 from app.content.governance import advance, reject
+from app.learning.access import is_learner, module_visible_to, visible_modules
 from app.models import User, Module, ModuleTranslation, ContentSection, Language
 from app.models.audit_log import AuditLog
-from app.models.enums import RoleName, AuditAction
+from app.models.enums import ModuleAudience, RoleName, AuditAction
 from app.schemas.content import (
     ModuleCreate,
     ModuleUpdate,
@@ -35,9 +36,11 @@ router = APIRouter()
 CONTENT_EDITORS = (RoleName.CONTENT_ADMIN,)
 
 
-def _get_module_or_404(db: Session, module_id: uuid.UUID) -> Module:
+def _get_module_or_404(db: Session, module_id: uuid.UUID, user: User | None = None) -> Module:
+    """404 also when `user` is a learner who may not see the module, so a
+    restricted module's existence is not revealed."""
     module = db.get(Module, module_id)
-    if module is None:
+    if module is None or (user is not None and not module_visible_to(module, user)):
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Module not found")
     return module
 
@@ -53,12 +56,14 @@ def _get_translation_or_404(db: Session, translation_id: uuid.UUID) -> ModuleTra
 
 @router.get("", response_model=list[ModuleResponse])
 def list_modules(db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
+    if is_learner(current_user):
+        return visible_modules(db, current_user)
     return db.query(Module).order_by(Module.sort_order).all()
 
 
 @router.get("/{module_id}", response_model=ModuleResponse)
 def get_module(module_id: uuid.UUID, db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
-    return _get_module_or_404(db, module_id)
+    return _get_module_or_404(db, module_id, current_user)
 
 
 @router.post("", response_model=ModuleResponse, status_code=status.HTTP_201_CREATED)
@@ -93,20 +98,46 @@ def update_module(
     current_user: User = Depends(require_roles(*CONTENT_EDITORS)),
 ):
     module = _get_module_or_404(db, module_id)
-    for field, value in payload.model_dump(exclude_unset=True).items():
+    changes = payload.model_dump(exclude_unset=True)
+    audience_fields = {k: changes.pop(k) for k in ("audience", "learner_roles", "audience_reviewed") if k in changes}
+    for field, value in changes.items():
         setattr(module, field, value)
-    db.add(
-        AuditLog(
-            user_id=current_user.id,
-            action=AuditAction.CONTENT_EDIT,
-            entity_type="module",
-            entity_id=module.id,
-            details=payload.model_dump(exclude_unset=True, mode="json"),
+    if changes:
+        db.add(
+            AuditLog(
+                user_id=current_user.id,
+                action=AuditAction.CONTENT_EDIT,
+                entity_type="module",
+                entity_id=module.id,
+                details=payload.model_dump(exclude_unset=True, exclude={"audience", "learner_roles", "audience_reviewed"}, mode="json"),
+            )
         )
-    )
+    if audience_fields:
+        _apply_audience(db, module, audience_fields, current_user)
     db.commit()
     db.refresh(module)
     return module
+
+
+def _apply_audience(db: Session, module: Module, fields: dict, user: User) -> None:
+    """General vs role-specific. Saving the audience (even unchanged) counts
+    as an administrator's review, clearing audience_needs_review."""
+    before = {"audience": module.audience.value, "learner_roles": sorted(module.learner_roles or [])}
+    audience = fields.get("audience", module.audience)
+    roles = sorted({r.value for r in fields["learner_roles"]}) if "learner_roles" in fields else sorted(module.learner_roles or [])
+    if audience == ModuleAudience.GENERAL:
+        roles = []
+    elif not roles:
+        raise HTTPException(status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+                            detail="Choose at least one learner role for a role-specific module.")
+    module.audience = audience
+    module.learner_roles = roles
+    module.audience_needs_review = False
+    db.add(AuditLog(
+        user_id=user.id, action=AuditAction.AUDIENCE_CHANGE, entity_type="module", entity_id=module.id,
+        details={"module_code": module.module_code, "before": before,
+                 "after": {"audience": audience.value, "learner_roles": roles}},
+    ))
 
 
 @router.post("/reorder", status_code=status.HTTP_204_NO_CONTENT)
@@ -128,7 +159,7 @@ def reorder_modules(
 def list_translations(
     module_id: uuid.UUID, db: Session = Depends(get_db), current_user: User = Depends(get_current_user)
 ):
-    _get_module_or_404(db, module_id)
+    _get_module_or_404(db, module_id, current_user)
     return db.query(ModuleTranslation).filter_by(module_id=module_id).all()
 
 
@@ -283,7 +314,7 @@ def reject_translation(
 
 @router.get("/{module_id}/sections", response_model=list[ContentSectionResponse])
 def list_sections(module_id: uuid.UUID, db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
-    _get_module_or_404(db, module_id)
+    _get_module_or_404(db, module_id, current_user)
     return db.query(ContentSection).filter_by(module_id=module_id).order_by(ContentSection.sort_order).all()
 
 

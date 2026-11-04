@@ -1,6 +1,8 @@
 """
 User administration (SUPER_ADMIN only): list, create and edit accounts,
-including the field team code a CDD sees on the phone's Home screen.
+including the field team code a CDD sees on the phone's Home screen and the
+learner role (CDD, Health Worker, ...) that decides role-specific content.
+`role` stays the portal permission; a learner role never grants any.
 Passwords are never returned or editable here, except the ones a bulk import
 generates, which are returned once in the import response.
 """
@@ -21,7 +23,7 @@ from app.auth.security import hash_password
 from app.database import get_db
 from app.models import AdminBoundary, TrainingSession, User
 from app.models.audit_log import AuditLog
-from app.models.enums import BOUNDARY_ORDER, AuditAction, RoleName, UserStatus
+from app.models.enums import BOUNDARY_ORDER, LEARNER_ROLE_LABELS, AuditAction, LearnerRole, RoleName, UserStatus
 from app.schemas.auth import UserResponse
 from app.routers.boundaries import LEVEL_COLUMN, _find, ancestors
 from app.training.restart import restart_training
@@ -29,6 +31,11 @@ from app.schemas.users import UserCreate, UserUpdate
 
 router = APIRouter()
 ADMINS = (RoleName.SUPER_ADMIN,)
+
+
+LEARNER_ROLE_REQUIRED = (
+    "learner_role is required for learner accounts: one of " + ", ".join(LEARNER_ROLE_LABELS.values())
+)
 
 
 def _check_session(db: Session, session_id) -> None:
@@ -51,10 +58,16 @@ def list_users(
     lga_id: uuid.UUID | None = Query(default=None),
     session_id: uuid.UUID | None = Query(default=None),
     role: RoleName | None = Query(default=None),
+    learner_role: LearnerRole | None = Query(default=None),
+    needs_review: bool | None = Query(default=None, description="only accounts whose learner role needs review"),
     db: Session = Depends(get_db),
     current_user: User = Depends(require_roles(*ADMINS)),
 ):
     q = db.query(User)
+    if learner_role:
+        q = q.filter(User.learner_role == learner_role)
+    if needs_review is not None:
+        q = q.filter(User.learner_role_needs_review.is_(needs_review))
     if state_id:
         q = q.filter(User.state_id == state_id)
     if lga_id:
@@ -81,6 +94,8 @@ def create_user(
         data.update(_area_columns(db, payload.boundary_id))
     if payload.training_session_id:
         _check_session(db, payload.training_session_id)
+    if payload.role == RoleName.CDD and payload.learner_role is None:
+        raise HTTPException(status_code=status.HTTP_422_UNPROCESSABLE_ENTITY, detail=LEARNER_ROLE_REQUIRED)
     user = User(**data, password_hash=hash_password(payload.password), status=UserStatus.ACTIVE)
     db.add(user)
     db.flush()
@@ -90,7 +105,8 @@ def create_user(
             action=AuditAction.USER_CREATE,
             entity_type="user",
             entity_id=user.id,
-            details={"username": user.username, "role": user.role.value, "team_code": user.team_code},
+            details={"username": user.username, "role": user.role.value, "team_code": user.team_code,
+                     "learner_role": user.learner_role.value if user.learner_role else None},
         )
     )
     db.commit()
@@ -151,6 +167,10 @@ async def import_users(
     if missing:
         raise HTTPException(status_code=422, detail=f"The header row is missing: {', '.join(missing)}. Download the template.")
 
+    # Templates from before learner roles had no learner_role column; there a
+    # CDD row meant a CDD, so that mapping is kept. With the column, a learner
+    # row must say which learner role it is.
+    has_learner_role_column = "learner_role" in header
     sessions = {s.name.lower(): s.id for s in db.query(TrainingSession).all()}
     area_cache: dict = {}
     seen_usernames: set[str] = set()
@@ -177,6 +197,7 @@ async def import_users(
                 last_name=row.get("last_name", ""),
                 phone=row.get("phone") or None,
                 role=(row.get("role") or "CDD").upper(),
+                learner_role=row.get("learner_role") or None,
                 team_code=row.get("team_code") or None,
             )
         except ValidationError as e:
@@ -187,6 +208,11 @@ async def import_users(
         if payload is not None:
             if payload.role == RoleName.SUPER_ADMIN:
                 problems.append("SUPER_ADMIN accounts cannot be bulk-created")
+            if payload.role == RoleName.CDD and payload.learner_role is None:
+                if has_learner_role_column:
+                    problems.append(LEARNER_ROLE_REQUIRED)
+                else:
+                    payload.learner_role = LearnerRole.CDD
             uname, mail = payload.username.lower(), payload.email.lower()
             if uname in seen_usernames:
                 problems.append(f"username '{payload.username}' appears twice in the file")
@@ -240,7 +266,8 @@ async def import_users(
             action=AuditAction.USER_CREATE,
             entity_type="user",
             entity_id=user.id,
-            details={"username": user.username, "role": user.role.value, "team_code": user.team_code, "import": True},
+            details={"username": user.username, "role": user.role.value, "team_code": user.team_code,
+                     "learner_role": user.learner_role.value if user.learner_role else None, "import": True},
         ))
         created.append((user.username, password if generated else None))
     db.commit()
@@ -286,6 +313,17 @@ def update_user(
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="You cannot change your own role or status")
     if "team_code" in changes and changes["team_code"] == "":
         changes["team_code"] = None
+    clear_learner_role = changes.pop("clear_learner_role", False)
+    reviewed = changes.pop("learner_role_reviewed", False)
+    if "learner_role" in changes and changes["learner_role"] is None:
+        changes.pop("learner_role")
+    if clear_learner_role:
+        changes["learner_role"] = None
+    if "learner_role" in changes or reviewed:
+        changes["learner_role_needs_review"] = False
+    becomes_learner = "role" in changes and changes["role"] == RoleName.CDD and user.role != RoleName.CDD
+    if (becomes_learner or clear_learner_role) and changes.get("role", user.role) == RoleName.CDD             and changes.get("learner_role", user.learner_role) is None:
+        raise HTTPException(status_code=status.HTTP_422_UNPROCESSABLE_ENTITY, detail=LEARNER_ROLE_REQUIRED)
     boundary_id = changes.pop("boundary_id", None)
     clear_boundary = changes.pop("clear_boundary", False)
     clear_session = changes.pop("clear_session", False)
@@ -310,7 +348,13 @@ def update_user(
             action=AuditAction.ROLE_CHANGE if role_changed else AuditAction.USER_UPDATE,
             entity_type="user",
             entity_id=user.id,
-            details={"fields": sorted(k for k in changes if k not in LEVEL_COLUMN.values()) + (["area"] if changed_area else []), "team_code": user.team_code},
+            details={
+                "fields": sorted(k for k in changes if k not in LEVEL_COLUMN.values()) + (["area"] if changed_area else []),
+                "team_code": user.team_code,
+                **({"learner_role": {"before": before["learner_role"],
+                                     "after": user.learner_role.value if user.learner_role else None}}
+                   if "learner_role" in changes else {}),
+            },
         )
     )
     db.commit()

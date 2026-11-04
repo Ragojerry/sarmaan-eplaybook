@@ -78,7 +78,7 @@ def world(db):
     learner = _make_user(db, RoleName.CDD, english.id)
     n = uuid.uuid4().hex[:6]
     module = Module(module_code=f"TQ{n}", module_number=900 + int(n[:2], 16), title="Quiz test module",
-                    status=ModuleStatus.PUBLISHED, sort_order=999)
+                    status=ModuleStatus.PUBLISHED, sort_order=-1000)  # first in order, so never locked
     db.add(module)
     db.commit()
     eh, lh = _auth_headers(_login(editor.username)), _auth_headers(_login(learner.username))
@@ -135,39 +135,40 @@ def _attempt(client_id, module, correct, total):
 
 def test_attempts_are_idempotent_and_server_recomputes_pass(world):
     module, eh, lh, _ = world
+    client.post(f"/quiz/modules/{module.id}/questions", headers=eh, json=_mc())
     items = [_attempt("c1", module, 8, 10), _attempt("c2", module, 9, 10), _attempt("c3", module, 11, 10)]
     r = client.post("/sync/quiz-attempts", headers=lh, json={"device_id": "d1", "items": items})
     assert [x["status"] for x in r.json()["results"]] == ["ok", "ok", "rejected"]
     again = client.post("/sync/quiz-attempts", headers=lh, json={"device_id": "d1", "items": items[:2]})
     assert [x["status"] for x in again.json()["results"]] == ["duplicate", "duplicate"]
     s = client.get(f"/quiz/modules/{module.id}/summary", headers=eh).json()
-    assert s["attempts"] == 2 and s["learners_passed"] == 1 and s["pass_mark"] == 90
+    # An app without pre/post tests sends no test_type: kept as history, never counted.
+    assert s["attempts"] == 2 and s["pre_test_attempts"] == 0 and s["post_test_attempts"] == 0
+    assert s["learners_passed"] == 0 and s["pass_mark"] == 90
 
 
-def test_module_with_a_quiz_cannot_be_completed_until_the_quiz_is_passed(world):
+def test_module_with_a_quiz_cannot_be_completed_by_mark_as_complete(world):
     module, eh, lh, _ = world
     client.post(f"/quiz/modules/{module.id}/questions", headers=eh, json=_mc())
     done = {"module_id": str(module.id), "progress_percent": 100, "completed": True, "last_opened_at": NOW, "completed_at": NOW}
 
     r = client.post("/sync/progress", headers=lh, json={"device_id": "d", "items": [done]})
-    assert r.json()["results"][0] == {"key": str(module.id), "status": "rejected", "detail": "quiz not passed"}
+    assert r.json()["results"][0]["detail"].startswith("not completed: post-test not passed")
 
-    client.post("/sync/quiz-attempts", headers=lh, json={"device_id": "d", "items": [_attempt("f1", module, 8, 10)]})  # 80%
-    r = client.post("/sync/progress", headers=lh, json={"device_id": "d", "items": [done]})
-    assert r.json()["results"][0]["status"] == "rejected"
-
-    client.post("/sync/quiz-attempts", headers=lh, json={"device_id": "d", "items": [_attempt("f2", module, 9, 10)]})  # 90%
-    r = client.post("/sync/progress", headers=lh, json={"device_id": "d", "items": [done]})
-    assert r.json()["results"][0]["status"] == "ok"
+    # Even a 90% quiz from an old app (no test_type) does not complete it.
+    client.post("/sync/quiz-attempts", headers=lh, json={"device_id": "d", "items": [_attempt("f2", module, 9, 10)]})
+    client.post("/sync/progress", headers=lh, json={"device_id": "d", "items": [done]})
     mine = [p for p in client.get("/sync/progress", headers=lh).json() if p["module_id"] == str(module.id)]
-    assert mine and mine[0]["completed"] is True
+    assert mine and mine[0]["completed"] is False and mine[0]["progress_percent"] == 99
 
 
 def test_module_without_a_quiz_can_still_be_completed(world):
     module, _, lh, _ = world
     done = {"module_id": str(module.id), "progress_percent": 100, "completed": True, "last_opened_at": NOW, "completed_at": NOW}
     r = client.post("/sync/progress", headers=lh, json={"device_id": "d", "items": [done]})
-    assert r.json()["results"][0]["status"] == "ok"
+    assert r.json()["results"][0] == {"key": str(module.id), "status": "ok", "detail": None}
+    mine = [p for p in client.get("/sync/progress", headers=lh).json() if p["module_id"] == str(module.id)]
+    assert mine and mine[0]["completed"] is True
 
 
 def test_questions_and_image_ship_in_the_release_package(world, db):

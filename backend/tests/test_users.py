@@ -42,7 +42,7 @@ def test_create_user_with_team_code_and_me_returns_it(actors, db):
     name = f"cdd_{uuid.uuid4().hex[:8]}"
     r = client.post("/users", headers=ah, json={
         "username": name, "email": f"{name}@sarmaan-eplaybook.app", "password": "LongEnough123!",
-        "first_name": "Aisha", "last_name": "Bello", "team_code": "0041",
+        "first_name": "Aisha", "last_name": "Bello", "team_code": "0041", "learner_role": "CDD",
     })
     assert r.status_code == 201, r.text
     body = r.json()

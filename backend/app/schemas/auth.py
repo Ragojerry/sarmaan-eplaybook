@@ -3,7 +3,7 @@ from datetime import date, datetime
 
 from pydantic import BaseModel, EmailStr, Field
 
-from app.models.enums import RoleName, UserStatus
+from app.models.enums import LearnerRole, RoleName, UserStatus
 
 
 class LoginRequest(BaseModel):
@@ -56,6 +56,8 @@ class UserResponse(BaseModel):
     session_end_date: date | None = None
     session_status: str | None = None
     role: RoleName
+    learner_role: LearnerRole | None = None
+    learner_role_needs_review: bool = False
     language_id: uuid.UUID | None
     status: UserStatus
     last_login_at: datetime | None

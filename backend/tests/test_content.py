@@ -14,7 +14,7 @@ from app.main import app
 from app.database import SessionLocal
 from app.models import User, Language, Module, ModuleTranslation, AuditLog, RefreshToken
 from app.models.content_release import ContentRelease
-from app.models.enums import RoleName, UserStatus, ContentReviewStatus
+from app.models.enums import LearnerRole, RoleName, UserStatus, ContentReviewStatus
 from app.auth.security import hash_password
 
 client = TestClient(app)
@@ -29,6 +29,7 @@ def _make_user(db, role: RoleName, language_id):
         first_name="Test",
         last_name=role.value,
         role=role,
+        learner_role=LearnerRole.CDD if role == RoleName.CDD else None,
         language_id=language_id,
         status=UserStatus.ACTIVE,
     )
@@ -143,11 +144,14 @@ def test_content_admin_can_create_module(test_module):
     assert test_module is not None  # fixture already asserted 201
 
 
-def test_any_authenticated_user_can_list_modules(cdd_user, test_module):
-    token = _login(cdd_user.username)
-    resp = client.get("/modules", headers=_auth_headers(token))
+def test_any_authenticated_user_can_list_modules(cdd_user, content_admin, test_module):
+    staff = client.get("/modules", headers=_auth_headers(_login(content_admin.username)))
+    assert staff.status_code == 200 and any(m["id"] == test_module for m in staff.json())
+    # Learners get published modules only (the test module is a draft).
+    resp = client.get("/modules", headers=_auth_headers(_login(cdd_user.username)))
     assert resp.status_code == 200
-    assert any(m["id"] == test_module for m in resp.json())
+    assert resp.json() and all(m["status"] == "PUBLISHED" for m in resp.json())
+    assert not any(m["id"] == test_module for m in resp.json())
 
 
 def test_list_modules_requires_auth():

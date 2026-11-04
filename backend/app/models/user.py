@@ -1,13 +1,13 @@
 import uuid
 from datetime import datetime
 
-from sqlalchemy import Integer, String, DateTime, ForeignKey, Enum as SAEnum
+from sqlalchemy import Boolean, Integer, String, DateTime, ForeignKey, Enum as SAEnum
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from sqlalchemy.sql import func
 
 from app.database import Base
-from app.models.enums import RoleName, UserStatus
+from app.models.enums import LearnerRole, RoleName, UserStatus
 
 
 class User(Base):
@@ -25,6 +25,10 @@ class User(Base):
     # Field team the user belongs to (e.g. "0041"); shown on the phone as "CDD TEAM 0041".
     team_code: Mapped[str | None] = mapped_column(String(20), nullable=True)
     role: Mapped[RoleName] = mapped_column(SAEnum(RoleName, name="role_name"), nullable=False)
+    # What the learner does in the field; decides role-specific content. Never a permission.
+    learner_role: Mapped[LearnerRole | None] = mapped_column(SAEnum(LearnerRole, name="learner_role"), nullable=True)
+    # Set when an existing account could not be given a learner role reliably.
+    learner_role_needs_review: Mapped[bool] = mapped_column(Boolean, nullable=False, default=False, server_default="false")
     language_id: Mapped[uuid.UUID | None] = mapped_column(
         UUID(as_uuid=True), ForeignKey("languages.id"), nullable=True
     )

@@ -72,7 +72,8 @@ def _new_user(ah, made, tag, boundary_id, **extra):
     name = f"rep_{uuid.uuid4().hex[:8]}"
     r = client.post("/users", headers=ah, json={
         "username": name, "email": f"{name}@sarmaan-eplaybook.app", "password": "LongEnough123!",
-        "first_name": "Rep", "last_name": name[-4:], "boundary_id": boundary_id, **extra})
+        "first_name": "Rep", "last_name": name[-4:], "boundary_id": boundary_id,
+        "learner_role": "CDD", **extra})
     assert r.status_code == 201, r.text
     made.append(uuid.UUID(r.json()["id"]))
     return r.json()

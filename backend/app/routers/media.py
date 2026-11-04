@@ -16,6 +16,7 @@ from sqlalchemy.orm import Session
 from app.database import get_db
 from app.config import get_settings
 from app.auth.dependencies import get_current_user, require_roles
+from app.learning.access import is_learner, visible_module_ids
 from app.models import User, MediaAsset
 from app.models.audit_log import AuditLog
 from app.models.enums import AuditAction, MediaAssetType, RoleName
@@ -103,12 +104,26 @@ async def upload_image(
     return {"id": str(asset.id), "filename": asset.filename, "mime_type": mime}
 
 
+def _learner_may_see(db: Session, asset_id: uuid.UUID, user: User) -> bool:
+    """Pictures used in a module's sections or quiz follow that module's
+    audience: a learner may fetch one if at least one module using it is
+    visible to them. Pictures no module uses are not restricted."""
+    if not is_learner(user):
+        return True
+    from app.models import ContentSection, QuizQuestion
+
+    key = str(asset_id)
+    used_by = {m for (m,) in db.query(ContentSection.module_id).filter(ContentSection.content["media_asset_id"].astext == key)}
+    used_by |= {m for (m,) in db.query(QuizQuestion.module_id).filter(QuizQuestion.content["media_asset_id"].astext == key)}
+    return not used_by or bool(used_by & visible_module_ids(db, user))
+
+
 @router.get("/{media_id}")
 def get_media_metadata(
     media_id: uuid.UUID, db: Session = Depends(get_db), current_user: User = Depends(get_current_user)
 ):
     asset = db.get(MediaAsset, media_id)
-    if asset is None:
+    if asset is None or not _learner_may_see(db, asset.id, current_user):
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Media asset not found")
     return {
         "id": str(asset.id),
@@ -126,7 +141,7 @@ def get_media_file(
     media_id: uuid.UUID, db: Session = Depends(get_db), current_user: User = Depends(get_current_user)
 ):
     asset = db.get(MediaAsset, media_id)
-    if asset is None:
+    if asset is None or not _learner_may_see(db, asset.id, current_user):
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Media asset not found")
 
     path = _media_root() / asset.storage_path

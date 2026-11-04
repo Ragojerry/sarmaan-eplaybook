@@ -55,7 +55,8 @@ def _session(ah, tag, label, start, end, **extra):
 
 def _user(ah, made, session_id=None):
     name = f"ses_{uuid.uuid4().hex[:8]}"
-    body = {"username": name, "email": f"{name}@sarmaan-eplaybook.app", "password": "LongEnough123!", "first_name": "Ses", "last_name": name[-4:]}
+    body = {"username": name, "email": f"{name}@sarmaan-eplaybook.app", "password": "LongEnough123!", "first_name": "Ses", "last_name": name[-4:],
+            "learner_role": "CDD"}
     if session_id:
         body["training_session_id"] = session_id
     r = client.post("/users", headers=ah, json=body)

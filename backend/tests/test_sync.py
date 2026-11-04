@@ -26,10 +26,11 @@ from app.models import (
     QuizAttempt,
     QuizQuestion,
     RefreshToken,
+    TestException,
     User,
     UserModuleProgress,
 )
-from app.models.enums import ReleaseStatus, RoleName
+from app.models.enums import ModuleStatus, ReleaseStatus, RoleName
 from app.releases.packager import package_path
 from tests.test_content import _auth_headers, _login, _make_user
 
@@ -45,6 +46,7 @@ def db():
 
 
 def _cleanup(db, user, device_ids=()):
+    db.query(TestException).filter((TestException.user_id == user.id) | (TestException.approved_by == user.id)).delete()
     db.query(QuizAttempt).filter_by(user_id=user.id).delete()
     db.query(UserModuleProgress).filter_by(user_id=user.id).delete()
     db.query(AiQuestionLog).filter_by(user_id=user.id).delete()
@@ -108,19 +110,25 @@ def test_progress_older_write_does_not_overwrite_newer(cdd, db, module_id):
     assert row.progress_percent == 80
 
 
-def test_completed_never_uncompletes(cdd, db, module_id):
+def test_completed_never_uncompletes(cdd, db):
     user, h = cdd
-    # Modules with a quiz can only be completed after passing it (see test_quiz.py).
-    _post("/sync/quiz-attempts", h, "dev-1", [
-        {"client_id": f"q-{uuid.uuid4().hex[:10]}", "module_id": module_id, "correct_count": 10, "total_count": 10,
-         "taken_at": NOW.isoformat()}
-    ])
-    _post("/sync/progress", h, "dev-1", [_prog(module_id, 100, completed=True, opened=NOW - timedelta(hours=1))])
-    # A newer but not-completed record from another device (e.g. re-opened to re-read).
-    _post("/sync/progress", h, "dev-2", [_prog(module_id, 30, completed=False, opened=NOW)])
-    db.expire_all()
-    row = db.query(UserModuleProgress).filter_by(user_id=user.id).one()
-    assert row.completed is True and row.progress_percent == 100 and row.completed_at is not None
+    # A first-in-order module without a quiz completes directly (quiz modules: test_learning.py).
+    m = Module(module_code=f"TU{uuid.uuid4().hex[:6]}", module_number=990, title="No quiz",
+               status=ModuleStatus.PUBLISHED, sort_order=-1000)
+    db.add(m)
+    db.commit()
+    module_id = str(m.id)
+    try:
+        _post("/sync/progress", h, "dev-1", [_prog(module_id, 100, completed=True, opened=NOW - timedelta(hours=1))])
+        # A newer but not-completed record from another device (e.g. re-opened to re-read).
+        _post("/sync/progress", h, "dev-2", [_prog(module_id, 30, completed=False, opened=NOW)])
+        db.expire_all()
+        row = db.query(UserModuleProgress).filter_by(user_id=user.id).one()
+        assert row.completed is True and row.progress_percent == 100 and row.completed_at is not None
+    finally:
+        db.query(UserModuleProgress).filter_by(module_id=m.id).delete()
+        db.delete(db.get(Module, m.id))
+        db.commit()
 
 
 def test_progress_unknown_module_rejected_but_others_land(cdd, db, module_id):

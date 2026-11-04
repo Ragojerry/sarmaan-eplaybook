@@ -18,6 +18,7 @@ from app.ai import qa_engine
 from app.ai.faq import faq_chunks
 from app.auth.dependencies import get_current_user
 from app.config import get_settings
+from app.learning.access import is_learner, visible_module_ids
 from app.database import get_db
 from app.models import AiQuestionLog, ContentChunk, ReferenceDocument, ReferencePassage, User
 from app.models.enums import ReferenceStatus
@@ -28,14 +29,16 @@ REFERENCE_CODE = "REF"
 settings = get_settings()
 
 
-def _load_chunks(db: Session, language: str) -> list[dict]:
+def _load_chunks(db: Session, language: str, user: User | None = None) -> list[dict]:
+    """Module passages and curated answers; for a learner, only those of
+    modules they may see (app/learning/access.py)."""
     rows = (
         db.query(ContentChunk)
         .filter_by(language=language)
         .order_by(ContentChunk.module_code, ContentChunk.created_at)
         .all()
     )
-    return [
+    chunks = [
         {
             "id": str(c.id),
             "module_id": str(c.module_id),
@@ -48,6 +51,10 @@ def _load_chunks(db: Session, language: str) -> list[dict]:
         }
         for c in rows
     ] + faq_chunks(db, language)
+    if user is not None and is_learner(user):
+        allowed = {str(i) for i in visible_module_ids(db, user)}
+        chunks = [c for c in chunks if c["module_id"] in allowed]
+    return chunks
 
 
 def _load_reference_chunks(db: Session, language: str) -> list[dict]:
@@ -75,11 +82,11 @@ def _load_reference_chunks(db: Session, language: str) -> list[dict]:
     ]
 
 
-def answer(db: Session, question: str, language: str) -> dict:
+def answer(db: Session, question: str, language: str, user: User | None = None) -> dict:
     """Training modules always win; the reference library is searched only
     when the modules have no answer, and its sources say kind="reference"."""
     result = qa_engine.answer_question(
-        question, _load_chunks(db, language), min_coverage_pct=settings.ai_min_coverage_pct
+        question, _load_chunks(db, language, user), min_coverage_pct=settings.ai_min_coverage_pct
     )
     if result["matched"] or qa_engine.is_greeting(question):
         return result
@@ -99,12 +106,12 @@ def answer(db: Session, question: str, language: str) -> dict:
 def list_chunks(
     language: str = Query("en"), db: Session = Depends(get_db), current_user: User = Depends(get_current_user)
 ):
-    return _load_chunks(db, language)
+    return _load_chunks(db, language, current_user)
 
 
 @router.post("/ask", response_model=AnswerOut)
 def ask(payload: AskRequest, db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
-    result = answer(db, payload.question, payload.language)
+    result = answer(db, payload.question, payload.language, current_user)
 
     top = result["sources"][0] if result["sources"] else None
     now = datetime.now(timezone.utc)

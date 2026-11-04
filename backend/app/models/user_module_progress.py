@@ -25,6 +25,11 @@ class UserModuleProgress(Base):
     last_section: Mapped[str | None] = mapped_column(String(100), nullable=True)
     last_opened_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
     completed_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
+    # When the learner first finished reading (progress reached READING_PERCENT).
+    # The post-test is accepted only after it. legacy_reading marks reading
+    # recorded before pre/post tests existed, which is kept without a pre-test.
+    reading_completed_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
+    legacy_reading: Mapped[bool] = mapped_column(Boolean, nullable=False, default=False, server_default="false")
     device_id: Mapped[str | None] = mapped_column(String(255), nullable=True)
     updated_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), server_default=func.now(), onupdate=func.now()

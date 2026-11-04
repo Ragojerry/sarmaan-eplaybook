@@ -4,7 +4,7 @@ from typing import Any
 
 from pydantic import BaseModel, Field
 
-from app.models.enums import QuestionType
+from app.models.enums import QuestionType, QuestionUsage
 
 
 class QuestionCreate(BaseModel):
@@ -13,6 +13,7 @@ class QuestionCreate(BaseModel):
     content: dict[str, Any]
     explanation: str | None = Field(default=None, max_length=1000)
     sort_order: int | None = None
+    usage: QuestionUsage = QuestionUsage.BOTH
 
 
 class QuestionUpdate(BaseModel):
@@ -21,6 +22,7 @@ class QuestionUpdate(BaseModel):
     explanation: str | None = Field(default=None, max_length=1000)
     sort_order: int | None = None
     is_active: bool | None = None
+    usage: QuestionUsage | None = None
 
 
 class QuestionResponse(BaseModel):
@@ -32,6 +34,7 @@ class QuestionResponse(BaseModel):
     explanation: str | None
     sort_order: int
     is_active: bool
+    usage: QuestionUsage = QuestionUsage.BOTH
 
     model_config = {"from_attributes": True}
 
@@ -41,4 +44,10 @@ class QuizSummary(BaseModel):
     questions: int
     pass_mark: int
     attempts: int
-    learners_passed: int
+    learners_passed: int  # learners who completed the module through its post-test
+    pre_test_questions: int = 0
+    post_test_questions: int = 0
+    pre_test_attempts: int = 0
+    post_test_attempts: int = 0
+    # Set when admins tagged every question for one test only (the other test then uses all questions).
+    warning: str | None = None

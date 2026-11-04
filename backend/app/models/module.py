@@ -1,13 +1,13 @@
 import uuid
 from datetime import datetime
 
-from sqlalchemy import String, Text, Integer, DateTime, ForeignKey, Enum as SAEnum, UniqueConstraint
-from sqlalchemy.dialects.postgresql import UUID
+from sqlalchemy import Boolean, String, Text, Integer, DateTime, ForeignKey, Enum as SAEnum, UniqueConstraint
+from sqlalchemy.dialects.postgresql import JSONB, UUID
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from sqlalchemy.sql import func
 
 from app.database import Base
-from app.models.enums import ModuleStatus, ContentReviewStatus
+from app.models.enums import ModuleAudience, ModuleStatus, ContentReviewStatus
 
 
 class Module(Base):
@@ -27,6 +27,15 @@ class Module(Base):
         UUID(as_uuid=True), ForeignKey("content_releases.id"), nullable=True
     )
     sort_order: Mapped[int] = mapped_column(Integer, nullable=False, default=0)
+    # Who may see this module (app/learning/access.py). learner_roles holds
+    # LearnerRole values and is only used for ROLE_SPECIFIC modules.
+    audience: Mapped[ModuleAudience] = mapped_column(
+        SAEnum(ModuleAudience, name="module_audience"), nullable=False, default=ModuleAudience.GENERAL,
+        server_default=ModuleAudience.GENERAL.value,
+    )
+    learner_roles: Mapped[list] = mapped_column(JSONB, nullable=False, default=list, server_default="[]")
+    # True until an admin confirms the audience (set for modules that existed before classification).
+    audience_needs_review: Mapped[bool] = mapped_column(Boolean, nullable=False, default=False, server_default="false")
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
     updated_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), server_default=func.now(), onupdate=func.now()

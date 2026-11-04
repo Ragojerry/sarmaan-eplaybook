@@ -4,7 +4,7 @@ from typing import Any
 
 from pydantic import BaseModel, Field
 
-from app.models.enums import ModuleStatus, ContentReviewStatus, ContentType
+from app.models.enums import ModuleStatus, ContentReviewStatus, ContentType, LearnerRole, ModuleAudience
 
 
 class ModuleCreate(BaseModel):
@@ -20,6 +20,10 @@ class ModuleUpdate(BaseModel):
     description: str | None = None
     sort_order: int | None = None
     status: ModuleStatus | None = None
+    # Audience: GENERAL (every learner role) or ROLE_SPECIFIC (learner_roles only).
+    audience: ModuleAudience | None = None
+    learner_roles: list[LearnerRole] | None = None
+    audience_reviewed: bool | None = None
 
 
 class ModuleReorder(BaseModel):
@@ -35,6 +39,9 @@ class ModuleResponse(BaseModel):
     description: str | None
     status: ModuleStatus
     sort_order: int
+    audience: ModuleAudience = ModuleAudience.GENERAL
+    learner_roles: list[str] = []
+    audience_needs_review: bool = False
     created_at: datetime
     updated_at: datetime
 

@@ -19,6 +19,7 @@ from sqlalchemy.orm import Session
 from app.database import get_db
 from app.config import get_settings
 from app.auth.dependencies import get_current_user, require_roles
+from app.learning.access import is_learner, visible_module_ids
 from app.models import User, Video
 from app.models.audit_log import AuditLog
 from app.models import Module
@@ -62,6 +63,16 @@ class VideoUpdate(BaseModel):
 
 def _can_see_drafts(user: User) -> bool:
     return user.role in DRAFT_VIEWERS
+
+
+def _visible(db: Session, video: Video, user: User) -> bool:
+    """Published (or a draft for staff), and for a learner: not attached to a
+    module they may not see. Videos with no module are for everyone."""
+    if video.status != VideoStatus.PUBLISHED and not _can_see_drafts(user):
+        return False
+    if video.module_id is None or not is_learner(user):
+        return True
+    return video.module_id in visible_module_ids(db, user)
 
 
 def _sniff_ok(head: bytes) -> bool:
@@ -109,7 +120,11 @@ def list_videos(db: Session = Depends(get_db), current_user: User = Depends(get_
     q = db.query(Video)
     if not _can_see_drafts(current_user):
         q = q.filter(Video.status == VideoStatus.PUBLISHED)  # learners only ever see approved videos
-    return [_serialize(v) for v in q.order_by(Video.title).all()]
+    videos = q.order_by(Video.title).all()
+    if is_learner(current_user):
+        allowed = visible_module_ids(db, current_user)
+        videos = [v for v in videos if v.module_id is None or v.module_id in allowed]
+    return [_serialize(v) for v in videos]
 
 
 @router.post("", status_code=status.HTTP_201_CREATED)
@@ -153,7 +168,7 @@ def create_video(
 @router.get("/{video_id}")
 def get_video(video_id: uuid.UUID, db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
     video = db.get(Video, video_id)
-    if video is None or (video.status != VideoStatus.PUBLISHED and not _can_see_drafts(current_user)):
+    if video is None or not _visible(db, video, current_user):
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Video not found")
     return _serialize(video)
 
@@ -303,7 +318,7 @@ def download_video_file(
     current_user: User = Depends(get_current_user),
 ):
     video = db.get(Video, video_id)
-    if video is None or (video.status != VideoStatus.PUBLISHED and not _can_see_drafts(current_user)):
+    if video is None or not _visible(db, video, current_user):
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Video not found")
     if video.filename == NO_FILE:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="No video file has been uploaded yet")

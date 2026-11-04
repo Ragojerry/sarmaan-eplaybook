@@ -37,7 +37,8 @@ from app.models import (
     User,
     UserModuleProgress,
 )
-from app.models.enums import AnalyticsEventType as ET, BoundaryLevel, ModuleStatus, RoleName
+from app.learning.access import module_visible_to
+from app.models.enums import AnalyticsEventType as ET, BoundaryLevel, LearnerRole, ModuleStatus, RoleName
 
 CATEGORY_EVENTS = {
     "training": (ET.MODULE_OPEN, ET.MODULE_COMPLETE),
@@ -58,6 +59,7 @@ class Filters:
     facility_id: uuid.UUID | None = None
     session_id: uuid.UUID | None = None
     role: RoleName | None = RoleName.CDD
+    learner_role: LearnerRole | None = None
     team_code: str | None = None
     date_from: date | None = None
     date_to: date | None = None
@@ -66,7 +68,7 @@ class Filters:
     def narrowed(self) -> bool:
         """True when the user population is restricted (area, session, team or role other than the default)."""
         return bool(self.country_id or self.state_id or self.lga_id or self.ward_id or self.facility_id
-                    or self.session_id or self.team_code or self.role != RoleName.CDD)
+                    or self.session_id or self.team_code or self.learner_role or self.role != RoleName.CDD)
 
     @property
     def start(self):
@@ -96,13 +98,15 @@ def user_rows(db: Session, f: Filters) -> list[dict]:
         q = q.filter(User.training_session_id == f.session_id)
     if f.role:
         q = q.filter(User.role == f.role)
+    if f.learner_role:
+        q = q.filter(User.learner_role == f.learner_role)
     if f.team_code:
         q = q.filter(User.team_code == f.team_code)
     users = q.order_by(User.last_name, User.first_name).all()
     ids = [u.id for u in users]
     modules = db.query(Module).filter(Module.status == ModuleStatus.PUBLISHED).all()
-    published = {m.id for m in modules}
-    total_modules = len(published)
+    # Each person is measured against the modules they can see (general + their learner role's).
+    visible_to = {u.id: {m.id for m in modules if module_visible_to(m, u)} for u in users}
 
     completed = defaultdict(int)
     started = defaultdict(int)
@@ -113,7 +117,7 @@ def user_rows(db: Session, f: Filters) -> list[dict]:
             UserModuleProgress.user_id, UserModuleProgress.module_id, UserModuleProgress.completed,
             UserModuleProgress.completed_at, UserModuleProgress.updated_at,
         ).filter(UserModuleProgress.user_id.in_(ids)):
-            if mid not in published:
+            if mid not in visible_to[uid]:
                 continue
             ts = completed_at or updated
             if f.start or f.end:
@@ -175,6 +179,7 @@ def user_rows(db: Session, f: Filters) -> list[dict]:
 
     rows = []
     for u in users:
+        total_modules = len(visible_to[u.id])
         best = quiz[u.id]["best"]
         scores = [s for s, _ in best.values()]
         last_candidates = [x for x in (last_progress.get(u.id), last_event.get(u.id), quiz[u.id]["last"], qa[u.id][2]) if x]
@@ -185,6 +190,7 @@ def user_rows(db: Session, f: Filters) -> list[dict]:
                 "username": u.username,
                 "full_name": f"{u.first_name} {u.last_name}",
                 "role": u.role.value,
+                "learner_role": u.learner_role.value if u.learner_role else None,
                 "status": u.status.value,
                 "team_code": u.team_code,
                 "country": u.country_name,
@@ -248,7 +254,6 @@ def boundary_rollup(rows: list[dict], level: str) -> list[dict]:
     for key, members in sorted(groups.items()):
         n = len(members)
         scores = [m["avg_best_quiz_score"] for m in members if m["avg_best_quiz_score"] is not None]
-        total = members[0]["modules_total"]
         item = {p: key[i] for i, p in enumerate(parents)}
         item.update(
             {
@@ -256,7 +261,7 @@ def boundary_rollup(rows: list[dict], level: str) -> list[dict]:
                 "area": key[-1],
                 "users": n,
                 "active_users_30d": sum(1 for m in members if m["last_activity"] and m["last_activity"] >= cutoff),
-                "users_completed_all": sum(1 for m in members if total and m["modules_completed"] >= total),
+                "users_completed_all": sum(1 for m in members if m["modules_total"] and m["modules_completed"] >= m["modules_total"]),
                 "avg_completion_rate": round(sum(m["completion_rate"] for m in members) / n, 1),
                 "avg_best_quiz_score": round(sum(scores) / len(scores), 1) if scores else None,
             }
@@ -287,7 +292,6 @@ def session_rollup(db: Session, rows: list[dict], include_empty: bool = True) ->
         members = groups[name]
         n = len(members)
         info = meta.get(name)
-        total = members[0]["modules_total"] if members else 0
         end_exclusive = datetime.combine(info.end_date + timedelta(days=1), time.min, tzinfo=timezone.utc).isoformat() if info else None
         scores = [m["avg_best_quiz_score"] for m in members if m["avg_best_quiz_score"] is not None]
         item = {
@@ -299,7 +303,7 @@ def session_rollup(db: Session, rows: list[dict], include_empty: bool = True) ->
             "users": n,
             "not_started": sum(1 for m in members if m["modules_started"] == 0),
             "active_users_30d": sum(1 for m in members if m["last_activity"] and m["last_activity"] >= cutoff),
-            "users_completed_all": sum(1 for m in members if total and m["modules_completed"] >= total),
+            "users_completed_all": sum(1 for m in members if m["modules_total"] and m["modules_completed"] >= m["modules_total"]),
             "completed_all_by_end_date": sum(
                 1 for m in members if m["completed_all_at"] and end_exclusive and m["completed_all_at"] < end_exclusive
             ),
@@ -324,6 +328,8 @@ def module_rows(db: Session, f: Filters, level: str | None = None) -> list[dict]
         users = users.filter(User.training_session_id == f.session_id)
     if f.role:
         users = users.filter(User.role == f.role)
+    if f.learner_role:
+        users = users.filter(User.learner_role == f.learner_role)
     if f.team_code:
         users = users.filter(User.team_code == f.team_code)
     users = users.all()
@@ -353,11 +359,13 @@ def module_rows(db: Session, f: Filters, level: str | None = None) -> list[dict]
             if prev is None or score > prev[0]:
                 quiz_best[mid][uid] = (score, passed)
     groups = defaultdict(list)
+    by_id = {u.id: u for u in users}
     for u in users:
         groups[area_of[u.id] if level else ()].append(u.id)
     out = []
     for m in mods:
-        for key, members in sorted(groups.items()):
+        for key, everyone in sorted(groups.items()):
+            members = [uid for uid in everyone if module_visible_to(m, by_id[uid])]  # only people the module is for
             started = [uid for uid in members if uid in prog[m.id]]
             done = [uid for uid in members if prog[m.id].get(uid)]
             q = [quiz_best[m.id][uid] for uid in members if uid in quiz_best[m.id]]

@@ -7,6 +7,8 @@ from typing import Any, Literal
 
 from pydantic import BaseModel, Field
 
+from app.models.enums import TestType
+
 MAX_BATCH = 200
 
 
@@ -17,6 +19,8 @@ class ProgressItem(BaseModel):
     last_section: str | None = Field(default=None, max_length=100)
     last_opened_at: datetime | None = None
     completed_at: datetime | None = None
+    # When reading reached the end (app 0.1.8+). Older apps: inferred from progress_percent.
+    reading_completed_at: datetime | None = None
 
 
 class ProgressOut(BaseModel):
@@ -26,6 +30,7 @@ class ProgressOut(BaseModel):
     last_section: str | None = None
     last_opened_at: datetime | None = None
     completed_at: datetime | None = None
+    reading_completed_at: datetime | None = None
 
     model_config = {"from_attributes": True}
 
@@ -90,6 +95,8 @@ class ReleaseInfo(BaseModel):
     package_size: int | None
     checksum: str | None
     published_at: datetime | None
+    # Which role-filtered copy of the package this account gets (app/releases/variants.py).
+    variant: str | None = None
 
 
 class CurrentReleaseResponse(BaseModel):
@@ -110,6 +117,8 @@ class QuizAttemptItem(BaseModel):
     total_count: int = Field(ge=1, le=500)
     taken_at: datetime
     results: list[QuizResultItem] = Field(default_factory=list, max_length=500)
+    # PRE or POST (app 0.1.8+). Missing = an older app's single quiz: kept as history, never counts.
+    test_type: TestType | None = None
 
 
 class QuizAttemptBatch(BaseModel):
@@ -130,3 +139,44 @@ class TrainingRestartBatch(BaseModel):
 class TrainingState(BaseModel):
     attempt: int
     restarted_at: datetime | None = None
+
+
+class TestScore(BaseModel):
+    client_id: str
+    correct_count: int
+    total_count: int
+    score_percent: int
+    taken_at: datetime
+
+
+class ModuleLearning(BaseModel):
+    module_id: uuid.UUID
+    status: str
+    unlocked: bool
+    completed: bool
+    has_tests: bool
+    pre_test: TestScore | None = None
+    best_post_test: TestScore | None = None
+    post_test_attempts: int = 0
+    exception_approved: bool = False
+
+
+class AttemptOut(BaseModel):
+    client_id: str
+    module_id: uuid.UUID
+    test_type: TestType
+    correct_count: int
+    total_count: int
+    score_percent: int
+    passed: bool
+    valid: bool
+    invalid_reason: str | None = None
+    taken_at: datetime
+
+    model_config = {"from_attributes": True}
+
+
+class LearningState(BaseModel):
+    learner_role: str | None
+    modules: list[ModuleLearning]
+    attempts: list[AttemptOut]

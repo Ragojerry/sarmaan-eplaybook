@@ -94,6 +94,8 @@ def build_package(db: Session, release: ContentRelease) -> dict:
             "description": m.description,
             "status": m.status.value,
             "sort_order": m.sort_order,
+            "audience": m.audience.value,
+            "learner_roles": sorted(m.learner_roles or []),
             "translations": [
                 {
                     "id": str(t.id),
@@ -115,6 +117,7 @@ def build_package(db: Session, release: ContentRelease) -> dict:
                     "content": qq.content,
                     "explanation": qq.explanation,
                     "sort_order": qq.sort_order,
+                    "usage": qq.usage.value,
                 }
                 for qq in quiz
             ],

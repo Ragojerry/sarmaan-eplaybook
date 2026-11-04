@@ -10,9 +10,10 @@ from sqlalchemy.orm import Session
 
 from app.auth.dependencies import get_current_user, require_roles
 from app.database import get_db
-from app.models import MediaAsset, Module, QuizAttempt, QuizQuestion, User
+from app.models import MediaAsset, Module, QuizAttempt, QuizQuestion, User, UserModuleProgress
 from app.models.audit_log import AuditLog
-from app.models.enums import AuditAction, QuestionType, RoleName
+from app.models.enums import AuditAction, QuestionType, QuestionUsage, RoleName, TestType
+from app.learning.state import test_question_counts
 from app.quiz.grading import PASS_MARK, InvalidQuestion, validate_content
 from app.schemas.quiz import QuestionCreate, QuestionResponse, QuestionUpdate, QuizSummary
 
@@ -56,12 +57,35 @@ def list_questions(module_id: uuid.UUID, db: Session = Depends(get_db), user: Us
 @router.get("/modules/{module_id}/summary", response_model=QuizSummary)
 def quiz_summary(module_id: uuid.UUID, db: Session = Depends(get_db), user: User = Depends(_require_staff)):
     _module(db, module_id)
-    n = db.query(func.count(QuizQuestion.id)).filter_by(module_id=module_id, is_active=True).scalar() or 0
-    attempts = db.query(func.count(QuizAttempt.id)).filter_by(module_id=module_id).scalar() or 0
-    passed = (
-        db.query(func.count(func.distinct(QuizAttempt.user_id))).filter_by(module_id=module_id, passed=True).scalar() or 0
+    usages = [u for (u,) in db.query(QuizQuestion.usage).filter_by(module_id=module_id, is_active=True)]
+    n = len(usages)
+    pre_n, post_n = test_question_counts(db, module_id)
+    warning = None
+    if n and QuestionUsage.BOTH not in usages and len(set(usages)) == 1:
+        only = "pre-test" if usages[0] == QuestionUsage.PRE else "post-test"
+        other = "post-test" if only == "pre-test" else "pre-test"
+        warning = f"Every question is tagged {only} only, so the {other} uses all of them too."
+    counts = dict(
+        db.query(QuizAttempt.test_type, func.count(QuizAttempt.id))
+        .filter_by(module_id=module_id, valid=True)
+        .group_by(QuizAttempt.test_type)
+        .all()
     )
-    return QuizSummary(module_id=module_id, questions=n, pass_mark=PASS_MARK, attempts=attempts, learners_passed=passed)
+    attempts = db.query(func.count(QuizAttempt.id)).filter_by(module_id=module_id).scalar() or 0
+    completed = (
+        db.query(func.count(func.distinct(QuizAttempt.user_id)))
+        .join(UserModuleProgress, (UserModuleProgress.user_id == QuizAttempt.user_id)
+              & (UserModuleProgress.module_id == QuizAttempt.module_id))
+        .filter(QuizAttempt.module_id == module_id, QuizAttempt.test_type == TestType.POST,
+                QuizAttempt.valid.is_(True), UserModuleProgress.completed.is_(True))
+        .scalar() or 0
+    )
+    return QuizSummary(
+        module_id=module_id, questions=n, pass_mark=PASS_MARK, attempts=attempts, learners_passed=completed,
+        pre_test_questions=pre_n, post_test_questions=post_n,
+        pre_test_attempts=counts.get(TestType.PRE, 0), post_test_attempts=counts.get(TestType.POST, 0),
+        warning=warning,
+    )
 
 
 @router.post("/modules/{module_id}/questions", response_model=QuestionResponse, status_code=status.HTTP_201_CREATED)
@@ -79,6 +103,7 @@ def create_question(
     q = QuizQuestion(
         module_id=module_id, question_type=payload.question_type, prompt=payload.prompt.strip(),
         content=content, explanation=(payload.explanation or "").strip() or None, sort_order=order,
+        usage=payload.usage,
     )
     db.add(q)
     db.flush()

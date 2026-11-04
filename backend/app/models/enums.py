@@ -13,6 +13,43 @@ class RoleName(str, enum.Enum):
     READ_ONLY = "READ_ONLY"
 
 
+class LearnerRole(str, enum.Enum):
+    """What a learner does in the field; decides which role-specific modules
+    they see. Separate from RoleName, which only governs portal permissions."""
+    CDD = "CDD"
+    HEALTH_WORKER = "HEALTH_WORKER"
+    LOGISTICIAN = "LOGISTICIAN"
+    MONITOR_SUPERVISOR = "MONITOR_SUPERVISOR"
+    OTHER = "OTHER"
+
+
+LEARNER_ROLE_LABELS = {
+    LearnerRole.CDD: "CDD",
+    LearnerRole.HEALTH_WORKER: "Health Worker",
+    LearnerRole.LOGISTICIAN: "Logistician",
+    LearnerRole.MONITOR_SUPERVISOR: "Monitor/Supervisor",
+    LearnerRole.OTHER: "Others",
+}
+
+
+class ModuleAudience(str, enum.Enum):
+    GENERAL = "GENERAL"  # every learner role
+    ROLE_SPECIFIC = "ROLE_SPECIFIC"  # only the roles in Module.learner_roles
+
+
+class TestType(str, enum.Enum):
+    PRE = "PRE"
+    POST = "POST"
+
+
+class QuestionUsage(str, enum.Enum):
+    """Which test a quiz question appears in. BOTH (the default) keeps one
+    question bank serving as the pre-test and the post-test."""
+    BOTH = "BOTH"
+    PRE = "PRE"
+    POST = "POST"
+
+
 class BoundaryLevel(str, enum.Enum):
     """Administrative hierarchy, top to bottom. Each level's parent is the level above."""
     COUNTRY = "COUNTRY"
@@ -158,6 +195,8 @@ class AuditAction(str, enum.Enum):
     FAQ_CREATE = "FAQ_CREATE"
     FAQ_UPDATE = "FAQ_UPDATE"
     CONSENT_UPDATE = "CONSENT_UPDATE"
+    AUDIENCE_CHANGE = "AUDIENCE_CHANGE"
+    TEST_EXCEPTION_APPROVE = "TEST_EXCEPTION_APPROVE"
 
 
 class QuestionType(str, enum.Enum):
