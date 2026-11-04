@@ -4,7 +4,7 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { api } from "../services/api";
 import { useAuth } from "../services/auth";
 import AuthenticatedImage from "../components/AuthenticatedImage";
-import { MediaItem, Module, QuestionType, QuizQuestionRow, QuizSummaryRow } from "../types/api";
+import { MediaItem, Module, QuestionType, QuestionUsage, QuizQuestionRow, QuizSummaryRow } from "../types/api";
 
 const TYPE_LABELS: Record<QuestionType, string> = {
   MULTIPLE_CHOICE: "Multiple choice",
@@ -16,8 +16,15 @@ const TYPE_LABELS: Record<QuestionType, string> = {
   NUMERIC: "Numeric answer",
 };
 
+const USAGE_LABELS: Record<QuestionUsage, string> = {
+  BOTH: "Pre-test and post-test",
+  PRE: "Pre-test only",
+  POST: "Post-test only",
+};
+
 interface Draft {
   type: QuestionType;
+  usage: QuestionUsage;
   prompt: string;
   explanation: string;
   options: string[];
@@ -49,6 +56,7 @@ const blank = (type: QuestionType): Draft => ({
   tolerance: "0",
   unit: "",
   mediaId: "",
+  usage: "BOTH",
 });
 
 function toDraft(q: QuizQuestionRow): Draft {
@@ -56,6 +64,7 @@ function toDraft(q: QuizQuestionRow): Draft {
   const d = blank(q.question_type);
   d.prompt = q.prompt;
   d.explanation = q.explanation ?? "";
+  d.usage = q.usage ?? "BOTH";
   if (Array.isArray(c.options)) d.options = (c.options as unknown[]).map(String);
   if (typeof c.correct === "number" && q.question_type !== "NUMERIC") d.correctIndex = c.correct;
   if (Array.isArray(c.correct)) d.correctSet = (c.correct as number[]).slice();
@@ -149,7 +158,7 @@ export default function QuizEditorPage() {
 
   const save = useMutation({
     mutationFn: async (d: Draft) => {
-      const body = { prompt: d.prompt, explanation: d.explanation || null, content: toContent(d) };
+      const body = { prompt: d.prompt, explanation: d.explanation || null, content: toContent(d), usage: d.usage };
       if (editingId) return (await api.patch(`/quiz/questions/${editingId}`, body)).data;
       return (await api.post(`/quiz/modules/${moduleId}/questions`, { ...body, question_type: d.type })).data;
     },
@@ -252,6 +261,16 @@ export default function QuizEditorPage() {
               {(Object.keys(TYPE_LABELS) as QuestionType[]).map((t) => (
                 <option key={t} value={t}>
                   {TYPE_LABELS[t]}
+                </option>
+              ))}
+            </select>
+          </label>
+          <label className="block">
+            <span className="text-xs text-gray-500">Used in</span>
+            <select className={field} value={d.usage} onChange={(e) => set({ usage: e.target.value as QuestionUsage })}>
+              {(Object.keys(USAGE_LABELS) as QuestionUsage[]).map((u) => (
+                <option key={u} value={u}>
+                  {USAGE_LABELS[u]}
                 </option>
               ))}
             </select>
@@ -428,18 +447,23 @@ export default function QuizEditorPage() {
         ← Back to module
       </Link>
       <h1 className="text-xl font-semibold mt-2 mb-1">Quiz{module.data ? ` — ${module.data.module_code} ${module.data.title}` : ""}</h1>
-      <p className="text-sm text-gray-500 mb-4">
-        Learners must score {summary.data?.pass_mark ?? 90}% or more to complete the module (no partial credit per question).
-        {summary.data && (
-          <>
-            {" "}
-            {summary.data.questions} active questions · {summary.data.attempts} attempts · {summary.data.learners_passed} learners passed.
-          </>
-        )}
+      <p className="text-sm text-gray-500 mb-1">
+        Learners take a pre-test before reading the module and a post-test after reading it. The module is completed (and the
+        next one unlocked) only when the post-test scores {summary.data?.pass_mark ?? 90}% or more <em>and</em> higher than
+        their pre-test. Each question is used in both tests unless you tag it for one.
       </p>
-      {summary.data && summary.data.questions > 0 && summary.data.questions < 10 && (
+      {summary.data && (
+        <p className="text-sm text-gray-500 mb-4">
+          {summary.data.questions} active questions ({summary.data.pre_test_questions} in the pre-test,{" "}
+          {summary.data.post_test_questions} in the post-test) · {summary.data.pre_test_attempts} pre-test and{" "}
+          {summary.data.post_test_attempts} post-test attempts · {summary.data.learners_passed} learners completed.
+        </p>
+      )}
+      {summary.data?.warning && <p className="text-sm text-amber-700 mb-4">{summary.data.warning}</p>}
+      {summary.data && summary.data.post_test_questions > 0 && summary.data.post_test_questions < 10 && (
         <p className="text-sm text-amber-700 mb-4">
-          With {summary.data.questions} questions a learner must get every question right to reach 90%. Ten or more lets one mistake through.
+          With {summary.data.post_test_questions} post-test questions a learner must get every question right to reach 90%. Ten or
+          more lets one mistake through.
         </p>
       )}
       {message && <p className={`text-sm mb-4 ${message.kind === "error" ? "text-red-600" : "text-green-700"}`}>{message.text}</p>}
@@ -459,6 +483,11 @@ export default function QuizEditorPage() {
             <span className="text-gray-400 text-sm w-6">{i + 1}.</span>
             <div className="flex-1 text-sm">
               <span className="text-[10px] uppercase tracking-wide bg-gray-100 text-gray-600 rounded px-1.5 py-0.5">{TYPE_LABELS[q.question_type]}</span>
+              {q.usage !== "BOTH" && (
+                <span className="ml-2 text-[10px] uppercase tracking-wide bg-blue-50 text-blue-700 rounded px-1.5 py-0.5">
+                  {USAGE_LABELS[q.usage]}
+                </span>
+              )}
               <p className="font-medium mt-1">{q.prompt}</p>
               <p className="text-xs text-gray-500 mt-0.5">{summarize(q)}</p>
               {typeof q.content.media_asset_id === "string" && (

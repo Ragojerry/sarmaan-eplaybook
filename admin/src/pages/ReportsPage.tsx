@@ -6,8 +6,10 @@ import { useAuth } from "../services/auth";
 import { ReportRow, TrainingSession } from "../types/api";
 import AreaPicker, { areaParams, AreaValue } from "../components/AreaPicker";
 import BiAccess from "../components/BiAccess";
+import TestReport from "../components/TestReport";
+import { LEARNER_ROLES } from "../learnerRoles";
 
-type Tab = "session" | "area" | "user" | "module" | "bi";
+type Tab = "session" | "area" | "user" | "module" | "tests" | "bi";
 const AREA_LEVELS = ["country", "state", "lga", "ward", "facility"];
 
 const SESSION_COLS: [string, string][] = [
@@ -24,7 +26,7 @@ const AREA_COLS: [string, string][] = [
   ["questions_asked", "Q&A"], ["technical_events", "Technical"], ["session_events", "Sessions"],
 ];
 const USER_COLS: [string, string][] = [
-  ["full_name", "Name"], ["username", "Username"], ["team_code", "Team"], ["session", "Session"], ["training_attempt", "Attempt"], ["state", "State"], ["lga", "LGA"], ["ward", "Ward"],
+  ["full_name", "Name"], ["username", "Username"], ["learner_role", "Learner role"], ["team_code", "Team"], ["session", "Session"], ["training_attempt", "Attempt"], ["state", "State"], ["lga", "LGA"], ["ward", "Ward"],
   ["facility", "Facility"], ["modules_completed", "Done"], ["completion_rate", "Completion %"], ["quizzes_passed", "Quizzes passed"],
   ["avg_best_quiz_score", "Avg quiz %"], ["training_events", "Training"], ["video_events", "Video"], ["questions_asked", "Q&A"],
   ["technical_events", "Technical"], ["last_activity", "Last activity"],
@@ -110,6 +112,7 @@ export default function ReportsPage() {
   const [dates, setDates] = useState({ date_from: "", date_to: "" });
   const [team, setTeam] = useState("");
   const [allRoles, setAllRoles] = useState(false);
+  const [learnerRole, setLearnerRole] = useState("");
   const [error, setError] = useState<string | null>(null);
 
   const params: Record<string, string | boolean> = {
@@ -119,6 +122,7 @@ export default function ReportsPage() {
     ...(dates.date_to ? { date_to: dates.date_to } : {}),
     ...(team ? { team_code: team } : {}),
     ...(allRoles ? { all_roles: true } : {}),
+    ...(learnerRole ? { learner_role: learnerRole } : {}),
   };
   const key = JSON.stringify(params);
 
@@ -182,6 +186,7 @@ export default function ReportsPage() {
         {tabBtn("area", "By area")}
         {tabBtn("user", "By user")}
         {tabBtn("module", "By module")}
+        {tabBtn("tests", "Pre/post tests")}
         {isSuper && tabBtn("bi", "Power BI access")}
       </div>
 
@@ -209,6 +214,14 @@ export default function ReportsPage() {
                 To <input type="date" className={`${sel} ml-1`} value={dates.date_to} onChange={(e) => setDates({ ...dates, date_to: e.target.value })} />
               </label>
               <input className={`${sel} w-32`} placeholder="Team code" value={team} onChange={(e) => setTeam(e.target.value.trim())} />
+              <select className={sel} value={learnerRole} onChange={(e) => setLearnerRole(e.target.value)}>
+                <option value="">All learner roles</option>
+                {LEARNER_ROLES.map((r) => (
+                  <option key={r.value} value={r.value}>
+                    {r.label}
+                  </option>
+                ))}
+              </select>
               <label className="text-xs text-gray-600 flex items-center gap-1">
                 <input type="checkbox" checked={allRoles} onChange={(e) => setAllRoles(e.target.checked)} /> include staff (not only CDDs)
               </label>
@@ -272,6 +285,9 @@ export default function ReportsPage() {
               </div>
               <Table rows={byUser.data} cols={USER_COLS} loading={byUser.isLoading} />
             </>
+          )}
+          {tab === "tests" && (
+            <TestReport params={params} onDownload={() => download("/learning/report.csv", {}, "pre_post_tests.csv")} />
           )}
           {tab === "module" && (
             <>

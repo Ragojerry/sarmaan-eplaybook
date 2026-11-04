@@ -4,6 +4,7 @@ import { Link } from "react-router-dom";
 import { api } from "../services/api";
 import { useAuth } from "../services/auth";
 import { Module } from "../types/api";
+import { learnerRoleLabel } from "../learnerRoles";
 
 const STATUS_COLORS: Record<string, string> = {
   DRAFT: "bg-gray-100 text-gray-700",
@@ -116,6 +117,7 @@ export default function ContentPage() {
                 <th className="px-4 py-2">Code</th>
                 <th className="px-4 py-2">Title</th>
                 <th className="px-4 py-2">Status</th>
+                <th className="px-4 py-2">Who sees it</th>
                 <th className="px-4 py-2">Order</th>
               </tr>
             </thead>
@@ -130,6 +132,12 @@ export default function ContentPage() {
                   </td>
                   <td className="px-4 py-2">
                     <span className={`px-2 py-0.5 rounded text-xs ${STATUS_COLORS[m.status]}`}>{m.status}</span>
+                  </td>
+                  <td className="px-4 py-2 text-xs text-gray-600">
+                    {m.audience === "ROLE_SPECIFIC" ? m.learner_roles.map(learnerRoleLabel).join(", ") : "General"}
+                    {m.audience_needs_review && (
+                      <span className="ml-2 bg-amber-100 text-amber-800 rounded px-1.5 py-0.5">needs review</span>
+                    )}
                   </td>
                   <td className="px-4 py-2 text-gray-500">{m.sort_order}</td>
                 </tr>

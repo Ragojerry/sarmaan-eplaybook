@@ -6,6 +6,7 @@ import { useAuth } from "../services/auth";
 import AuthenticatedImage from "../components/AuthenticatedImage";
 import ModuleTranslationsPanel from "../components/ModuleTranslationsPanel";
 import ModuleDetailsEditor from "../components/ModuleDetailsEditor";
+import ModuleAudienceEditor from "../components/ModuleAudienceEditor";
 import SectionEditor from "../components/SectionEditor";
 import { Module, ModuleTranslation, ContentSection, Language, ContentType } from "../types/api";
 
@@ -178,6 +179,16 @@ export default function ModuleDetailPage() {
           }}
         />
       )}
+
+      <ModuleAudienceEditor
+        key={`audience-${module.updated_at}`}
+        module={module}
+        canEdit={canEdit}
+        onSaved={() => {
+          queryClient.invalidateQueries({ queryKey: ["module", moduleId] });
+          queryClient.invalidateQueries({ queryKey: ["learning-review"] });
+        }}
+      />
 
       <div className="bg-white border rounded-lg p-4 mb-6">
         <h2 className="text-sm font-medium mb-3">Content governance workflow (English)</h2>

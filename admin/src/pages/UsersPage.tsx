@@ -3,6 +3,7 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { api } from "../services/api";
 import { ManagedUser, TrainingSession } from "../types/api";
 import AreaPicker, { AreaValue, areaFromUser, deepest } from "../components/AreaPicker";
+import { LEARNER_ROLES, learnerRoleLabel, portalRoleLabel } from "../learnerRoles";
 
 const ROLES = [
   "CDD",
@@ -22,7 +23,7 @@ function errorText(err: unknown, fallback: string) {
   return fallback;
 }
 
-const IMPORT_HEADER = ["first_name", "last_name", "username", "email", "phone", "role", "team_code", "password", "session", "country", "state", "lga", "ward", "facility"];
+const IMPORT_HEADER = ["first_name", "last_name", "username", "email", "phone", "role", "learner_role", "team_code", "password", "session", "country", "state", "lga", "ward", "facility"];
 
 function csvCell(v: string) {
   return /[",\r\n]/.test(v) ? `"${v.replace(/"/g, '""')}"` : v;
@@ -42,10 +43,15 @@ function saveCsv(filename: string, rows: string[][]) {
 type ImportResult = { created: number; generated_passwords: { username: string; password: string }[] };
 
 /** Account administration (SUPER_ADMIN). The team code is what a CDD sees on
- *  the phone's Home screen as "CDD TEAM 0041". */
+ *  the phone's Home screen as "CDD TEAM 0041". The portal role sets what
+ *  someone may do in this portal; the learner role (CDD, Health Worker, ...)
+ *  sets which role-specific modules they see on the phone. */
 export default function UsersPage() {
   const queryClient = useQueryClient();
   const [teamFilter, setTeamFilter] = useState("");
+  const [learnerFilter, setLearnerFilter] = useState("");
+  const [reviewOnly, setReviewOnly] = useState(false);
+  const [roleEdit, setRoleEdit] = useState<{ id: string; value: string } | null>(null);
   const [showCreate, setShowCreate] = useState(false);
   const [showImport, setShowImport] = useState(false);
   const [imported, setImported] = useState<ImportResult | null>(null);
@@ -66,11 +72,21 @@ export default function UsersPage() {
     last_name: "",
     team_code: "",
     role: "CDD",
+    learner_role: "CDD",
   });
 
   const users = useQuery<ManagedUser[]>({
-    queryKey: ["users", teamFilter],
-    queryFn: async () => (await api.get("/users", { params: teamFilter ? { team_code: teamFilter } : {} })).data,
+    queryKey: ["users", teamFilter, learnerFilter, reviewOnly],
+    queryFn: async () =>
+      (
+        await api.get("/users", {
+          params: {
+            ...(teamFilter ? { team_code: teamFilter } : {}),
+            ...(learnerFilter ? { learner_role: learnerFilter } : {}),
+            ...(reviewOnly ? { needs_review: true } : {}),
+          },
+        })
+      ).data,
   });
   const refresh = () => queryClient.invalidateQueries({ queryKey: ["users"] });
 
@@ -79,6 +95,7 @@ export default function UsersPage() {
       (
         await api.post("/users", {
           ...form,
+          learner_role: form.learner_role || null,
           team_code: form.team_code || null,
           boundary_id: deepest(area),
           training_session_id: sessionId || null,
@@ -86,7 +103,7 @@ export default function UsersPage() {
       ).data,
     onSuccess: () => {
       setShowCreate(false);
-      setForm({ username: "", email: "", password: "", first_name: "", last_name: "", team_code: "", role: "CDD" });
+      setForm({ username: "", email: "", password: "", first_name: "", last_name: "", team_code: "", role: "CDD", learner_role: "CDD" });
       setArea({});
       setSessionId("");
       setMessage({ kind: "info", text: "Account created. Share the password with the user securely." });
@@ -116,8 +133,9 @@ export default function UsersPage() {
     const session = sessions.data?.[0]?.name ?? "Example Session";
     saveCsv("users_import_template.csv", [
       IMPORT_HEADER,
-      ["Aisha", "Bello", "aisha.bello", "aisha.bello@example.org", "08030000000", "CDD", "0041", "", session, "Nigeria", "Example State", "Example LGA 1", "Example Ward A", ""],
-      ["Musa", "Ali", "musa.ali", "musa.ali@example.org", "", "SUPERVISOR", "0041", "", session, "Nigeria", "Example State", "Example LGA 1", "", ""],
+      ["Aisha", "Bello", "aisha.bello", "aisha.bello@example.org", "08030000000", "CDD", "CDD", "0041", "", session, "Nigeria", "Example State", "Example LGA 1", "Example Ward A", ""],
+      ["Ngozi", "Eze", "ngozi.eze", "ngozi.eze@example.org", "", "CDD", "Health Worker", "0041", "", session, "Nigeria", "Example State", "Example LGA 1", "", "Example Facility"],
+      ["Musa", "Ali", "musa.ali", "musa.ali@example.org", "", "SUPERVISOR", "", "0041", "", session, "Nigeria", "Example State", "Example LGA 1", "", ""],
     ]);
   };
 
@@ -125,6 +143,7 @@ export default function UsersPage() {
     mutationFn: async (v: { id: string; body: Record<string, unknown> }) => (await api.patch(`/users/${v.id}`, v.body)).data,
     onSuccess: () => {
       setEditing(null);
+      setRoleEdit(null);
       setAreaEdit(null);
       setMessage(null);
       refresh();
@@ -154,6 +173,18 @@ export default function UsersPage() {
             value={teamFilter}
             onChange={(e) => setTeamFilter(e.target.value.trim())}
           />
+          <select className="border rounded px-2 py-1.5 text-sm" value={learnerFilter} onChange={(e) => setLearnerFilter(e.target.value)}>
+            <option value="">All learner roles</option>
+            {LEARNER_ROLES.map((r) => (
+              <option key={r.value} value={r.value}>
+                {r.label}
+              </option>
+            ))}
+          </select>
+          <label className="text-xs text-gray-600 flex items-center gap-1">
+            <input type="checkbox" checked={reviewOnly} onChange={(e) => setReviewOnly(e.target.checked)} />
+            Needs review
+          </label>
           <button onClick={() => setShowImport((v) => !v)} className="border text-sm rounded px-4 py-2">
             Bulk upload
           </button>
@@ -170,7 +201,8 @@ export default function UsersPage() {
           <h2 className="font-medium mb-1">Bulk upload users from CSV</h2>
           <p className="text-xs text-gray-500 mb-3">
             Download the template, replace the example rows and keep the header row. Required: first_name, last_name, username, email.
-            <em> role</em> defaults to CDD (SUPER_ADMIN cannot be bulk-created). <em>session</em> must match an existing training session name;
+            <em> role</em> is the portal role and defaults to CDD, the learner account (SUPER_ADMIN cannot be bulk-created).
+            <em> learner_role</em> is required for learner accounts: CDD, Health Worker, Logistician, Monitor/Supervisor or Others. <em>session</em> must match an existing training session name;
             the area columns (country &gt; state &gt; lga &gt; ward &gt; facility) must match existing administrative areas and may stop at any depth.
             Leave <em>password</em> blank to have a strong one generated. Up to 100 users per file; if any row is wrong nothing is imported.
             Save from Excel as <em>CSV UTF-8</em>.
@@ -254,10 +286,30 @@ export default function UsersPage() {
             />
           </label>
           <label className="block">
-            <span className="text-xs text-gray-500">Role</span>
+            <span className="text-xs text-gray-500">Portal role (what they may do in this portal)</span>
             <select className={field} value={form.role} onChange={(e) => setForm({ ...form, role: e.target.value })}>
               {ROLES.map((r) => (
-                <option key={r}>{r}</option>
+                <option key={r} value={r}>
+                  {portalRoleLabel(r)}
+                </option>
+              ))}
+            </select>
+          </label>
+          <label className="block">
+            <span className="text-xs text-gray-500">
+              Learner role (decides role-specific modules){form.role === "CDD" ? " — required" : " — optional"}
+            </span>
+            <select
+              className={field}
+              required={form.role === "CDD"}
+              value={form.learner_role}
+              onChange={(e) => setForm({ ...form, learner_role: e.target.value })}
+            >
+              <option value="">{form.role === "CDD" ? "Choose…" : "None (not a learner)"}</option>
+              {LEARNER_ROLES.map((r) => (
+                <option key={r.value} value={r.value}>
+                  {r.label}
+                </option>
               ))}
             </select>
           </label>
@@ -303,6 +355,7 @@ export default function UsersPage() {
               <th className="px-3 py-2">Name</th>
               <th className="px-3 py-2">Username</th>
               <th className="px-3 py-2">Role</th>
+              <th className="px-3 py-2">Learner role</th>
               <th className="px-3 py-2">Team</th>
               <th className="px-3 py-2">Area &amp; session</th>
               <th className="px-3 py-2">Status</th>
@@ -312,14 +365,14 @@ export default function UsersPage() {
           <tbody>
             {users.isLoading && (
               <tr>
-                <td colSpan={7} className="px-3 py-4 text-gray-500">
+                <td colSpan={8} className="px-3 py-4 text-gray-500">
                   Loading…
                 </td>
               </tr>
             )}
             {users.data?.length === 0 && (
               <tr>
-                <td colSpan={7} className="px-3 py-4 text-gray-500">
+                <td colSpan={8} className="px-3 py-4 text-gray-500">
                   No users found.
                 </td>
               </tr>
@@ -332,7 +385,58 @@ export default function UsersPage() {
                   <div className="text-xs text-gray-500">{u.email}</div>
                 </td>
                 <td className="px-3 py-2 text-gray-600">{u.username}</td>
-                <td className="px-3 py-2 text-gray-600">{u.role}</td>
+                <td className="px-3 py-2 text-gray-600">{portalRoleLabel(u.role)}</td>
+                <td className="px-3 py-2">
+                  {roleEdit?.id === u.id ? (
+                    <span className="flex items-center gap-2">
+                      <select
+                        autoFocus
+                        className="border rounded px-1.5 py-0.5"
+                        value={roleEdit.value}
+                        onChange={(e) => setRoleEdit({ id: u.id, value: e.target.value })}
+                      >
+                        <option value="">{u.role === "CDD" ? "Choose…" : "None (not a learner)"}</option>
+                        {LEARNER_ROLES.map((r) => (
+                          <option key={r.value} value={r.value}>
+                            {r.label}
+                          </option>
+                        ))}
+                      </select>
+                      <button
+                        className="text-xs underline text-green-700"
+                        disabled={u.role === "CDD" && !roleEdit.value}
+                        onClick={() =>
+                          patch.mutate({
+                            id: u.id,
+                            body: roleEdit.value
+                              ? { learner_role: roleEdit.value }
+                              : { clear_learner_role: true, learner_role_reviewed: true },
+                          })
+                        }
+                      >
+                        Save
+                      </button>
+                      <button className="text-xs underline text-gray-500" onClick={() => setRoleEdit(null)}>
+                        Cancel
+                      </button>
+                    </span>
+                  ) : (
+                    <button
+                      className="underline decoration-dotted text-left"
+                      onClick={() => {
+                        setMessage(null);
+                        setRoleEdit({ id: u.id, value: u.learner_role ?? "" });
+                      }}
+                    >
+                      {u.learner_role ? learnerRoleLabel(u.learner_role) : u.role === "CDD" ? "— set" : "none"}
+                    </button>
+                  )}
+                  {(u.learner_role_needs_review || (u.role === "CDD" && !u.learner_role)) && (
+                    <div className="mt-1">
+                      <span className="text-xs bg-amber-100 text-amber-800 rounded px-1.5 py-0.5">needs review</span>
+                    </div>
+                  )}
+                </td>
                 <td className="px-3 py-2">
                   {editing?.id === u.id ? (
                     <span className="flex items-center gap-2">
@@ -406,7 +510,7 @@ export default function UsersPage() {
               </tr>
               {areaEdit?.id === u.id && (
                 <tr className="bg-gray-50">
-                  <td colSpan={7} className="px-3 py-3">
+                  <td colSpan={8} className="px-3 py-3">
                     <div className="flex flex-wrap items-end gap-3">
                       <AreaPicker value={areaEdit.area} onChange={(a) => setAreaEdit({ ...areaEdit, area: a })} />
                       <select className="border rounded px-2 py-1.5 text-sm" value={areaEdit.sessionId} onChange={(e) => setAreaEdit({ ...areaEdit, sessionId: e.target.value })}>

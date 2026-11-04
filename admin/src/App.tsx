@@ -10,6 +10,7 @@ import VideosPage from "./pages/VideosPage";
 import ReferencesPage from "./pages/ReferencesPage";
 import AnswersPage from "./pages/AnswersPage";
 import ConsentPage from "./pages/ConsentPage";
+import LearningReviewPage from "./pages/LearningReviewPage";
 import UsersPage from "./pages/UsersPage";
 import BoundariesPage from "./pages/BoundariesPage";
 import ReportsPage from "./pages/ReportsPage";
@@ -39,6 +40,7 @@ export default function App() {
         <Route path="/references" element={<ReferencesPage />} />
         <Route path="/answers" element={<AnswersPage />} />
         <Route path="/consent" element={<ConsentPage />} />
+        <Route path="/learning" element={<LearningReviewPage />} />
         <Route path="/releases" element={<ReleasesPage />} />
         <Route path="/languages" element={<LanguagesPage />} />
         <Route path="/analytics" element={<AnalyticsPage />} />

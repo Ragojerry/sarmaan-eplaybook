@@ -29,6 +29,10 @@ export type RoleName =
   | "CDD"
   | "READ_ONLY";
 
+export type LearnerRole = "CDD" | "HEALTH_WORKER" | "LOGISTICIAN" | "MONITOR_SUPERVISOR" | "OTHER";
+export type ModuleAudience = "GENERAL" | "ROLE_SPECIFIC";
+export type QuestionUsage = "BOTH" | "PRE" | "POST";
+
 export interface Module {
   id: string;
   module_code: string;
@@ -37,6 +41,9 @@ export interface Module {
   description: string | null;
   status: ModuleStatus;
   sort_order: number;
+  audience: ModuleAudience;
+  learner_roles: LearnerRole[];
+  audience_needs_review: boolean;
   created_at: string;
   updated_at: string;
 }
@@ -216,6 +223,8 @@ export interface ManagedUser {
   phone: string | null;
   team_code: string | null;
   role: string;
+  learner_role: LearnerRole | null;
+  learner_role_needs_review: boolean;
   status: string;
   country_id: string | null;
   state_id: string | null;
@@ -270,6 +279,7 @@ export interface QuizQuestionRow {
   explanation: string | null;
   sort_order: number;
   is_active: boolean;
+  usage: QuestionUsage;
 }
 
 export interface QuizSummaryRow {
@@ -278,6 +288,11 @@ export interface QuizSummaryRow {
   pass_mark: number;
   attempts: number;
   learners_passed: number;
+  pre_test_questions: number;
+  post_test_questions: number;
+  pre_test_attempts: number;
+  post_test_attempts: number;
+  warning: string | null;
 }
 
 export interface MediaItem {
@@ -352,4 +367,64 @@ export interface FaqEntry {
   approved_at: string | null;
   created_at: string | null;
   updated_at: string | null;
+}
+
+// ---------- Learner roles, audiences and pre/post tests ----------
+
+export interface LearnerPerson {
+  user_id: string;
+  username: string;
+  full_name: string;
+  learner_role: LearnerRole | null;
+  team_code: string | null;
+  state: string | null;
+  lga: string | null;
+  session: string | null;
+}
+
+export interface LearningReview {
+  learner_roles: { value: LearnerRole; label: string }[];
+  modules: {
+    id: string;
+    module_code: string;
+    title: string;
+    status: ModuleStatus;
+    audience: ModuleAudience;
+    learner_roles: LearnerRole[];
+    needs_review: boolean;
+  }[];
+  users_needing_review: (LearnerPerson & { role: string; email: string; reason: string })[];
+  exceptions_waiting: (LearnerPerson & {
+    module_id: string;
+    module_code: string;
+    module_title: string;
+    pre_test_score: number;
+    pre_test_taken_at: string;
+  })[];
+}
+
+export interface ApprovedException extends LearnerPerson {
+  module_code: string;
+  module_title: string;
+  reason: string;
+  approved_by: string | null;
+  approved_at: string | null;
+}
+
+export interface TestReportRow extends LearnerPerson {
+  module_code: string;
+  module_title: string;
+  status: string;
+  pre_test_score: number | null;
+  pre_test_correct: string | null;
+  pre_test_taken_at: string | null;
+  post_test_attempts: number;
+  post_test_best_score: number | null;
+  post_test_latest_score: number | null;
+  post_test_latest_at: string | null;
+  pass_mark: number;
+  met_both_rules: boolean;
+  exception_approved: boolean;
+  attempts_not_counted: number;
+  completed_at: string | null;
 }
