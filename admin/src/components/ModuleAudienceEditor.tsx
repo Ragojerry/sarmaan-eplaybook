@@ -7,7 +7,7 @@ import { LearnerRole, Module, ModuleAudience } from "../types/api";
 /** Who sees a module on the phone: every learner (General) or only the chosen
  *  learner roles (Role-specific). The server enforces it on every download,
  *  search and quiz; saving also confirms a module flagged "needs review".
- *  A change reaches phones' offline copies with the next published release. */
+ *  Phones on app 0.1.8+ replace their offline copy at their next sync. */
 export default function ModuleAudienceEditor({
   module,
   canEdit,
@@ -92,7 +92,7 @@ export default function ModuleAudienceEditor({
               {save.isPending ? "Saving…" : module.audience_needs_review ? "Confirm audience" : "Save audience"}
             </button>
             <span className="text-xs text-gray-500">
-              Learners without the role cannot open, search or download it. Offline copies update with the next release.
+              Learners without the role cannot open, search or download it. Phones update their offline copy at the next sync.
             </span>
           </div>
         </form>
