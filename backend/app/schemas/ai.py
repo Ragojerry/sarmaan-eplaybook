@@ -14,6 +14,7 @@ class SourceOut(BaseModel):
     module_title: str
     section_title: str | None = None
     snippet: str
+    kind: str = "module"  # "module" | "reference" (reference library; module_id is null)
 
 
 class AnswerOut(BaseModel):

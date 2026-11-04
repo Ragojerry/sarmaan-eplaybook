@@ -88,6 +88,13 @@ class VideoStatus(str, enum.Enum):
     ARCHIVED = "ARCHIVED"
 
 
+class ReferenceStatus(str, enum.Enum):
+    """Reference library documents: only APPROVED ones are searched."""
+    DRAFT = "DRAFT"
+    APPROVED = "APPROVED"
+    ARCHIVED = "ARCHIVED"
+
+
 class ReleaseStatus(str, enum.Enum):
     DRAFT = "DRAFT"
     IN_REVIEW = "IN_REVIEW"
@@ -139,6 +146,8 @@ class AuditAction(str, enum.Enum):
     VIDEO_UPLOAD = "VIDEO_UPLOAD"
     VIDEO_UPDATE = "VIDEO_UPDATE"
     USER_UPDATE = "USER_UPDATE"
+    REFERENCE_UPLOAD = "REFERENCE_UPLOAD"
+    REFERENCE_UPDATE = "REFERENCE_UPDATE"
 
 
 class QuestionType(str, enum.Enum):

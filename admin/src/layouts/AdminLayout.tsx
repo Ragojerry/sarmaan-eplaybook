@@ -7,6 +7,7 @@ const navItems: { to: string; label: string; roles?: string[] }[] = [
   { to: "/", label: "Dashboard" },
   { to: "/content", label: "Content" },
   { to: "/videos", label: "Videos" },
+  { to: "/references", label: "Reference library", roles: ["CONTENT_ADMIN", "PROGRAM_REVIEWER", "LOCALISATION_REVIEWER", "TECHNICAL_REVIEWER"] },
   { to: "/releases", label: "Releases" },
   { to: "/languages", label: "Languages" },
   { to: "/analytics", label: "Analytics", roles: ["CONTENT_ADMIN", "PROGRAM_REVIEWER", "LOCALISATION_REVIEWER", "TECHNICAL_REVIEWER", "SUPERVISOR", "READ_ONLY"] },

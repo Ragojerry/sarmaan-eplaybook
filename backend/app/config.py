@@ -41,6 +41,7 @@ class Settings(BaseSettings):
     ai_online_api_key: str | None = None
     # Minimum % of a question's concepts the best passage must cover before an answer is given (else: strict fallback).
     ai_min_coverage_pct: int = 50
+    max_reference_upload_mb: int = 10  # reference library uploads (app/routers/references.py)
 
 
 @lru_cache

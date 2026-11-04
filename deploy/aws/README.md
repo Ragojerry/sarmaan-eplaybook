@@ -38,6 +38,15 @@ copy. Once people upload media or publish releases on AWS, leave `content` out o
 the bundle; otherwise a stale local package replaces the published one and phones
 fail sync with a size/checksum mismatch.
 
+## Ask assistant and reference library
+
+`/ai/ask` uses the same keyword engine the phones run offline, over the training
+modules first and, only when they have no answer, the approved documents in the
+admin portal's Reference library. Reference documents (PDF, .docx, text; 10 MB
+max) are stored in Postgres (`reference_documents`, original file included), so
+they are covered by database backups and never touched by a redeploy. Phones that
+are online ask the server first (8 s limit), then answer on the device.
+
 ## Redeploy the admin portal
 
 ```powershell

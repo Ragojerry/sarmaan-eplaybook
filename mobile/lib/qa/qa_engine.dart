@@ -116,6 +116,10 @@ class AnswerSource {
   final String? sectionTitle;
   final String snippet;
 
+  /// 'module', or 'reference' for the server's reference library (moduleId
+  /// is then null and moduleTitle is the document's title).
+  final String kind;
+
   const AnswerSource({
     required this.chunkId,
     this.moduleId,
@@ -124,7 +128,10 @@ class AnswerSource {
     required this.moduleTitle,
     this.sectionTitle,
     required this.snippet,
+    this.kind = 'module',
   });
+
+  bool get isReference => kind == 'reference';
 
   factory AnswerSource.fromJson(Map<String, dynamic> j) => AnswerSource(
         chunkId: j['chunk_id'] as String,
@@ -134,6 +141,7 @@ class AnswerSource {
         moduleTitle: j['module_title'] as String,
         sectionTitle: j['section_title'] as String?,
         snippet: j['snippet'] as String,
+        kind: (j['kind'] as String?) ?? 'module',
       );
 }
 

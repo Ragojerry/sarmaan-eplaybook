@@ -10,7 +10,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from app.config import get_settings
-from app.routers import health, auth, modules, languages, media, videos, releases, sync, ai, analytics, audit, users, quiz, boundaries, reports, bi, sessions
+from app.routers import health, auth, modules, languages, media, videos, releases, sync, ai, analytics, audit, users, quiz, boundaries, reports, bi, sessions, references
 
 settings = get_settings()
 
@@ -45,6 +45,7 @@ app.include_router(boundaries.router, prefix="/boundaries", tags=["boundaries"])
 app.include_router(reports.router, prefix="/reports", tags=["reports"])
 app.include_router(bi.router, prefix="/bi", tags=["bi"])
 app.include_router(sessions.router, prefix="/sessions", tags=["sessions"])
+app.include_router(references.router, prefix="/references", tags=["references"])
 
 
 @app.get("/", tags=["health"])

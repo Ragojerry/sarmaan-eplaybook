@@ -227,14 +227,16 @@ class _AnswerCard extends StatelessWidget {
               Padding(
                 padding: const EdgeInsets.only(bottom: 4),
                 child: Text(
-                  '${s.moduleCode} · ${s.moduleTitle}${s.sectionTitle != null ? ' — ${s.sectionTitle}' : ''}',
+                  '${s.isReference ? 'Reference' : s.moduleCode} · ${s.moduleTitle}${s.sectionTitle != null ? ' — ${s.sectionTitle}' : ''}',
                   style: const TextStyle(fontSize: 11, color: AppColors.textSecondary, height: 1.4),
                 ),
               ),
             const SizedBox(height: 6),
-            const Text(
-              'Copied from the training materials. For doses, always follow your job aid and the DIGIT HCM app.',
-              style: TextStyle(fontSize: 10.5, color: AppColors.textMuted, fontStyle: FontStyle.italic, height: 1.4),
+            Text(
+              result.sources.any((s) => s.isReference)
+                  ? 'Copied from the approved reference library. For doses, always follow your job aid and the DIGIT HCM app.'
+                  : 'Copied from the training materials. For doses, always follow your job aid and the DIGIT HCM app.',
+              style: const TextStyle(fontSize: 10.5, color: AppColors.textMuted, fontStyle: FontStyle.italic, height: 1.4),
             ),
           ] else if (result.suggestions.isNotEmpty) ...[
             const SizedBox(height: 12),

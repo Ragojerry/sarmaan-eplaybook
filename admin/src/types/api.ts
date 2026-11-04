@@ -298,3 +298,27 @@ export interface TrainingSession {
   user_count: number;
   created_at: string;
 }
+
+export type ReferenceStatus = "DRAFT" | "APPROVED" | "ARCHIVED";
+
+export interface ReferenceDocument {
+  id: string;
+  title: string;
+  description: string | null;
+  filename: string;
+  mime_type: string;
+  file_size: number;
+  language: string;
+  status: ReferenceStatus;
+  passage_count: number;
+  uploaded_by: string | null;
+  approved_by: string | null;
+  approved_at: string | null;
+  created_at: string | null;
+}
+
+export interface ReferencePassage {
+  position: number;
+  heading: string | null;
+  text: string;
+}
