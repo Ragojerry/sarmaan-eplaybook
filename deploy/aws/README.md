@@ -65,8 +65,12 @@ for the new flow is **0.1.8**: older apps keep syncing and receive only their
 role's content, but cannot complete modules that have questions. Before turning
 it on, confirm the module audiences and flagged accounts on the portal's "Roles &
 tests" page, and update learners' phones. To roll back, restore the pre-deploy
-dump or run `alembic downgrade f5b3d9e1a246`, which loses learner roles,
-audiences and exceptions.
+dump or run `alembic downgrade f5b3d9e1a246`, which loses learner roles and
+audiences.
+
+A 100% pre-test is auto-approved by a post-test at or above
+`POST_TEST_AUTO_APPROVE_PERCENT`, default 90. To change the threshold, set it in
+`/opt/sarmaan/.env.prod` and restart the backend container.
 
 ## Redeploy the admin portal
 

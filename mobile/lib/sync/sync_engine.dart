@@ -289,8 +289,8 @@ class SyncEngine extends StateNotifier<SyncSnapshot> {
   }
 
   /// Pre-/post-test history the server holds for this account (so a new
-  /// phone keeps the pre-test baseline) and the 100%-pre-test exceptions an
-  /// administrator approved.
+  /// phone keeps the pre-test baseline) and the auto-approval threshold for
+  /// 100% pre-tests.
   Future<void> _pullLearning() async {
     final resp = await _api.dio.get('/sync/learning');
     final data = resp.data as Map<String, dynamic>;
@@ -308,10 +308,8 @@ class SyncEngine extends StateNotifier<SyncSnapshot> {
         takenAt: DateTime.parse(a['taken_at'] as String).toLocal(),
       );
     }
-    await _db.setTestExceptions([
-      for (final m in (data['modules'] as List).cast<Map<String, dynamic>>())
-        if (m['exception_approved'] == true) m['module_id'] as String,
-    ]);
+    final threshold = data['auto_approve_percent'];
+    if (threshold is num) await _db.setAutoApprovePercent(threshold.toInt());
   }
 
   /// One DEVICE_HEARTBEAT per UTC day (opt-in devices only) so the admin

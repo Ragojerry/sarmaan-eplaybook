@@ -201,6 +201,9 @@ String? encodeFaqQuestions(Object? json) {
 List<String> decodeFaqQuestions(String? column) =>
     column == null ? const [] : [for (final q in column.split('\n')) if (q.trim().isNotEmpty) q];
 
+/// Setting holding the server's POST_TEST_AUTO_APPROVE_PERCENT.
+const kAutoApprovePercentKey = 'post_test_auto_approve_percent';
+
 /// A JSON list of strings stored in a text column (e.g. a module's learner roles).
 List<String> decodeStringList(String? column) {
   if (column == null || column.isEmpty) return const [];
@@ -591,15 +594,12 @@ class LocalDatabase extends _$LocalDatabase {
         invalidReason: valid == null ? const Value.absent() : Value(reason),
       ));
 
-  // ---------- Test exceptions (approved by an administrator, per user) ----------
+  // ---------- Auto-approval threshold for 100% pre-tests (from the server) ----------
 
-  Future<Set<String>> getTestExceptions() async {
-    final raw = await getSetting('test_exceptions_$_uid');
-    return raw == null ? <String>{} : decodeStringList(raw).toSet();
-  }
+  Future<int> getAutoApprovePercent() async =>
+      int.tryParse(await getSetting(kAutoApprovePercentKey) ?? '') ?? kAutoApprovePercent;
 
-  Future<void> setTestExceptions(Iterable<String> moduleIds) =>
-      setSetting('test_exceptions_$_uid', jsonEncode(moduleIds.toSet().toList()..sort()));
+  Future<void> setAutoApprovePercent(int percent) => setSetting(kAutoApprovePercentKey, '$percent');
 
   Future<void> replaceSectionsForModule(String moduleId, List<CachedSectionsCompanion> rows) async {
     await batch((batch) {

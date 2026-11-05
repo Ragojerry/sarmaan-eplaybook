@@ -48,16 +48,24 @@ For every module with active questions (`app/learning/state.py`, mirrored in
 1. **Locked** until every earlier module in the learner's own order is completed.
 2. **Pre-test** before reading. Reading is blocked until it is taken. It is taken once: it is the baseline, and a later pre-test is stored but does not count, so it cannot lower the bar. The phone shows only the score, not the answers.
 3. **Reading.** Reaching the end of the module records `reading_completed_at`.
-4. **Post-test** only after reading. Retakes are unlimited and every attempt is kept.
+4. **Post-test** only after reading. Retakes are allowed until the module is completed, and every attempt is kept.
 5. **Completed** when a post-test scores **at least 90%** and **strictly higher than the pre-test**. Scores are compared as exact fractions. Completing unlocks the next module. The server completes the module itself when it receives the qualifying post-test. The phone does the same offline.
 
-A **100% pre-test** cannot be beaten. The learner sees an explanation, and the
-module waits on the "Roles & tests" page. A content admin or programme reviewer
-(or a super admin) approves an exception with a reason, and the approval is
-audited. With the exception, a post-test of at least 90% completes the module;
-if one was already taken, the module completes on approval. The 90% pass mark
-is never waived. A training restart removes exceptions together with attempts
-and progress.
+A **100% pre-test** cannot be beaten, so these learners are **auto-approved**.
+A post-test at or above the auto-approval threshold completes the module at once,
+with no manual approval or supervisor review. The 90% threshold is the only rule
+for them; the separate pass-mark check doesn't apply. Below the threshold they
+retake the post-test like anyone else.
+
+The threshold is one setting, `POST_TEST_AUTO_APPROVE_PERCENT`, with a default
+of 90. It is set in the backend environment (`.env.prod` on AWS), so changing it
+needs no code change. Phones receive it with `GET /sync/learning`, and until then
+they use 90.
+
+**Completed modules are review-only.** The learner can re-read the lessons, play
+audio and video, and view pictures. Nothing can change the status or the score:
+the phone offers no post-test, and the server stores a late attempt as "module
+already completed" without counting it.
 
 Questions are tagged **BOTH** (default), **PRE** or **POST**. If no question is
 left for one of the tests, that test uses every question, and the quiz editor
@@ -66,7 +74,7 @@ as before.
 
 **Server validation of attempts** (`/sync/quiz-attempts`):
 - Every attempt is stored.
-- An attempt that breaks the sequence is stored with `valid = false` and an `invalid_reason`, such as no pre-test, reading not finished, locked, or pre-test already taken.
+- An attempt that breaks the sequence is stored with `valid = false` and an `invalid_reason`, such as no pre-test, reading not finished, locked, pre-test already taken, or module already completed.
 - The pass decision is recomputed from the counts.
 - Uploads are idempotent per `client_id`.
 
@@ -91,7 +99,11 @@ On the phone (local schema 7):
 
 **Rollback:**
 1. Take a `pg_dump` first. The deploy script already does this.
-2. Run `alembic downgrade f5b3d9e1a246`. It drops the new columns and the `test_exceptions` table, so learner roles, audiences, question usage, pre-test types and exceptions are lost.
+2. Run `alembic downgrade f5b3d9e1a246`. It drops the new columns, so learner roles, audiences, question usage and pre-test types are lost.
+
+Migration `b4e9d2a71c58` removes the manual-approval table that the first version
+used. It stops without deleting anything if that table, or the audit log, still
+holds approvals.
 3. Restore the previous backend image and admin bundle.
 
 Phones on 0.1.8 keep working offline, and their uploads of the new fields are ignored by the old server.
@@ -111,5 +123,5 @@ Update every learner's app before switching the flow on.
 - **Roles & tests:**
   - Confirm module audiences.
   - Set learner roles for flagged accounts.
-  - Approve 100% pre-test exceptions.
-- **Reports, "Pre/post tests" tab:** per learner and module, the pre-test score, post-test attempts with best and latest score, whether both rules were met, the exception, and attempts that did not count. Click a row for every attempt. CSV export is included.
+  - See the auto-approval threshold for 100% pre-tests.
+- **Reports, "Pre/post tests" tab:** per learner and module, the pre-test score, post-test attempts with best and latest score, whether the module was completed by the rule, whether it was auto-approved after a 100% pre-test, and attempts that did not count. Click a row for every attempt. CSV export is included.

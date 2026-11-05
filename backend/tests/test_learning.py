@@ -28,7 +28,6 @@ from app.models import (
     ModuleTranslation,
     QuizAttempt,
     QuizQuestion,
-    TestException,
     User,
     UserModuleProgress,
     Video,
@@ -61,7 +60,7 @@ def at(minutes: int) -> str:
 def test_pass_rule_vectors(case):
     assert VECTORS["pass_mark"] == 90
     got = rules.post_test_completes(case["post_correct"], case["post_total"], case["pre_correct"], case["pre_total"],
-                                    exception_approved=case["exception_approved"])
+                                    auto_approve_at=VECTORS["auto_approve_percent"])
     assert got is case["completes"], case["why"]
 
 
@@ -118,7 +117,6 @@ def world(db):
 
     db.rollback()
     ids = [m.id for m in mods.values()]
-    db.query(TestException).filter(TestException.module_id.in_(ids)).delete(synchronize_session=False)
     db.query(QuizAttempt).filter(QuizAttempt.module_id.in_(ids)).delete(synchronize_session=False)
     db.query(UserModuleProgress).filter(UserModuleProgress.module_id.in_(ids)).delete(synchronize_session=False)
     db.query(ContentChunk).filter(ContentChunk.module_id.in_(ids)).delete(synchronize_session=False)
@@ -454,34 +452,56 @@ def test_failed_post_tests_can_be_retried_but_a_new_pre_test_cannot_lower_the_ba
     assert _upload(lh, _attempt("r5", a, 10, 10, "POST", 6))[0]["detail"] == "completed"
 
 
-def test_perfect_pre_test_needs_an_approved_exception(world):
+@pytest.mark.parametrize("post,completes", [((9, 10), True), ((19, 20), True), ((10, 10), True), ((89, 100), False)])
+def test_perfect_pre_test_is_auto_approved_at_the_threshold(world, post, completes):
+    """A 100% pre-test cannot be beaten, so a post-test at or above the
+    auto-approval threshold (90) completes the module at once: no approval
+    step, and nothing is written to the audit log."""
     m, h, db = world["m"], world["h"], world["db"]
     learner = world["learners"][LearnerRole.CDD]
     lh = h[LearnerRole.CDD]
     a = m["A"]
     _upload(lh, _attempt("e1", a, 10, 10, "PRE", 1))
     _read(lh, a, 2)
-    assert _state(lh, a)["status"] == "EXCEPTION"
-    assert _upload(lh, _attempt("e2", a, 10, 10, "POST", 3))[0]["detail"] is None  # cannot be higher
-    waiting = client.get("/learning/review", headers=h[RoleName.CONTENT_ADMIN]).json()["exceptions_waiting"]
-    assert any(w["user_id"] == str(learner.id) and w["module_id"] == str(a.id) for w in waiting)
-
-    body = {"user_id": str(learner.id), "module_id": str(a.id), "reason": "Scored 100% on the pre-test; supervisor confirmed."}
-    assert client.post("/learning/exceptions", headers=lh, json=body).status_code == 403
-    assert client.post("/learning/exceptions", headers=h[RoleName.TECHNICAL_REVIEWER], json=body).status_code == 403
-    other = world["learners"][LearnerRole.OTHER]
-    r = client.post("/learning/exceptions", headers=h[RoleName.CONTENT_ADMIN], json={**body, "user_id": str(other.id)})
-    assert r.status_code == 409  # no 100% pre-test
-    r = client.post("/learning/exceptions", headers=h[RoleName.PROGRAM_REVIEWER], json=body)
-    assert r.status_code == 201 and r.json() == {"approved": True, "module_completed": True}  # the 100% post-test now counts
-    assert client.post("/learning/exceptions", headers=h[RoleName.CONTENT_ADMIN], json=body).status_code == 409
+    assert _state(lh, a)["status"] == "POST_TEST"
+    res = _upload(lh, _attempt("e2", a, *post, "POST", 3))[0]
+    assert (res["detail"] == "completed") is completes
     st = _state(lh, a)
-    assert st["completed"] is True and st["exception_approved"] is True
-    assert db.query(AuditLog).filter_by(entity_id=learner.id, action=AuditAction.TEST_EXCEPTION_APPROVE).count() == 1
-    # A training restart replaces the exception along with the attempts.
-    assert client.post(f"/users/{learner.id}/reset-training", headers=h[RoleName.SUPER_ADMIN]).status_code == 200
+    assert st["completed"] is completes and st["status"] == ("COMPLETED" if completes else "POST_TEST")
+    assert _state(lh, m["B"])["unlocked"] is completes
+    # Nothing but the learner's own sign-in is in the audit log.
+    logged = {a.action for a in db.query(AuditLog).filter(AuditLog.entity_id == learner.id)}
+    assert logged <= {AuditAction.LOGIN}
+    assert client.get("/sync/learning", headers=lh).json()["auto_approve_percent"] == 90
+    assert client.post("/learning/exceptions", headers=h[RoleName.CONTENT_ADMIN], json={}).status_code in (404, 405)
+
+
+def test_auto_approval_threshold_is_a_setting(world, monkeypatch):
+    from app.config import get_settings
+
+    monkeypatch.setattr(get_settings(), "post_test_auto_approve_percent", 95)
+    m, lh = world["m"], world["h"][LearnerRole.CDD]
+    a = m["A"]
+    _upload(lh, _attempt("t1", a, 10, 10, "PRE", 1))
+    _read(lh, a, 2)
+    assert _upload(lh, _attempt("t2", a, 9, 10, "POST", 3))[0]["detail"] is None  # 90% < 95%
+    assert _upload(lh, _attempt("t3", a, 19, 20, "POST", 4))[0]["detail"] == "completed"
+    assert client.get("/sync/learning", headers=lh).json()["auto_approve_percent"] == 95
+
+
+def test_a_completed_module_cannot_be_resubmitted(world, db):
+    m, lh = world["m"], world["h"][LearnerRole.OTHER]
+    learner = world["learners"][LearnerRole.OTHER]
+    a = m["A"]
+    _complete_through_tests(lh, a)
+    res = _upload(lh, _attempt("again", a, 3, 10, "POST", 10))[0]
+    assert res["status"] == "ok" and res["detail"] == "module already completed"
+    assert _read(lh, a, 11)["status"] == "ok"
     db.expire_all()
-    assert db.query(TestException).filter_by(user_id=learner.id).count() == 0
+    row = db.query(UserModuleProgress).filter_by(user_id=learner.id, module_id=a.id).one()
+    assert row.completed is True and row.progress_percent == 100
+    st = _state(lh, a)
+    assert st["completed"] is True and st["best_post_test"]["score_percent"] == 100
 
 
 def test_offline_batch_in_any_order_and_duplicates_are_idempotent(world):

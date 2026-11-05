@@ -4,7 +4,7 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { api } from "../services/api";
 import { useAuth } from "../services/auth";
 import { LEARNER_ROLES, learnerRoleLabel, portalRoleLabel } from "../learnerRoles";
-import { ApprovedException, LearningReview } from "../types/api";
+import { LearningReview } from "../types/api";
 
 function errorText(err: unknown, fallback: string) {
   const detail = (err as { response?: { data?: { detail?: unknown } } })?.response?.data?.detail;
@@ -14,9 +14,7 @@ function errorText(err: unknown, fallback: string) {
 /**
  * Everything about learner roles and pre/post tests that needs a person to
  * decide: modules whose audience nobody has confirmed, accounts whose learner
- * role is unknown, and learners who scored 100% on a pre-test (a strictly
- * higher post-test is impossible, so an approved exception lets a post-test of
- * at least 90% complete the module).
+ * role is unknown. It also shows the automatic approval of 100% pre-tests.
  */
 export default function LearningReviewPage() {
   const { user } = useAuth();
@@ -24,23 +22,14 @@ export default function LearningReviewPage() {
   const role = user?.role ?? "";
   const isSuper = role === "SUPER_ADMIN";
   const canClassify = isSuper || role === "CONTENT_ADMIN";
-  const canApprove = isSuper || role === "CONTENT_ADMIN" || role === "PROGRAM_REVIEWER";
   const [message, setMessage] = useState<{ kind: "error" | "info"; text: string } | null>(null);
-  const [reasons, setReasons] = useState<Record<string, string>>({});
   const [roleChoice, setRoleChoice] = useState<Record<string, string>>({});
 
   const review = useQuery<LearningReview>({
     queryKey: ["learning-review"],
     queryFn: async () => (await api.get("/learning/review")).data,
   });
-  const approved = useQuery<ApprovedException[]>({
-    queryKey: ["learning-exceptions"],
-    queryFn: async () => (await api.get("/learning/exceptions")).data,
-  });
-  const refresh = () => {
-    queryClient.invalidateQueries({ queryKey: ["learning-review"] });
-    queryClient.invalidateQueries({ queryKey: ["learning-exceptions"] });
-  };
+  const refresh = () => queryClient.invalidateQueries({ queryKey: ["learning-review"] });
 
   const confirmGeneral = useMutation({
     mutationFn: async (id: string) => (await api.patch(`/modules/${id}`, { audience: "GENERAL" })).data,
@@ -64,20 +53,6 @@ export default function LearningReviewPage() {
       refresh();
     },
     onError: (e) => setMessage({ kind: "error", text: errorText(e, "Could not save the learner role.") }),
-  });
-
-  const approve = useMutation({
-    mutationFn: async (v: { user_id: string; module_id: string; reason: string }) => (await api.post("/learning/exceptions", v)).data,
-    onSuccess: (d: { module_completed: boolean }) => {
-      setMessage({
-        kind: "info",
-        text: d.module_completed
-          ? "Approved. Their post-test already met 90%, so the module is now complete."
-          : "Approved. A post-test of 90% or more will now complete the module.",
-      });
-      refresh();
-    },
-    onError: (e) => setMessage({ kind: "error", text: errorText(e, "Could not approve.") }),
   });
 
   const flagged = review.data?.modules.filter((m) => m.needs_review) ?? [];
@@ -194,75 +169,15 @@ export default function LearningReviewPage() {
           </section>
 
           <section className={card}>
-            <h2 className="font-medium mb-1">100% pre-tests waiting for an exception ({review.data.exceptions_waiting.length})</h2>
-            <p className="text-xs text-gray-500 mb-3">
-              These learners cannot score higher than 100%, so the rule cannot be met. Approving lets a post-test of at least 90%
-              complete the module; the 90% pass mark is never waived. Every approval is recorded in the audit log.
-              {!canApprove && " Content admins and programme reviewers can approve."}
+            <h2 className="font-medium mb-1">100% pre-tests: automatic approval</h2>
+            <p className="text-xs text-gray-500">
+              A learner who scores 100% on a pre-test cannot score higher on the post-test. A post-test of at least{" "}
+              <strong>{review.data.auto_approve_percent}%</strong> completes the module for them at once, with no approval step.
+              The threshold is the server setting <code>POST_TEST_AUTO_APPROVE_PERCENT</code>.
             </p>
-            {review.data.exceptions_waiting.length === 0 ? (
-              <p className="text-sm text-gray-500">Nobody is waiting.</p>
-            ) : (
-              <div className="space-y-3">
-                {review.data.exceptions_waiting.map((w) => {
-                  const k = `${w.user_id}:${w.module_id}`;
-                  const reason = reasons[k] ?? "";
-                  return (
-                    <div key={k} className="border rounded p-3 text-sm">
-                      <div>
-                        <strong>{w.full_name}</strong> ({learnerRoleLabel(w.learner_role)}, team {w.team_code ?? "—"}) scored{" "}
-                        {w.pre_test_score}% on the {w.module_code} pre-test ({new Date(w.pre_test_taken_at).toLocaleDateString()}).
-                      </div>
-                      {canApprove && (
-                        <div className="flex items-center gap-2 mt-2">
-                          <input
-                            className="flex-1 border rounded px-2 py-1"
-                            placeholder="Reason (e.g. confirmed prior training with the supervisor)"
-                            value={reason}
-                            onChange={(e) => setReasons({ ...reasons, [k]: e.target.value })}
-                          />
-                          <button
-                            className="bg-gray-900 text-white rounded px-3 py-1 disabled:opacity-50"
-                            disabled={reason.trim().length < 5 || approve.isPending}
-                            onClick={() => approve.mutate({ user_id: w.user_id, module_id: w.module_id, reason: reason.trim() })}
-                          >
-                            Approve exception
-                          </button>
-                        </div>
-                      )}
-                    </div>
-                  );
-                })}
-              </div>
-            )}
           </section>
         </>
       )}
-
-      <section className={card}>
-        <h2 className="font-medium mb-3">Approved exceptions</h2>
-        {approved.data?.length ? (
-          <table className="w-full text-sm">
-            <tbody>
-              {approved.data.map((e, i) => (
-                <tr key={i} className="border-t">
-                  <td className="py-1.5 pr-3">
-                    {e.full_name}
-                    <div className="text-xs text-gray-500">{e.username}</div>
-                  </td>
-                  <td className="py-1.5 pr-3">{e.module_code}</td>
-                  <td className="py-1.5 pr-3 text-xs text-gray-600">{e.reason}</td>
-                  <td className="py-1.5 text-xs text-gray-500 whitespace-nowrap">
-                    {e.approved_by} · {e.approved_at ? new Date(e.approved_at).toLocaleDateString() : ""}
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        ) : (
-          <p className="text-sm text-gray-500">None yet.</p>
-        )}
-      </section>
     </div>
   );
 }

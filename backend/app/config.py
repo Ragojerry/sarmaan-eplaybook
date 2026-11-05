@@ -41,6 +41,10 @@ class Settings(BaseSettings):
     ai_online_api_key: str | None = None
     # Minimum % of a question's concepts the best passage must cover before an answer is given (else: strict fallback).
     ai_min_coverage_pct: int = 50
+    # A learner whose pre-test was 100% cannot score higher on the post-test;
+    # a post-test at or above this percentage completes the module at once
+    # (app/learning/rules.py). Sent to phones with GET /sync/learning.
+    post_test_auto_approve_percent: int = 90
     max_reference_upload_mb: int = 10  # reference library uploads (app/routers/references.py)
 
 

@@ -8,7 +8,7 @@ from app.models.campaign import Campaign
 from app.models.module import Module, ModuleTranslation
 from app.models.content_section import ContentSection
 from app.models.section_translation import SectionTranslation
-from app.models.quiz import QuizAttempt, QuizQuestion, TestException
+from app.models.quiz import QuizAttempt, QuizQuestion
 from app.models.media_asset import MediaAsset
 from app.models.video import Video
 from app.models.user_module_progress import UserModuleProgress
@@ -35,7 +35,6 @@ __all__ = [
     "SectionTranslation",
     "QuizAttempt",
     "QuizQuestion",
-    "TestException",
     "MediaAsset",
     "Video",
     "UserModuleProgress",

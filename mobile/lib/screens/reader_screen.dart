@@ -317,19 +317,29 @@ class _ReaderScreenState extends ConsumerState<ReaderScreen> {
             : null,
       );
     }
-    final pre = state.pre!;
     final best = state.bestPost;
-    final open = '/quiz/${widget.moduleId}?test=post';
     if (completed) {
+      // Review mode. Never assume a pre-test exists here: modules completed
+      // before pre/post tests (or whose pre-test the server did not count)
+      // have none, and a null assertion here used to throw inside build and
+      // replace the whole screen, back button included (the "freeze").
+      final pre = state.pre;
       final done = state.completingPost ?? best;
+      final scores = [
+        if (pre != null) 'pre-test ${pre.percent}%',
+        if (done != null) 'post-test ${done.percent}%',
+      ];
       return _card(
         icon: Icons.check_circle,
         good: true,
         title: 'Module completed',
-        body: 'Pre-test ${pre.percent}%${done != null ? ' · post-test ${done.percent}%' : ''}.',
-        action: OutlinedButton(onPressed: () => context.go(open), child: const Text('Practise the post-test again')),
+        body: '${scores.isEmpty ? 'You completed this module.' : 'Your result: ${scores.join(' · ')}.'} '
+            'You can re-read it, play its audio and video and view its pictures; the result stays as it is.',
       );
     }
+    final pre = state.pre;
+    if (pre == null) return const SizedBox.shrink(); // not reachable: reading needs the pre-test
+    final open = '/quiz/${widget.moduleId}?test=post';
     if (!state.readingDone) {
       return _card(
         icon: Icons.menu_book_outlined,
@@ -338,17 +348,8 @@ class _ReaderScreenState extends ConsumerState<ReaderScreen> {
         action: _primary('Take the post-test', null),
       );
     }
-    if (state.stage == ModuleStage.exception) {
-      return _card(
-        icon: Icons.hourglass_empty,
-        title: 'Waiting for approval',
-        body: 'You scored 100% on the pre-test, so a higher post-test score is not possible. Your supervisor or programme '
-            'team must approve an exception; then a post-test of at least $kQuizPassMark% completes the module. '
-            'This updates when your phone syncs.',
-      );
-    }
-    final needs = state.exceptionApproved
-        ? 'You need at least $kQuizPassMark% (exception approved for your 100% pre-test).'
+    final needs = state.prePerfect
+        ? 'You scored 100% on the pre-test, so a post-test of at least ${state.autoApprovePercent}% completes the module automatically.'
         : 'You need at least $kQuizPassMark% and more than your pre-test score (${pre.percent}%).';
     return _card(
       icon: Icons.quiz_outlined,

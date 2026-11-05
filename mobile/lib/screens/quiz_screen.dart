@@ -177,12 +177,11 @@ class _QuizScreenState extends ConsumerState<QuizScreen> {
           ? 'You have already taken the pre-test (${state.pre!.percent}%). It is taken once, before reading.'
           : 'This module has no pre-test.';
     } else if (!_isPre && !state.canTakePostTest) {
-      blocked = state.pre == null
-          ? 'Take the pre-test first, then read the module.'
-          : !state.readingDone
-              ? 'Read the module to the end first. The post-test opens after reading.'
-              : 'Your pre-test score was 100%, so a higher post-test score is not possible. '
-                  'Your supervisor or programme team must approve an exception first.';
+      blocked = state.completed
+          ? 'You have completed this module. Your result is kept and cannot be changed; you can still re-read the module.'
+          : state.pre == null
+              ? 'Take the pre-test first, then read the module.'
+              : 'Read the module to the end first. The post-test opens after reading.';
     }
     final rows = blocked == null ? await db.getQuizQuestions(widget.moduleId, testType: widget.testType) : const <CachedQuizQuestionRow>[];
     // Starting the post-test takes the module to 80% (never lowers it).
@@ -545,10 +544,8 @@ class _QuizScreenState extends ConsumerState<QuizScreen> {
               const SizedBox(height: 8),
               Text(
                 perfect
-                    ? 'You already know this module well. To complete it, the post-test must normally score higher than '
-                        'the pre-test, which is not possible from 100%. Your supervisor or programme team will review this '
-                        'and approve an exception; then a post-test of $kQuizPassMark% or more completes the module. '
-                        'Read the module in the meantime.'
+                    ? 'You already know this module well. Now read the module. When you reach the end, a post-test of '
+                        '${o.after.autoApprovePercent}% or more completes it automatically.'
                     : 'This is your starting point, not a pass or fail. Now read the module. The post-test opens when you '
                         'reach the end: you need at least $kQuizPassMark% and more than ${o.percent}% to complete the module.',
                 style: const TextStyle(fontSize: 13, height: 1.45, color: AppColors.sand),
@@ -570,7 +567,6 @@ class _QuizScreenState extends ConsumerState<QuizScreen> {
   Widget _buildResult(List<_Q> qs, TestOutcome o) {
     final done = o.after.completed;
     final pre = o.after.pre;
-    final waiting = o.after.stage == ModuleStage.exception;
     Widget check(bool ok, String text) => Padding(
           padding: const EdgeInsets.only(top: 6),
           child: Row(
@@ -587,9 +583,9 @@ class _QuizScreenState extends ConsumerState<QuizScreen> {
     final String next;
     if (done) {
       next = _nextModuleTitle != null ? 'The next module is now unlocked.' : 'You have completed this module.';
-    } else if (waiting) {
-      next = 'Your pre-test was 100%, so a higher score is not possible. Your supervisor or programme team must approve '
-          'an exception; your result is saved and will count once they do.';
+    } else if (o.autoApproval) {
+      next = 'You need at least ${o.after.autoApprovePercent}%. Look at the answers below, re-read the module, and try '
+          'the post-test again.';
     } else if (!o.reachedPassMark) {
       next = 'You need at least $kQuizPassMark%. Look at the answers below, re-read the module, and try the post-test again.';
     } else {
@@ -621,11 +617,14 @@ class _QuizScreenState extends ConsumerState<QuizScreen> {
                 style: TextStyle(fontFamily: AppFonts.mono, fontSize: 13, color: done ? AppColors.sand : AppColors.calloutWarningText),
               ),
               const SizedBox(height: 6),
-              check(o.reachedPassMark, 'At least $kQuizPassMark% (you scored ${o.percent}%)'),
-              check(o.beatPreTest || (done && o.after.exceptionApproved),
-                  o.after.exceptionApproved && !o.beatPreTest
-                      ? 'Higher than your pre-test: not needed (exception approved for your 100% pre-test)'
-                      : 'Higher than your pre-test (${pre?.percent ?? 0}%)'),
+              if (o.autoApproval)
+                // A 100% pre-test cannot be beaten: the threshold is the only rule.
+                check(o.reachedAutoApproval,
+                    'At least ${o.after.autoApprovePercent}% after a 100% pre-test: completes automatically (you scored ${o.percent}%)')
+              else ...[
+                check(o.reachedPassMark, 'At least $kQuizPassMark% (you scored ${o.percent}%)'),
+                check(o.beatPreTest, 'Higher than your pre-test (${pre?.percent ?? 0}%)'),
+              ],
               const SizedBox(height: 10),
               Text(next, style: TextStyle(fontSize: 13, height: 1.4, color: done ? AppColors.sand : AppColors.calloutWarningText)),
             ],
@@ -634,7 +633,7 @@ class _QuizScreenState extends ConsumerState<QuizScreen> {
         const SizedBox(height: 16),
         Row(
           children: [
-            if (!done && !waiting)
+            if (!done)
               Expanded(
                 child: FilledButton(
                   onPressed: _load,

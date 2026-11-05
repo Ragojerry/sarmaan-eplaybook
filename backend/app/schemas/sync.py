@@ -158,7 +158,6 @@ class ModuleLearning(BaseModel):
     pre_test: TestScore | None = None
     best_post_test: TestScore | None = None
     post_test_attempts: int = 0
-    exception_approved: bool = False
 
 
 class AttemptOut(BaseModel):
@@ -178,5 +177,7 @@ class AttemptOut(BaseModel):
 
 class LearningState(BaseModel):
     learner_role: str | None
+    # A 100% pre-test is auto-approved by a post-test at or above this percentage.
+    auto_approve_percent: int
     modules: list[ModuleLearning]
     attempts: list[AttemptOut]

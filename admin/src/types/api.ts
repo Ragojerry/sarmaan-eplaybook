@@ -383,6 +383,8 @@ export interface LearnerPerson {
 }
 
 export interface LearningReview {
+  /** A 100% pre-test is auto-approved by a post-test at or above this percentage. */
+  auto_approve_percent: number;
   learner_roles: { value: LearnerRole; label: string }[];
   modules: {
     id: string;
@@ -394,21 +396,6 @@ export interface LearningReview {
     needs_review: boolean;
   }[];
   users_needing_review: (LearnerPerson & { role: string; email: string; reason: string })[];
-  exceptions_waiting: (LearnerPerson & {
-    module_id: string;
-    module_code: string;
-    module_title: string;
-    pre_test_score: number;
-    pre_test_taken_at: string;
-  })[];
-}
-
-export interface ApprovedException extends LearnerPerson {
-  module_code: string;
-  module_title: string;
-  reason: string;
-  approved_by: string | null;
-  approved_at: string | null;
 }
 
 export interface TestReportRow extends LearnerPerson {
@@ -424,7 +411,7 @@ export interface TestReportRow extends LearnerPerson {
   post_test_latest_at: string | null;
   pass_mark: number;
   met_both_rules: boolean;
-  exception_approved: boolean;
+  auto_approved: boolean;
   attempts_not_counted: number;
   completed_at: string | null;
 }

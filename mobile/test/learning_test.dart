@@ -14,12 +14,15 @@ import 'package:sarmaan_eplaybook/learning/learning_service.dart';
 void main() {
   group('pass rule (shared vectors)', () {
     final vectors = jsonDecode(File('test/learning_vectors.json').readAsStringSync()) as Map<String, dynamic>;
-    test('pass mark is 90', () => expect(vectors['pass_mark'], 90));
+    test('pass mark and auto-approval threshold are 90', () {
+      expect(vectors['pass_mark'], 90);
+      expect(vectors['auto_approve_percent'], kAutoApprovePercent);
+    });
     for (final c in (vectors['cases'] as List).cast<Map<String, dynamic>>()) {
       test(c['why'] as String, () {
         expect(
           postTestCompletes(c['post_correct'] as int, c['post_total'] as int, c['pre_correct'] as int, c['pre_total'] as int,
-              exceptionApproved: c['exception_approved'] as bool),
+              autoApprovePercent: vectors['auto_approve_percent'] as int),
           c['completes'],
         );
       });
@@ -71,17 +74,31 @@ void main() {
       expect(s[1].stage, ModuleStage.preTest, reason: 'the next module unlocks');
     });
 
-    test('a 100% pre-test waits for an approved exception', () {
-      ModuleLearning run(bool approved, List<TestScore> a) => computeLearning([
-            ModuleInput(moduleId: 'A', questionUsages: const ['BOTH'], attempts: a, readingDone: true, exceptionApproved: approved),
+    test('a 100% pre-test is auto-approved at the threshold, with no approval step', () {
+      ModuleLearning run(List<TestScore> a, {int threshold = kAutoApprovePercent}) => computeLearning(autoApprovePercent: threshold, [
+            ModuleInput(moduleId: 'A', questionUsages: const ['BOTH'], attempts: a, readingDone: true),
           ]).single;
-      final waiting = run(false, [t('PRE', 10, 10, 1), t('POST', 10, 10, 2)]);
-      expect(waiting.stage, ModuleStage.exception);
-      expect(waiting.canTakePostTest, isFalse);
-      expect(waiting.completingPost, isNull);
-      final approved = run(true, [t('PRE', 10, 10, 1), t('POST', 9, 10, 2)]);
-      expect(approved.stage, ModuleStage.postTest);
-      expect(approved.completingPost?.clientId, 'POST2');
+      expect(run([t('PRE', 10, 10, 1)]).stage, ModuleStage.postTest);
+      expect(run([t('PRE', 10, 10, 1)]).canTakePostTest, isTrue);
+      for (final (correct, total) in [(9, 10), (19, 20), (10, 10)]) {
+        expect(run([t('PRE', 10, 10, 1), t('POST', correct, total, 2)]).completingPost, isNotNull, reason: '$correct/$total');
+      }
+      expect(run([t('PRE', 10, 10, 1), TestScore(clientId: 'p', testType: 'POST', correct: 89, total: 100, takenAt: DateTime(2026, 11, 4, 9, 2))])
+          .completingPost, isNull, reason: '89%');
+      expect(run([t('PRE', 10, 10, 1), t('POST', 9, 10, 2)], threshold: 95).completingPost, isNull, reason: 'the threshold is a setting');
+    });
+
+    test('a completed module is review-only', () {
+      final s = computeLearning([
+        ModuleInput(moduleId: 'A', questionUsages: const ['BOTH'], completed: true, readingDone: true,
+            attempts: [t('PRE', 5, 10, 1), t('POST', 10, 10, 2)]),
+      ]).single;
+      expect(s.canRead, isTrue);
+      expect(s.canTakePostTest, isFalse);
+      expect(s.canTakePreTest, isFalse);
+      final legacy = computeLearning([const ModuleInput(moduleId: 'A', questionUsages: ['BOTH'], completed: true)]).single;
+      expect(legacy.pre, isNull, reason: 'completed before pre/post tests');
+      expect(legacy.canRead, isTrue);
     });
 
     test('modules without questions are read and marked complete as before', () {
@@ -244,13 +261,16 @@ void main() {
       expect((await loadLearning(db)).of('A')!.stage, ModuleStage.preTest);
     });
 
-    test('an approved exception lets a 100% pre-test learner complete with 90%', () async {
+    test('a 100% pre-test learner auto-completes with 90% (threshold from the server)', () async {
       await take('A', 'PRE', 10, 10);
       await db.markReadingComplete('A');
-      expect((await loadLearning(db)).of('A')!.stage, ModuleStage.exception);
-      await expectLater(take('A', 'POST', 10, 10), throwsStateError);
-      await db.setTestExceptions(['A']);
-      expect((await take('A', 'POST', 9, 10)).completedNow, isTrue);
+      expect((await loadLearning(db)).of('A')!.stage, ModuleStage.postTest);
+      await db.setAutoApprovePercent(95);
+      expect((await take('A', 'POST', 9, 10)).completedNow, isFalse, reason: '90% < 95%');
+      await db.setAutoApprovePercent(90);
+      final o = await take('A', 'POST', 9, 10);
+      expect(o.autoApproval && o.reachedAutoApproval && o.completedNow, isTrue);
+      await expectLater(take('A', 'POST', 10, 10), throwsStateError, reason: 'no re-submitting a completed module');
     });
 
     test('pre-test and post-test questions follow their usage tags', () async {

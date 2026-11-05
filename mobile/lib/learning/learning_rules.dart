@@ -8,18 +8,29 @@ import '../quiz/quiz_grader.dart';
 ///   1. it scores at least [kQuizPassMark] (90%), and
 ///   2. it scores strictly higher than the learner's pre-test.
 /// Scores are compared as exact fractions, because the two tests may have
-/// different numbers of questions. A 100% pre-test makes rule 2 impossible;
-/// only an administrator's approved exception replaces rule 2 then.
+/// different numbers of questions.
+///
+/// A 100% pre-test makes rule 2 impossible, so such a learner is
+/// auto-approved: a post-test of at least the auto-approval threshold
+/// completes the module at once, with no manual step. The threshold is the
+/// server's POST_TEST_AUTO_APPROVE_PERCENT setting, sent with GET
+/// /sync/learning; [kAutoApprovePercent] is used until the phone has it.
+
+/// Default auto-approval threshold (percent) for a 100% pre-test.
+const kAutoApprovePercent = 90;
 
 bool beats(int postCorrect, int postTotal, int preCorrect, int preTotal) =>
     postTotal > 0 && preTotal > 0 && postCorrect * preTotal > preCorrect * postTotal;
 
 bool isPerfect(int correct, int total) => total > 0 && correct >= total;
 
-bool postTestCompletes(int postCorrect, int postTotal, int preCorrect, int preTotal, {bool exceptionApproved = false}) {
-  if (!quizPassed(postCorrect, postTotal)) return false;
-  if (beats(postCorrect, postTotal, preCorrect, preTotal)) return true;
-  return exceptionApproved && isPerfect(preCorrect, preTotal);
+/// Exact integer arithmetic, like the pass mark (no rounding at the edge).
+bool reaches(int correct, int total, int percent) => total > 0 && correct * 100 >= percent * total;
+
+bool postTestCompletes(int postCorrect, int postTotal, int preCorrect, int preTotal,
+    {int autoApprovePercent = kAutoApprovePercent}) {
+  if (isPerfect(preCorrect, preTotal)) return reaches(postCorrect, postTotal, autoApprovePercent);
+  return quizPassed(postCorrect, postTotal) && beats(postCorrect, postTotal, preCorrect, preTotal);
 }
 
 /// Which questions each test uses: a question tagged BOTH is in both; a test
@@ -33,7 +44,7 @@ bool usedIn(String usage, String testType) => usage == 'BOTH' || usage == testTy
   return (pre == 0 ? total : pre, post == 0 ? total : post);
 }
 
-enum ModuleStage { locked, preTest, reading, postTest, exception, completed }
+enum ModuleStage { locked, preTest, reading, postTest, completed }
 
 class TestScore {
   final String clientId;
@@ -61,7 +72,7 @@ class ModuleLearning {
   final bool readingDone;
   final TestScore? pre;
   final List<TestScore> posts;
-  final bool exceptionApproved;
+  final int autoApprovePercent;
   final bool unlocked;
 
   const ModuleLearning({
@@ -72,7 +83,7 @@ class ModuleLearning {
     required this.readingDone,
     required this.pre,
     required this.posts,
-    required this.exceptionApproved,
+    required this.autoApprovePercent,
     required this.unlocked,
   });
 
@@ -94,7 +105,7 @@ class ModuleLearning {
     final p = pre;
     if (p == null) return null;
     for (final a in posts) {
-      if (postTestCompletes(a.correct, a.total, p.correct, p.total, exceptionApproved: exceptionApproved)) return a;
+      if (postTestCompletes(a.correct, a.total, p.correct, p.total, autoApprovePercent: autoApprovePercent)) return a;
     }
     return null;
   }
@@ -105,7 +116,6 @@ class ModuleLearning {
     if (!hasTests) return ModuleStage.reading;
     if (pre == null) return ModuleStage.preTest;
     if (!readingDone) return ModuleStage.reading;
-    if (prePerfect && !exceptionApproved) return ModuleStage.exception;
     return ModuleStage.postTest;
   }
 
@@ -113,10 +123,9 @@ class ModuleLearning {
   bool get canRead => unlocked && (completed || !hasTests || pre != null);
   bool get canTakePreTest => stage == ModuleStage.preTest;
 
-  /// Only after reading; retakes are allowed (and for practice once completed).
-  /// A 100% pre-test waits for an administrator's exception first.
-  bool get canTakePostTest =>
-      unlocked && hasTests && pre != null && readingDone && stage != ModuleStage.exception;
+  /// Only after reading, and retakes until the module is completed. A
+  /// completed module is review-only: its status and score cannot change.
+  bool get canTakePostTest => !completed && unlocked && hasTests && pre != null && readingDone;
 }
 
 /// Per-module input for [computeLearning].
@@ -125,7 +134,6 @@ class ModuleInput {
   final List<String> questionUsages;
   final bool completed;
   final bool readingDone;
-  final bool exceptionApproved;
 
   /// Attempts that count (not rejected by the server), oldest first.
   final List<TestScore> attempts;
@@ -135,14 +143,13 @@ class ModuleInput {
     required this.questionUsages,
     this.completed = false,
     this.readingDone = false,
-    this.exceptionApproved = false,
     this.attempts = const [],
   });
 }
 
 /// States for the learner's modules in learning order: a module is unlocked
 /// when it is already completed or every earlier one is.
-List<ModuleLearning> computeLearning(List<ModuleInput> modules) {
+List<ModuleLearning> computeLearning(List<ModuleInput> modules, {int autoApprovePercent = kAutoApprovePercent}) {
   final out = <ModuleLearning>[];
   var allBeforeDone = true;
   for (final m in modules) {
@@ -157,7 +164,7 @@ List<ModuleLearning> computeLearning(List<ModuleInput> modules) {
       readingDone: m.readingDone,
       pre: pres.isEmpty ? null : pres.last, // the latest valid pre-test is the baseline
       posts: sorted.where((a) => a.testType == 'POST').toList(),
-      exceptionApproved: m.exceptionApproved,
+      autoApprovePercent: autoApprovePercent,
       unlocked: m.completed || allBeforeDone,
     );
     allBeforeDone = allBeforeDone && m.completed;

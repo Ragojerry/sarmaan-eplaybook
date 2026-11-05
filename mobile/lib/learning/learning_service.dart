@@ -47,15 +47,13 @@ Future<LearningSnapshot> loadLearning(LocalDatabase db) async {
   final usages = await db.questionUsagesByModule();
   final progress = {for (final p in await db.getAllProgress()) p.moduleId: p};
   final attempts = (await db.getQuizAttempts()).where(attemptCounts).toList();
-  final exceptions = await db.getTestExceptions();
-  final states = computeLearning([
+  final states = computeLearning(autoApprovePercent: await db.getAutoApprovePercent(), [
     for (final m in modules)
       ModuleInput(
         moduleId: m.id,
         questionUsages: usages[m.id] ?? const [],
         completed: progress[m.id]?.completed ?? false,
         readingDone: progress[m.id]?.readingCompletedAt != null,
-        exceptionApproved: exceptions.contains(m.id),
         attempts: [for (final a in attempts) if (a.moduleId == m.id) scoreOf(a)],
       ),
   ]);
@@ -77,6 +75,10 @@ class TestOutcome {
 
   int get percent => quizScorePercent(correct, total);
   bool get reachedPassMark => quizPassed(correct, total);
+
+  /// The pre-test was 100%: the auto-approval threshold is the only rule.
+  bool get autoApproval => after.prePerfect;
+  bool get reachedAutoApproval => reaches(correct, total, after.autoApprovePercent);
   bool get beatPreTest {
     final pre = after.pre;
     return pre != null && beats(correct, total, pre.correct, pre.total);
@@ -130,6 +132,5 @@ String stageLabel(ModuleStage stage) => switch (stage) {
       ModuleStage.preTest => 'Pre-test first',
       ModuleStage.reading => 'Reading',
       ModuleStage.postTest => 'Post-test ready',
-      ModuleStage.exception => 'Waiting for approval',
       ModuleStage.completed => 'Completed',
     };

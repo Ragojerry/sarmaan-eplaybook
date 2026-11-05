@@ -26,7 +26,6 @@ from app.models import (
     QuizAttempt,
     QuizQuestion,
     RefreshToken,
-    TestException,
     User,
     UserModuleProgress,
 )
@@ -46,7 +45,6 @@ def db():
 
 
 def _cleanup(db, user, device_ids=()):
-    db.query(TestException).filter((TestException.user_id == user.id) | (TestException.approved_by == user.id)).delete()
     db.query(QuizAttempt).filter_by(user_id=user.id).delete()
     db.query(UserModuleProgress).filter_by(user_id=user.id).delete()
     db.query(AiQuestionLog).filter_by(user_id=user.id).delete()

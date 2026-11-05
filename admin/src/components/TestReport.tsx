@@ -9,7 +9,6 @@ const STATUS_LABELS: Record<string, string> = {
   PRE_TEST: "Pre-test not taken",
   READING: "Reading",
   POST_TEST: "Post-test not passed yet",
-  EXCEPTION: "100% pre-test: needs exception",
   COMPLETED: "Completed",
 };
 
@@ -75,14 +74,15 @@ export default function TestReport({
           Export CSV
         </button>
         <span className="text-xs text-gray-500">
-          A module is completed when the post-test scores at least the pass mark and higher than the pre-test. Click a row for every attempt.
+          A module is completed when the post-test scores at least the pass mark and higher than the pre-test; after a 100%
+          pre-test, a post-test at the auto-approval threshold completes it automatically. Click a row for every attempt.
         </span>
       </div>
       <div className="bg-white border rounded-lg overflow-x-auto">
         <table className="w-full text-sm">
           <thead className="bg-gray-50 text-left text-xs text-gray-500">
             <tr>
-              {["Name", "Learner role", "Team", "Module", "Status", "Pre-test", "Post-test attempts", "Best post-test", "Latest post-test", "Both rules met", "Exception", "Not counted"].map((h) => (
+              {["Name", "Learner role", "Team", "Module", "Status", "Pre-test", "Post-test attempts", "Best post-test", "Latest post-test", "Completed by rule", "Auto-approved", "Not counted"].map((h) => (
                 <th key={h} className="px-3 py-2 whitespace-nowrap">
                   {h}
                 </th>
@@ -125,7 +125,7 @@ export default function TestReport({
                     <td className="px-3 py-1.5">{pct(r.post_test_best_score)}</td>
                     <td className="px-3 py-1.5">{pct(r.post_test_latest_score)}</td>
                     <td className="px-3 py-1.5">{r.met_both_rules ? "yes" : "no"}</td>
-                    <td className="px-3 py-1.5">{r.exception_approved ? "approved" : "—"}</td>
+                    <td className="px-3 py-1.5">{r.auto_approved ? "yes (100% pre-test)" : "—"}</td>
                     <td className="px-3 py-1.5">{r.attempts_not_counted || "—"}</td>
                   </tr>
                   {open === key && (

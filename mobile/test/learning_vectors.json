@@ -1,12 +1,12 @@
 {
   "pass_mark": 90,
+  "auto_approve_percent": 90,
   "cases": [
     {
       "pre_correct": 5,
       "pre_total": 10,
       "post_correct": 9,
       "post_total": 10,
-      "exception_approved": false,
       "completes": true,
       "why": "exactly 90% and higher than the pre-test"
     },
@@ -15,7 +15,6 @@
       "pre_total": 10,
       "post_correct": 8,
       "post_total": 10,
-      "exception_approved": false,
       "completes": false,
       "why": "80%: below the pass mark"
     },
@@ -24,7 +23,6 @@
       "pre_total": 10,
       "post_correct": 89,
       "post_total": 100,
-      "exception_approved": false,
       "completes": false,
       "why": "89%: just below the pass mark"
     },
@@ -33,7 +31,6 @@
       "pre_total": 10,
       "post_correct": 10,
       "post_total": 10,
-      "exception_approved": false,
       "completes": true,
       "why": "100%"
     },
@@ -42,7 +39,6 @@
       "pre_total": 10,
       "post_correct": 9,
       "post_total": 10,
-      "exception_approved": false,
       "completes": false,
       "why": "90% but equal to the pre-test (must be strictly higher)"
     },
@@ -51,7 +47,6 @@
       "pre_total": 10,
       "post_correct": 10,
       "post_total": 10,
-      "exception_approved": false,
       "completes": true,
       "why": "higher than a 90% pre-test"
     },
@@ -60,7 +55,6 @@
       "pre_total": 10,
       "post_correct": 18,
       "post_total": 20,
-      "exception_approved": false,
       "completes": false,
       "why": "same fraction with different totals is not higher"
     },
@@ -69,7 +63,6 @@
       "pre_total": 10,
       "post_correct": 19,
       "post_total": 20,
-      "exception_approved": false,
       "completes": true,
       "why": "95% beats 90% with different totals"
     },
@@ -78,7 +71,6 @@
       "pre_total": 9,
       "post_correct": 9,
       "post_total": 10,
-      "exception_approved": false,
       "completes": true,
       "why": "pre 8/9 (88.9%) is below post 9/10 (90%): exact fractions, not rounded"
     },
@@ -87,7 +79,6 @@
       "pre_total": 9,
       "post_correct": 8,
       "post_total": 9,
-      "exception_approved": false,
       "completes": false,
       "why": "post 8/9 (88.9%) beats the pre-test but is below the pass mark"
     },
@@ -96,7 +87,6 @@
       "pre_total": 11,
       "post_correct": 9,
       "post_total": 10,
-      "exception_approved": false,
       "completes": false,
       "why": "pre 10/11 (90.9%) beats post 9/10 (90%): rounding would hide this"
     },
@@ -105,54 +95,48 @@
       "pre_total": 10,
       "post_correct": 9,
       "post_total": 10,
-      "exception_approved": false,
       "completes": true,
       "why": "a zero pre-test"
     },
     {
       "pre_correct": 10,
       "pre_total": 10,
-      "post_correct": 10,
-      "post_total": 10,
-      "exception_approved": false,
-      "completes": false,
-      "why": "100% pre-test: a higher score is impossible without an exception"
-    },
-    {
-      "pre_correct": 10,
-      "pre_total": 10,
-      "post_correct": 10,
-      "post_total": 10,
-      "exception_approved": true,
-      "completes": true,
-      "why": "100% pre-test with an approved exception and a 100% post-test"
-    },
-    {
-      "pre_correct": 10,
-      "pre_total": 10,
       "post_correct": 9,
       "post_total": 10,
-      "exception_approved": true,
       "completes": true,
-      "why": "100% pre-test with an exception: 90% post-test is enough"
+      "why": "100% pre-test, 90% post-test: auto-approved"
+    },
+    {
+      "pre_correct": 10,
+      "pre_total": 10,
+      "post_correct": 19,
+      "post_total": 20,
+      "completes": true,
+      "why": "100% pre-test, 95% post-test: auto-approved"
+    },
+    {
+      "pre_correct": 10,
+      "pre_total": 10,
+      "post_correct": 10,
+      "post_total": 10,
+      "completes": true,
+      "why": "100% pre-test, 100% post-test: auto-approved"
+    },
+    {
+      "pre_correct": 10,
+      "pre_total": 10,
+      "post_correct": 89,
+      "post_total": 100,
+      "completes": false,
+      "why": "100% pre-test, 89% post-test: below the auto-approval threshold"
     },
     {
       "pre_correct": 10,
       "pre_total": 10,
       "post_correct": 8,
       "post_total": 10,
-      "exception_approved": true,
       "completes": false,
-      "why": "an exception never waives the 90% pass mark"
-    },
-    {
-      "pre_correct": 9,
-      "pre_total": 10,
-      "post_correct": 9,
-      "post_total": 10,
-      "exception_approved": true,
-      "completes": false,
-      "why": "an exception only applies to a 100% pre-test"
+      "why": "100% pre-test, 80% post-test: below the auto-approval threshold"
     }
   ]
 }

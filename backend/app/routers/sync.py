@@ -5,7 +5,7 @@ Uploads (phone -> server) are batched, IDEMPOTENT and report a result per item:
   GET  /sync/progress        this account's saved progress (restore on a new phone)
   POST /sync/progress        merge module progress (latest wins; completed never un-completes)
   POST /sync/quiz-attempts   pre-/post-test attempts; a qualifying post-test completes the module
-  GET  /sync/learning        per-module test state + attempt history (restore, admin exceptions)
+  GET  /sync/learning        per-module test state, attempt history and the auto-approval threshold
   POST /sync/ai-questions    keyed by (user, client_id)
   POST /sync/analytics       keyed by (device, client_id); only the §50 event types
 Downloads (server -> phone), filtered to the modules the account may see
@@ -40,6 +40,7 @@ from app.models import (
     UserModuleProgress,
 )
 from app.learning.access import module_visible_to, visible_module_ids
+from app.learning.rules import auto_approve_percent
 from app.learning.state import READING_PERCENT, ModuleState, complete, learning_states, module_state
 from app.models.enums import AnalyticsEventType, ContentReviewStatus, ModuleStatus, ReleaseStatus, TestType
 from app.releases.packager import package_path
@@ -108,6 +109,8 @@ def _sequence_problem(state: ModuleState | None, test_type: TestType, taken_at: 
         if reading is not None and not legacy and _aware(reading) < taken_at:
             return "pre-test must be taken before reading"
         return None
+    if state.completed:
+        return "module already completed"  # review only: the result and status stay as they are
     if state.pre is None:
         return "no pre-test yet"
     if _aware(state.pre.taken_at) > taken_at:
@@ -189,8 +192,8 @@ def _score(a) -> TestScore | None:
 @router.get("/learning", response_model=LearningState)
 def get_learning_state(db: Session = Depends(get_db), user: User = Depends(get_current_user)):
     """The account's own test state per visible module and its attempt
-    history (so a new phone restores pre-test baselines, and the phone learns
-    of exceptions an administrator approved). Never anyone else's."""
+    history (so a new phone restores pre-test baselines), plus the
+    auto-approval threshold for 100% pre-tests. Never anyone else's."""
     states = learning_states(db, user)
     visible = {s.module.id for s in states}
     modules = []
@@ -199,7 +202,7 @@ def get_learning_state(db: Session = Depends(get_db), user: User = Depends(get_c
         modules.append(ModuleLearning(
             module_id=st.module.id, status=st.status, unlocked=st.unlocked, completed=st.completed,
             has_tests=st.has_tests, pre_test=_score(st.pre), best_post_test=_score(best),
-            post_test_attempts=len(st.posts), exception_approved=st.exception is not None,
+            post_test_attempts=len(st.posts),
         ))
     attempts = (
         db.query(QuizAttempt)
@@ -210,6 +213,7 @@ def get_learning_state(db: Session = Depends(get_db), user: User = Depends(get_c
     )
     return LearningState(
         learner_role=user.learner_role.value if user.learner_role else None,
+        auto_approve_percent=auto_approve_percent(),
         modules=modules,
         attempts=[AttemptOut.model_validate(a) for a in attempts],
     )
@@ -327,7 +331,7 @@ def _completion_problem(state: ModuleState | None) -> str | None:
     if not state.unlocked:
         return "module is locked: complete the previous module first"
     if state.has_tests and state.completing_post() is None:
-        return "post-test not passed (90% and higher than the pre-test)"
+        return "post-test not passed yet"
     return None
 
 
