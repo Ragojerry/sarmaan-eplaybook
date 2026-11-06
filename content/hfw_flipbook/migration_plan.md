@@ -86,7 +86,7 @@ The programme sets `CUTOVER_DATE`. No default is coded.
 
 **Re-running** after a cutover finds nothing more to do.
 
-**Not run against production.** Only the local dry run, plus tests that run the real cutover inside a transaction that is rolled back.
+**Run on production on 2026-11-06** (13:31 UTC), after a production dry run and a verified backup. See `cutover_production_report.md` and the run record in `changeover_runbook.md`.
 
 ## 5. Phones and app versions
 

@@ -6,6 +6,21 @@ Each step has a Pass and a Fail box. **Stop at the first Fail.** Nothing runs ag
 
 There is no staging server. Dry runs happen locally, and the real run happens on production with a verified backup. **Rollback = restore that backup.**
 
+## Production run record (2026-11-06)
+
+The programme decided to run the changeover the same day, without waiting for the clinician review (`clinician_signoff.md`).
+
+| Step | Result |
+|---|---|
+| 4.1 | Done. `CUTOVER_DATE=2026-11-06`; backend deployed with `main`; database already at the latest migration; content copied to the server. |
+| 2.5 | Done. Production dry run: 3 accounts (2 learners) wiped; 6 old modules, 62 sections and 63 questions deleted; 17 modules published. |
+| 4.2 | Done. `pre-hfw-cutover-final.dump` (SHA-256 `f9944af082dd70e429ecd369bc3036a72cd9731cdc50bf769aae008027c82884`) was taken just before the run. It is in `/opt/sarmaan/content/hfw_backups/` on the server and in `s3://sarmaan-deploy-568898409880/backups/`. A copy from 13:08 (before the dry run) is next to it. |
+| 4.3 | Done at 13:31 UTC; the backup was verified by the script. Report: `cutover_production_report.md`. Release `HFW-CUTOVER-20261106133103`. |
+| 4.4 | Checked in the database, not yet in the admin portal. The only modules are HFW-01 to HFW-17, all PUBLISHED and in learning order. Progress, attempts, Ask logs and analytics are all 0; every user is on attempt 1. 254 sections, 170 questions, 39 images on disk. Health is 200 directly and through CloudFront. |
+| 4.5–4.10 | **Still to do** on real phones with app 0.1.10 (published the same day) and 0.1.9. |
+
+Production differs from the steps below in one way: the server's IAM role can't write to S3. The off-server copy of the backup was therefore pulled through Systems Manager, checked by SHA-256, and uploaded with a team member's credentials.
+
 ## People
 
 | Role | Responsible for | Name | Contact |
@@ -61,4 +76,4 @@ Decision: ☐ **GO** on `CUTOVER_DATE` = __________  ☐ **NO-GO**. Reason: ____
 | 4.9 | **Offline phone:** airplane mode during the run, then reconnect. The old content is replaced and nothing old is kept. | ☐ | ☐ |
 | 4.10 | **Regression:** tap a completed module, and try to open a module that was removed. No freeze, and back works. TalkBack reads one picture's alt text. | ☐ | ☐ |
 
-**If anything fails after 4.3:** stop the backend and restore with `pg_restore --clean -d <database> pre-hfw-cutover.dump`. Restart and check the admin portal. The newest release is then the pre-cutover one again, so phones go back to it at their next sync and restore their progress from the server. Image files were never deleted.
+**If anything fails after 4.3:** stop the backend and restore with `pg_restore --clean -d <database> pre-hfw-cutover-final.dump` (the backup from 4.2, taken just before the 2026-11-06 run). Restart and check the admin portal. The newest release is then the pre-cutover one again, so phones go back to it at their next sync and restore their progress from the server. Image files were never deleted.

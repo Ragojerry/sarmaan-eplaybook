@@ -15,27 +15,23 @@ See `migration_plan.md`.
 
 ## A. Changeover and launch
 
-**A1. `CUTOVER_DATE`.**
-- Not chosen.
-- The programme owner sets it in production configuration.
-- The cutover script refuses production without it.
+**A1. `CUTOVER_DATE`.** Done.
+- Set to 2026-11-06 in production configuration.
+- The changeover ran on production that day at 13:31 UTC (`cutover_production_report.md`).
 
 **A2. Minimum app version.**
 - App 0.1.9 handles the changeover correctly (`offline_and_app_version_tests.md`), so `MIN_APP_VERSION` can stay unset.
 - **Decision needed:** require 0.1.10 at launch, to guarantee the one-time notice and the clearer messages; or later; or never.
 
-**A3. App 0.1.10.**
-- The version is set to 0.1.10+11 in the code, but no APK has been built or published.
-- Build it and test it on a phone first (runbook 1.3).
-- Publishing the production APK is a separate step.
+**A3. App 0.1.10.** Published.
+- Built against the production backend and published on 2026-11-06 (SHA-256 in `deploy/aws/README.md`).
+- Still to do: install it on real phones and run runbook checks 4.5–4.10.
 
 **A4. Apps older than 0.1.8 in the field.**
 - They can't do the new pre-/post-tests.
 - Confirm none are in use (runbook 4.6).
 
-**A5. Importer patch for translated alt text.**
-- It is on branch `importer-alt-text` and not merged (`alt_text_importer_spec.md`).
-- It is needed before Hausa alt text is imported.
+**A5. Importer patch for translated alt text.** Merged into `main` and deployed (`alt_text_importer_spec.md`). Hausa alt text can be imported once it is translated.
 
 **A6. Estimated durations.**
 - 15–30 minutes per module, 335 in total.
