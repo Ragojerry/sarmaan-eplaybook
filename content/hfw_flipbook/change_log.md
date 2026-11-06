@@ -26,7 +26,7 @@ The HFW PDF is the source of truth, and the new content follows it. Every confli
 | M8 Supply chain | 81-83 | **New** |
 | M9 Safeguarding | 84-88 | CDD M6 (p61-65), `module_ha_7.csv` |
 
-The app currently has modules M1 to M6 under the old numbering, so the module codes change when this content is loaded (see open question A2).
+The app currently has modules M1 to M6 under the old numbering, so the module codes change when this content is loaded (see `migration_plan.md`).
 
 ## New content
 

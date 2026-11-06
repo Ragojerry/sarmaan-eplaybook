@@ -15,38 +15,34 @@ See `migration_plan.md`.
 
 ## A. Changeover and launch
 
-**A1. Staging.**
-- The default plan is a second server in eu-north-1, restored from production and anonymised (`changeover_runbook.md`, section 1).
-- **Decision needed from the programme owner:** confirm the plan, name the staging owner, and accept the extra server cost.
-
-**A2. `CUTOVER_DATE`.**
+**A1. `CUTOVER_DATE`.**
 - Not chosen.
 - The programme owner sets it in production configuration.
 - The cutover script refuses production without it.
 
-**A3. Minimum app version.**
+**A2. Minimum app version.**
 - App 0.1.9 handles the changeover correctly (`offline_and_app_version_tests.md`), so `MIN_APP_VERSION` can stay unset.
 - **Decision needed:** require 0.1.10 at launch, to guarantee the one-time notice and the clearer messages; or later; or never.
 
-**A4. App 0.1.10.**
+**A3. App 0.1.10.**
 - The version is set to 0.1.10+11 in the code, but no APK has been built or published.
 - Build and test the staging APK first (runbook 1.8).
 - Publishing the production APK is a separate step.
 
-**A5. Apps older than 0.1.8 in the field.**
+**A4. Apps older than 0.1.8 in the field.**
 - They can't do the new pre-/post-tests.
 - Confirm none are in use (runbook 4.6).
 
-**A6. Importer patch for translated alt text.**
+**A5. Importer patch for translated alt text.**
 - It is on branch `importer-alt-text` and not merged (`alt_text_importer_spec.md`).
 - It is needed before Hausa alt text is imported.
 
-**A7. Estimated durations.**
+**A6. Estimated durations.**
 - 15–30 minutes per module, 335 in total.
 - Per role: CDD 265, Health worker 220, Monitor/supervisor 220, Other 185, Logistician 180 minutes.
 - Confirm after the staging trial.
 
-**A8. Branches.**
+**A7. Branches.**
 - `hfw-role-modules` (content, import and cutover scripts, legacy report, app 0.1.10) and `importer-alt-text` are local and not merged.
 - **Decision needed:** when to merge, after review.
 
