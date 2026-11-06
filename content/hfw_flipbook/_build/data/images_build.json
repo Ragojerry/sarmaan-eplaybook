@@ -1,0 +1,898 @@
+[
+ {
+  "file": "m1_p01_01.png",
+  "page": 1,
+  "module": "M1",
+  "heading": "Azithromycin Drug Administration Training Flipbook (title page)",
+  "type": "illustration",
+  "kind": "diagram",
+  "px": [
+   619,
+   517
+  ],
+  "bytes": 84071,
+  "source": "render crop at 200 dpi",
+  "box": [
+   752,
+   365,
+   1035,
+   600
+  ],
+  "note": ""
+ },
+ {
+  "file": "m1_p05_01.jpg",
+  "page": 5,
+  "module": "M1",
+  "heading": "Module 1: Introduction to Azithromycin (AZM) Drug Administration",
+  "type": "cover",
+  "kind": "photo",
+  "px": [
+   852,
+   1150
+  ],
+  "bytes": 166573,
+  "source": "embedded original p05_e00.png (895x1150); right 4.8% trimmed (page side bar baked into the raster)",
+  "box": [
+   -0.0,
+   -0.3,
+   605.5,
+   776.6
+  ],
+  "note": ""
+ },
+ {
+  "file": "m2_p09_01.jpg",
+  "page": 9,
+  "module": "M2",
+  "heading": "Module 2: Determination of Eligibility for Azithromycin (AZM) Drug Administration",
+  "type": "cover",
+  "kind": "photo",
+  "px": [
+   852,
+   1150
+  ],
+  "bytes": 123907,
+  "source": "embedded original p09_e00.png (895x1150); right 4.8% trimmed (page side bar baked into the raster)",
+  "box": [
+   -0.0,
+   -0.3,
+   605.5,
+   776.6
+  ],
+  "note": ""
+ },
+ {
+  "file": "m2_p12_01.png",
+  "page": 12,
+  "module": "M2",
+  "heading": "How to determine child's age for AZM drug administration - Children 1 to 11 months",
+  "type": "icon strip",
+  "kind": "diagram",
+  "px": [
+   1600,
+   428
+  ],
+  "bytes": 306461,
+  "source": "render crop at 200 dpi",
+  "box": [
+   118,
+   150,
+   1018,
+   385
+  ],
+  "note": "scaled to 1600px wide"
+ },
+ {
+  "file": "m2_p12_02.png",
+  "page": 12,
+  "module": "M2",
+  "heading": "How to determine child's age for AZM drug administration - Child 12 to 59 months",
+  "type": "icon strip",
+  "kind": "diagram",
+  "px": [
+   1467,
+   512
+  ],
+  "bytes": 243950,
+  "source": "render crop at 200 dpi",
+  "box": [
+   228,
+   415,
+   910,
+   648
+  ],
+  "note": ""
+ },
+ {
+  "file": "m2_p14_01.png",
+  "page": 14,
+  "module": "M2",
+  "heading": "Determination of eligibility for Azithromycin (AZM) - Eligible for AZM",
+  "type": "icon strip",
+  "kind": "diagram",
+  "px": [
+   1580,
+   294
+  ],
+  "bytes": 241426,
+  "source": "render crop at 200 dpi",
+  "box": [
+   190,
+   200,
+   925,
+   330
+  ],
+  "note": ""
+ },
+ {
+  "file": "m2_p14_02.png",
+  "page": 14,
+  "module": "M2",
+  "heading": "Determination of eligibility for Azithromycin (AZM) - NOT Eligible for AZM",
+  "type": "icon strip",
+  "kind": "diagram",
+  "px": [
+   1600,
+   354
+  ],
+  "bytes": 289855,
+  "source": "render crop at 200 dpi",
+  "box": [
+   148,
+   392,
+   958,
+   565
+  ],
+  "note": "scaled to 1600px wide"
+ },
+ {
+  "file": "m2_p16_01.png",
+  "page": 16,
+  "module": "M2",
+  "heading": "Summary of child eligibility for AZM",
+  "type": "diagram",
+  "kind": "form",
+  "px": [
+   1200,
+   648
+  ],
+  "bytes": 296152,
+  "source": "render crop at 450 dpi",
+  "box": [
+   130,
+   195,
+   1012,
+   668
+  ],
+  "note": "scaled to 1200px wide to fit 300 KB"
+ },
+ {
+  "file": "m2_p18_01.png",
+  "page": 18,
+  "module": "M2",
+  "heading": "2. MUAC/Nutrition Assessment (Children 6-59 months)",
+  "type": "diagram",
+  "kind": "form",
+  "px": [
+   1400,
+   686
+  ],
+  "bytes": 293960,
+  "source": "embedded original p18_e00.png (1830x897)",
+  "box": [
+   119.9,
+   177.9,
+   980.6,
+   599.9
+  ],
+  "note": "scaled to 1400px wide to fit 300 KB"
+ },
+ {
+  "file": "m2_p19_01.jpg",
+  "page": 19,
+  "module": "M2",
+  "heading": "MUAC Assessment: Right and Wrong",
+  "type": "illustration",
+  "kind": "diagram",
+  "px": [
+   1390,
+   1097
+  ],
+  "bytes": 267980,
+  "source": "embedded original p19_e00.png (1390x1097)",
+  "box": [
+   143.3,
+   66.7,
+   956.5,
+   708.6
+  ],
+  "note": "saved as JPEG q85: painted illustration exceeds 300 KB as PNG"
+ },
+ {
+  "file": "m2_p20_01.jpg",
+  "page": 20,
+  "module": "M2",
+  "heading": "A CDD taking MUAC reading of a child within the age group 6-59 months",
+  "type": "photo",
+  "kind": "photo",
+  "px": [
+   714,
+   1123
+  ],
+  "bytes": 99501,
+  "source": "render crop at 200 dpi",
+  "box": [
+   118,
+   100,
+   446,
+   620
+  ],
+  "note": ""
+ },
+ {
+  "file": "m2_p20_02.png",
+  "page": 20,
+  "module": "M2",
+  "heading": "MUAC Tape",
+  "type": "illustration",
+  "kind": "diagram",
+  "px": [
+   1222,
+   349
+  ],
+  "bytes": 182417,
+  "source": "render crop at 200 dpi",
+  "box": [
+   455,
+   262,
+   1022,
+   418
+  ],
+  "note": ""
+ },
+ {
+  "file": "m3_p21_01.jpg",
+  "page": 21,
+  "module": "M3",
+  "heading": "Module 3: Steps for referral of children to health facility",
+  "type": "cover",
+  "kind": "photo",
+  "px": [
+   852,
+   1151
+  ],
+  "bytes": 135749,
+  "source": "embedded original p21_e00.png (895x1151); right 4.8% trimmed (page side bar baked into the raster)",
+  "box": [
+   -0.0,
+   -0.3,
+   605.5,
+   776.6
+  ],
+  "note": ""
+ },
+ {
+  "file": "m3_p23_01.png",
+  "page": 23,
+  "module": "M3",
+  "heading": "When to refer a sick child",
+  "type": "illustration",
+  "kind": "diagram",
+  "px": [
+   640,
+   553
+  ],
+  "bytes": 101436,
+  "source": "render crop at 200 dpi",
+  "box": [
+   765,
+   163,
+   1058,
+   415
+  ],
+  "note": ""
+ },
+ {
+  "file": "m3_p23_02.png",
+  "page": 23,
+  "module": "M3",
+  "heading": "When to refer a sick child",
+  "type": "illustration",
+  "kind": "diagram",
+  "px": [
+   608,
+   366
+  ],
+  "bytes": 68644,
+  "source": "render crop at 200 dpi",
+  "box": [
+   780,
+   418,
+   1058,
+   582
+  ],
+  "note": ""
+ },
+ {
+  "file": "m3_p24_01.png",
+  "page": 24,
+  "module": "M3",
+  "heading": "When to refer children to health facility - possible allergy to AZM",
+  "type": "icon strip",
+  "kind": "diagram",
+  "px": [
+   752,
+   206
+  ],
+  "bytes": 166126,
+  "source": "embedded original p24_e01.png (752x206)",
+  "box": [
+   677.6,
+   304.4,
+   1031.2,
+   401.5
+  ],
+  "note": ""
+ },
+ {
+  "file": "m3_p24_02.png",
+  "page": 24,
+  "module": "M3",
+  "heading": "When to refer children to health facility - reasons for exclusion",
+  "type": "icon strip",
+  "kind": "diagram",
+  "px": [
+   984,
+   244
+  ],
+  "bytes": 175384,
+  "source": "embedded original p24_e00.png (984x244)",
+  "box": [
+   544.6,
+   407.0,
+   1007.7,
+   522.0
+  ],
+  "note": ""
+ },
+ {
+  "file": "m3_p25_01.png",
+  "page": 25,
+  "module": "M3",
+  "heading": "Referral steps during AZM campaign",
+  "type": "diagram",
+  "kind": "diagram",
+  "px": [
+   1600,
+   365
+  ],
+  "bytes": 201183,
+  "source": "render crop at 200 dpi",
+  "box": [
+   205,
+   495,
+   990,
+   668
+  ],
+  "note": "scaled to 1600px wide"
+ },
+ {
+  "file": "m3_p26_01.png",
+  "page": 26,
+  "module": "M3",
+  "heading": "Completing the top section of the AZM referral form",
+  "type": "form",
+  "kind": "form",
+  "px": [
+   1200,
+   1914
+  ],
+  "bytes": 587252,
+  "source": "render crop at 450 dpi",
+  "box": [
+   106,
+   203,
+   380,
+   645
+  ],
+  "note": "form kept above 300 KB at 1200px: smaller would make the print unreadable"
+ },
+ {
+  "file": "m4_p28_01.jpg",
+  "page": 28,
+  "module": "M4",
+  "heading": "Module 4: Azithromycin Drug Administration and Recording",
+  "type": "cover",
+  "kind": "photo",
+  "px": [
+   1080,
+   1431
+  ],
+  "bytes": 210400,
+  "source": "render crop at 200 dpi",
+  "box": [
+   103,
+   0,
+   626,
+   692
+  ],
+  "note": "scaled to 1080px wide"
+ },
+ {
+  "file": "m4_p30_01.png",
+  "page": 30,
+  "module": "M4",
+  "heading": "Azithromycin Powdered Oral Suspension (AZM POS)",
+  "type": "icon strip",
+  "kind": "diagram",
+  "px": [
+   1600,
+   307
+  ],
+  "bytes": 291173,
+  "source": "render crop at 200 dpi",
+  "box": [
+   108,
+   465,
+   1012,
+   632
+  ],
+  "note": "scaled to 1600px wide"
+ },
+ {
+  "file": "m4_p34_01.png",
+  "page": 34,
+  "module": "M4",
+  "heading": "Completing the child record card",
+  "type": "form",
+  "kind": "form",
+  "px": [
+   1200,
+   1594
+  ],
+  "bytes": 590399,
+  "source": "render crop at 450 dpi",
+  "box": [
+   665,
+   140,
+   1047,
+   650
+  ],
+  "note": "form kept above 300 KB at 1200px: smaller would make the print unreadable"
+ },
+ {
+  "file": "m4_p35_01.jpg",
+  "page": 35,
+  "module": "M4",
+  "heading": "Housemarking guide during AZM MDA",
+  "type": "photo",
+  "kind": "photo",
+  "px": [
+   935,
+   1012
+  ],
+  "bytes": 181647,
+  "source": "render crop at 200 dpi",
+  "box": [
+   620,
+   150,
+   1052,
+   618
+  ],
+  "note": ""
+ },
+ {
+  "file": "m4_p39_01.jpg",
+  "page": 39,
+  "module": "M4",
+  "heading": "Introduction to call-in data in AZM MDA",
+  "type": "photo",
+  "kind": "photo",
+  "px": [
+   1080,
+   1076
+  ],
+  "bytes": 227907,
+  "source": "render crop at 200 dpi",
+  "box": [
+   568,
+   192,
+   1068,
+   690
+  ],
+  "note": ""
+ },
+ {
+  "file": "m4_p41_01.jpg",
+  "page": 41,
+  "module": "M4",
+  "heading": "Introduction to call-in data in AZM MDA - how call-in data is used",
+  "type": "photo",
+  "kind": "photo",
+  "px": [
+   835,
+   691
+  ],
+  "bytes": 96459,
+  "source": "render crop at 200 dpi",
+  "box": [
+   622,
+   218,
+   1007,
+   535
+  ],
+  "note": ""
+ },
+ {
+  "file": "m4_p43_01.jpg",
+  "page": 43,
+  "module": "M4",
+  "heading": "Section 3: Procedures for azithromycin drug accountability and reconciliation in the health facility",
+  "type": "cover",
+  "kind": "photo",
+  "px": [
+   1069,
+   900
+  ],
+  "bytes": 124770,
+  "source": "render crop at 200 dpi",
+  "box": [
+   578,
+   140,
+   1081,
+   563
+  ],
+  "note": ""
+ },
+ {
+  "file": "m4_p49_01.png",
+  "page": 49,
+  "module": "M4",
+  "heading": "Steps for completing the child record card during AZM MDA",
+  "type": "form",
+  "kind": "form",
+  "px": [
+   914,
+   1009
+  ],
+  "bytes": 269395,
+  "source": "render crop at 200 dpi; embedded p49_e02.png is clipped on the page, so cropped from render",
+  "box": [
+   587.7,
+   221.1,
+   1009.9,
+   687.4
+  ],
+  "note": ""
+ },
+ {
+  "file": "m4_p55_01.jpg",
+  "page": 55,
+  "module": "M4",
+  "heading": "AZM cohort tracking",
+  "type": "cover",
+  "kind": "diagram",
+  "px": [
+   1102,
+   985
+  ],
+  "bytes": 50770,
+  "source": "render crop at 200 dpi",
+  "box": [
+   228,
+   185,
+   746,
+   648
+  ],
+  "note": "saved as JPEG q85: painted illustration exceeds 300 KB as PNG"
+ },
+ {
+  "file": "m4_p60_01.jpg",
+  "page": 60,
+  "module": "M4",
+  "heading": "Cohort tracking responsibility flow",
+  "type": "diagram",
+  "kind": "diagram",
+  "px": [
+   1600,
+   1086
+  ],
+  "bytes": 145497,
+  "source": "render crop at 200 dpi",
+  "box": [
+   128,
+   72,
+   1042,
+   690
+  ],
+  "note": "saved as JPEG q85: painted illustration exceeds 300 KB as PNG"
+ },
+ {
+  "file": "m5_p61_01.jpg",
+  "page": 61,
+  "module": "M5",
+  "heading": "Module 5: Pharmacovigilance - reporting of side effects and adverse effects",
+  "type": "cover",
+  "kind": "diagram",
+  "px": [
+   1146,
+   1000
+  ],
+  "bytes": 143278,
+  "source": "render crop at 200 dpi",
+  "box": [
+   44,
+   155,
+   583,
+   625
+  ],
+  "note": "saved as JPEG q85: painted illustration exceeds 300 KB as PNG"
+ },
+ {
+  "file": "m5_p64_01.png",
+  "page": 64,
+  "module": "M5",
+  "heading": "NAFDAC Med Safety App - practical demo",
+  "type": "screenshot",
+  "kind": "form",
+  "px": [
+   321,
+   310
+  ],
+  "bytes": 47099,
+  "source": "embedded original p64_e00.png (321x310)",
+  "box": [
+   819.8,
+   170.3,
+   1020.7,
+   364.3
+  ],
+  "note": ""
+ },
+ {
+  "file": "m5_p66_01.jpg",
+  "page": 66,
+  "module": "M5",
+  "heading": "Steps for completing the NAFDAC e-reporting link",
+  "type": "photo",
+  "kind": "photo",
+  "px": [
+   897,
+   534
+  ],
+  "bytes": 60101,
+  "source": "render crop at 200 dpi",
+  "box": [
+   566,
+   303,
+   980,
+   546
+  ],
+  "note": ""
+ },
+ {
+  "file": "m6_p73_01.jpg",
+  "page": 73,
+  "module": "M6",
+  "heading": "Module 6: Interpersonal communication and Social behaviour (SBC)",
+  "type": "cover",
+  "kind": "photo",
+  "px": [
+   809,
+   540
+  ],
+  "bytes": 44164,
+  "source": "embedded original p73_e01.png (809x540)",
+  "box": [
+   -0.0,
+   186.9,
+   601.6,
+   588.5
+  ],
+  "note": ""
+ },
+ {
+  "file": "m7_p77_01.jpg",
+  "page": 77,
+  "module": "M7",
+  "heading": "Module 7: Monitoring and supervision during AZM campaign",
+  "type": "cover",
+  "kind": "photo",
+  "px": [
+   957,
+   1229
+  ],
+  "bytes": 205891,
+  "source": "embedded original p77_e00.png (957x1229)",
+  "box": [
+   -0.0,
+   -0.3,
+   600.6,
+   776.6
+  ],
+  "note": ""
+ },
+ {
+  "file": "m8_p81_01.jpg",
+  "page": 81,
+  "module": "M8",
+  "heading": "Module 8: Supply chain management during AZM MDA campaign",
+  "type": "cover",
+  "kind": "photo",
+  "px": [
+   959,
+   1239
+  ],
+  "bytes": 125658,
+  "source": "embedded original p81_e00.png (959x1239)",
+  "box": [
+   -0.0,
+   -0.3,
+   601.6,
+   776.6
+  ],
+  "note": ""
+ },
+ {
+  "file": "m9_p84_01.jpg",
+  "page": 84,
+  "module": "M9",
+  "heading": "Module 9: Safeguarding",
+  "type": "cover",
+  "kind": "photo",
+  "px": [
+   1080,
+   1152
+  ],
+  "bytes": 216561,
+  "source": "render crop at 200 dpi",
+  "box": [
+   0,
+   72,
+   581,
+   692
+  ],
+  "note": "scaled to 1080px wide"
+ },
+ {
+  "file": "m9_p88_01.jpg",
+  "page": 88,
+  "module": "M9",
+  "heading": "Safeguarding - avoid taking pictures without consent",
+  "type": "photo",
+  "kind": "photo",
+  "px": [
+   916,
+   527
+  ],
+  "bytes": 45475,
+  "source": "render crop at 200 dpi",
+  "box": [
+   141,
+   186,
+   564,
+   426
+  ],
+  "note": ""
+ },
+ {
+  "file": "m9_p88_02.jpg",
+  "page": 88,
+  "module": "M9",
+  "heading": "Safeguarding - avoid taking pictures without consent",
+  "type": "photo",
+  "kind": "photo",
+  "px": [
+   823,
+   530
+  ],
+  "bytes": 76269,
+  "source": "render crop at 200 dpi",
+  "box": [
+   631,
+   183,
+   1010,
+   424
+  ],
+  "note": ""
+ },
+ {
+  "file": "m9_p88_03.jpg",
+  "page": 88,
+  "module": "M9",
+  "heading": "Safeguarding - avoid bribery and corrupt practices",
+  "type": "photo",
+  "kind": "photo",
+  "px": [
+   778,
+   449
+  ],
+  "bytes": 50719,
+  "source": "render crop at 200 dpi",
+  "box": [
+   402,
+   435,
+   760,
+   638
+  ],
+  "note": ""
+ },
+ {
+  "file": "assets/logos/fmoh_federal_ministry_of_health.png",
+  "page": 1,
+  "logo": true,
+  "px": [
+   765,
+   287
+  ],
+  "bytes": 64766,
+  "source": "render crop at 300 dpi"
+ },
+ {
+  "file": "assets/logos/nphcda.png",
+  "page": 1,
+  "logo": true,
+  "px": [
+   351,
+   294
+  ],
+  "bytes": 60819,
+  "source": "render crop at 300 dpi"
+ },
+ {
+  "file": "assets/logos/sarmaan_ii_project.png",
+  "page": 1,
+  "logo": true,
+  "px": [
+   520,
+   207
+  ],
+  "bytes": 34027,
+  "source": "render crop at 300 dpi"
+ },
+ {
+  "file": "assets/logos/nimr.png",
+  "page": 1,
+  "logo": true,
+  "px": [
+   287,
+   262
+  ],
+  "bytes": 36903,
+  "source": "render crop at 300 dpi"
+ },
+ {
+  "file": "assets/logos/gates_foundation.png",
+  "page": 1,
+  "logo": true,
+  "px": [
+   412,
+   165
+  ],
+  "bytes": 33983,
+  "source": "render crop at 300 dpi"
+ },
+ {
+  "file": "assets/logos/malaria_consortium.png",
+  "page": 1,
+  "logo": true,
+  "px": [
+   494,
+   239
+  ],
+  "bytes": 50331,
+  "source": "render crop at 300 dpi"
+ },
+ {
+  "file": "assets/logos/nafdac_med_safety_app_icon.png",
+  "page": 64,
+  "logo": true,
+  "px": [
+   262,
+   320
+  ],
+  "bytes": 63505,
+  "source": "embedded original p64_e01.png"
+ }
+]

@@ -1,0 +1,155 @@
+# Open questions: HFW flipbook (items still undecided)
+
+Page numbers are HFW PDF pages; the printed page number is one lower.
+
+**Already decided, so removed from this list:**
+
+- **Module split:** audience per module, 17 modules. See `modules.csv` and `migration_plan.md`.
+- **Old modules:** the new modules are added alongside M1–M6.
+- **Credit:** given from old modules.
+- **Quiz length:** 10 questions per module.
+- **Import blockers:** solved by `alt_text.csv`, the importer patch and the import script.
+
+## A. Migration and launch
+
+**A1. Learning order during the migration window.**
+
+- The new modules are imported to come after M1–M6.
+- A module unlocks only when every earlier visible module is complete. So a learner who has not finished M1–M6 cannot start any HFW module, and a new learner has to do both sets.
+- Options:
+  1. Keep this order.
+  2. Put the HFW modules first, which locks M1–M6 behind them.
+  3. Archive M1–M6 for new learners at launch. This needs a small code change, because archiving is all-or-nothing per module.
+- **Decision needed.**
+
+**A2. A staging environment does not exist.**
+
+- `import_runbook.md` assumes one, restored from a production backup and with its own test APK.
+- **Decision needed:** where staging runs (a second EC2 instance in eu-north-1, or locally), and who signs it off.
+
+**A3. When the migration window ends.** This is the date the old modules are archived (`migration_plan.md` §5).
+
+**A4. No-credit modules.** HFW-05 (referral form) and HFW-12 (drug safety) get no credit under the "own section" rule. Confirm, or give credit from M3.
+
+**A5. Importer patch for translated alt text.**
+
+- It is on branch `importer-alt-text`, and not merged (`alt_text_importer_spec.md`).
+- Merge it before Hausa alt text is imported. It is not needed for the English import.
+
+**A6. Estimated durations.**
+
+- `modules.csv` estimates 15–30 minutes per module, 335 minutes in total. A learner sees only their own modules, so the total per role is CDD 265, Health worker 220, Monitor/supervisor 220, Other 185 and Logistician 180 minutes.
+- The estimate assumes reading at 80 words per minute, plus 0.5 min per picture, 1 min per table and 10 min for the two tests.
+- Confirm or adjust after the staging trial.
+
+## B. Clinician sign-off needed
+
+All values below match the PDF on the second-pass check (`verification_report.md`). They are open because the **content itself** looks questionable, not because it was copied wrongly.
+
+**B1. Height-based dosing table on the Child Record Card (p34).**
+- The doses run 2, 4, 6, 8, 10, 12, 14, 16, then **19** and **25 ml**.
+- The table starts at 50–53 cm, but it is labelled for 12–59 months.
+- It ends at 137–140 cm.
+
+**B2. Bottle arithmetic.**
+- The PDF says "each bottle of AZM will be used to reach 4 children" (p30), and to multiply empty bottles by 4 (p45).
+- But a bottle makes 30ml, and the height doses reach 8–25 ml.
+- Is "4 children per bottle" a planning average?
+
+**B3. Malnutrition and eligibility.**
+- The eligibility chart refers children with "mild/severe/acute malnutrition" (p16).
+- p13 and p15 exclude only SAM.
+- MAM is "Immediate referral to health facility for counselling" (p18).
+- Is a child with MAM (11.5–12.4 cm) given AZM?
+
+**B4. Crawl/sit age band.** The p11 text says 3–11 months; the p12 picture says 5–11 months.
+
+**B5. Integrated campaigns.** Call-in data for integrated campaigns uses 6–11 months (p42), while AZM starts at 1 month. How are 1–5 month olds counted?
+
+**B6. Repeat vomiting.** The book says to redose once if the child vomits within 5 minutes. It does not say what to do if the child vomits again.
+
+**B7. Partly used bottle.** Viability is now "2 to 3 days" (it was 2 days). Are there storage conditions?
+
+**B8. What SAE stands for.** "Severe adverse Reaction" (p3) or "Serious Adverse Event" (p63)?
+
+**B9. Allergy scope.** "Macrolide antibiotics" (p13) or "similar antibiotics" (elsewhere)?
+
+**B10. Quiz questions.** The 170 questions reuse these values and need the same sign-off.
+
+## C. Wording conflicts and typos
+
+**C1. Top priority: the safeguarding email.**
+- The PDF prints **concenrns@malariaconsortium.org** (p87).
+- Earlier materials use **concerns@malariaconsortium.org**.
+- The content uses the PDF spelling. Confirm before publishing.
+
+**C2. House-mark code (p35–36).**
+- The rule says "CDD team code (4 digits)", but every example uses 56708 (5 digits).
+- `021` (the house number in the CDD book) is no longer explained.
+- An R/C example appears, but R/C is not in the status list.
+- The photo shows AZM/25/1, with a 6 pasted over the 5.
+
+**C3. Round numbering.**
+- House mark: rounds 1–6 (p36).
+- Referral form: rounds 1–6 in the CDD part, 1–2 in the health-facility part (p26).
+- Child Record Card: round 1 or 2 per year (p34, p50).
+
+**C4. Two Child Record Card versions** (p34, p49). "Last Polio" (p51) is on neither card.
+
+**C5. Two data systems.** Kobo Collect (MUAC p17, call-in data p42) and DIGIT HCM (treatment).
+
+**C6. "Seasonal Malaria Chemoprevention (SMS)" (p8).** The acronym was left out of the app text. Restore it?
+
+**C7. Printed oddities kept as they are.**
+- The referral-form age box reads "1 11 month:"; no dash is visible at 600 dpi (p26).
+- The card message is cut off: "…during all" (p34).
+- Contents page numbers are one too low from M4 onwards (p2).
+
+**C8. Spelling corrected in the app text (9).** Please review:
+
+| Page | Printed | In the app text |
+|---|---|---|
+| p13 | "Do NT give" | "Do NOT give" |
+| p15 | "Visible sever wasting" | "severe" |
+| p17 | "MAUC" | "MUAC" |
+| p34 | "doing strategy (age of height-based)" | "dosing strategy: age-based or height-based" |
+| p35 | "later 'R'" | "letter 'R'" |
+| p64 | "a free smart phone for reporting" | "a free smartphone app" |
+| p68 | "How was the medium administered" | "How administered" |
+| p80 | "DIGIT GCM" | "DIGIT HCM" |
+| p83 | "medicined" | "medicines" |
+
+"Lots Quality Assurance Sampling" and "Severe adverse Reaction" stay as printed.
+
+**C9. p88 photo captions.** Camera and phone photos are matched to "Avoid taking pictures without consent"; the money photo to "Avoid bribery…".
+
+**C10. The PV form** is mentioned on p22 but not shown in the PDF.
+
+## D. Image rights and consent
+
+Details are in the `rights_or_consent_flag` column of `images_manifest.csv`.
+
+- **Getty Images credit:** visible on `m9_p88_03.jpg` (Dan Kitwood/Getty Images).
+- **AI-generator sparkle watermark:** on 7 images: `m1_p05_01`, `m2_p09_01`, `m3_p21_01`, `m4_p39_01`, `m4_p41_01`, `m6_p73_01` and `m8_p81_01`.
+- **Identifiable children and adults:** `m4_p28_01`, `m9_p84_01`, `m7_p77_01`, `m2_p20_01`, `m4_p35_01` (edited) and `m5_p66_01`.
+- **Third-party marks:** UNICEF (`m2_p20_02`), "GLOBAL" on the truck (`m8_p81_01`), and Malaria Consortium inside `m4_p60_01`.
+- **Privacy:** the NAFDAC screenshot shows someone's browser bookmarks (`m5_p64_01`). Recapture it.
+
+## E. Unreadable or incomplete in the source
+
+- **p20:** the MUAC tape's millimetre labels are unreadable.
+- **p64:** the NAFDAC screenshot's URL and tabs are unreadable.
+- **p49:** the second card version is a 403 px raster with one line hidden.
+- **p39, p41, p77:** background signage is illegible.
+- **p14:** the fifth "NOT Eligible" picture has no label.
+- **p66:** an empty blue box sits under the photo.
+- **p33:** there is no positioning picture.
+
+## F. Hausa: not started
+
+Hausa starts only after the module split is approved and a clinician signs off the English.
+
+- No glossary file exists. The Hausa in `module_ha_*.csv` will serve as the glossary.
+- "Cup" will be "kofi" (not "kwafi"), flagged for native review.
+- Codes, numbers, app names, the URL and the email stay untranslated.
+- Alt text is translated in `<language>/alt_text.csv`. Loading it needs the `importer-alt-text` patch.

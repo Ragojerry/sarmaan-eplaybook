@@ -1,0 +1,18 @@
+﻿learning_order,module_code,title,description,audience,learner_roles,roles_display,estimated_minutes,reading_words,sections,images,image_kb,quiz_questions,pdf_pages,credit_from_old_module
+1,HFW-01,Introduction to Azithromycin (AZM),"What AZM is, who receives it, how often, and how it is delivered.",GENERAL,,ALL (GENERAL),20,361,22,2,245,10,1-8,M1
+2,HFW-02,Eligibility for AZM,"Which children can receive AZM, how to estimate age, and who must not receive it.",GENERAL,,ALL (GENERAL),30,883,33,6,1467,10,9-16,M2
+3,HFW-03,MUAC Nutrition Assessment,Measuring MUAC on children 6-59 months and acting on the result.,ROLE_SPECIFIC,CDD,CDD,20,243,11,4,824,10,17-20,M2
+4,HFW-04,Referral of Children to the Health Facility,"When to refer a child, signs of allergy, and the referral steps.",GENERAL,,ALL (GENERAL),20,436,23,6,829,10,21-27,M3
+5,HFW-05,The AZM Referral Form,Completing the CDD and health facility parts of the AZM referral form.,ROLE_SPECIFIC,CDD;HEALTH_WORKER,CDD;HEALTH_WORKER,15,354,9,1,573,10,26-26,none (new content)
+6,HFW-06,Giving AZM Safely,"Preparing AZM POS, dosing by age and height, giving the dose and observing the child.",GENERAL,,ALL (GENERAL),25,641,23,2,490,10,28-33,M4
+7,HFW-07,The AZM Child Record Card,What the card records and how to complete each part of it.,ROLE_SPECIFIC,CDD,CDD,30,928,26,2,840,10,34-54,M4
+8,HFW-08,House Marking,"Why and how houses are marked, and how to read a house mark.",ROLE_SPECIFIC,CDD;MONITOR_SUPERVISOR,CDD;MONITOR_SUPERVISOR,15,179,6,1,177,10,35-36,M4
+9,HFW-09,Call-in Data Reporting,"Daily call-in data: what it is, who submits and validates it, and how to keep it accurate.",ROLE_SPECIFIC,CDD;HEALTH_WORKER;MONITOR_SUPERVISOR;OTHER,CDD;HEALTH_WORKER;MONITOR_SUPERVISOR;OTHER,20,445,14,2,317,10,37-42,none (new content)
+10,HFW-10,Drug Accountability and Reconciliation,"Issuing, counting, reconciling, storing and returning AZM bottles at the health facility.",ROLE_SPECIFIC,CDD;HEALTH_WORKER;LOGISTICIAN,CDD;HEALTH_WORKER;LOGISTICIAN,15,308,7,1,122,10,43-46,M4
+11,HFW-11,Cohort Tracking,"Following the same children across rounds, and who does what with the data.",ROLE_SPECIFIC,MONITOR_SUPERVISOR;OTHER,MONITOR_SUPERVISOR;OTHER,15,233,8,2,192,10,55-60,M4
+12,HFW-12,Drug Safety and Side Effects,"Side effects, adverse events and serious adverse events, and why they are reported.",GENERAL,,ALL (GENERAL),15,159,6,1,140,10,61-63,none (new content)
+13,HFW-13,NAFDAC Reporting and the Role of DSNOs,"Reporting suspected ADRs with the Med Safety app and the e-reporting link, and the DSNO role.",ROLE_SPECIFIC,HEALTH_WORKER,HEALTH_WORKER,20,720,21,2,105,10,64-72,none (new content)
+14,HFW-14,Interpersonal Communication and SBC,Good communication with caregivers and the SBC methods used in the AZM campaign.,GENERAL,,ALL (GENERAL),20,287,11,1,43,10,73-76,M5
+15,HFW-15,Monitoring and Supervision,"What supervisors do, the levels of supervision, and the competencies they must show.",ROLE_SPECIFIC,MONITOR_SUPERVISOR,MONITOR_SUPERVISOR,20,322,10,1,201,10,77-80,none (new content)
+16,HFW-16,Supply Chain Management,What supply chain management means for AZM and how to manage AZM supplies.,ROLE_SPECIFIC,LOGISTICIAN,LOGISTICIAN,15,107,7,1,123,10,81-83,none (new content)
+17,HFW-17,Safeguarding,"Protecting children and vulnerable adults during the AZM campaign, and reporting concerns.",GENERAL,,ALL (GENERAL),20,362,17,4,380,10,84-88,M6

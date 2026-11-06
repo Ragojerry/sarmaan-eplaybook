@@ -1,0 +1,222 @@
+{
+ "HFW-01": {
+  "title": "Introduction to Azithromycin (AZM)",
+  "audience": "GENERAL",
+  "roles": [],
+  "sections": 22,
+  "minutes": 20,
+  "image_kb": 245,
+  "quiz": 10,
+  "credit_from": [
+   "M1"
+  ]
+ },
+ "HFW-02": {
+  "title": "Eligibility for AZM",
+  "audience": "GENERAL",
+  "roles": [],
+  "sections": 33,
+  "minutes": 30,
+  "image_kb": 1467,
+  "quiz": 10,
+  "credit_from": [
+   "M2"
+  ]
+ },
+ "HFW-03": {
+  "title": "MUAC Nutrition Assessment",
+  "audience": "ROLE_SPECIFIC",
+  "roles": [
+   "CDD"
+  ],
+  "sections": 11,
+  "minutes": 20,
+  "image_kb": 824,
+  "quiz": 10,
+  "credit_from": [
+   "M2"
+  ]
+ },
+ "HFW-04": {
+  "title": "Referral of Children to the Health Facility",
+  "audience": "GENERAL",
+  "roles": [],
+  "sections": 23,
+  "minutes": 20,
+  "image_kb": 829,
+  "quiz": 10,
+  "credit_from": [
+   "M3"
+  ]
+ },
+ "HFW-05": {
+  "title": "The AZM Referral Form",
+  "audience": "ROLE_SPECIFIC",
+  "roles": [
+   "CDD",
+   "HEALTH_WORKER"
+  ],
+  "sections": 9,
+  "minutes": 15,
+  "image_kb": 573,
+  "quiz": 10,
+  "credit_from": []
+ },
+ "HFW-06": {
+  "title": "Giving AZM Safely",
+  "audience": "GENERAL",
+  "roles": [],
+  "sections": 23,
+  "minutes": 25,
+  "image_kb": 490,
+  "quiz": 10,
+  "credit_from": [
+   "M4"
+  ]
+ },
+ "HFW-07": {
+  "title": "The AZM Child Record Card",
+  "audience": "ROLE_SPECIFIC",
+  "roles": [
+   "CDD"
+  ],
+  "sections": 26,
+  "minutes": 30,
+  "image_kb": 840,
+  "quiz": 10,
+  "credit_from": [
+   "M4"
+  ]
+ },
+ "HFW-08": {
+  "title": "House Marking",
+  "audience": "ROLE_SPECIFIC",
+  "roles": [
+   "CDD",
+   "MONITOR_SUPERVISOR"
+  ],
+  "sections": 6,
+  "minutes": 15,
+  "image_kb": 177,
+  "quiz": 10,
+  "credit_from": [
+   "M4"
+  ]
+ },
+ "HFW-09": {
+  "title": "Call-in Data Reporting",
+  "audience": "ROLE_SPECIFIC",
+  "roles": [
+   "CDD",
+   "HEALTH_WORKER",
+   "MONITOR_SUPERVISOR",
+   "OTHER"
+  ],
+  "sections": 14,
+  "minutes": 20,
+  "image_kb": 317,
+  "quiz": 10,
+  "credit_from": []
+ },
+ "HFW-10": {
+  "title": "Drug Accountability and Reconciliation",
+  "audience": "ROLE_SPECIFIC",
+  "roles": [
+   "CDD",
+   "HEALTH_WORKER",
+   "LOGISTICIAN"
+  ],
+  "sections": 7,
+  "minutes": 15,
+  "image_kb": 122,
+  "quiz": 10,
+  "credit_from": [
+   "M4"
+  ]
+ },
+ "HFW-11": {
+  "title": "Cohort Tracking",
+  "audience": "ROLE_SPECIFIC",
+  "roles": [
+   "MONITOR_SUPERVISOR",
+   "OTHER"
+  ],
+  "sections": 8,
+  "minutes": 15,
+  "image_kb": 192,
+  "quiz": 10,
+  "credit_from": [
+   "M4"
+  ]
+ },
+ "HFW-12": {
+  "title": "Drug Safety and Side Effects",
+  "audience": "GENERAL",
+  "roles": [],
+  "sections": 6,
+  "minutes": 15,
+  "image_kb": 140,
+  "quiz": 10,
+  "credit_from": []
+ },
+ "HFW-13": {
+  "title": "NAFDAC Reporting and the Role of DSNOs",
+  "audience": "ROLE_SPECIFIC",
+  "roles": [
+   "HEALTH_WORKER"
+  ],
+  "sections": 21,
+  "minutes": 20,
+  "image_kb": 105,
+  "quiz": 10,
+  "credit_from": []
+ },
+ "HFW-14": {
+  "title": "Interpersonal Communication and SBC",
+  "audience": "GENERAL",
+  "roles": [],
+  "sections": 11,
+  "minutes": 20,
+  "image_kb": 43,
+  "quiz": 10,
+  "credit_from": [
+   "M5"
+  ]
+ },
+ "HFW-15": {
+  "title": "Monitoring and Supervision",
+  "audience": "ROLE_SPECIFIC",
+  "roles": [
+   "MONITOR_SUPERVISOR"
+  ],
+  "sections": 10,
+  "minutes": 20,
+  "image_kb": 201,
+  "quiz": 10,
+  "credit_from": []
+ },
+ "HFW-16": {
+  "title": "Supply Chain Management",
+  "audience": "ROLE_SPECIFIC",
+  "roles": [
+   "LOGISTICIAN"
+  ],
+  "sections": 7,
+  "minutes": 15,
+  "image_kb": 123,
+  "quiz": 10,
+  "credit_from": []
+ },
+ "HFW-17": {
+  "title": "Safeguarding",
+  "audience": "GENERAL",
+  "roles": [],
+  "sections": 17,
+  "minutes": 20,
+  "image_kb": 380,
+  "quiz": 10,
+  "credit_from": [
+   "M6"
+  ]
+ }
+}

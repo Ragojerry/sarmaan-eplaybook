@@ -1,0 +1,276 @@
+page,embedded_file,px,bbox_pt,hash,mapped_to
+1,p01_e00.png,562x588,571.5;205.4;841.6;487.4,b94af250e8,part of m1_p01_01.png
+1,p01_e01.png,574x573,574.5;241.4;789.8;456.6,367c3331b1,part of m1_p01_01.png
+1,p01_e02.png,173x277,624.0;278.1;720.8;433.4,9a57d3e725,part of m1_p01_01.png
+1,p01_e03.png,101x73,356.8;81.1;393.3;107.7,2ada5ec723,logo: assets/logos/sarmaan_ii_project.png
+1,p01_e04.png,316x150,647.3;67.4;761.1;121.4,e3b0f75667,logo: assets/logos/malaria_consortium.png
+1,p01_e05.png,272x95,547.0;77.1;645.2;111.7,a008970d04,logo: assets/logos/gates_foundation.png
+5,p05_e00.png,895x1150,-0.0;-0.2;463.6;594.6,5a2aea2721,part of m1_p05_01.jpg
+5,p05_e01.png,83x57,411.3;551.6;454.4;581.3,178493e102,part of m1_p05_01.jpg
+9,p09_e00.png,895x1150,-0.0;-0.2;463.6;594.6,80cfcbcd6e,part of m2_p09_01.jpg
+9,p09_e01.png,23x22,429.6;570.6;441.5;582.2,86f00bd7fc,part of m2_p09_01.jpg
+9,p09_e02.png,46x60,421.3;540.7;448.9;571.9,0613b0ab5c,part of m2_p09_01.jpg
+12,p12_e00.png,202x127,143.0;199.2;215.9;244.9,30b3639fcc,part of m2_p12_01.png
+12,p12_e01.png,166x129,472.1;188.1;552.1;250.2,92a20a72e2,part of m2_p12_01.png
+12,p12_e02.png,81x168,583.2;341.7;641.7;450.3,83015ab266,part of m2_p12_02.png
+12,p12_e03.png,232x222,319.6;161.8;403.4;242.0,3e3a08f6ab,part of m2_p12_01.png
+12,p12_e04.png,124x129,194.9;388.3;278.5;472.9,28e94b9f4a,part of m2_p12_02.png
+12,p12_e05.png,98x207,251.9;375.4;299.1;474.9,33069ff579,part of m2_p12_02.png
+12,p12_e06.png,136x192,392.0;336.4;463.3;441.9,fda38a24d4,part of m2_p12_02.png
+12,p12_e07.png,456x285,617.1;154.9;781.4;257.7,864a1540c7,part of m2_p12_01.png
+14,p14_e00.png,117x97,157.5;178.7;213.5;225.4,f9dcf094be,part of m2_p14_01.png
+14,p14_e01.png,218x137,266.3;177.2;344.8;226.7,7636bdbcbc,part of m2_p14_01.png
+14,p14_e02.png,178x139,369.2;161.4;454.7;227.9,dced96d7ab,part of m2_p14_01.png
+14,p14_e03.png,81x219,662.1;134.7;702.8;239.5,8d61afd093,part of m2_p14_01.png
+14,p14_e04.png,495x310,471.2;136.3;649.5;247.9,1f7c50312a,part of m2_p14_01.png
+14,p14_e05.png,1546x250,170.7;302.8;727.3;393.0,64166e1d26,part of m2_p14_02.png
+16,p16_e00.png,240x120,167.7;435.2;282.8;492.9,e9cb31e4c8,part of m2_p16_01.png
+16,p16_e01.png,86x108,289.2;177.2;330.7;229.1,d9e0c8ec77,part of m2_p16_01.png
+16,p16_e02.png,54x144,344.4;167.2;370.6;236.5,5e0d08749d,part of m2_p16_01.png
+16,p16_e03.png,171x149,103.6;376.3;165.5;430.2,ecd9381577,part of m2_p16_01.png
+16,p16_e04.png,192x151,234.9;375.6;304.3;430.2,655ffc7cc2,part of m2_p16_01.png
+16,p16_e05.png,186x152,165.8;375.2;233.0;430.2,91498763f5,part of m2_p16_01.png
+16,p16_e06.png,226x167,215.2;242.4;296.7;302.5,178e2818b3,part of m2_p16_01.png
+16,p16_e07.png,226x168,215.2;306.1;296.7;366.7,05d297fee1,part of m2_p16_01.png
+16,p16_e08.png,331x95,166.5;187.3;285.9;221.7,d9acdebcc2,part of m2_p16_01.png
+18,p18_e00.png,1830x897,91.8;136.2;750.8;459.3,4a11678de2,part of m2_p18_01.png
+19,p19_e00.png,1390x1097,109.7;51.1;732.4;542.6,77b0876f55,part of m2_p19_01.jpg
+20,p20_e00.png,325x318,119.1;77.4;345.9;469.9,d722beed44,part of m2_p20_01.jpg
+20,p20_e01.png,623x104,351.5;198.1;799.5;333.6,67d8fef12c,part of m2_p20_02.png
+21,p21_e00.png,895x1151,-0.0;-0.2;463.6;594.6,1881bbb3e1,part of m3_p21_01.jpg
+21,p21_e01.png,48x82,422.5;550.1;454.2;592.6,e74cd115df,part of m3_p21_01.jpg
+22,p22_e00.png,757x974,474.8;159.7;747.5;510.7,06793d9b08,"excluded: duplicate of the M3 cover photo m3_p21_01 (same picture, smaller); not shipped twice"
+23,p23_e00.png,125x191,665.3;318.2;728.6;420.0,e6fdec6400,part of m3_p23_02.png
+23,p23_e01.png,143x184,659.2;129.1;729.7;236.7,0069cb9483,part of m3_p23_01.png
+24,p24_e00.png,984x244,417.0;311.6;771.6;399.7,ac46bcac81,part of m3_p24_02.png
+24,p24_e01.png,752x206,518.8;233.1;789.6;307.4,fdc202bdf1,part of m3_p24_01.png
+25,p25_e00.png,165x156,181.0;409.0;260.0;483.7,d8e57e475c,part of m3_p25_01.png
+25,p25_e01.png,165x180,395.3;396.1;474.3;482.4,59ae6d1699,part of m3_p25_01.png
+25,p25_e02.png,215x179,589.4;396.1;692.5;482.1,8677265e25,part of m3_p25_01.png
+26,p26_e00.png,150x14,160.7;193.9;217.0;199.1,b43244d42d,part of m3_p26_01.png
+26,p26_e01.png,60x7,190.0;238.1;213.2;241.1,37acdde98f,part of m3_p26_01.png
+26,p26_e02.png,69x27,185.5;222.4;211.0;232.1,4362c560e0,part of m3_p26_01.png
+26,p26_e03.png,77x7,160.7;289.9;189.2;292.9,4f6da339d2,part of m3_p26_01.png
+26,p26_e04.png,47x12,132.2;275.6;150.2;279.4,6e43f228ed,part of m3_p26_01.png
+26,p26_e05.png,122x10,98.5;211.9;144.3;215.6,b82b0fa3c1,part of m3_p26_01.png
+26,p26_e06.png,67x9,100.0;222.4;124.7;225.4,5accd73719,part of m3_p26_01.png
+26,p26_e07.png,66x11,153.2;222.4;178.0;226.1,57ad6b2e28,part of m3_p26_01.png
+26,p26_e08.png,43x28,229.0;222.4;245.5;232.1,13930c2887,part of m3_p26_01.png
+26,p26_e09.png,21x8,234.2;238.1;241.7;240.4,8b660ef6cc,part of m3_p26_01.png
+26,p26_e10.png,26x8,99.2;246.4;109.7;249.4,498739e5ac,part of m3_p26_01.png
+26,p26_e11.png,28x8,185.5;245.6;196.0;249.4,0514081584,part of m3_p26_01.png
+26,p26_e12.png,54x8,229.0;245.6;249.2;249.4,d06bf48547,part of m3_p26_01.png
+26,p26_e13.png,195x29,100.0;259.9;172.8;270.4,2941be7e70,part of m3_p26_01.png
+26,p26_e14.png,162x10,185.5;259.9;246.3;263.6,a9b9762121,part of m3_p26_01.png
+26,p26_e15.png,120x28,100.0;283.1;144.3;293.6,3d943be3e2,part of m3_p26_01.png
+26,p26_e16.png,426x30,103.0;299.6;262.8;310.1,f34e91a817,part of m3_p26_01.png
+26,p26_e17.png,47x12,106.7;275.6;124.7;279.4,11986334b9,part of m3_p26_01.png
+26,p26_e18.png,194x9,97.7;316.9;171.3;319.9,ceea583e98,part of m3_p26_01.png
+26,p26_e19.png,106x8,91.0;325.1;131.5;328.1,49ae96932e,part of m3_p26_01.png
+26,p26_e20.png,55x8,164.5;325.1;184.7;328.1,e61b62528b,part of m3_p26_01.png
+26,p26_e21.png,106x10,215.5;325.1;255.3;328.9,098c6bcf9d,part of m3_p26_01.png
+26,p26_e22.png,408x29,94.7;466.1;247.8;476.6,f432c1a8b4,part of m3_p26_01.png
+26,p26_e23.png,150x9,92.5;333.4;148.8;337.1,d7f4047414,part of m3_p26_01.png
+26,p26_e24.png,440x83,105.2;342.3;270.3;372.3,e7f5410089,part of m3_p26_01.png
+26,p26_e25.png,411x91,91.0;376.1;245.5;410.6,9e456e28a7,part of m3_p26_01.png
+26,p26_e26.png,277x59,91.0;416.6;195.3;438.3,2bd258e763,part of m3_p26_01.png
+26,p26_e27.png,43x8,91.0;450.3;107.5;452.6,9203945227,part of m3_p26_01.png
+26,p26_e28.png,443x9,105.2;202.9;271.8;206.6,d8c5a597f9,part of m3_p26_01.png
+26,p26_e29.png,275x26,99.2;436.1;202.0;445.8,c4932cd92e,part of m3_p26_01.png
+26,p26_e30.png,220x12,154.0;275.6;237.3;279.4,4b65fbb8bf,part of m3_p26_01.png
+26,p26_e31.png,82x6,211.0;291.4;241.7;293.6,a43c7a301a,part of m3_p26_01.png
+26,p26_e32.png,63x27,249.2;169.9;279.2;183.4,5ee4d4e1fc,part of m3_p26_01.png
+26,p26_e33.png,96x32,168.2;168.4;214.0;184.1,10b0675eac,part of m3_p26_01.png
+26,p26_e34.png,65x21,220.0;172.9;244.0;180.4,dac1fd661d,part of m3_p26_01.png
+26,p26_e35.png,65x29,137.5;175.9;161.5;187.1,11b2afd17c,part of m3_p26_01.png
+26,p26_e36.png,31x18,144.2;171.4;156.2;178.1,8528e2a44d,part of m3_p26_01.png
+26,p26_e37.png,44x45,93.2;168.4;109.7;184.9,3906a303e2,part of m3_p26_01.png
+28,p28_e00.png,809x1078,78.7;-0.2;478.6;593.8,88819ed2d4,part of m4_p28_01.jpg
+28,p28_e01.png,120x91,292.5;404.1;336.0;437.1,7943b2c17f,part of m4_p28_01.jpg
+29,p29_e00.png,35x36,127.2;287.1;140.0;300.2,258a4d4277,furniture: bullet arrow
+30,p30_e00.png,219x207,650.8;350.1;765.1;458.1,0ff186f548,part of m4_p30_01.png
+30,p30_e01.png,450x337,320.3;340.5;482.6;462.1,be65c9d683,part of m4_p30_01.png
+30,p30_e02.png,143x257,125.2;367.9;176.9;460.5,a9ddc4ecc4,part of m4_p30_01.png
+30,p30_e03.png,135x141,231.2;365.1;295.9;432.8,3b691ce696,part of m4_p30_01.png
+30,p30_e04.png,97x113,264.2;412.3;310.9;466.4,4abe8d8136,part of m4_p30_01.png
+30,p30_e05.png,178x230,509.1;349.6;594.7;459.8,31203ba227,part of m4_p30_01.png
+34,p34_e00.png,213x1584,-0.0;0.6;80.3;594.6,cdd2b20e8f,furniture: side bar
+34,p34_e01.png,1714x9,130.5;109.9;765.2;113.6,22d3291cd7,furniture: header/footer rule or band
+34,p34_e02.png,342x8,597.7;180.4;726.0;183.4,c9649bf710,part of m4_p34_01.png
+34,p34_e03.png,154x10,525.7;230.6;583.5;234.4,97b8f5bc60,part of m4_p34_01.png
+34,p34_e04.png,25x9,528.0;241.9;537.0;244.9,b04e62b40a,part of m4_p34_01.png
+34,p34_e05.png,34x9,561.7;241.1;574.5;244.9,b60d3624f0,part of m4_p34_01.png
+34,p34_e06.png,283x8,609.0;440.5;715.5;443.5,a84337bfb5,part of m4_p34_01.png
+34,p34_e07.png,268x9,612.0;448.8;712.5;452.5,021f59f460,part of m4_p34_01.png
+34,p34_e08.png,28x7,609.7;461.5;620.3;463.8,879f43aef4,part of m4_p34_01.png
+34,p34_e09.png,20x6,564.7;461.5;572.3;463.8,51a61e6a47,part of m4_p34_01.png
+34,p34_e10.png,95x19,640.5;459.3;675.8;466.0,fbbddaeecb,part of m4_p34_01.png
+34,p34_e11.png,42x9,696.7;461.5;712.5;464.5,998c4bc777,part of m4_p34_01.png
+34,p34_e12.png,80x7,735.7;461.5;765.8;463.8,47beae7f5a,part of m4_p34_01.png
+34,p34_e13.png,54x28,600.0;247.9;620.3;258.4,0548474eae,part of m4_p34_01.png
+34,p34_e14.png,79x25,648.7;245.6;678.0;254.6,004b28f13a,part of m4_p34_01.png
+34,p34_e15.png,41x25,684.7;242.6;700.5;251.6,3602a40882,part of m4_p34_01.png
+34,p34_e16.png,29x27,710.2;245.6;721.5;256.1,2cf2b020c3,part of m4_p34_01.png
+34,p34_e17.png,79x24,731.2;245.6;760.5;254.6,1744a4e9bd,part of m4_p34_01.png
+34,p34_e18.png,710x59,521.2;157.1;777.8;178.1,985348f76b,part of m4_p34_01.png
+34,p34_e19.png,709x48,521.2;158.6;777.1;176.6,3710faf12d,part of m4_p34_01.png
+34,p34_e20.png,649x26,528.7;163.1;771.8;173.6,44f225cf38,part of m4_p34_01.png
+34,p34_e21.png,88x38,720.0;130.9;762.0;149.6,4f8c28519f,part of m4_p34_01.png
+34,p34_e22.png,133x45,648.0;129.4;711.8;151.1,c9a4a73440,part of m4_p34_01.png
+34,p34_e23.png,52x47,612.7;130.1;632.3;148.1,92f32ea5fa,part of m4_p34_01.png
+34,p34_e24.png,89x40,606.0;139.1;639.8;154.1,ab3515662c,part of m4_p34_01.png
+34,p34_e25.png,66x67,610.5;125.6;635.3;150.4,7f3a9ba8a5,part of m4_p34_01.png
+34,p34_e26.png,19x9,619.5;139.1;626.3;142.9,29389b5bfd,part of m4_p34_01.png
+34,p34_e27.png,49x46,546.0;131.6;564.0;148.9,ed5dcbbbcb,part of m4_p34_01.png
+35,p35_e00.png,685x533,475.5;116.9;804.1;472.4,3e087975a4,part of m4_p35_01.jpg
+35,p35_e01.png,30x87,690.7;193.4;702.0;225.7,533ac2e5d2,part of m4_p35_01.jpg
+36,p36_e00.png,22x40,211.8;223.4;219.9;238.1,68dd3be867,furniture: bullet arrow
+36,p36_e01.png,22x40,255.1;223.4;263.1;238.1,be7174006f,furniture: bullet arrow
+38,p38_e00.png,1036x115,29.2;59.4;806.5;145.6,16e186a26a,furniture: Teal header band with dot grid (raster)
+38,p38_e01.png,1123x12,-0.0;586.3;842.5;595.3,91f17dfb26,furniture: Blue gradient footer band (raster)
+38,p38_e02.png,39x41,36.5;218.3;50.7;232.5,8be87087cb,furniture: Bullet arrow icon (raster)
+38,p38_e03.png,39x41,36.5;252.8;50.7;267.0,8be87087cb,furniture: Bullet arrow icon (raster)
+38,p38_e04.png,39x41,36.5;286.5;50.7;300.8,8be87087cb,furniture: Bullet arrow icon (raster)
+38,p38_e05.png,39x41,36.5;320.3;50.7;334.5,8be87087cb,furniture: Bullet arrow icon (raster)
+38,p38_e06.png,33x35,447.6;215.3;459.6;228.0,195738efcd,furniture: bullet arrow
+39,p39_e00.png,1123x12,-0.0;586.3;842.5;595.3,91f17dfb26,furniture: Blue gradient footer band (raster)
+39,p39_e01.png,1060x1056,435.7;147.8;817.6;528.1,7407799b95,part of m4_p39_01.jpg
+40,p40_e00.png,1036x115,29.2;51.7;806.5;137.9,16e186a26a,furniture: Teal header band with dot grid (raster)
+40,p40_e01.png,1123x12,-0.0;586.3;842.5;595.3,91f17dfb26,furniture: Blue gradient footer band (raster)
+40,p40_e02.png,25x25,42.4;182.9;51.4;192.0,252ed431e9,furniture: bullet arrow
+40,p40_e03.png,25x25,42.4;339.1;51.4;348.2,e5089345aa,furniture: bullet arrow
+40,p40_e04.png,25x25,42.4;356.5;51.4;365.6,4f0bf9f0d3,furniture: bullet arrow
+40,p40_e05.png,25x25,42.4;374.6;51.4;383.7,94e6ea4fe2,furniture: bullet arrow
+40,p40_e06.png,25x25,42.4;392.8;51.4;401.8,5511c75654,furniture: bullet arrow
+40,p40_e07.png,25x25,42.4;410.2;51.4;419.3,45ab487ab7,furniture: bullet arrow
+40,p40_e08.png,25x25,42.4;456.2;51.4;465.3,6ebc3fed41,furniture: bullet arrow
+40,p40_e09.png,25x25,42.4;473.6;51.4;482.7,d1640800a9,furniture: bullet arrow
+40,p40_e10.png,25x25,42.4;491.8;51.4;500.8,bcdffc7773,furniture: bullet arrow
+40,p40_e11.png,25x25,42.4;509.2;51.4;518.3,d2a9a50785,furniture: bullet arrow
+40,p40_e12.png,25x25,42.4;527.3;51.4;536.4,f51ff9172c,furniture: bullet arrow
+40,p40_e13.png,29x29,425.0;169.7;435.5;180.1,979b4d5266,furniture: bullet arrow
+40,p40_e14.png,29x29,425.0;189.2;435.5;199.7,337d84ae5e,furniture: bullet arrow
+40,p40_e15.png,29x29,425.0;209.4;435.5;219.9,44621b1921,furniture: bullet arrow
+40,p40_e16.png,29x29,425.0;229.6;435.5;240.1,7b49edbf66,furniture: bullet arrow
+40,p40_e17.png,29x29,425.0;249.9;435.5;260.3,abc92fab22,furniture: bullet arrow
+40,p40_e18.png,29x29,425.0;311.9;435.5;322.4,76665c7a3c,furniture: bullet arrow
+40,p40_e19.png,29x29,425.0;332.1;435.5;342.6,12061ebe05,furniture: bullet arrow
+40,p40_e20.png,29x29,425.0;371.9;435.5;382.3,7aaa1c2f98,furniture: bullet arrow
+40,p40_e21.png,29x29,425.0;412.3;435.5;422.7,c1c3b98d32,furniture: bullet arrow
+40,p40_e22.png,29x29,425.0;452.7;435.5;463.2,3b1526c183,furniture: bullet arrow
+40,p40_e23.png,29x29,425.0;492.5;435.5;502.9,e15242ac0b,furniture: bullet arrow
+41,p41_e00.png,1036x115,29.2;59.7;806.5;146.0,16e186a26a,furniture: Teal header band with dot grid (raster)
+41,p41_e01.png,1123x12,-0.0;586.3;842.5;595.3,91f17dfb26,furniture: Blue gradient footer band (raster)
+41,p41_e02.png,31x31,43.8;184.1;55.0;195.3,29504fbbbc,furniture: bullet arrow
+41,p41_e03.png,31x31,43.8;205.8;55.0;217.1,070ce22ceb,furniture: bullet arrow
+41,p41_e04.png,31x31,43.8;227.6;55.0;238.8,cb5f0c5d22,furniture: bullet arrow
+41,p41_e05.png,31x31,43.8;249.3;55.0;260.6,b23c636d87,furniture: bullet arrow
+41,p41_e06.png,31x31,43.8;271.1;55.0;282.3,83397de1cb,furniture: bullet arrow
+41,p41_e07.png,31x31,43.8;347.5;55.0;358.8,5d9acc0da0,furniture: bullet arrow
+41,p41_e08.png,31x31,43.8;369.3;55.0;380.5,a2fc2d1570,furniture: bullet arrow
+41,p41_e09.png,31x31,43.8;390.3;55.0;401.5,da7a4c0f64,furniture: bullet arrow
+41,p41_e10.png,31x31,43.8;433.8;55.0;445.0,b73d4e6a24,furniture: bullet arrow
+41,p41_e11.png,31x31,43.8;477.2;55.0;488.5,0adca11108,furniture: bullet arrow
+41,p41_e12.png,512x279,477.0;167.4;771.1;408.9,64d58dba57,part of m4_p41_01.jpg
+42,p42_e00.png,1036x115,-0.0;51.1;842.5;137.3,16e186a26a,furniture: Teal header band with dot grid (raster)
+42,p42_e01.png,1123x12,-0.0;586.3;842.5;595.3,91f17dfb26,furniture: Blue gradient footer band (raster)
+43,p43_e00.png,794x91,-0.0;0.0;68.3;595.7,88589072d0,furniture: Section-title side panel (raster)
+43,p43_e01.png,1062x895,444.0;107.9;826.6;430.4,1e8aff60c6,part of m4_p43_01.jpg
+44,p44_e00.png,1036x115,29.2;55.0;806.5;141.2,16e186a26a,furniture: Teal header band with dot grid (raster)
+44,p44_e01.png,1123x12,-0.0;586.3;842.5;595.3,91f17dfb26,furniture: Blue gradient footer band (raster)
+45,p45_e00.png,1123x12,-0.0;586.3;842.5;595.3,91f17dfb26,furniture: Blue gradient footer band (raster)
+46,p46_e00.png,1036x115,29.2;53.3;806.5;139.6,16e186a26a,furniture: Teal header band with dot grid (raster)
+46,p46_e01.png,1123x12,-0.0;586.3;842.5;595.3,91f17dfb26,furniture: Blue gradient footer band (raster)
+47,p47_e00.png,794x91,-0.0;0.0;68.3;595.7,88589072d0,furniture: Section-title side panel (raster)
+48,p48_e00.png,1036x115,29.2;59.9;806.5;146.1,16e186a26a,furniture: Teal header band with dot grid (raster)
+48,p48_e01.png,1123x12,-0.0;586.3;842.5;595.3,91f17dfb26,furniture: Blue gradient footer band (raster)
+48,p48_e02.png,39x41,36.5;205.8;50.7;220.8,8be87087cb,furniture: Bullet arrow icon (raster)
+48,p48_e03.png,39x41,36.5;241.1;50.7;256.1,8be87087cb,furniture: Bullet arrow icon (raster)
+48,p48_e04.png,39x41,36.5;276.3;50.7;291.3,8be87087cb,furniture: Bullet arrow icon (raster)
+48,p48_e05.png,39x41,36.5;311.5;50.7;326.5,8be87087cb,furniture: Bullet arrow icon (raster)
+48,p48_e06.png,39x41,36.5;346.8;50.7;361.8,8be87087cb,furniture: Bullet arrow icon (raster)
+48,p48_e07.png,39x41,36.5;382.0;50.7;397.0,8be87087cb,furniture: Bullet arrow icon (raster)
+48,p48_e08.png,39x41,36.5;417.3;50.7;432.3,8be87087cb,furniture: Bullet arrow icon (raster)
+48,p48_e09.png,39x41,36.5;452.5;50.7;467.5,8be87087cb,furniture: Bullet arrow icon (raster)
+48,p48_e10.png,31x31,447.6;199.8;458.9;211.1,81e51f86dd,furniture: bullet arrow
+49,p49_e00.png,1036x115,29.2;54.1;806.5;140.4,16e186a26a,furniture: Teal header band with dot grid (raster)
+49,p49_e01.png,1123x12,-0.0;586.3;842.5;595.3,91f17dfb26,furniture: Blue gradient footer band (raster)
+49,p49_e02.png,403x522,450.0;169.3;773.3;526.3,a5efaa141f,part of m4_p49_01.png
+50,p50_e00.png,1036x115,29.2;43.6;806.5;129.9,16e186a26a,furniture: Teal header band with dot grid (raster)
+50,p50_e01.png,1123x12,-0.0;586.3;842.5;595.3,91f17dfb26,furniture: Blue gradient footer band (raster)
+51,p51_e00.png,1036x115,-0.3;48.2;805.2;134.5,16e186a26a,furniture: Teal header band with dot grid (raster)
+51,p51_e01.png,1123x12,-0.0;586.3;842.5;595.3,91f17dfb26,furniture: Blue gradient footer band (raster)
+52,p52_e00.png,1036x115,-0.2;57.6;842.2;143.9,16e186a26a,furniture: Teal header band with dot grid (raster)
+52,p52_e01.png,1123x12,-0.0;586.3;842.5;595.3,91f17dfb26,furniture: Blue gradient footer band (raster)
+53,p53_e00.png,1036x115,29.2;45.3;806.5;131.6,16e186a26a,furniture: Teal header band with dot grid (raster)
+53,p53_e01.png,1123x12,-0.0;586.3;842.5;595.3,91f17dfb26,furniture: Blue gradient footer band (raster)
+54,p54_e00.png,1036x115,29.2;41.7;806.5;128.0,16e186a26a,furniture: Teal header band with dot grid (raster)
+54,p54_e01.png,1123x12,-0.0;586.3;842.5;595.3,91f17dfb26,furniture: Blue gradient footer band (raster)
+55,p55_e00.png,794x91,-0.0;0.0;68.3;595.7,88589072d0,furniture: Section-title side panel (raster)
+55,p55_e01.png,1368x983,174.8;141.6;667.6;495.6,5fc3c47138,part of m4_p55_01.jpg
+56,p56_e00.png,1036x115,0.4;53.9;842.5;140.2,16e186a26a,furniture: Teal header band with dot grid (raster)
+56,p56_e01.png,1123x12,-0.0;586.3;842.5;595.3,91f17dfb26,furniture: Blue gradient footer band (raster)
+56,p56_e02.png,35x35,63.1;187.7;75.8;200.4,6ca301406a,furniture: bullet arrow
+56,p56_e03.png,35x35,63.1;219.9;75.8;232.7,27842ff8ea,furniture: bullet arrow
+56,p56_e04.png,35x35,63.1;252.2;75.8;264.9,bafcf70ab5,furniture: bullet arrow
+56,p56_e05.png,35x35,63.1;284.4;75.8;297.2,962183111b,furniture: bullet arrow
+56,p56_e06.png,31x31,447.6;186.9;458.9;198.2,c8d74dcc50,furniture: bullet arrow
+57,p57_e00.png,1036x115,0.4;57.6;842.2;143.9,16e186a26a,furniture: Teal header band with dot grid (raster)
+57,p57_e01.png,1123x12,-0.0;586.3;842.5;595.3,91f17dfb26,furniture: Blue gradient footer band (raster)
+58,p58_e00.png,1036x115,0.4;53.2;842.2;139.5,16e186a26a,furniture: Teal header band with dot grid (raster)
+58,p58_e01.png,1123x12,-0.0;586.3;842.5;595.3,91f17dfb26,furniture: Blue gradient footer band (raster)
+58,p58_e02.png,29x29,40.6;175.8;51.3;186.4,c004e110e1,furniture: bullet arrow
+58,p58_e03.png,29x29,108.1;206.3;118.7;217.0,f5a6404595,furniture: bullet arrow
+58,p58_e04.png,29x29,40.6;352.1;51.3;362.8,d8b9da6adc,furniture: bullet arrow
+58,p58_e05.png,29x29,40.6;406.4;51.3;417.0,400b5d630d,furniture: bullet arrow
+58,p58_e06.png,29x29,40.6;432.8;51.3;443.5,cee2a565f3,furniture: bullet arrow
+58,p58_e07.png,29x29,40.6;486.4;51.3;497.0,32e1bb0fdb,furniture: bullet arrow
+59,p59_e00.png,1036x115,-0.0;57.3;842.5;143.6,16e186a26a,furniture: Teal header band with dot grid (raster)
+59,p59_e01.png,1123x12,-0.0;586.3;842.5;595.3,91f17dfb26,furniture: Blue gradient footer band (raster)
+59,p59_e02.png,31x31,63.4;202.7;74.7;213.9,445572249a,furniture: bullet arrow
+59,p59_e03.png,31x31,63.4;223.6;74.7;234.9,0b75de6975,furniture: bullet arrow
+59,p59_e04.png,31x31,63.4;244.6;74.7;255.9,43ddd27731,furniture: bullet arrow
+59,p59_e05.png,31x31,63.4;265.6;74.7;276.9,0b15184ed1,furniture: bullet arrow
+59,p59_e06.png,31x31,99.4;308.4;110.7;319.6,d5eae59ad0,furniture: bullet arrow
+59,p59_e07.png,31x31,99.4;329.4;110.7;340.6,b84a339fbf,furniture: bullet arrow
+59,p59_e08.png,31x31,99.4;350.4;110.7;361.6,db23e6d670,furniture: bullet arrow
+59,p59_e09.png,31x31,99.4;371.4;110.7;382.6,acb44c2230,furniture: bullet arrow
+60,p60_e00.png,794x91,-0.0;0.0;68.3;595.7,88589072d0,furniture: Section-title side panel (raster)
+60,p60_e01.png,1536x1024,102.0;56.4;799.7;544.6,bc48609839,part of m4_p60_01.jpg
+61,p61_e00.png,957x1239,-0.0;-0.2;459.9;594.6,8d044c2988,excluded: blurred decorative background behind the M5 cover panels
+61,p61_e01.png,1090x512,36.7;119.9;450.1;314.2,458f708207,part of m5_p61_01.jpg
+61,p61_e02.png,923x429,36.7;278.1;459.9;474.6,113d3f23c3,part of m5_p61_01.jpg
+64,p64_e00.png,321x310,627.7;130.4;781.5;278.9,f55a55cab4,part of m5_p64_01.png
+64,p64_e01.png,262x320,656.2;311.1;781.5;464.9,00a402243f,logo: assets/logos/nafdac_med_safety_app_icon.png
+65,p65_e00.png,794x91,-0.0;0.0;68.3;595.7,88589072d0,furniture: Section-title side panel (raster)
+66,p66_e00.png,1036x115,29.2;57.8;806.5;144.0,16e186a26a,furniture: Teal header band with dot grid (raster)
+66,p66_e01.png,1123x12,-0.0;586.3;842.5;595.3,91f17dfb26,furniture: Blue gradient footer band (raster)
+66,p66_e02.png,39x41,36.5;202.1;50.7;217.1,8be87087cb,furniture: Bullet arrow icon (raster)
+66,p66_e03.png,39x41,36.5;288.3;50.7;303.3,8be87087cb,furniture: Bullet arrow icon (raster)
+66,p66_e04.png,39x41,36.5;323.5;50.7;338.5,8be87087cb,furniture: Bullet arrow icon (raster)
+66,p66_e05.png,39x41,36.5;383.5;50.7;398.5,8be87087cb,furniture: Bullet arrow icon (raster)
+66,p66_e06.png,31x31,447.6;195.3;458.9;206.6,2968bc5f1e,furniture: bullet arrow
+66,p66_e07.png,877x816,433.5;232.8;749.3;526.8,44da2e6cc0,part of m5_p66_01.jpg
+67,p67_e00.png,1036x115,29.2;43.3;806.5;129.6,16e186a26a,furniture: Teal header band with dot grid (raster)
+67,p67_e01.png,1123x12,-0.0;586.3;842.5;595.3,91f17dfb26,furniture: Blue gradient footer band (raster)
+68,p68_e00.png,1036x115,29.2;24.0;806.5;110.2,16e186a26a,furniture: Teal header band with dot grid (raster)
+68,p68_e01.png,1123x12,-0.0;586.3;842.5;595.3,91f17dfb26,furniture: Blue gradient footer band (raster)
+69,p69_e00.png,1036x115,29.2;57.5;806.5;143.8,16e186a26a,furniture: Teal header band with dot grid (raster)
+69,p69_e01.png,1123x12,-0.0;586.3;842.5;595.3,91f17dfb26,furniture: Blue gradient footer band (raster)
+70,p70_e00.png,794x91,-0.0;0.0;68.3;595.7,88589072d0,furniture: Section-title side panel (raster)
+71,p71_e00.png,1036x115,29.2;57.4;806.5;143.6,16e186a26a,furniture: Teal header band with dot grid (raster)
+71,p71_e01.png,1123x12,-0.0;586.3;842.5;595.3,91f17dfb26,furniture: Blue gradient footer band (raster)
+72,p72_e00.png,1036x115,29.2;57.0;806.5;143.3,16e186a26a,furniture: Teal header band with dot grid (raster)
+72,p72_e01.png,1123x12,-0.0;586.3;842.5;595.3,91f17dfb26,furniture: Blue gradient footer band (raster)
+73,p73_e00.png,960x1239,-0.0;-0.2;460.6;594.6,234fd4c6b3,excluded: blurred decorative background behind the M6 cover photo
+73,p73_e01.png,809x540,-0.0;143.1;460.6;450.6,16177ccdf0,part of m6_p73_01.jpg
+77,p77_e00.png,957x1229,-0.0;-0.2;459.9;594.6,49e83fe607,part of m7_p77_01.jpg
+81,p81_e00.png,959x1239,-0.0;-0.2;460.6;594.6,743ba031aa,part of m8_p81_01.jpg
+81,p81_e01.png,81x73,414.8;551.7;453.8;586.9,e84c70b5f1,part of m8_p81_01.jpg
+84,p84_e00.png,439x75,502.5;299.2;666.8;327.7,ad1f1679cf,"excluded: page heading text rendered as a raster, not a figure (the heading is in the module title)"
+84,p84_e01.png,957x610,-0.0;302.1;459.9;594.6,284ceabe83,part of m9_p84_01.jpg
+84,p84_e02.png,906x634,-0.0;56.3;459.9;360.8,a260f86185,part of m9_p84_01.jpg
+84,p84_e03.png,225x191,170.2;108.8;284.3;210.0,bae37a7919,part of m9_p84_01.jpg
+88,p88_e00.png,480x279,109.5;143.9;429.1;323.9,83b30e6c8c,part of m9_p88_01.jpg
+88,p88_e01.png,595x377,485.2;141.6;771.8;322.4,87a4c5fdb7,part of m9_p88_02.jpg
+88,p88_e02.png,460x259,310.5;335.1;579.1;486.6,e72dd1b9d5,part of m9_p88_03.jpg
