@@ -230,9 +230,28 @@ def upsert_sections(db, modules, mods, rep):
     db.flush()
 
 
+def image_sizes(content_dir):
+    """{file: (width, height)} from images_manifest.csv, so the server needs no Pillow."""
+    path = content_dir / "images_manifest.csv"
+    if not path.exists():
+        return {}
+    with path.open(encoding="utf-8-sig", newline="") as f:
+        return {r["file"]: tuple(int(v) for v in r["pixel_size"].split("x")) for r in csv.DictReader(f)
+                if r.get("pixel_size")}
+
+
+def image_size(path, sizes):
+    if path.name in sizes:
+        return sizes[path.name]
+    from PIL import Image
+    with Image.open(path) as im:
+        return im.size
+
+
 def upload_images(db, content_dir, modules, media_root, dry_run, rep):
     """-> {image file name: MediaAsset}."""
     assets, by_file = {}, {}
+    sizes = image_sizes(content_dir)
     for m in modules:
         for s in m["sections"]:
             if s["content_type"] != "IMAGE":
@@ -248,9 +267,7 @@ def upload_images(db, content_dir, modules, media_root, dry_run, rep):
                     dest.parent.mkdir(parents=True, exist_ok=True)
                     if not dest.exists():
                         shutil.copyfile(path, dest)
-                from PIL import Image
-                with Image.open(path) as im:
-                    w, h = im.size
+                w, h = image_size(path, sizes)
                 asset = MediaAsset(asset_type=MediaAssetType.IMAGE, filename=path.name, storage_path=rel,
                                    mime_type=MIME[path.suffix.lower()], size_bytes=len(data), checksum=digest,
                                    asset_metadata={"width": w, "height": h, "source": "hfw_flipbook",
