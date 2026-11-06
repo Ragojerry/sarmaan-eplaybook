@@ -15,25 +15,25 @@ const AREA_LEVELS = ["country", "state", "lga", "ward", "facility"];
 const SESSION_COLS: [string, string][] = [
   ["session", "Session"], ["start_date", "Start"], ["end_date", "End"], ["status", "Status"], ["days_remaining", "Days left"],
   ["users", "People"], ["not_started", "Not started"], ["active_users_30d", "Active (30d)"], ["avg_completion_rate", "Avg completion %"],
-  ["users_completed_all", "Finished all"], ["completed_all_by_end_date", "Finished by end date"], ["modules_completed", "Modules done"],
+  ["users_completed_all", "Finished all"], ["completed_all_by_end_date", "Finished by end date"], ["modules_completed", "Modules done"], ["modules_completed_credited", "Of which credited"],
   ["quizzes_passed", "Quizzes passed"], ["avg_best_quiz_score", "Avg quiz %"], ["training_events", "Training"], ["video_events", "Video"],
   ["questions_asked", "Q&A"], ["technical_events", "Technical"],
 ];
 const AREA_COLS: [string, string][] = [
   ["area", "Area"], ["users", "Users"], ["active_users_30d", "Active (30d)"], ["avg_completion_rate", "Avg completion %"],
-  ["users_completed_all", "Finished all"], ["modules_completed", "Modules done"], ["quizzes_passed", "Quizzes passed"],
+  ["users_completed_all", "Finished all"], ["modules_completed", "Modules done"], ["modules_completed_credited", "Of which credited"], ["quizzes_passed", "Quizzes passed"],
   ["avg_best_quiz_score", "Avg quiz %"], ["training_events", "Training"], ["video_events", "Video"],
   ["questions_asked", "Q&A"], ["technical_events", "Technical"], ["session_events", "Sessions"],
 ];
 const USER_COLS: [string, string][] = [
   ["full_name", "Name"], ["username", "Username"], ["learner_role", "Learner role"], ["team_code", "Team"], ["session", "Session"], ["training_attempt", "Attempt"], ["state", "State"], ["lga", "LGA"], ["ward", "Ward"],
-  ["facility", "Facility"], ["modules_completed", "Done"], ["completion_rate", "Completion %"], ["quizzes_passed", "Quizzes passed"],
+  ["facility", "Facility"], ["modules_completed", "Done"], ["modules_completed_credited", "Credited"], ["completion_rate", "Completion %"], ["quizzes_passed", "Quizzes passed"],
   ["avg_best_quiz_score", "Avg quiz %"], ["training_events", "Training"], ["video_events", "Video"], ["questions_asked", "Q&A"],
   ["technical_events", "Technical"], ["last_activity", "Last activity"],
 ];
 const MODULE_COLS: [string, string][] = [
   ["module_code", "Module"], ["module_title", "Title"], ["area", "Area"], ["users", "Users"], ["started", "Started"],
-  ["completed", "Completed"], ["completion_rate", "Completion %"], ["quiz_takers", "Quiz takers"], ["quiz_passed", "Quiz passed"],
+  ["completed", "Completed"], ["completed_credited", "Of which credited"], ["completion_rate", "Completion %"], ["quiz_takers", "Quiz takers"], ["quiz_passed", "Quiz passed"],
   ["avg_best_quiz_score", "Avg quiz %"],
 ];
 

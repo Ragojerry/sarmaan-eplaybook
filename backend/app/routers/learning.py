@@ -19,7 +19,7 @@ from app.database import get_db
 from app.learning.access import module_visible_to
 from app.learning.rules import auto_approve_percent
 from app.learning.state import all_test_question_counts, build_states
-from app.models import Module, QuizAttempt, User, UserModuleProgress
+from app.models import Module, ModuleCompletionCredit, QuizAttempt, User, UserModuleProgress
 from app.models.enums import LEARNER_ROLE_LABELS, ModuleStatus, RoleName
 from app.quiz.grading import PASS_MARK
 from app.reports.activity import LEVELS, Filters
@@ -110,9 +110,20 @@ def review(db: Session = Depends(get_db), user: User = Depends(require_roles(*VI
     }
 
 
+def credits_by_user_module(db: Session, user_ids) -> dict:
+    """{(user_id, module_id): ModuleCompletionCredit} for completions given from an older module."""
+    ids = list(user_ids)
+    if not ids:
+        return {}
+    return {(c.user_id, c.module_id): c
+            for c in db.query(ModuleCompletionCredit).filter(ModuleCompletionCredit.user_id.in_(ids))}
+
+
 def _report_rows(db: Session, f: Filters) -> list[dict]:
     rows = []
-    for u, states, invalid in _states_by_user(db, _learners(db, f)):
+    learners = _learners(db, f)
+    credits = credits_by_user_module(db, (u.id for u in learners))
+    for u, states, invalid in _states_by_user(db, learners):
         for st in states:
             if not st.has_tests:
                 continue
@@ -120,6 +131,7 @@ def _report_rows(db: Session, f: Filters) -> list[dict]:
             best = max(posts, key=lambda a: (a.correct_count / a.total_count, a.taken_at), default=None)
             latest = posts[-1] if posts else None
             qualifying = st.completing_post()
+            credit = credits.get((u.id, st.module.id)) if st.completed else None
             rows.append({
                 **_person(u),
                 "module_code": st.module.module_code,
@@ -138,6 +150,11 @@ def _report_rows(db: Session, f: Filters) -> list[dict]:
                 "auto_approved": st.pre_perfect and qualifying is not None,
                 "attempts_not_counted": invalid[(u.id, st.module.id)],
                 "completed_at": st.progress.completed_at.isoformat() if st.completed and st.progress.completed_at else None,
+                # "credited": completion given from an older module (date and score copied from it),
+                # not earned with this module's own tests. "earned": completed in this module.
+                "completion_source": ("credited" if credit else "earned") if st.completed else None,
+                "credited_from": credit.source_module_code if credit else None,
+                "credited_score": credit.source_score_percent if credit else None,
             })
     return rows
 
