@@ -1,6 +1,6 @@
 # Backend change: accept `|alt` rows in the translation importer
 
-**Status.** A patch exists on its own local branch, `importer-alt-text`. It is not merged. The English import does not need it, because the English alt text goes in with the sections. It is needed before translated alt text (Hausa) can be imported.
+**Status.** A patch exists on its own local branch, `importer-alt-text` (commit `1bbeb30`, based on `main`). It is not merged. With it, the backend suite passes (311 tests). The English import does not need it, because the English alt text goes in with the sections. It is needed before translated alt text (Hausa) can be imported.
 
 ## Today
 
