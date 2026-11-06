@@ -1,2 +1,5 @@
 # Shell scripts run on Linux (EC2, CI); CRLF breaks them.
 *.sh text eol=lf
+
+# Translation CSVs keep their exact bytes (UTF-8 BOM, CRLF) on every checkout.
+content/hfw_flipbook/**/*.csv -text
