@@ -257,7 +257,7 @@ export interface Boundary {
   parent_id: string | null;
 }
 
-export type ReportRow = Record<string, string | number | boolean | null>;
+export type ReportRow = Record<string, string | number | null>;
 
 // ---------- Quiz ----------
 

@@ -16,8 +16,8 @@ import 'package:sarmaan_eplaybook/sync/release_installer.dart';
 
 import 'support/fake_server.dart';
 
-/// The curriculum changeover on a phone: M1-M6 are archived on the server and a
-/// new release holds only the HFW modules. Uses only APIs that exist in app
+/// The curriculum changeover on a phone: M1-M6 are deleted on the server, all
+/// training history is wiped, and a new release holds only the HFW modules. Uses only APIs that exist in app
 /// 0.1.9 too, so this file also runs against the 0.1.9 code.
 void main() {
   late Directory docs;
@@ -76,11 +76,25 @@ void main() {
     expect(await db.getSectionsForModule('m1'), isEmpty);
     expect((await db.getAllMedia()).map((m) => m.id).toSet(), {'img-new-1', 'img-new-3'});
     expect(oldFiles.any((p) => File(p).existsSync()), isFalse, reason: 'cached files of archived modules are released');
-    // the learner's old records stay on the phone, but nothing old counts toward the new curriculum
-    expect((await db.getProgressForModule('m1'))!.completed, isTrue);
+    // the server wiped all training history and set a training restart at the cutover;
+    // the next sync applies it here (SyncEngine._applyServerRestart): nothing old is kept
+    await db.adoptServerRestart(DateTime.now().toUtc());
+    expect(await db.getProgressForModule('m1'), isNull);
+    expect(await db.getProgressForModule('m2'), isNull);
+    expect(await db.getQuizAttempts(), isEmpty);
     final learning = await loadLearning(db);
     expect(learning.completedCount, 0);
     expect(learning.blockerOf('h02')?.moduleCode, 'HFW-01', reason: 'the unlock chain starts at the first general module');
+  });
+
+  test('a phone that had restarted its training before also loses all history', () async {
+    await installer.install(publish(server, 'R-LEGACY', legacyModules));
+    await db.restartTraining(at: DateTime(2026, 9, 1).toUtc(), enqueue: false); // an earlier restart
+    await learnerWorkedOnOldModules();
+    await installer.install(publish(server, 'R-HFW', hfwModules, curriculum: 'hfw-2026'));
+    await db.restartTraining(at: DateTime.now().toUtc(), enqueue: false); // what the sync does for a newer server restart
+    expect(await db.getProgressForModule('m1'), isNull);
+    expect(await db.getProgressForModule('m2'), isNull);
   });
 
   test('phone offline through the changeover keeps the old content until it syncs', () async {

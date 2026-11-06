@@ -8,7 +8,6 @@ from app.database import get_db
 from app.models import User
 from app.models.enums import RoleName
 from app.reports import activity
-from app.reports import legacy as legacy_report
 from app.reports.activity import Filters
 from app.reports.params import report_filters
 
@@ -83,14 +82,3 @@ def modules(level: str | None = Query(default=None, pattern="^(country|state|lga
 @router.get("/modules.csv")
 def modules_csv(level: str | None = Query(default=None, pattern="^(country|state|lga|ward|facility|session)$"), f: Filters = Depends(report_filters), db: Session = Depends(get_db), user: User = Depends(require_roles(*VIEWERS))):
     return csv_response(activity.module_rows(db, f, level), "module_completion" + (f"_by_{level}" if level else ""))
-
-
-@router.get("/legacy")
-def legacy(f: Filters = Depends(report_filters), db: Session = Depends(get_db), user: User = Depends(require_roles(*VIEWERS))):
-    """Archived (old-curriculum) modules' records, labelled "Legacy (M1-M6)", never mixed into current rates."""
-    return legacy_report.legacy_rows(db, f)
-
-
-@router.get("/legacy.csv")
-def legacy_csv(f: Filters = Depends(report_filters), db: Session = Depends(get_db), user: User = Depends(require_roles(*VIEWERS))):
-    return csv_response(legacy_report.legacy_rows(db, f), "legacy_m1_m6")

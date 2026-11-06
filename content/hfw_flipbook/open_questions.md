@@ -5,10 +5,10 @@ Page numbers are HFW PDF pages; the printed page number is one lower.
 **Already decided, so removed from this list:**
 
 - **Module split:** audience per module, 17 modules. See `modules.csv`.
-- **Clean changeover:** M1–M6 are archived for everyone and the HFW modules are the only curriculum.
+- **First and only content:** the HFW modules are treated as the first content; M1–M6 are deleted.
 - **Learning order:** General modules first, then the learner's role modules.
-- **Credit:** none.
-- **Old data:** kept and shown as "Legacy (M1-M6)".
+- **Credit:** none. All training history is test data and is wiped, so every user starts from nothing.
+- **Staging:** no staging server. Dry run locally, then run on production with a verified backup; rollback is a restore.
 - **Quiz length:** 10 questions per module.
 
 See `migration_plan.md`.
@@ -26,7 +26,7 @@ See `migration_plan.md`.
 
 **A3. App 0.1.10.**
 - The version is set to 0.1.10+11 in the code, but no APK has been built or published.
-- Build and test the staging APK first (runbook 1.8).
+- Build it and test it on a phone first (runbook 1.3).
 - Publishing the production APK is a separate step.
 
 **A4. Apps older than 0.1.8 in the field.**
@@ -40,10 +40,10 @@ See `migration_plan.md`.
 **A6. Estimated durations.**
 - 15–30 minutes per module, 335 in total.
 - Per role: CDD 265, Health worker 220, Monitor/supervisor 220, Other 185, Logistician 180 minutes.
-- Confirm after the staging trial.
+- Confirm after the first real-phone run.
 
 **A7. Branches.**
-- `hfw-role-modules` (content, import and cutover scripts, legacy report, app 0.1.10) and `importer-alt-text` are local and not merged.
+- `hfw-role-modules` (content, import and cutover scripts, app 0.1.10) and `importer-alt-text` are local and not merged.
 - **Decision needed:** when to merge, after review.
 
 ## B. Clinician sign-off needed

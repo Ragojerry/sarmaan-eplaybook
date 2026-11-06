@@ -1,35 +1,46 @@
-# Curriculum changeover report (DRY RUN, nothing changed - CUTOVER, environment development)
+# Curriculum changeover report (DRY RUN, nothing changed, environment development)
 
-Run at 2026-11-06T11:07:30+00:00.
+Run at 2026-11-06T12:39:49+00:00.
 
 ## Checks
 
 - CUTOVER_DATE not set (allowed outside production)
 
-## Learners (read-only counts)
+## Users (counted before the run)
 
-- learner accounts (all affected: their list becomes the new curriculum): **1**
-- learners with any old-module record (kept as Legacy): **1**
-- in-progress learners who lose visible progress (started or part-completed M1-M6): **1**
-- learners who completed all M1-M6 (completion kept as Legacy): **0**
-- learners who completed at least one of M1-M6: **0**
+- user accounts (all start the training from nothing; accounts are kept): **2**
+- learner accounts: **1**
+- users with any progress or test submission (wiped): **2**
+-   of whom learners with started but unfinished modules: **1**
+-   of whom learners who had completed at least one module: **0**
 
-## Modules
+## Training history wiped
+
+- module progress rows deleted: 5
+- pre-/post-test attempts deleted: 0
+- Ask (AI) question logs deleted: 10
+- analytics events deleted: 8
+- users reset to training attempt 1: 2
+
+## Old modules deleted
+
+- old modules deleted: 6
+- section translations deleted: 9
+- FAQ entries deleted: 0
+- quiz questions deleted: 63
+- module texts deleted: 7
+- videos deleted: 4
+- sections deleted: 62
+- media rows deleted (files kept on disk): 11
+
+## New curriculum
 
 - new modules published: 17
-- new modules live after the cutover: 17
-- modules archived: 6
-- old module status before: {'M1': 'PUBLISHED', 'M2': 'PUBLISHED', 'M3': 'PUBLISHED', 'M4': 'PUBLISHED', 'M5': 'PUBLISHED', 'M6': 'PUBLISHED'}
+- modules live after the cutover, in learning order: HFW-01, HFW-02, HFW-04, HFW-06, HFW-12, HFW-14, HFW-17, HFW-03, HFW-05, HFW-07, HFW-08, HFW-09, HFW-10, HFW-11, HFW-13, HFW-15, HFW-16
 
 ## Content release (devices refresh at their next sync)
 
-- release code: `HFW-CUTOVER-20261106110729`; curriculum: `hfw-2026`
+- release code: `HFW-CUTOVER-20261106123949`; curriculum: `hfw-2026`
 - modules 17, sections 254, media 39, quiz questions 170
 
-## Import
-
-- English module texts created (DRAFT): 17
-- images uploaded (dry run: not copied): 39
-- modules created: 17
-- quiz questions created: 170
-- sections created: 254
+Rollback: restore the backup taken before the run (`pg_restore`). There is no other way back.

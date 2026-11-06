@@ -1,7 +1,7 @@
 """
-HFW curriculum: the import script, the changeover (cutover / rollback), legacy
-records and reports. Uses the real content in content/hfw_flipbook and puts the
-database back as it found it.
+HFW curriculum: the import script and the changeover (HFW becomes the first and
+only content; all training history is wiped; M1-M6 are deleted). Uses the real
+content in content/hfw_flipbook and leaves the database as it found it.
 
     cd backend && python -m pytest tests/test_hfw_migration.py -v
 """
@@ -13,14 +13,15 @@ from datetime import date, datetime, timedelta, timezone
 from pathlib import Path
 
 import pytest
-from fastapi.testclient import TestClient
+from sqlalchemy.orm import Session
 
 from app.ai.indexer import rebuild_all_chunks
-from app.database import SessionLocal
+from app.database import SessionLocal, engine
 from app.learning.access import visible_modules
 from app.learning.state import learning_states
-from app.main import app
 from app.models import (
+    AiQuestionLog,
+    AnalyticsEvent,
     AuditLog,
     ContentChunk,
     ContentRelease,
@@ -38,16 +39,14 @@ from app.models import (
 from app.models.enums import LearnerRole, ModuleStatus, RoleName, TestType
 from app.releases.packager import package_path
 from app.reports.activity import Filters, module_rows
-from app.reports.legacy import LEGACY_LABEL, legacy_rows
-from scripts import anonymise_staging, cutover_hfw, import_hfw_content
-from tests.test_content import _auth_headers, _login, _make_user
+from scripts import cutover_hfw, import_hfw_content
+from tests.test_content import _make_user
 from tests.test_sync import _cleanup
 
 CONTENT = Path(__file__).resolve().parents[2] / "content" / "hfw_flipbook"
 T0 = datetime(2026, 10, 1, 9, 0, tzinfo=timezone.utc)
 OLD = ["M1", "M2", "M3", "M4", "M5", "M6"]
 GENERAL = ["HFW-01", "HFW-02", "HFW-04", "HFW-06", "HFW-12", "HFW-14", "HFW-17"]
-client = TestClient(app)
 
 
 @pytest.fixture()
@@ -173,99 +172,86 @@ def test_uuid_collision_blocks_the_import(db, tmp_path, clean):
         db.commit()
 
 
-# ---------- changeover ----------
-def test_cutover_dry_run_changes_nothing(db, tmp_path, clean):
-    before = _snapshot(db)
-    releases = db.query(ContentRelease).count()
-    rep = cutover_hfw.run(dry_run=True, media_root=tmp_path, env="development", cutover_date="")
-    assert rep["modules archived"] == 6 and rep["new modules published"] == 17
+# ---------- changeover (wipe + delete) ----------
+@pytest.fixture()
+def sandbox():
+    """The real cutover runs in a session whose commits are savepoints inside one
+    outer transaction that is rolled back: the development database (which the
+    other tests rely on for M1-M6) is left exactly as it was."""
+    conn = engine.connect()
+    outer = conn.begin()
+    s = Session(bind=conn, join_transaction_mode="create_savepoint")
+    yield s
+    s.close()
+    outer.rollback()
+    conn.close()
+
+
+def _history(db):
+    return {"progress": db.query(UserModuleProgress).count(), "attempts": db.query(QuizAttempt).count(),
+            "ai": db.query(AiQuestionLog).count(), "analytics": db.query(AnalyticsEvent).count()}
+
+
+def test_cutover_dry_run_changes_nothing(sandbox, tmp_path):
+    db = sandbox
+    (cdd,) = _people(db, LearnerRole.CDD)
+    _old_records(db, cdd)
+    before = (_snapshot(db), _history(db), db.query(Module).count(), db.query(ContentRelease).count())
+    rep = cutover_hfw.run(dry_run=True, db=db, media_root=tmp_path, env="development", cutover_date="")
+    assert rep["deleted"]["old modules deleted"] == 6 and rep["new modules published"] == 17
+    assert rep["wiped"]["module progress rows deleted"] >= 2
     assert rep["release"]["curriculum"] == "hfw-2026" and rep["release"]["modules"] == 17
-    assert "learner accounts (all affected: their list becomes the new curriculum)" in rep["learners"]
     db.expire_all()
-    assert {m.status for m in db.query(Module).filter(Module.module_code.in_(OLD))} == {ModuleStatus.PUBLISHED}
+    assert (_snapshot(db), _history(db), db.query(Module).count(), db.query(ContentRelease).count()) == before
     assert db.query(Module).filter(Module.module_code.like("HFW-%")).count() == 0
-    assert db.query(ContentRelease).count() == releases
-    assert _snapshot(db) == before
+    assert not any(tmp_path.iterdir()), "a dry run copies no image"
 
 
-def test_cutover_rollback_and_cutover_again(db, tmp_path, clean):
+def test_cutover_makes_hfw_the_first_content_and_wipes_all_history(sandbox, tmp_path):
+    db = sandbox
     cdd, logi = _people(db, LearnerRole.CDD, LearnerRole.LOGISTICIAN)
-    try:
-        _old_records(db, cdd)
-        before = _snapshot(db)
+    _old_records(db, cdd)
+    old_ids = [m.id for m in db.query(Module).filter(Module.module_code.in_(OLD))]
+    db.add(AiQuestionLog(question="How much water?", user_id=cdd.id, asked_at=T0, language="en"))
+    db.add(AnalyticsEvent(event_type="MODULE_OPEN", user_id=cdd.id, module_id=old_ids[0], occurred_at=T0))
+    cdd.training_attempt = 3
+    db.commit()
 
-        rep = cutover_hfw.run(dry_run=False, media_root=tmp_path, env="development", cutover_date="")
-        assert rep["modules archived"] == 6 and rep["new modules published"] == 17
-        db.expire_all()
-        assert {m.status for m in db.query(Module).filter(Module.module_code.in_(OLD))} == {ModuleStatus.ARCHIVED}
-        assert _snapshot(db) == before, "old progress and test records are untouched"
+    rep = cutover_hfw.run(dry_run=False, db=db, media_root=tmp_path, env="development", cutover_date="")
+    db.expire_all()
 
-        # the content version moved on: the newest package is the new curriculum only
-        rel = db.query(ContentRelease).filter_by(release_code=rep["release"]["code"]).one()
-        pkg = json.loads(package_path(rel.release_code).read_text(encoding="utf-8"))
-        assert pkg["curriculum"] == "hfw-2026"
-        assert {m["module_code"] for m in pkg["modules"]} == {f"HFW-{i:02d}" for i in range(1, 18)}
+    # the old modules are gone, with everything that belonged to them
+    assert db.query(Module).filter(Module.module_code.in_(OLD)).count() == 0
+    for model, col in ((ContentSection, ContentSection.module_id), (QuizQuestion, QuizQuestion.module_id),
+                       (ModuleTranslation, ModuleTranslation.module_id), (ContentChunk, ContentChunk.module_id)):
+        assert db.query(model).filter(col.in_(old_ids)).count() == 0
+    assert sorted(m.module_code for m in db.query(Module)) == [f"HFW-{i:02d}" for i in range(1, 18)]
+    assert {m.status for m in db.query(Module)} == {ModuleStatus.PUBLISHED}
 
-        # each learner: the general modules first, then their role's; nothing old
-        cdd_list = [m.module_code for m in visible_modules(db, cdd)]
-        assert cdd_list[:7] == GENERAL
-        assert cdd_list[7:] == ["HFW-03", "HFW-05", "HFW-07", "HFW-08", "HFW-09", "HFW-10"]
-        assert [m.module_code for m in visible_modules(db, logi)] == GENERAL + ["HFW-10", "HFW-16"]
-        states = learning_states(db, cdd)
-        assert states[0].unlocked and not states[1].unlocked, "unlock chain starts again from the first general module"
-        assert not any(s.completed for s in states), "new progress starts at zero; nothing old counts"
+    # no training history for anyone; everyone starts again at attempt 1
+    assert _history(db) == {"progress": 0, "attempts": 0, "ai": 0, "analytics": 0}
+    users = db.query(User).all()
+    assert all(u.training_attempt == 1 and u.training_restarted_at is not None for u in users)
+    assert rep["wiped"]["users reset to training attempt 1"] == len(users)
 
-        # old records: shown as Legacy, never in the current rates
-        legacy = [r for r in legacy_rows(db, Filters()) if r["username"] == cdd.username]
-        assert {(r["module_code"], r["completed"]) for r in legacy} == {("M1", True), ("M2", False)}
-        assert all(r["curriculum"] == LEGACY_LABEL for r in legacy)
-        assert not {r["module_code"] for r in module_rows(db, Filters())} & set(OLD)
+    # phones refresh: the new release holds only the HFW modules
+    pkg = json.loads(package_path(rep["release"]["code"]).read_text(encoding="utf-8"))
+    assert pkg["curriculum"] == "hfw-2026"
+    assert {m["module_code"] for m in pkg["modules"]} == {f"HFW-{i:02d}" for i in range(1, 18)}
 
-        # a phone that was offline through the changeover uploads old-module work: kept, never counted
-        headers = _auth_headers(_login(cdd.username))
-        m3 = db.query(Module).filter_by(module_code="M3").one()
-        r = client.post("/sync/progress", headers=headers, json={"device_id": "d1", "items": [{
-            "module_id": str(m3.id), "progress_percent": 100, "completed": True, "last_section": "s9",
-            "last_opened_at": datetime.now(timezone.utc).isoformat(), "completed_at": datetime.now(timezone.utc).isoformat()}]})
-        assert r.status_code == 200 and r.json()["results"][0]["detail"] == cutover_hfw_legacy()
-        q = client.post("/sync/quiz-attempts", headers=headers, json={"device_id": "d1", "items": [{
-            "client_id": uuid.uuid4().hex, "module_id": str(m3.id), "correct_count": 9, "total_count": 10,
-            "test_type": "POST", "taken_at": datetime.now(timezone.utc).isoformat(), "results": []}]})
-        assert q.status_code == 200 and q.json()["results"][0]["status"] == "ok"
-        db.expire_all()
-        p3 = db.query(UserModuleProgress).filter_by(user_id=cdd.id, module_id=m3.id).one()
-        assert not p3.completed and p3.progress_percent == 99
-        a3 = db.query(QuizAttempt).filter_by(user_id=cdd.id, module_id=m3.id).one()
-        assert a3.valid is False and "archived" in a3.invalid_reason
+    # each learner: the general modules first, then their role's, all at zero
+    cdd_list = [m.module_code for m in visible_modules(db, cdd)]
+    assert cdd_list == GENERAL + ["HFW-03", "HFW-05", "HFW-07", "HFW-08", "HFW-09", "HFW-10"]
+    assert [m.module_code for m in visible_modules(db, logi)] == GENERAL + ["HFW-10", "HFW-16"]
+    states = learning_states(db, cdd)
+    assert states[0].unlocked and not states[1].unlocked
+    assert not any(s.completed or s.pre or s.posts for s in states)
+    assert not {r["module_code"] for r in module_rows(db, Filters())} - {f"HFW-{i:02d}" for i in range(1, 18)}
 
-        # re-running changes nothing more
-        again = cutover_hfw.run(dry_run=False, media_root=tmp_path, env="development", cutover_date="")
-        assert again["modules archived"] == 0 and again["new modules published"] == 0
-
-        # rollback: old modules back, new ones hidden, no data lost
-        after_cutover = _snapshot(db)
-        rb = cutover_hfw.run(dry_run=False, do_rollback=True, env="development", cutover_date="")
-        assert rb["old modules restored (archived = false)"] == 6 and rb["new modules hidden (back to DRAFT)"] == 17
-        db.expire_all()
-        assert {m.status for m in db.query(Module).filter(Module.module_code.in_(OLD))} == {ModuleStatus.PUBLISHED}
-        assert {m.status for m in db.query(Module).filter(Module.module_code.like("HFW-%"))} == {ModuleStatus.DRAFT}
-        assert _snapshot(db) == after_cutover
-        rb_pkg = json.loads(package_path(rb["release"]["code"]).read_text(encoding="utf-8"))
-        assert rb_pkg["curriculum"] == "legacy"
-        assert [m.module_code for m in visible_modules(db, cdd)][:6] == OLD
-
-        # and the cutover can be run again after a rollback
-        third = cutover_hfw.run(dry_run=False, media_root=tmp_path, env="development", cutover_date="")
-        assert third["modules archived"] == 6 and third["new modules published"] == 17
-        assert _snapshot(db) == after_cutover
-    finally:
-        for u in (cdd, logi):
-            _cleanup(db, u)
-
-
-def cutover_hfw_legacy():
-    from app.routers.sync import LEGACY
-    return LEGACY
+    # running it again finds nothing more to do
+    again = cutover_hfw.run(dry_run=False, db=db, media_root=tmp_path, env="development", cutover_date="")
+    assert again["new modules published"] == 0 and again["deleted"]["old modules deleted"] == 0
+    assert again["import"].get("modules created", 0) == 0 and again["import"]["modules updated"] == 17
 
 
 # ---------- guards ----------
@@ -305,23 +291,3 @@ def test_backup_is_verified(tmp_path, monkeypatch):
     with pytest.raises(cutover_hfw.Refused, match="does not exist"):
         cutover_hfw.verify_backup(tmp_path / "missing.dump")
 
-
-def test_anonymise_replaces_personal_data_without_deleting(db):
-    english = db.query(Language).filter_by(code="en").one()
-    u = _make_user(db, RoleName.CDD, english.id)
-    try:
-        u.phone = "+2348000000000"
-        db.commit()
-        users = db.query(User).count()
-        counts = anonymise_staging.anonymise(db, "staging-password-123")
-        assert counts["users anonymised"] == users
-        db.refresh(u)
-        assert u.phone is None and u.email.endswith("@staging.invalid") and u.username.startswith("user")
-        assert u.first_name == "Cdd" and u.last_name.isdigit()
-        assert db.query(User).count() == users  # nothing deleted
-        db.rollback()  # the dev database itself is never anonymised
-        db.refresh(u)
-        assert u.phone == "+2348000000000"
-    finally:
-        db.rollback()
-        _cleanup(db, u)

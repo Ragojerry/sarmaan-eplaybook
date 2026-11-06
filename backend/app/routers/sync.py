@@ -82,9 +82,6 @@ def _latest_published(db: Session) -> ContentRelease | None:
 
 
 NOT_YOURS = "not available for your learner role"
-# Uploads for an archived (old-curriculum) module, e.g. from a phone that was offline
-# through the changeover: kept as history so no learner data is lost, never counted.
-LEGACY = "module archived (legacy curriculum): kept, not counted"
 
 
 def _aware(moment: datetime) -> datetime:
@@ -144,22 +141,6 @@ def sync_quiz_attempts(payload: QuizAttemptBatch, db: Session = Depends(get_db),
                 module = db.get(Module, item.module_id)
                 if module is None:
                     results.append(ItemResult(key=item.client_id, status="rejected", detail="unknown module"))
-                    continue
-                if module.status == ModuleStatus.ARCHIVED:
-                    if db.query(QuizAttempt.id).filter_by(user_id=user.id, client_id=item.client_id).first():
-                        results.append(ItemResult(key=item.client_id, status="duplicate"))
-                        continue
-                    db.add(QuizAttempt(
-                        user_id=user.id, module_id=item.module_id, client_id=item.client_id,
-                        correct_count=item.correct_count, total_count=item.total_count,
-                        score_percent=score_percent(item.correct_count, item.total_count),
-                        passed=quiz_passed(item.correct_count, item.total_count),
-                        results=[{"question_id": str(r.question_id), "correct": r.correct} for r in item.results],
-                        device_id=payload.device_id, taken_at=item.taken_at,
-                        test_type=item.test_type or TestType.POST, valid=False, invalid_reason=LEGACY[:120],
-                    ))
-                    db.flush()
-                    results.append(ItemResult(key=item.client_id, status="ok", detail=LEGACY))
                     continue
                 if not module_visible_to(module, user):
                     results.append(ItemResult(key=item.client_id, status="rejected", detail=NOT_YOURS))
@@ -366,21 +347,6 @@ def sync_progress(payload: ProgressBatch, db: Session = Depends(get_db), user: U
                 module = db.get(Module, item.module_id)
                 if module is None:
                     results.append(ItemResult(key=key, status="rejected", detail="unknown module"))
-                    continue
-                if module.status == ModuleStatus.ARCHIVED:
-                    # Reading recorded offline after the changeover: keep the furthest point
-                    # reached, but an archived module never completes or unlocks anything.
-                    row = db.query(UserModuleProgress).filter_by(user_id=user.id, module_id=item.module_id).one_or_none()
-                    if row is None:
-                        row = UserModuleProgress(user_id=user.id, module_id=item.module_id, progress_percent=0)
-                        db.add(row)
-                    if not row.completed and item.progress_percent > row.progress_percent:
-                        row.progress_percent = min(item.progress_percent, 99)
-                        row.last_section = item.last_section
-                        row.last_opened_at = item.last_opened_at or row.last_opened_at
-                        row.device_id = payload.device_id
-                    db.flush()
-                    results.append(ItemResult(key=key, status="ok", detail=LEGACY))
                     continue
                 if not module_visible_to(module, user):
                     results.append(ItemResult(key=key, status="rejected", detail=NOT_YOURS))
