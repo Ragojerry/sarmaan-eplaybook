@@ -43,14 +43,13 @@ See `migration_plan.md`.
 - Confirm after the first real-phone run.
 
 **A7. Branches.**
-- `hfw-role-modules` (content, import and cutover scripts, app 0.1.10) and `importer-alt-text` are local and not merged.
-- **Decision needed:** when to merge, after review.
+- Both merged into `main` on 2026-11-06.
 
 ## B. Clinician sign-off needed
 
 All values below match the PDF on the second-pass check (`verification_report.md`). They are open because the **content itself** looks questionable, not because it was copied wrongly.
 
-**Items B1, B2, B3 and C1 are on the one-page form `clinician_signoff.md`.** Publishing to production and the Hausa translation wait for it.
+**Items B1, B2, B3 and C1 are on the one-page form `clinician_signoff.md`.** The programme decided on 2026-11-06 to publish without waiting for it, so the content is live exactly as printed (including the email "concenrns@"). Answers lead to a content update and a new release.
 
 **B1. Height-based dosing table on the Child Record Card (p34).**
 - The doses run 2, 4, 6, 8, 10, 12, 14, 16, then **19** and **25 ml**.
@@ -153,7 +152,7 @@ Details are in the `rights_or_consent_flag` column of `images_manifest.csv`.
 
 ## F. Hausa: not started
 
-Hausa starts only after the clinician signs `clinician_signoff.md`.
+Hausa can start; clinician review is no longer a gate. Any clinical change later means re-translating the changed strings.
 
 - **New phone texts in draft Hausa, for native review:**
   - the notice: "An sabunta horon. Fara sababbin darussa." ("The training has been updated. Start the new modules.");

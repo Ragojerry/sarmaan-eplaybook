@@ -1,4 +1,6 @@
-# Clinician sign-off: HFW content (gates publishing to production and the Hausa translation)
+# Clinician review: HFW content (open record; does not block publishing)
+
+**Status:** the programme decided on 2026-11-06 to publish the content as printed without waiting for this review. The four items stay open for a clinician to answer; any change is made afterwards through `_build/` and a new release.
 
 **Source:** FLIPBOOK HFW (PDF dated Aug 2026). Page numbers are PDF pages; the printed number is one lower. The content currently says exactly what the PDF prints; each value was checked twice (`verification_report.md`). Nothing changes until you decide.
 

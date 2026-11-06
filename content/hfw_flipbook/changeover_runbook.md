@@ -12,7 +12,7 @@ There is no staging server. Dry runs happen locally, and the real run happens on
 |---|---|---|---|
 | Technical owner (app and backend) | Scripts, deploy, backup, restore | | |
 | Programme owner (changeover) | `CUTOVER_DATE`, telling learners | | |
-| Clinician (content) | `clinician_signoff.md` | | |
+| Clinician (content) | `clinician_signoff.md` (open review, not a gate) | | |
 
 ## 1. Local checks (development machine)
 
@@ -26,8 +26,7 @@ There is no staging server. Dry runs happen locally, and the real run happens on
 
 | # | Step | Pass | Fail |
 |---|---|---|---|
-| 2.1 | `clinician_signoff.md` is complete and signed, including the confirmed safeguarding address. | ☐ | ☐ |
-| 2.2 | Any change from 2.1 was applied through `_build/`, the CSVs were regenerated, and `_build/hfw_verify.py` shows 0 mismatches. | ☐ | ☐ |
+| 2.1 | Clinician review is **not** a gate (programme decision, 2026-11-06). The content is published as the PDF prints it; `clinician_signoff.md` stays open, and changes come later in a new release. | ☐ | ☐ |
 | 2.3 | The image rights and consent items (`open_questions.md`, section D) are resolved, or accepted in writing by the programme owner. | ☐ | ☐ |
 | 2.4 | The programme owner has set `CUTOVER_DATE` and told testers that all training history will be wiped. | ☐ | ☐ |
 | 2.5 | Production dry run (after deploying the branch): `python -m scripts.cutover_hfw --dry-run --content-dir /content/hfw_flipbook`. Review the counts of users and rows to be deleted. | ☐ | ☐ |
@@ -37,7 +36,6 @@ There is no staging server. Dry runs happen locally, and the real run happens on
 | Question | Yes | No |
 |---|---|---|
 | Sections 1 and 2 all passed? | ☐ | ☐ |
-| The clinician has signed `clinician_signoff.md`? | ☐ | ☐ |
 | Everyone agrees that all progress, test submissions, Ask questions and analytics will be deleted? | ☐ | ☐ |
 | A backup will be taken and verified just before the run, and restoring it has been tried once? | ☐ | ☐ |
 
@@ -47,7 +45,6 @@ Decision: ☐ **GO** on `CUTOVER_DATE` = __________  ☐ **NO-GO**. Reason: ____
 |---|---|---|---|
 | Technical owner (app and backend) | | | |
 | Programme owner (changeover) | | | |
-| Clinician (content) | | | |
 
 ## 4. Production run (only after GO)
 
