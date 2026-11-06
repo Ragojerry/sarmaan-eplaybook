@@ -44,8 +44,10 @@ def flatten(content_type, content):
             for col, cell in enumerate(row):
                 out.append((f"rows.{r}.{col}", str(cell)))
     elif content_type == ContentType.IMAGE:
-        if isinstance(c.get("caption"), str) and c["caption"].strip():
-            out.append(("caption", c["caption"]))
+        # alt is what screen readers announce (the phone's Image.semanticLabel)
+        for k in ("caption", "alt"):
+            if isinstance(c.get(k), str) and c[k].strip():
+                out.append((k, c[k]))
     return out
 
 

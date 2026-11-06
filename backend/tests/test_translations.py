@@ -132,6 +132,25 @@ def test_import_creates_a_draft_that_cannot_ship_until_reviewed(editor, module, 
     assert db.get(ModuleTranslation, mt.id).status == ContentReviewStatus.DRAFT
 
 
+def test_image_alt_text_is_exported_and_imported(editor, module, lang, db):
+    images = [s for s in db.query(ContentSection).filter_by(module_id=module.id) if s.content_type.value == "IMAGE" and s.content.get("alt")]
+    assert images, "M4 should have pictures with alt text"
+    export = client.get(f"/modules/{module.id}/translations/export.csv", headers=editor, params={"language": "zz"}).text
+    rows = {x["key"]: x for x in csv.DictReader(io.StringIO(export.lstrip("﻿")))}
+    pic = images[0]
+    assert rows[f"{pic.id}|alt"]["english"] == pic.content["alt"]
+    assert rows[f"{pic.id}|alt"]["where"].endswith("(IMAGE) alt")
+    r = client.post(
+        f"/modules/{module.id}/translations/import", headers=editor, params={"language": "zz"},
+        files={"file": ("m4.csv", _translated_csv(export), "text/csv")},
+    )
+    assert r.status_code == 200, r.text
+    st = db.query(SectionTranslation).filter_by(section_id=pic.id, language_id=lang.id).one()
+    assert st.content["alt"] == f"[zz] {pic.content['alt']}"
+    assert st.content["media_asset_id"] == pic.content["media_asset_id"]  # the picture itself is unchanged
+    assert db.query(ModuleTranslation).filter_by(module_id=module.id, language_id=lang.id).one().status == ContentReviewStatus.DRAFT
+
+
 def test_bad_files_are_rejected_and_write_nothing(editor, module, lang, db):
     url = f"/modules/{module.id}/translations/import"
     p = {"language": "zz"}
