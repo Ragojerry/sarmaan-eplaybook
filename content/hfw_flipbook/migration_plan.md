@@ -1,115 +1,113 @@
-# Migration plan: current 6 modules → 17 HFW role modules
+# Changeover plan: the HFW modules replace M1–M6
 
-The 17 new modules (HFW-01 to HFW-17) are **added alongside** the current modules M1–M6. Nothing is replaced or deleted. Existing progress, pre-tests and post-tests stay exactly as they are.
+**Decision.** This is a clean changeover. The 17 HFW modules, built from the 9 flipbook modules, become the only curriculum. The old modules M1–M6 are **archived for everyone**, new learners included. Nobody gets credit for old modules, and everyone's new progress starts at zero.
 
-## 1. What covers what
+**Archived does not mean deleted.** No learner, progress or test record is ever deleted, in any environment.
 
-The current modules follow the CDD flipbook order: M1 Intro, M2 Eligibility (with MUAC), M3 Referral, M4 Administration and recording, M5 IPC/SBC, M6 Safeguarding.
+## 1. What learners see after the changeover
 
-| Current module | New module(s) covering the same content | Credit given |
-|---|---|---|
-| M1 Introduction to AZM | HFW-01 Introduction to AZM | yes |
-| M2 Determination of Eligibility | HFW-02 Eligibility for AZM; HFW-03 MUAC Nutrition Assessment | yes, both |
-| M3 Steps for Referral | HFW-04 Referral of Children to the Health Facility | yes |
-| M4 Administration and Recording | HFW-06 Giving AZM Safely; HFW-07 Child Record Card; HFW-08 House Marking; HFW-10 Drug Accountability and Reconciliation; HFW-11 Cohort Tracking | yes, all five |
-| M5 Interpersonal Communication and SBC | HFW-14 Interpersonal Communication and SBC | yes |
-| M6 Safeguarding | HFW-17 Safeguarding | yes |
+**Their module list.** Every learner sees the 7 General modules first, then the modules for their own role. `modules.csv` gives the order (`learning_order`) and roles of each module.
 
-New in the 17-module set. There is no old equivalent, so no credit is given:
-
-| New module | Roles | Why it is new |
-|---|---|---|
-| HFW-05 The AZM Referral Form | CDD, Health worker | M3 only had one step: "complete the top portion of the referral form". The whole form, including the health-facility part, is new. |
-| HFW-09 Call-in Data Reporting | CDD, Health worker, Monitor/supervisor, Other | Not in M1–M6. |
-| HFW-12 Drug Safety and Side Effects | All (GENERAL) | Side effects, adverse events and SAE definitions were not taught. M3 only listed allergy signs. |
-| HFW-13 NAFDAC Reporting and the Role of DSNOs | Health worker | Not in M1–M6. |
-| HFW-15 Monitoring and Supervision | Monitor/supervisor | Not in M1–M6. |
-| HFW-16 Supply Chain Management | Logistician | Not in M1–M6. |
-
-The full list of new modules, with roles, duration and source pages, is in `modules.csv`.
-
-## 2. Credit rule
-
-**When credit is given.** A new module is credited from an old module only when the old module taught the new module's topic in a section of its own: a heading, or a titled callout or warning. One sentence inside another topic does not count. That is why HFW-05 (referral form) and HFW-12 (drug safety) get no credit.
-
-**What a credit is.** For each learner who completed the old module, the credit script:
-
-- creates a credit record for the new module, marked "credited from <old module>";
-- copies the old completion date and the score of the post-test that completed it. The score is left empty when the old module was completed without a post-test, for example before tests existed;
-- marks the learner's progress for the new module as completed, with the old date, so phones and the "complete to unlock the next module" order treat it as done.
-
-**Records that are never touched.** The old module's progress and test records are never edited or deleted. The credit is stored alongside them in a new table, `module_completion_credits`.
-
-**Telling credits apart.**
-
-| Where | What shows |
+| Role | List (in order) |
 |---|---|
-| Data | A credit row exists for (learner, module), with `source_module_code`, `source_completed_at`, `source_score_percent` and `run_id`. |
-| Pre/post-test report and CSV | `completion_source` = `credited` or `earned`, plus `credited_from` and `credited_score`. The admin page has a "Completed how" column, for example "credited from M4 (100%)". |
-| Activity reports and CSVs | `modules_completed_credited` per learner, area and session, and `completed_credited` per module, next to the existing totals. The admin pages show them as "Credited" or "Of which credited". |
+| CDD | HFW-01, 02, 04, 06, 12, 14, 17, then 03, 05, 07, 08, 09, 10 |
+| Health worker | General, then 05, 09, 10, 13 |
+| Logistician | General, then 10, 16 |
+| Monitor/supervisor | General, then 08, 09, 11, 15 |
+| Other | General, then 09, 11 |
 
-**Who gets a credit.** Learner accounts only, and only for new modules their learner role can see. A logistician who completed M4 is credited HFW-06 and HFW-10, but not HFW-07 (CDD only).
+A module shared by several roles is a single module. HFW-09 (Call-in data), for example, appears for CDD, Health worker, Monitor/supervisor and Other.
 
-**Skipped.**
+**The unlock chain.** A module opens only when every earlier module in that learner's list is complete. The first General module is open for everyone. M1–M6 are no longer in anyone's list or chain.
 
-- learners already credited by an earlier run (so the script is safe to re-run);
-- learners who already completed the new module themselves (their completion stays "earned");
-- modules outside the learner's role.
+**Progress.** Every learner starts at zero. Nothing from M1–M6 counts toward the new modules. The 90% post-test rule is unchanged: it auto-approves and completes the module, with no separate pass mark and no audit entry.
 
-A learner whose role changes later can be credited by running the script again.
+**The one-time notice.** On app 0.1.10, after the first sync that installs the new curriculum, learners see this once:
+- **English:** "The training has been updated. Start the new modules."
+- **Hausa (draft, needs native review):** "An sabunta horon. Fara sababbin darussa."
 
-**Training restart.** Restarting a learner's training now also removes their credits, together with their progress and attempts.
+## 2. What happens to the old data
 
-### One old module → several new modules
+**Archiving.** M1–M6 are set to `status = ARCHIVED`. That takes them out of:
 
-- **M2 → HFW-02, HFW-03:** the same completion date and score are copied to each.
-- **M4 → HFW-06, HFW-07, HFW-08, HFW-10, HFW-11:** the same completion date and score are copied to each.
+| Removed from | Mechanism |
+|---|---|
+| Learner lists and the unlock chain | `app/learning/access.py` shows PUBLISHED modules only |
+| Phones | The next release package leaves them out. Phones delete their sections, quizzes and cached images at the next sync (tested, see `offline_and_app_version_tests.md`). |
+| Search (Ask) | The search index is rebuilt without them |
+| Picture downloads | Pictures follow module visibility |
 
-### Several old modules → one new module
+**Records.** Every progress and test record stays in the database, unchanged. The cutover and rollback tests compare every progress and test row before and after.
 
-There are no such cases in this mapping. The script supports them: all listed old modules must be completed, and the latest completion date and the lowest score are copied.
+**Reports.** The old records appear only in the admin portal's "**Legacy (M1-M6)**" report (`/reports/legacy` and `legacy.csv`), with every row labelled. Current reports and completion rates count PUBLISHED modules only, so old and new are never mixed.
 
-## 3. Content that changed between the old and new versions
+**Late uploads.** A phone that was offline through the changeover still uploads its M1–M6 work when it reconnects. The server **keeps** it:
+- quiz attempts are stored with `valid = false` and the reason "module archived (legacy curriculum)";
+- progress can go up but never completes anything.
 
-This is for the programme team. Credit still applies; this is information, not a block. The details and page references are in `change_log.md`.
+Before this change, the server would have rejected those uploads, and the learner's data would have been lost.
 
-| New module | Credited from | What changed |
+## 3. Content that changed between the old and new modules
+
+This is for the programme team. Details and page references are in `change_log.md`.
+
+| New module | Covers old | Change in doses, time windows, cut-offs or codes |
 |---|---|---|
-| HFW-02 Eligibility | M2 | New rule: a child who is 59 months in round one gets AZM but is not eligible in the next round (p11). New eligibility chart that refers children with "mild/severe/acute malnutrition" (p16; open clinical question B3). "Green card" wording removed (p11). |
-| HFW-03 MUAC | M2 | MUAC actions changed: MAM is now "**Immediate** referral to health facility for counselling", and SAM "Immediate referral to health facility" (p18). The ANC assessment was removed. |
-| HFW-04 Referral | M3 | Allergy signs changed: "continuous vomiting" replaces "vomiting for more than 2 hours", and "unusual behaviour" was removed (p24). Danger signs now include SAM (p23). The step "confirm the caregiver understands by asking them to repeat" was removed (p25). |
-| HFW-06 Giving AZM | M4 | **Time window:** a partly used bottle stays viable "up to 2 to 3 days" instead of "up to 2 days" (p32). New: give to at most 5 children at a time (p31) and shake for at least 30 secs (p33). The infant feeding syringe was removed, leaving the dispensing cup only (p33). The daily target is now "a total of 100 children each day" instead of "a minimum of 100 children" (p32). |
-| HFW-07 Child Record Card | M4 | **Doses:** the card's height-based dosing table (2–25 ml) is taught for the first time (p34; open clinical question B1). A second card version adds date of birth (p49). |
-| HFW-08 House Marking | M4 | **Codes:** the round can now be 1–6 instead of 1 or 2. Examples changed from round 1 to round 3. "House number" was dropped from the list, although the examples still include `021`. An R/C example was added (p36; open question C2). |
-| HFW-10 Accountability | M4 | **Procedure:** reconciliation moves from "in DIGIT HCM at day's end" to the Inventory Control Card, empty bottles × 4 checked against DIGIT HCM, separate cartons, and return to the LGA store within 3 days (p44–45). |
-| HFW-17 Safeguarding | M6 | **Contact:** the safeguarding email in the new flipbook reads concenrns@malariaconsortium.org; the old module had concerns@ (p87; open question C1). |
+| HFW-02 Eligibility | M2 | New rule: a child who is 59 months in round 1 is not eligible in round 2. New chart that refers "mild/severe/acute malnutrition" (open clinical question). |
+| HFW-03 MUAC | M2 | MAM and SAM now need "**Immediate** referral". ANC was removed. |
+| HFW-04 Referral | M3 | Allergy signs changed ("continuous vomiting", no "unusual behaviour"). SAM added to the danger signs. |
+| HFW-06 Giving AZM | M4 | **A partly used bottle stays viable 2 to 3 days** (was 2). At most 5 children at a time. Shake for at least 30 secs. Syringe removed. |
+| HFW-07 Child Record Card | M4 | **The height-based dose table (2–25 ml) is taught for the first time** (clinician sign-off). |
+| HFW-08 House marking | M4 | **Codes:** rounds 1–6, round-3 examples, house number dropped from the list, R/C example. |
+| HFW-10 Accountability | M4 | **Reconciliation** now uses the Inventory Control Card and empty bottles × 4; bottles return to the LGA store within 3 days. |
+| HFW-17 Safeguarding | M6 | **Contact email** printed as "concenrns@" (clinician form, item 4). |
 
-HFW-01, HFW-11 and HFW-14 have wording changes only: who supervises CDDs, a longer cohort section, and longer IPC examples.
+HFW-05, 09, 12, 13, 15 and 16 have no old equivalent. HFW-01, 11 and 14 have wording changes only.
 
-## 4. How the credit step runs
+## 4. The cutover script
 
-- Script: `backend/scripts/credit_hfw_modules.py`. It is separate from the import, and safe to re-run.
-- Run `--dry-run` first: it changes nothing and reports, per new module, how many learners and records it would credit, and why others were skipped.
-- `--undo <run_id>` removes one run's credits and puts the new-module progress back as it was. It keeps any progress a learner earned afterwards with a post-test.
-- When `ENVIRONMENT=production`, the script refuses to run without `--allow-production`. Run it on staging first (see `import_runbook.md`). It has **not** been run against production.
-- Mapping source: the `credit_from` field in `content_sections.json`, generated from `_build/hfw_modules.py`.
+`backend/scripts/cutover_hfw.py`. A dry run of the cutover is in `cutover_dry_run_report.md`, and a dry run of the import alone is in `import_dry_run_report.md`.
 
-The local dry run (`credit_dry_run_report.md`) shows 0 records, because the local database has no completions and no imported modules. The automated test `tests/test_hfw_migration.py::test_credit_from_old_modules` runs the whole path with sample learners: dry-run counts, credit, re-run, reports and undo. It checks that the old progress and test rows are unchanged afterwards.
+**What a real run does,** in one transaction, so nothing is ever half done:
 
-## 5. Hiding the old modules after the migration window
+1. Imports the HFW content.
+2. Publishes the HFW modules.
+3. Archives M1–M6.
+4. Rebuilds search.
+5. Publishes a new mandatory content release with the curriculum marked `hfw-2026`. This is the content-version bump that makes every phone refresh.
 
-Archive, never delete:
+**What it reports:**
+- learner accounts affected;
+- in-progress learners who lose visible progress;
+- learners who completed M1–M6;
+- modules archived;
+- new modules published.
 
-1. Before archiving, export the activity and pre/post-test reports (CSV) as a record of the old modules.
-2. In the admin portal, or with `PATCH /modules/{id}` and `{"status": "ARCHIVED"}`, set M1–M6 to ARCHIVED.
+**Rollback** (`--rollback`): M1–M6 go back to PUBLISHED and the HFW modules back to DRAFT (hidden), and a new release is published. Nothing is deleted, and progress learners made on HFW modules stays stored. A second cutover after a rollback works; this is tested.
 
-What archiving does:
+**Guards in production.** The script refuses to run when:
+- `CUTOVER_DATE` is not set (dry runs included);
+- `CUTOVER_DATE` hasn't arrived yet (real run);
+- `--confirm-production` is missing (real run);
+- `--backup` is missing or fails verification (real run). Verification requires a `pg_dump -Fc` file that holds the users, progress and test tables and is less than 12 hours old.
 
-- Learners stop seeing the module. Only PUBLISHED modules are shown (`app/learning/access.py`).
-- The next content release leaves it out (`app/releases/packager.py`), so phones drop it at their next sync.
-- Reports stop counting it toward completion rates, because they measure PUBLISHED modules only. That's why step 1 exports them first.
-- Every progress, attempt and credit row stays in the database.
+The programme sets `CUTOVER_DATE`. No default is coded.
 
-To undo, set the status back to PUBLISHED.
+**Not run against production.** Only against the local development database (dry run and tests).
 
-**Decision needed before go-live:** the learning order during the window (open question A1). The new modules are imported with a sort order after M1–M6. A learner must complete every earlier visible module before a later one unlocks, so a learner who has not finished M1–M6 cannot start the new modules. Credited learners skip the matching new modules.
+## 5. Phones and app versions
+
+Summary; the test results are in `offline_and_app_version_tests.md`:
+
+| Phone | What the user sees |
+|---|---|
+| App 0.1.10, online | The new modules after the next sync. M1–M6 and their cached images are removed. The one-time notice appears. |
+| App 0.1.9 | The same new content and removal; tested against the real 0.1.9 code. No one-time notice, and a removed module says "not part of the training for your role". It works, so no forced update is needed. |
+| Offline through the changeover | Keeps showing M1–M6 until it syncs. Work done meanwhile is uploaded and kept as Legacy. Then it switches like an online phone. |
+| App older than 0.1.8 (no pre/post tests) | Not tested. Those apps can't do the pre/post tests the new modules need. Check that no field phone runs one (runbook step 4.6). |
+
+**Version gating.** From 0.1.10, the server can set `MIN_APP_VERSION`. Older apps then show "Training updated, please update the app" instead of the training. Apps older than 0.1.10 cannot read this setting.
+
+## 6. Afterwards
+
+M1–M6 stay archived and are never deleted. Their records stay available in the Legacy report and export.

@@ -1,6 +1,7 @@
 """
-Imports the HFW flipbook role modules (content/hfw_flipbook) ALONGSIDE the current
-modules. Nothing existing is replaced or deleted.
+Imports the HFW flipbook role modules (content/hfw_flipbook). Nothing existing is
+replaced or deleted. The changeover itself (archiving M1-M6, publishing the new
+modules, a new content release) is scripts/cutover_hfw.py, which calls this.
 
 Order: checks -> 1 modules -> 2 sections (with the UUIDs the CSV keys use) ->
 3 images (media assets) -> 4 roles -> 5 translation CSVs -> 6 quiz questions.
@@ -342,14 +343,17 @@ def upsert_quizzes(db, content_dir, mods, image_assets, rep):
     db.flush()
 
 
-def run(content_dir: Path, dry_run: bool, media_root: Path, skip_quizzes: bool = False, db=None) -> Report:
+def run(content_dir: Path, dry_run: bool, media_root: Path, skip_quizzes: bool = False, db=None,
+        manage_transaction: bool = True) -> Report:
+    """manage_transaction=False: the caller (the cutover) commits or rolls back; dry_run
+    then only stops image files being copied."""
     rep = Report()
     own = db is None
     db = db or SessionLocal()
     try:
         modules, sections, csvs, alt, quiz = load(content_dir, rep)
         check(db, content_dir, modules, sections, csvs, alt, quiz, rep)
-        if rep.errors and not dry_run:
+        if rep.errors and (not dry_run or not manage_transaction):
             return rep  # nothing written
         english = db.query(Language).filter_by(code="en").one()
         mods = upsert_modules(db, modules, english, rep)                    # 1
@@ -361,6 +365,8 @@ def run(content_dir: Path, dry_run: bool, media_root: Path, skip_quizzes: bool =
             rep.info.append("quiz questions skipped (--skip-quizzes)")
         else:
             upsert_quizzes(db, content_dir, mods, image_assets, rep)         # 6
+        if not manage_transaction:
+            return rep
         if rep.errors or dry_run:
             db.rollback()
             if not dry_run:
@@ -371,7 +377,8 @@ def run(content_dir: Path, dry_run: bool, media_root: Path, skip_quizzes: bool =
             db.commit()
         return rep
     except Exception:
-        db.rollback()
+        if manage_transaction:
+            db.rollback()
         raise
     finally:
         if own:

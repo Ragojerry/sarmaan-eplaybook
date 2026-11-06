@@ -179,5 +179,8 @@ class LearningState(BaseModel):
     learner_role: str | None
     # A 100% pre-test is auto-approved by a post-test at or above this percentage.
     auto_approve_percent: int
+    # Phones older than this show "Training updated, please update the app" (None = no minimum).
+    # Only apps from 0.1.10 read it; older apps ignore unknown fields.
+    min_app_version: str | None = None
     modules: list[ModuleLearning]
     attempts: list[AttemptOut]

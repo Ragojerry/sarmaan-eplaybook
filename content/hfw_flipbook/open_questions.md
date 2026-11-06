@@ -4,47 +4,57 @@ Page numbers are HFW PDF pages; the printed page number is one lower.
 
 **Already decided, so removed from this list:**
 
-- **Module split:** audience per module, 17 modules. See `modules.csv` and `migration_plan.md`.
-- **Old modules:** the new modules are added alongside M1–M6.
-- **Credit:** given from old modules.
+- **Module split:** audience per module, 17 modules. See `modules.csv`.
+- **Clean changeover:** M1–M6 are archived for everyone and the HFW modules are the only curriculum.
+- **Learning order:** General modules first, then the learner's role modules.
+- **Credit:** none.
+- **Old data:** kept and shown as "Legacy (M1-M6)".
 - **Quiz length:** 10 questions per module.
-- **Import blockers:** solved by `alt_text.csv`, the importer patch and the import script.
 
-## A. Migration and launch
+See `migration_plan.md`.
 
-**A1. Learning order during the migration window.**
+## A. Changeover and launch
 
-- The new modules are imported to come after M1–M6.
-- A module unlocks only when every earlier visible module is complete. So a learner who has not finished M1–M6 cannot start any HFW module, and a new learner has to do both sets.
-- Options:
-  1. Keep this order.
-  2. Put the HFW modules first, which locks M1–M6 behind them.
-  3. Archive M1–M6 for new learners at launch. This needs a small code change, because archiving is all-or-nothing per module.
-- **Decision needed.**
+**A1. Staging.**
+- The default plan is a second server in eu-north-1, restored from production and anonymised (`changeover_runbook.md`, section 1).
+- **Decision needed from the programme owner:** confirm the plan, name the staging owner, and accept the extra server cost.
 
-**A2. A staging environment does not exist.**
+**A2. `CUTOVER_DATE`.**
+- Not chosen.
+- The programme owner sets it in production configuration.
+- The cutover script refuses production without it.
 
-- `import_runbook.md` assumes one, restored from a production backup and with its own test APK.
-- **Decision needed:** where staging runs (a second EC2 instance in eu-north-1, or locally), and who signs it off.
+**A3. Minimum app version.**
+- App 0.1.9 handles the changeover correctly (`offline_and_app_version_tests.md`), so `MIN_APP_VERSION` can stay unset.
+- **Decision needed:** require 0.1.10 at launch, to guarantee the one-time notice and the clearer messages; or later; or never.
 
-**A3. When the migration window ends.** This is the date the old modules are archived (`migration_plan.md` §5).
+**A4. App 0.1.10.**
+- The version is set to 0.1.10+11 in the code, but no APK has been built or published.
+- Build and test the staging APK first (runbook 1.8).
+- Publishing the production APK is a separate step.
 
-**A4. No-credit modules.** HFW-05 (referral form) and HFW-12 (drug safety) get no credit under the "own section" rule. Confirm, or give credit from M3.
+**A5. Apps older than 0.1.8 in the field.**
+- They can't do the new pre-/post-tests.
+- Confirm none are in use (runbook 4.6).
 
-**A5. Importer patch for translated alt text.**
+**A6. Importer patch for translated alt text.**
+- It is on branch `importer-alt-text` and not merged (`alt_text_importer_spec.md`).
+- It is needed before Hausa alt text is imported.
 
-- It is on branch `importer-alt-text`, and not merged (`alt_text_importer_spec.md`).
-- Merge it before Hausa alt text is imported. It is not needed for the English import.
+**A7. Estimated durations.**
+- 15–30 minutes per module, 335 in total.
+- Per role: CDD 265, Health worker 220, Monitor/supervisor 220, Other 185, Logistician 180 minutes.
+- Confirm after the staging trial.
 
-**A6. Estimated durations.**
-
-- `modules.csv` estimates 15–30 minutes per module, 335 minutes in total. A learner sees only their own modules, so the total per role is CDD 265, Health worker 220, Monitor/supervisor 220, Other 185 and Logistician 180 minutes.
-- The estimate assumes reading at 80 words per minute, plus 0.5 min per picture, 1 min per table and 10 min for the two tests.
-- Confirm or adjust after the staging trial.
+**A8. Branches.**
+- `hfw-role-modules` (content, import and cutover scripts, legacy report, app 0.1.10) and `importer-alt-text` are local and not merged.
+- **Decision needed:** when to merge, after review.
 
 ## B. Clinician sign-off needed
 
 All values below match the PDF on the second-pass check (`verification_report.md`). They are open because the **content itself** looks questionable, not because it was copied wrongly.
+
+**Items B1, B2, B3 and C1 are on the one-page form `clinician_signoff.md`.** Publishing to production and the Hausa translation wait for it.
 
 **B1. Height-based dosing table on the Child Record Card (p34).**
 - The doses run 2, 4, 6, 8, 10, 12, 14, 16, then **19** and **25 ml**.
@@ -147,7 +157,12 @@ Details are in the `rights_or_consent_flag` column of `images_manifest.csv`.
 
 ## F. Hausa: not started
 
-Hausa starts only after the module split is approved and a clinician signs off the English.
+Hausa starts only after the clinician signs `clinician_signoff.md`.
+
+- **New phone texts in draft Hausa, for native review:**
+  - the notice: "An sabunta horon. Fara sababbin darussa." ("The training has been updated. Start the new modules.");
+  - the button: "To" (OK);
+  - the update screen: "An sabunta horo, da fatan za a sabunta manhajar." ("Training updated, please update the app.").
 
 - No glossary file exists. The Hausa in `module_ha_*.csv` will serve as the glossary.
 - "Cup" will be "kofi" (not "kwafi"), flagged for native review.

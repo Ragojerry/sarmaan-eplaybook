@@ -9,6 +9,7 @@ import 'package:path/path.dart' as p;
 import 'package:path_provider/path_provider.dart';
 
 import '../db/local_database.dart';
+import '../learning/curriculum_notice.dart';
 import '../services/api_client.dart';
 import 'analytics_recorder.dart';
 
@@ -157,6 +158,7 @@ class ReleaseInstaller {
     // 4+5. APPLY and VERIFY in one transaction; throwing rolls everything back.
     report(InstallStage.apply, 0);
     final moduleIds = <String>{for (final m in modules) m['id'] as String};
+    final previous = await previousCurriculum(_db);
     final languages = <String>{for (final c in chunks) c['language'] as String};
     final now = DateTime.now();
     try {
@@ -278,6 +280,8 @@ class ReleaseInstaller {
       throw InstallException(InstallStage.apply, '$e');
     }
     report(InstallStage.apply, 1);
+    // A changed curriculum (the changeover) queues the one-time "training updated" notice.
+    await recordCurriculum(_db, previous, pkg['curriculum'] as String?);
 
     // Best-effort tidy-up AFTER success: images that left the release, and
     // superseded files for images whose checksum changed.

@@ -14,9 +14,6 @@
    "OTHER"
   ],
   "estimated_minutes": 20,
-  "credit_from": [
-   "M1"
-  ],
   "sections": [
    {
     "id": "4d884d84-0c47-5d2c-b61d-531ae1723bfa",
@@ -448,9 +445,6 @@
    "OTHER"
   ],
   "estimated_minutes": 30,
-  "credit_from": [
-   "M2"
-  ],
   "sections": [
    {
     "id": "4950fd52-c482-5725-8410-7a56a80076aa",
@@ -1024,231 +1018,8 @@
   ]
  },
  {
-  "module_code": "HFW-03",
-  "learning_order": 3,
-  "title": "MUAC Nutrition Assessment",
-  "description": "Measuring MUAC on children 6-59 months and acting on the result.",
-  "audience": "ROLE_SPECIFIC",
-  "learner_roles": [
-   "CDD"
-  ],
-  "roles_display": [
-   "CDD"
-  ],
-  "estimated_minutes": 20,
-  "credit_from": [
-   "M2"
-  ],
-  "sections": [
-   {
-    "id": "d64948e4-dd35-5333-8d19-1b3ff719df25",
-    "section_number": 1,
-    "content_type": "HEADING",
-    "title": null,
-    "pdf_pages": [
-     17
-    ],
-    "flipbook_origin": "M2#34",
-    "content": {
-     "text": "MUAC nutrition assessment (children 6–59 months)"
-    },
-    "transcribed_from_image": false
-   },
-   {
-    "id": "408a9e42-0872-5f48-b610-5b5db3b50b54",
-    "section_number": 2,
-    "content_type": "LIST",
-    "title": null,
-    "pdf_pages": [
-     17
-    ],
-    "flipbook_origin": "M2#35",
-    "content": {
-     "items": [
-      "MUAC is done during routine SARMAAN II household visits.",
-      "It uses trained CDDs and existing supervision structures.",
-      "Data is collected on the Kobo Collect digital platform.",
-      "It uses existing household engagement processes.",
-      "No extra household visits are needed."
-     ]
-    },
-    "transcribed_from_image": false
-   },
-   {
-    "id": "6d7ff1b8-bc0e-560d-a0c3-875e91e3613d",
-    "section_number": 3,
-    "content_type": "LIST",
-    "title": "How to measure",
-    "pdf_pages": [
-     17
-    ],
-    "flipbook_origin": "M2#36",
-    "content": {
-     "items": [
-      "Measure the Mid-Upper Arm Circumference (MUAC) with a standard colour-coded MUAC tape.",
-      "Use the left arm.",
-      "Find the correct midpoint.",
-      "Apply the tape lightly or comfortably."
-     ]
-    },
-    "transcribed_from_image": false
-   },
-   {
-    "id": "0b177036-b427-5988-a146-0900f3e32ec4",
-    "section_number": 4,
-    "content_type": "WARNING",
-    "title": "Do not pull the tape tight",
-    "pdf_pages": [
-     17
-    ],
-    "flipbook_origin": "M2#37",
-    "content": {
-     "heading": "Do not pull the tape tight",
-     "text": "The MUAC tape must not be tight or too tight."
-    },
-    "transcribed_from_image": false
-   },
-   {
-    "id": "957e019d-c3c7-57f2-91ba-415a67642af6",
-    "section_number": 5,
-    "content_type": "TEXT",
-    "title": null,
-    "pdf_pages": [
-     17
-    ],
-    "flipbook_origin": "M2#38",
-    "content": {
-     "text": "Kobo Collect classifies MUAC values automatically using WHO/UNICEF thresholds."
-    },
-    "transcribed_from_image": false
-   },
-   {
-    "id": "c009aca6-7bdd-53c5-9358-f3d34e7da3b3",
-    "section_number": 6,
-    "content_type": "IMAGE",
-    "title": null,
-    "pdf_pages": [
-     18
-    ],
-    "flipbook_origin": "M2#39",
-    "content": {
-     "image_file": "m2_p18_01.png",
-     "caption": "Step — read the MUAC result and take the action in the same row.",
-     "alt": "A colour-coded table: green row 12.5 cm or more, yellow row 11.5 to 12.4 cm, pink row less than 11.5 cm, with status, classification and action columns."
-    },
-    "transcribed_from_image": false
-   },
-   {
-    "id": "9f848974-6e4b-5623-817d-1ae8fd2ad55e",
-    "section_number": 7,
-    "content_type": "TABLE",
-    "title": "MUAC chart (transcribed from image)",
-    "pdf_pages": [
-     18
-    ],
-    "flipbook_origin": "M2#40",
-    "content": {
-     "headers": [
-      "MUAC Range",
-      "Status",
-      "Classification",
-      "Action Required"
-     ],
-     "rows": [
-      [
-       "≥ 12.5 cm",
-       "Well-nourished",
-       "Normal",
-       "No immediate action"
-      ],
-      [
-       "11.5 - 12.4 cm",
-       "At Risk / MAM",
-       "Moderate Acute Malnutrition",
-       "Immediate referral to health facility for counselling"
-      ],
-      [
-       "< 11.5 cm",
-       "SAM",
-       "Severe Acute Malnutrition",
-       "Immediate referral to health facility"
-      ]
-     ]
-    },
-    "transcribed_from_image": true
-   },
-   {
-    "id": "3e608c38-bc7c-50d2-809a-61e402dc2825",
-    "section_number": 8,
-    "content_type": "IMAGE",
-    "title": null,
-    "pdf_pages": [
-     19
-    ],
-    "flipbook_origin": "M2#41",
-    "content": {
-     "image_file": "m2_p19_01.jpg",
-     "caption": "Do measure on the left arm, not too tight. Do not use the right arm or pull the tape too tight.",
-     "alt": "Two illustrated panels. Green panel, Good MUAC assessment: a CDD measures a girl's left arm, labels Left arm and Not too tight. Red panel, Bad MUAC assessment: a CDD measures a child's right arm, labels Right arm and Too tight."
-    },
-    "transcribed_from_image": false
-   },
-   {
-    "id": "0daff3c0-e596-5011-a068-30210ddc3d5e",
-    "section_number": 9,
-    "content_type": "LIST",
-    "title": "MUAC right and wrong (transcribed from image)",
-    "pdf_pages": [
-     19
-    ],
-    "flipbook_origin": "M2#42",
-    "content": {
-     "items": [
-      "Good: left arm.",
-      "Good: not too tight.",
-      "Bad: right arm.",
-      "Bad: too tight."
-     ]
-    },
-    "transcribed_from_image": true
-   },
-   {
-    "id": "6bac66e1-203f-5c69-b003-efaf2da03c18",
-    "section_number": 10,
-    "content_type": "IMAGE",
-    "title": null,
-    "pdf_pages": [
-     20
-    ],
-    "flipbook_origin": "M2#43",
-    "content": {
-     "image_file": "m2_p20_01.jpg",
-     "caption": "Step — wrap the MUAC tape around the upper arm of a child aged 6-59 months.",
-     "alt": "Close-up photo of adult hands wrapping a green and red MUAC tape around a child's upper arm. The child wears a striped shirt."
-    },
-    "transcribed_from_image": false
-   },
-   {
-    "id": "82b8420b-2004-5f4e-8398-722bcca2d686",
-    "section_number": 11,
-    "content_type": "IMAGE",
-    "title": null,
-    "pdf_pages": [
-     20
-    ],
-    "flipbook_origin": "M2#44",
-    "content": {
-     "image_file": "m2_p20_02.png",
-     "caption": "The MUAC tape: red from 6 to 11 cm, yellow at 12 cm, green from 13 to 26 cm.",
-     "alt": "Technical drawing of a MUAC tape with a UNICEF logo, a cm window and a scale from 6 to 26 with red, yellow and green bands. Small dimension labels are not readable."
-    },
-    "transcribed_from_image": false
-   }
-  ]
- },
- {
   "module_code": "HFW-04",
-  "learning_order": 4,
+  "learning_order": 3,
   "title": "Referral of Children to the Health Facility",
   "description": "When to refer a child, signs of allergy, and the referral steps.",
   "audience": "GENERAL",
@@ -1261,9 +1032,6 @@
    "OTHER"
   ],
   "estimated_minutes": 20,
-  "credit_from": [
-   "M3"
-  ],
   "sections": [
    {
     "id": "a851ea6a-1932-5ebe-ade2-b832095b1be1",
@@ -1637,191 +1405,8 @@
   ]
  },
  {
-  "module_code": "HFW-05",
-  "learning_order": 5,
-  "title": "The AZM Referral Form",
-  "description": "Completing the CDD and health facility parts of the AZM referral form.",
-  "audience": "ROLE_SPECIFIC",
-  "learner_roles": [
-   "CDD",
-   "HEALTH_WORKER"
-  ],
-  "roles_display": [
-   "CDD",
-   "HEALTH_WORKER"
-  ],
-  "estimated_minutes": 15,
-  "credit_from": [],
-  "sections": [
-   {
-    "id": "888efe38-b478-5f1c-857d-3f62ba5136bd",
-    "section_number": 1,
-    "content_type": "HEADING",
-    "title": null,
-    "pdf_pages": [
-     26
-    ],
-    "flipbook_origin": "M3#23",
-    "content": {
-     "text": "The AZM referral form"
-    },
-    "transcribed_from_image": false
-   },
-   {
-    "id": "4267592e-df1f-52f3-9890-9580e0f6824f",
-    "section_number": 2,
-    "content_type": "LIST",
-    "title": null,
-    "pdf_pages": [
-     26
-    ],
-    "flipbook_origin": "M3#24",
-    "content": {
-     "items": [
-      "Each CDD team has referral forms with a double carbon copy.",
-      "The form tracks the number of children referred to the health facility.",
-      "It also tracks the number of children who get to the health facility."
-     ]
-    },
-    "transcribed_from_image": false
-   },
-   {
-    "id": "acb60ff2-41c8-555f-83fe-d23692151aa1",
-    "section_number": 3,
-    "content_type": "IMAGE",
-    "title": null,
-    "pdf_pages": [
-     26
-    ],
-    "flipbook_origin": "M3#25",
-    "content": {
-     "image_file": "m3_p26_01.png",
-     "caption": "Step — the CDD completes the top section; the health facility worker completes the rest.",
-     "alt": "A one-page form titled AZM Referral Form with partner logos. A black bar reads To be completed by the CDD, followed by boxes, then a second bar reads To be completed by the Health Facility Worker, with numbered yes or no questions."
-    },
-    "transcribed_from_image": false
-   },
-   {
-    "id": "68baa400-bd2d-5859-b542-bafdf6d48bbf",
-    "section_number": 4,
-    "content_type": "LIST",
-    "title": "To be completed by the CDD (transcribed from image)",
-    "pdf_pages": [
-     26
-    ],
-    "flipbook_origin": "M3#26",
-    "content": {
-     "items": [
-      "Name of child; Beneficiary ID.",
-      "Age: 1 11 month: [as printed] or 12- 59 months. Gender: Female or Male.",
-      "State, LGA, Ward, Settlement.",
-      "Date of referral; Name of health facility referred to.",
-      "AZM round (tick): Round 1, 2, 3, 4, 5 or 6."
-     ]
-    },
-    "transcribed_from_image": true
-   },
-   {
-    "id": "e73e7a41-e84d-5c05-9005-122b80789fac",
-    "section_number": 5,
-    "content_type": "LIST",
-    "title": "To be completed by the CDD, continued (transcribed from image)",
-    "pdf_pages": [
-     26
-    ],
-    "flipbook_origin": "M3#27",
-    "content": {
-     "items": [
-      "Reason for referral: Sick, Fever, or Side effect to AZM.",
-      "State side effect to AZM.",
-      "CDD Team Code.",
-      "Signature of Recorder."
-     ]
-    },
-    "transcribed_from_image": true
-   },
-   {
-    "id": "09d19889-d864-5e61-992d-0c8351d8f329",
-    "section_number": 6,
-    "content_type": "LIST",
-    "title": "To be completed by the Health Facility Worker (transcribed from image)",
-    "pdf_pages": [
-     26
-    ],
-    "flipbook_origin": "M3#28",
-    "content": {
-     "items": [
-      "Date of child evaluated; AZM Round: 1 or 2; Name of Health Facility.",
-      "Child evaluated to determine cause of illness: YES / NO. Diagnosis.",
-      "Child treated: YES / NO. Name of treatment. Dose of treatment.",
-      "Child admitted to health facility or referred to hospital for severe illness: YES / NO."
-     ]
-    },
-    "transcribed_from_image": true
-   },
-   {
-    "id": "0e51fcae-cf45-51eb-8350-a669c4104599",
-    "section_number": 7,
-    "content_type": "LIST",
-    "title": "Child referred with fever (transcribed from image)",
-    "pdf_pages": [
-     26
-    ],
-    "flipbook_origin": "M3#29",
-    "content": {
-     "items": [
-      "Child tested for malaria: YES / NO.",
-      "RDT result: Positive / Negative.",
-      "Child admitted to health facility or referred to hospital for severe malaria: YES / NO.",
-      "Child with confirmed positive malaria test treated with ACT: YES / NO.",
-      "Name and dose of ACT."
-     ]
-    },
-    "transcribed_from_image": true
-   },
-   {
-    "id": "5d1bbc29-af2e-5a36-a1e3-d55e18de0eca",
-    "section_number": 8,
-    "content_type": "LIST",
-    "title": "Child with possible adverse drug reaction (transcribed from image)",
-    "pdf_pages": [
-     26
-    ],
-    "flipbook_origin": "M3#30",
-    "content": {
-     "items": [
-      "Child evaluated for adverse drug reaction to AZM: YES / NO.",
-      "National PV form was completed: YES / NO.",
-      "NAFDAC E-Reporting Link / Med Safety App was filled: YES / NO.",
-      "Child admitted to health facility or referred to hospital for SAE: YES / NO.",
-      "Outcome; Name of in-charge; Signature."
-     ]
-    },
-    "transcribed_from_image": true
-   },
-   {
-    "id": "f11ce263-0d18-5c73-a57c-5fe338c83def",
-    "section_number": 9,
-    "content_type": "LIST",
-    "title": "Demonstrate and practise",
-    "pdf_pages": [
-     26
-    ],
-    "flipbook_origin": "M3#31",
-    "content": {
-     "items": [
-      "Show how to complete the top portion of the AZM referral form for the CDDs.",
-      "Let the CDDs practise filling the top portion of the form.",
-      "Role play: a child is 2 years old and has had high fever for 2 days."
-     ]
-    },
-    "transcribed_from_image": false
-   }
-  ]
- },
- {
   "module_code": "HFW-06",
-  "learning_order": 6,
+  "learning_order": 4,
   "title": "Giving AZM Safely",
   "description": "Preparing AZM POS, dosing by age and height, giving the dose and observing the child.",
   "audience": "GENERAL",
@@ -1834,9 +1419,6 @@
    "OTHER"
   ],
   "estimated_minutes": 25,
-  "credit_from": [
-   "M4"
-  ],
   "sections": [
    {
     "id": "b861b299-b891-57f8-9309-4696aa34df54",
@@ -2246,8 +1828,1043 @@
   ]
  },
  {
-  "module_code": "HFW-07",
+  "module_code": "HFW-12",
+  "learning_order": 5,
+  "title": "Drug Safety and Side Effects",
+  "description": "Side effects, adverse events and serious adverse events, and why they are reported.",
+  "audience": "GENERAL",
+  "learner_roles": [],
+  "roles_display": [
+   "CDD",
+   "HEALTH_WORKER",
+   "LOGISTICIAN",
+   "MONITOR_SUPERVISOR",
+   "OTHER"
+  ],
+  "estimated_minutes": 15,
+  "sections": [
+   {
+    "id": "bb8c2b69-39ce-5fc1-a847-a6bf3b8a326d",
+    "section_number": 1,
+    "content_type": "IMAGE",
+    "title": null,
+    "pdf_pages": [
+     61
+    ],
+    "flipbook_origin": "M5#1",
+    "content": {
+     "image_file": "m5_p61_01.jpg",
+     "caption": "Possible side effects — watch children after AZM and refer any child who becomes unwell.",
+     "alt": "Six drawn panels: a sad child sitting by a puddle, a man holding a crying baby, a girl in bed offered water, a child on a bed given a cup, a girl kneeling and holding her stomach near a latrine, and a woman holding her stomach in pain."
+    },
+    "transcribed_from_image": false
+   },
+   {
+    "id": "10e1c984-22dd-5fd9-aef8-d48fe7f71a93",
+    "section_number": 2,
+    "content_type": "HEADING",
+    "title": null,
+    "pdf_pages": [
+     63
+    ],
+    "flipbook_origin": "M5#2",
+    "content": {
+     "text": "Drug safety during AZM"
+    },
+    "transcribed_from_image": false
+   },
+   {
+    "id": "e1beb005-cd87-58b3-bba2-269d0482d692",
+    "section_number": 3,
+    "content_type": "TEXT",
+    "title": null,
+    "pdf_pages": [
+     63
+    ],
+    "flipbook_origin": "M5#3",
+    "content": {
+     "text": "Drug safety means monitoring and managing the risks of medicines, so the benefits outweigh any harm."
+    },
+    "transcribed_from_image": false
+   },
+   {
+    "id": "4d647a4d-6cff-5a95-b94f-2713c2db421b",
+    "section_number": 4,
+    "content_type": "TABLE",
+    "title": "Side effects and adverse events",
+    "pdf_pages": [
+     63
+    ],
+    "flipbook_origin": "M5#4",
+    "content": {
+     "headers": [
+      "Term",
+      "Meaning"
+     ],
+     "rows": [
+      [
+       "Side effects",
+       "Minor, expected reactions to medicines that do not require stopping treatment."
+      ],
+      [
+       "Adverse events",
+       "Can be serious or non-serious."
+      ],
+      [
+       "Serious adverse event",
+       "Any untoward medical occurrence at any dose resulting in death, hospitalization or longer hospitalization, persistent or significant disability or incapacity, or congenital anomaly or birth defect."
+      ]
+     ]
+    },
+    "transcribed_from_image": false
+   },
+   {
+    "id": "c53d6d00-0e62-56bd-93dc-51ad3b631270",
+    "section_number": 5,
+    "content_type": "WARNING",
+    "title": "Report serious adverse events immediately",
+    "pdf_pages": [
+     63
+    ],
+    "flipbook_origin": "M5#5",
+    "content": {
+     "heading": "Report serious adverse events immediately",
+     "text": "Serious adverse events must be reported immediately."
+    },
+    "transcribed_from_image": false
+   },
+   {
+    "id": "b26c5608-4713-5cb1-a57b-c8d97ff6b83c",
+    "section_number": 6,
+    "content_type": "LIST",
+    "title": "Objectives of pharmacovigilance",
+    "pdf_pages": [
+     63
+    ],
+    "flipbook_origin": "M5#6",
+    "content": {
+     "items": [
+      "Pharmacovigilance aims at rational and safe use of medicines.",
+      "It assesses and communicates the risks and benefits of medicines, to improve patient care and public health.",
+      "No drug is always safe for everyone.",
+      "Know the possible side effects, monitor children, and refer them immediately to the health facility."
+     ]
+    },
+    "transcribed_from_image": false
+   }
+  ]
+ },
+ {
+  "module_code": "HFW-14",
+  "learning_order": 6,
+  "title": "Interpersonal Communication and SBC",
+  "description": "Good communication with caregivers and the SBC methods used in the AZM campaign.",
+  "audience": "GENERAL",
+  "learner_roles": [],
+  "roles_display": [
+   "CDD",
+   "HEALTH_WORKER",
+   "LOGISTICIAN",
+   "MONITOR_SUPERVISOR",
+   "OTHER"
+  ],
+  "estimated_minutes": 20,
+  "sections": [
+   {
+    "id": "43832c6d-3e36-55ac-94ee-357c2623328b",
+    "section_number": 1,
+    "content_type": "IMAGE",
+    "title": null,
+    "pdf_pages": [
+     73
+    ],
+    "flipbook_origin": "M6#1",
+    "content": {
+     "image_file": "m6_p73_01.jpg",
+     "caption": "Do talk with caregivers respectfully and explain AZM clearly.",
+     "alt": "Photo of a woman CDD in an orange headscarf and yellow vest gesturing as she talks with a seated mother holding a baby and a standing girl in a yellow dress."
+    },
+    "transcribed_from_image": false
+   },
+   {
+    "id": "96293ebc-647e-5f36-b8f2-f76af6b371ff",
+    "section_number": 2,
+    "content_type": "HEADING",
+    "title": null,
+    "pdf_pages": [
+     75
+    ],
+    "flipbook_origin": "M6#2",
+    "content": {
+     "text": "Why interpersonal communication matters"
+    },
+    "transcribed_from_image": false
+   },
+   {
+    "id": "01cba45f-9dcd-5725-ac03-ed56f15b7e4c",
+    "section_number": 3,
+    "content_type": "LIST",
+    "title": null,
+    "pdf_pages": [
+     75
+    ],
+    "flipbook_origin": "M6#3",
+    "content": {
+     "items": [
+      "Good communication builds trust and helps make sure AZM is given safely.",
+      "Respect the cultural norms of the community.",
+      "Greet the head of household and caregivers with respect, and recognize the child.",
+      "Use words they will understand, and use the pictures in the AZM job aid.",
+      "Use open-ended questions to get more information."
+     ]
+    },
+    "transcribed_from_image": false
+   },
+   {
+    "id": "1a92bba3-243e-534e-adc3-1b0733d78bd3",
+    "section_number": 4,
+    "content_type": "LIST",
+    "title": "Listen and check",
+    "pdf_pages": [
+     75
+    ],
+    "flipbook_origin": "M6#4",
+    "content": {
+     "items": [
+      "Listen carefully to what the head of household or caregiver says.",
+      "Give time to answer, and show you are listening by nodding or saying \"I understand\".",
+      "Stop from time to time to ask if they understand or have any questions."
+     ]
+    },
+    "transcribed_from_image": false
+   },
+   {
+    "id": "1f1cbb37-ac63-5118-9552-f1b2091869f4",
+    "section_number": 5,
+    "content_type": "LIST",
+    "title": "Exercise: confirm understanding",
+    "pdf_pages": [
+     75
+    ],
+    "flipbook_origin": "M6#5",
+    "content": {
+     "items": [
+      "Ask the caregiver to repeat the information about AZM.",
+      "Ask questions that get the answers you need.",
+      "Let others share information without interruption.",
+      "Explain health messages so they are understood."
+     ]
+    },
+    "transcribed_from_image": false
+   },
+   {
+    "id": "264ce042-ab8b-56a0-ad4c-08986cc706b9",
+    "section_number": 6,
+    "content_type": "LIST",
+    "title": "Explain the benefits of AZM",
+    "pdf_pages": [
+     75
+    ],
+    "flipbook_origin": "M6#6",
+    "content": {
+     "items": [
+      "Protects children from pneumonia, diarrhoea and malaria.",
+      "Prevents and treats other bacterial infections."
+     ]
+    },
+    "transcribed_from_image": false
+   },
+   {
+    "id": "fd968349-69fb-5f26-a86b-1d0fdbcfae88",
+    "section_number": 7,
+    "content_type": "TABLE",
+    "title": "Closed and open-ended questions",
+    "pdf_pages": [
+     75
+    ],
+    "flipbook_origin": "M6#7",
+    "content": {
+     "headers": [
+      "Type of question",
+      "Examples"
+     ],
+     "rows": [
+      [
+       "Closed-ended: gets a yes or no answer",
+       "Is your child between 1 to 59 months? Is your child sick today? Did you have any problems with the last round of AZM?"
+      ],
+      [
+       "Open-ended: gets more information",
+       "How old is your child? How is your child feeling today? How did your child feel after the last round of AZM?"
+      ]
+     ]
+    },
+    "transcribed_from_image": false
+   },
+   {
+    "id": "9bd94b97-3885-5024-94d3-17bce53577c8",
+    "section_number": 8,
+    "content_type": "HEADING",
+    "title": null,
+    "pdf_pages": [
+     76
+    ],
+    "flipbook_origin": "M6#8",
+    "content": {
+     "text": "Social and behaviour change (SBC)"
+    },
+    "transcribed_from_image": false
+   },
+   {
+    "id": "055c7f12-8ed7-5c99-9684-6d57961d7bb1",
+    "section_number": 9,
+    "content_type": "TEXT",
+    "title": null,
+    "pdf_pages": [
+     76
+    ],
+    "flipbook_origin": "M6#9",
+    "content": {
+     "text": "SBC is a strategic approach that influences behaviour by engaging communities through tailored messages."
+    },
+    "transcribed_from_image": false
+   },
+   {
+    "id": "b5ead3b3-f4ef-5e4c-b936-a0a4f497d629",
+    "section_number": 10,
+    "content_type": "LIST",
+    "title": "SBC methods in the AZM campaign",
+    "pdf_pages": [
+     76
+    ],
+    "flipbook_origin": "M6#10",
+    "content": {
+     "items": [
+      "Interpersonal communication.",
+      "Mass media campaigns.",
+      "Community mobilization.",
+      "Visual aids."
+     ]
+    },
+    "transcribed_from_image": false
+   },
+   {
+    "id": "4921ddd4-69ce-5cbc-a0ee-62248caa1040",
+    "section_number": 11,
+    "content_type": "LIST",
+    "title": "Facilitator activity",
+    "pdf_pages": [
+     76
+    ],
+    "flipbook_origin": "M6#11",
+    "content": {
+     "items": [
+      "Ask participants which SBC tools for AZM MDA they have seen or used.",
+      "Show examples of AZM job aids, posters and banners used in the community."
+     ]
+    },
+    "transcribed_from_image": false
+   }
+  ]
+ },
+ {
+  "module_code": "HFW-17",
   "learning_order": 7,
+  "title": "Safeguarding",
+  "description": "Protecting children and vulnerable adults during the AZM campaign, and reporting concerns.",
+  "audience": "GENERAL",
+  "learner_roles": [],
+  "roles_display": [
+   "CDD",
+   "HEALTH_WORKER",
+   "LOGISTICIAN",
+   "MONITOR_SUPERVISOR",
+   "OTHER"
+  ],
+  "estimated_minutes": 20,
+  "sections": [
+   {
+    "id": "7819a2b5-c5a3-50e8-aab4-9eee0d864e5d",
+    "section_number": 1,
+    "content_type": "IMAGE",
+    "title": null,
+    "pdf_pages": [
+     84
+    ],
+    "flipbook_origin": "M9#1",
+    "content": {
+     "image_file": "m9_p84_01.jpg",
+     "caption": "Do give AZM from the cup while the child sits upright. Do not force medicine into a lying child's mouth.",
+     "alt": "Three photos. A mother gives a seated boy medicine from a cup. A green tick over a girl drinking from a cup among children and caregivers. A red X over an adult forcing liquid from a spoon into a lying baby's mouth."
+    },
+    "transcribed_from_image": false
+   },
+   {
+    "id": "de569438-6d7c-52f0-ab06-e97c2eed5686",
+    "section_number": 2,
+    "content_type": "HEADING",
+    "title": null,
+    "pdf_pages": [
+     86
+    ],
+    "flipbook_origin": "M9#2",
+    "content": {
+     "text": "What safeguarding means"
+    },
+    "transcribed_from_image": false
+   },
+   {
+    "id": "df16e775-e1eb-5829-adc7-7ac6f27b2683",
+    "section_number": 3,
+    "content_type": "LIST",
+    "title": null,
+    "pdf_pages": [
+     86
+    ],
+    "flipbook_origin": "M9#3",
+    "content": {
+     "items": [
+      "Safeguarding is an organization's commitment that staff and activities do not harm children and vulnerable adults.",
+      "It means not exposing them to abuse, harm, risk or exploitation.",
+      "It protects the rights and dignity of all, especially children and vulnerable adults."
+     ]
+    },
+    "transcribed_from_image": false
+   },
+   {
+    "id": "6c74e847-b688-5fa3-aaf3-2674426c602a",
+    "section_number": 4,
+    "content_type": "LIST",
+    "title": "Examples of safeguarding",
+    "pdf_pages": [
+     86
+    ],
+    "flipbook_origin": "M9#4",
+    "content": {
+     "items": [
+      "Respectful interaction with caregivers and their families.",
+      "Educating community members on the benefits of AZM.",
+      "Addressing caregivers' concerns about the AZM campaign.",
+      "Ensuring informed consent from caregivers.",
+      "Handling AZM medicines safely during the campaign."
+     ]
+    },
+    "transcribed_from_image": false
+   },
+   {
+    "id": "05cbb821-e402-52a3-9600-71bf0a419bef",
+    "section_number": 5,
+    "content_type": "HEADING",
+    "title": null,
+    "pdf_pages": [
+     86
+    ],
+    "flipbook_origin": "M9#5",
+    "content": {
+     "text": "Protection during the AZM campaign"
+    },
+    "transcribed_from_image": false
+   },
+   {
+    "id": "27514a85-cd34-5af1-b43f-abc9c122c38d",
+    "section_number": 6,
+    "content_type": "TEXT",
+    "title": null,
+    "pdf_pages": [
+     86
+    ],
+    "flipbook_origin": "M9#6",
+    "content": {
+     "text": "Protection means taking action when children or vulnerable people are at risk or experience harm."
+    },
+    "transcribed_from_image": false
+   },
+   {
+    "id": "00ef7cf0-ac10-5b08-ba8b-98f1ecfa78d6",
+    "section_number": 7,
+    "content_type": "LIST",
+    "title": "Immediate safety measures",
+    "pdf_pages": [
+     86
+    ],
+    "flipbook_origin": "M9#7",
+    "content": {
+     "items": [
+      "Ensure only eligible children receive AZM.",
+      "Give the correct dose.",
+      "Prevent overdosing during MDA.",
+      "Refer sick children to the nearest health facility."
+     ]
+    },
+    "transcribed_from_image": false
+   },
+   {
+    "id": "33dd8710-9ad2-5465-bc3a-8cc7a80639da",
+    "section_number": 8,
+    "content_type": "HEADING",
+    "title": null,
+    "pdf_pages": [
+     87
+    ],
+    "flipbook_origin": "M9#8",
+    "content": {
+     "text": "Safeguarding during the campaign"
+    },
+    "transcribed_from_image": false
+   },
+   {
+    "id": "a6134a33-21fe-552c-8e5c-8c81f6396435",
+    "section_number": 9,
+    "content_type": "LIST",
+    "title": null,
+    "pdf_pages": [
+     87
+    ],
+    "flipbook_origin": "M9#9",
+    "content": {
+     "items": [
+      "Select CDDs with active community involvement, so they represent the community and act with integrity.",
+      "Caregivers have the right to informed consent, dignity and respect. They can know the names of the CDD and supervisors.",
+      "Give caregivers complete, accurate information, including risks and what to do after an adverse reaction.",
+      "Caregivers need a way to get support or raise concerns and complaints.",
+      "The consent form should list a few designated contacts they can reach."
+     ]
+    },
+    "transcribed_from_image": false
+   },
+   {
+    "id": "a8c1d48f-86cf-5965-b678-ff1dfbe19bc9",
+    "section_number": 10,
+    "content_type": "WARNING",
+    "title": "Never force AZM",
+    "pdf_pages": [
+     87
+    ],
+    "flipbook_origin": "M9#10",
+    "content": {
+     "heading": "Never force AZM",
+     "text": "CDDs must not force AZM on caregivers or treat children harshly."
+    },
+    "transcribed_from_image": false
+   },
+   {
+    "id": "fd9c63e8-c87c-5d9f-9fa3-e088b88fef94",
+    "section_number": 11,
+    "content_type": "IMAGE",
+    "title": null,
+    "pdf_pages": [
+     88
+    ],
+    "flipbook_origin": "M9#11",
+    "content": {
+     "image_file": "m9_p88_01.jpg",
+     "caption": "Do not take pictures without consent.",
+     "alt": "Photo of a man holding a camera to his face, with a large red X over it."
+    },
+    "transcribed_from_image": false
+   },
+   {
+    "id": "38504517-deca-50cb-ac07-c7e14dbbe20f",
+    "section_number": 12,
+    "content_type": "IMAGE",
+    "title": null,
+    "pdf_pages": [
+     88
+    ],
+    "flipbook_origin": "M9#12",
+    "content": {
+     "image_file": "m9_p88_02.jpg",
+     "caption": "Do not take pictures without consent, including with a phone.",
+     "alt": "Photo of a person holding up a smartphone to take a picture in a dry field, with a large red X over it."
+    },
+    "transcribed_from_image": false
+   },
+   {
+    "id": "2aacf6dd-3101-56b3-95a7-a3efa84ad9dd",
+    "section_number": 13,
+    "content_type": "IMAGE",
+    "title": null,
+    "pdf_pages": [
+     88
+    ],
+    "flipbook_origin": "M9#13",
+    "content": {
+     "image_file": "m9_p88_03.jpg",
+     "caption": "Do not take or give bribes. Avoid all corrupt practices, sexual harassment and exploitation.",
+     "alt": "Close-up photo of hands holding a bundle of Nigerian 1000 naira notes, with a large red X over it."
+    },
+    "transcribed_from_image": false
+   },
+   {
+    "id": "c3a34f99-0e74-5646-8fda-18f1f986a828",
+    "section_number": 14,
+    "content_type": "WARNING",
+    "title": "Avoid corrupt practices",
+    "pdf_pages": [
+     88
+    ],
+    "flipbook_origin": "M9#14",
+    "content": {
+     "heading": "Avoid corrupt practices",
+     "text": "Avoid bribery and all forms of corrupt practices in the field, including sexual harassment and exploitation."
+    },
+    "transcribed_from_image": false
+   },
+   {
+    "id": "b6c46e54-a747-5ea1-ba6c-f2501a920634",
+    "section_number": 15,
+    "content_type": "HEADING",
+    "title": null,
+    "pdf_pages": [
+     87
+    ],
+    "flipbook_origin": "M9#15",
+    "content": {
+     "text": "Reporting safeguarding issues"
+    },
+    "transcribed_from_image": false
+   },
+   {
+    "id": "6791079f-2599-533b-8e31-64acb96dac81",
+    "section_number": 16,
+    "content_type": "LIST",
+    "title": null,
+    "pdf_pages": [
+     87
+    ],
+    "flipbook_origin": "M9#16",
+    "content": {
+     "items": [
+      "Report all safeguarding issues to the CDD supervisor or health facility OIC.",
+      "They escalate it to the NTD coordinator of the LGA team and partners.",
+      "Report any case or suspected case of violence or neglect of eligible children to the health facility OIC.",
+      "The OIC escalates it to Malaria Consortium through the appropriate MoH structures."
+     ]
+    },
+    "transcribed_from_image": false
+   },
+   {
+    "id": "1fe20de4-2085-57ea-b860-4467d9e7bd4b",
+    "section_number": 17,
+    "content_type": "CALLOUT",
+    "title": "Report safeguarding issues",
+    "pdf_pages": [
+     87
+    ],
+    "flipbook_origin": "M9#17",
+    "content": {
+     "heading": "Report safeguarding issues",
+     "text": "Report all safeguarding issues to concenrns@malariaconsortium.org."
+    },
+    "transcribed_from_image": false
+   }
+  ]
+ },
+ {
+  "module_code": "HFW-03",
+  "learning_order": 8,
+  "title": "MUAC Nutrition Assessment",
+  "description": "Measuring MUAC on children 6-59 months and acting on the result.",
+  "audience": "ROLE_SPECIFIC",
+  "learner_roles": [
+   "CDD"
+  ],
+  "roles_display": [
+   "CDD"
+  ],
+  "estimated_minutes": 20,
+  "sections": [
+   {
+    "id": "d64948e4-dd35-5333-8d19-1b3ff719df25",
+    "section_number": 1,
+    "content_type": "HEADING",
+    "title": null,
+    "pdf_pages": [
+     17
+    ],
+    "flipbook_origin": "M2#34",
+    "content": {
+     "text": "MUAC nutrition assessment (children 6–59 months)"
+    },
+    "transcribed_from_image": false
+   },
+   {
+    "id": "408a9e42-0872-5f48-b610-5b5db3b50b54",
+    "section_number": 2,
+    "content_type": "LIST",
+    "title": null,
+    "pdf_pages": [
+     17
+    ],
+    "flipbook_origin": "M2#35",
+    "content": {
+     "items": [
+      "MUAC is done during routine SARMAAN II household visits.",
+      "It uses trained CDDs and existing supervision structures.",
+      "Data is collected on the Kobo Collect digital platform.",
+      "It uses existing household engagement processes.",
+      "No extra household visits are needed."
+     ]
+    },
+    "transcribed_from_image": false
+   },
+   {
+    "id": "6d7ff1b8-bc0e-560d-a0c3-875e91e3613d",
+    "section_number": 3,
+    "content_type": "LIST",
+    "title": "How to measure",
+    "pdf_pages": [
+     17
+    ],
+    "flipbook_origin": "M2#36",
+    "content": {
+     "items": [
+      "Measure the Mid-Upper Arm Circumference (MUAC) with a standard colour-coded MUAC tape.",
+      "Use the left arm.",
+      "Find the correct midpoint.",
+      "Apply the tape lightly or comfortably."
+     ]
+    },
+    "transcribed_from_image": false
+   },
+   {
+    "id": "0b177036-b427-5988-a146-0900f3e32ec4",
+    "section_number": 4,
+    "content_type": "WARNING",
+    "title": "Do not pull the tape tight",
+    "pdf_pages": [
+     17
+    ],
+    "flipbook_origin": "M2#37",
+    "content": {
+     "heading": "Do not pull the tape tight",
+     "text": "The MUAC tape must not be tight or too tight."
+    },
+    "transcribed_from_image": false
+   },
+   {
+    "id": "957e019d-c3c7-57f2-91ba-415a67642af6",
+    "section_number": 5,
+    "content_type": "TEXT",
+    "title": null,
+    "pdf_pages": [
+     17
+    ],
+    "flipbook_origin": "M2#38",
+    "content": {
+     "text": "Kobo Collect classifies MUAC values automatically using WHO/UNICEF thresholds."
+    },
+    "transcribed_from_image": false
+   },
+   {
+    "id": "c009aca6-7bdd-53c5-9358-f3d34e7da3b3",
+    "section_number": 6,
+    "content_type": "IMAGE",
+    "title": null,
+    "pdf_pages": [
+     18
+    ],
+    "flipbook_origin": "M2#39",
+    "content": {
+     "image_file": "m2_p18_01.png",
+     "caption": "Step — read the MUAC result and take the action in the same row.",
+     "alt": "A colour-coded table: green row 12.5 cm or more, yellow row 11.5 to 12.4 cm, pink row less than 11.5 cm, with status, classification and action columns."
+    },
+    "transcribed_from_image": false
+   },
+   {
+    "id": "9f848974-6e4b-5623-817d-1ae8fd2ad55e",
+    "section_number": 7,
+    "content_type": "TABLE",
+    "title": "MUAC chart (transcribed from image)",
+    "pdf_pages": [
+     18
+    ],
+    "flipbook_origin": "M2#40",
+    "content": {
+     "headers": [
+      "MUAC Range",
+      "Status",
+      "Classification",
+      "Action Required"
+     ],
+     "rows": [
+      [
+       "≥ 12.5 cm",
+       "Well-nourished",
+       "Normal",
+       "No immediate action"
+      ],
+      [
+       "11.5 - 12.4 cm",
+       "At Risk / MAM",
+       "Moderate Acute Malnutrition",
+       "Immediate referral to health facility for counselling"
+      ],
+      [
+       "< 11.5 cm",
+       "SAM",
+       "Severe Acute Malnutrition",
+       "Immediate referral to health facility"
+      ]
+     ]
+    },
+    "transcribed_from_image": true
+   },
+   {
+    "id": "3e608c38-bc7c-50d2-809a-61e402dc2825",
+    "section_number": 8,
+    "content_type": "IMAGE",
+    "title": null,
+    "pdf_pages": [
+     19
+    ],
+    "flipbook_origin": "M2#41",
+    "content": {
+     "image_file": "m2_p19_01.jpg",
+     "caption": "Do measure on the left arm, not too tight. Do not use the right arm or pull the tape too tight.",
+     "alt": "Two illustrated panels. Green panel, Good MUAC assessment: a CDD measures a girl's left arm, labels Left arm and Not too tight. Red panel, Bad MUAC assessment: a CDD measures a child's right arm, labels Right arm and Too tight."
+    },
+    "transcribed_from_image": false
+   },
+   {
+    "id": "0daff3c0-e596-5011-a068-30210ddc3d5e",
+    "section_number": 9,
+    "content_type": "LIST",
+    "title": "MUAC right and wrong (transcribed from image)",
+    "pdf_pages": [
+     19
+    ],
+    "flipbook_origin": "M2#42",
+    "content": {
+     "items": [
+      "Good: left arm.",
+      "Good: not too tight.",
+      "Bad: right arm.",
+      "Bad: too tight."
+     ]
+    },
+    "transcribed_from_image": true
+   },
+   {
+    "id": "6bac66e1-203f-5c69-b003-efaf2da03c18",
+    "section_number": 10,
+    "content_type": "IMAGE",
+    "title": null,
+    "pdf_pages": [
+     20
+    ],
+    "flipbook_origin": "M2#43",
+    "content": {
+     "image_file": "m2_p20_01.jpg",
+     "caption": "Step — wrap the MUAC tape around the upper arm of a child aged 6-59 months.",
+     "alt": "Close-up photo of adult hands wrapping a green and red MUAC tape around a child's upper arm. The child wears a striped shirt."
+    },
+    "transcribed_from_image": false
+   },
+   {
+    "id": "82b8420b-2004-5f4e-8398-722bcca2d686",
+    "section_number": 11,
+    "content_type": "IMAGE",
+    "title": null,
+    "pdf_pages": [
+     20
+    ],
+    "flipbook_origin": "M2#44",
+    "content": {
+     "image_file": "m2_p20_02.png",
+     "caption": "The MUAC tape: red from 6 to 11 cm, yellow at 12 cm, green from 13 to 26 cm.",
+     "alt": "Technical drawing of a MUAC tape with a UNICEF logo, a cm window and a scale from 6 to 26 with red, yellow and green bands. Small dimension labels are not readable."
+    },
+    "transcribed_from_image": false
+   }
+  ]
+ },
+ {
+  "module_code": "HFW-05",
+  "learning_order": 9,
+  "title": "The AZM Referral Form",
+  "description": "Completing the CDD and health facility parts of the AZM referral form.",
+  "audience": "ROLE_SPECIFIC",
+  "learner_roles": [
+   "CDD",
+   "HEALTH_WORKER"
+  ],
+  "roles_display": [
+   "CDD",
+   "HEALTH_WORKER"
+  ],
+  "estimated_minutes": 15,
+  "sections": [
+   {
+    "id": "888efe38-b478-5f1c-857d-3f62ba5136bd",
+    "section_number": 1,
+    "content_type": "HEADING",
+    "title": null,
+    "pdf_pages": [
+     26
+    ],
+    "flipbook_origin": "M3#23",
+    "content": {
+     "text": "The AZM referral form"
+    },
+    "transcribed_from_image": false
+   },
+   {
+    "id": "4267592e-df1f-52f3-9890-9580e0f6824f",
+    "section_number": 2,
+    "content_type": "LIST",
+    "title": null,
+    "pdf_pages": [
+     26
+    ],
+    "flipbook_origin": "M3#24",
+    "content": {
+     "items": [
+      "Each CDD team has referral forms with a double carbon copy.",
+      "The form tracks the number of children referred to the health facility.",
+      "It also tracks the number of children who get to the health facility."
+     ]
+    },
+    "transcribed_from_image": false
+   },
+   {
+    "id": "acb60ff2-41c8-555f-83fe-d23692151aa1",
+    "section_number": 3,
+    "content_type": "IMAGE",
+    "title": null,
+    "pdf_pages": [
+     26
+    ],
+    "flipbook_origin": "M3#25",
+    "content": {
+     "image_file": "m3_p26_01.png",
+     "caption": "Step — the CDD completes the top section; the health facility worker completes the rest.",
+     "alt": "A one-page form titled AZM Referral Form with partner logos. A black bar reads To be completed by the CDD, followed by boxes, then a second bar reads To be completed by the Health Facility Worker, with numbered yes or no questions."
+    },
+    "transcribed_from_image": false
+   },
+   {
+    "id": "68baa400-bd2d-5859-b542-bafdf6d48bbf",
+    "section_number": 4,
+    "content_type": "LIST",
+    "title": "To be completed by the CDD (transcribed from image)",
+    "pdf_pages": [
+     26
+    ],
+    "flipbook_origin": "M3#26",
+    "content": {
+     "items": [
+      "Name of child; Beneficiary ID.",
+      "Age: 1 11 month: [as printed] or 12- 59 months. Gender: Female or Male.",
+      "State, LGA, Ward, Settlement.",
+      "Date of referral; Name of health facility referred to.",
+      "AZM round (tick): Round 1, 2, 3, 4, 5 or 6."
+     ]
+    },
+    "transcribed_from_image": true
+   },
+   {
+    "id": "e73e7a41-e84d-5c05-9005-122b80789fac",
+    "section_number": 5,
+    "content_type": "LIST",
+    "title": "To be completed by the CDD, continued (transcribed from image)",
+    "pdf_pages": [
+     26
+    ],
+    "flipbook_origin": "M3#27",
+    "content": {
+     "items": [
+      "Reason for referral: Sick, Fever, or Side effect to AZM.",
+      "State side effect to AZM.",
+      "CDD Team Code.",
+      "Signature of Recorder."
+     ]
+    },
+    "transcribed_from_image": true
+   },
+   {
+    "id": "09d19889-d864-5e61-992d-0c8351d8f329",
+    "section_number": 6,
+    "content_type": "LIST",
+    "title": "To be completed by the Health Facility Worker (transcribed from image)",
+    "pdf_pages": [
+     26
+    ],
+    "flipbook_origin": "M3#28",
+    "content": {
+     "items": [
+      "Date of child evaluated; AZM Round: 1 or 2; Name of Health Facility.",
+      "Child evaluated to determine cause of illness: YES / NO. Diagnosis.",
+      "Child treated: YES / NO. Name of treatment. Dose of treatment.",
+      "Child admitted to health facility or referred to hospital for severe illness: YES / NO."
+     ]
+    },
+    "transcribed_from_image": true
+   },
+   {
+    "id": "0e51fcae-cf45-51eb-8350-a669c4104599",
+    "section_number": 7,
+    "content_type": "LIST",
+    "title": "Child referred with fever (transcribed from image)",
+    "pdf_pages": [
+     26
+    ],
+    "flipbook_origin": "M3#29",
+    "content": {
+     "items": [
+      "Child tested for malaria: YES / NO.",
+      "RDT result: Positive / Negative.",
+      "Child admitted to health facility or referred to hospital for severe malaria: YES / NO.",
+      "Child with confirmed positive malaria test treated with ACT: YES / NO.",
+      "Name and dose of ACT."
+     ]
+    },
+    "transcribed_from_image": true
+   },
+   {
+    "id": "5d1bbc29-af2e-5a36-a1e3-d55e18de0eca",
+    "section_number": 8,
+    "content_type": "LIST",
+    "title": "Child with possible adverse drug reaction (transcribed from image)",
+    "pdf_pages": [
+     26
+    ],
+    "flipbook_origin": "M3#30",
+    "content": {
+     "items": [
+      "Child evaluated for adverse drug reaction to AZM: YES / NO.",
+      "National PV form was completed: YES / NO.",
+      "NAFDAC E-Reporting Link / Med Safety App was filled: YES / NO.",
+      "Child admitted to health facility or referred to hospital for SAE: YES / NO.",
+      "Outcome; Name of in-charge; Signature."
+     ]
+    },
+    "transcribed_from_image": true
+   },
+   {
+    "id": "f11ce263-0d18-5c73-a57c-5fe338c83def",
+    "section_number": 9,
+    "content_type": "LIST",
+    "title": "Demonstrate and practise",
+    "pdf_pages": [
+     26
+    ],
+    "flipbook_origin": "M3#31",
+    "content": {
+     "items": [
+      "Show how to complete the top portion of the AZM referral form for the CDDs.",
+      "Let the CDDs practise filling the top portion of the form.",
+      "Role play: a child is 2 years old and has had high fever for 2 days."
+     ]
+    },
+    "transcribed_from_image": false
+   }
+  ]
+ },
+ {
+  "module_code": "HFW-07",
+  "learning_order": 10,
   "title": "The AZM Child Record Card",
   "description": "What the card records and how to complete each part of it.",
   "audience": "ROLE_SPECIFIC",
@@ -2258,9 +2875,6 @@
    "CDD"
   ],
   "estimated_minutes": 30,
-  "credit_from": [
-   "M4"
-  ],
   "sections": [
    {
     "id": "9529da58-406d-53f5-9285-f7372ea346c7",
@@ -2813,7 +3427,7 @@
  },
  {
   "module_code": "HFW-08",
-  "learning_order": 8,
+  "learning_order": 11,
   "title": "House Marking",
   "description": "Why and how houses are marked, and how to read a house mark.",
   "audience": "ROLE_SPECIFIC",
@@ -2826,9 +3440,6 @@
    "MONITOR_SUPERVISOR"
   ],
   "estimated_minutes": 15,
-  "credit_from": [
-   "M4"
-  ],
   "sections": [
    {
     "id": "cfcc6d27-feb5-5a0d-b24a-e3470cc8d4f3",
@@ -2957,7 +3568,7 @@
  },
  {
   "module_code": "HFW-09",
-  "learning_order": 9,
+  "learning_order": 12,
   "title": "Call-in Data Reporting",
   "description": "Daily call-in data: what it is, who submits and validates it, and how to keep it accurate.",
   "audience": "ROLE_SPECIFIC",
@@ -2974,7 +3585,6 @@
    "OTHER"
   ],
   "estimated_minutes": 20,
-  "credit_from": [],
   "sections": [
    {
     "id": "e86956b3-f733-5926-9589-c4ce5d977055",
@@ -3260,7 +3870,7 @@
  },
  {
   "module_code": "HFW-10",
-  "learning_order": 10,
+  "learning_order": 13,
   "title": "Drug Accountability and Reconciliation",
   "description": "Issuing, counting, reconciling, storing and returning AZM bottles at the health facility.",
   "audience": "ROLE_SPECIFIC",
@@ -3275,9 +3885,6 @@
    "LOGISTICIAN"
   ],
   "estimated_minutes": 15,
-  "credit_from": [
-   "M4"
-  ],
   "sections": [
    {
     "id": "8fa9b931-0ebb-5948-99b3-f3f66b2ff4ee",
@@ -3404,7 +4011,7 @@
  },
  {
   "module_code": "HFW-11",
-  "learning_order": 11,
+  "learning_order": 14,
   "title": "Cohort Tracking",
   "description": "Following the same children across rounds, and who does what with the data.",
   "audience": "ROLE_SPECIFIC",
@@ -3417,9 +4024,6 @@
    "OTHER"
   ],
   "estimated_minutes": 15,
-  "credit_from": [
-   "M4"
-  ],
   "sections": [
    {
     "id": "04bcf6c6-68f2-5ad7-b851-ced1fca5e7a2",
@@ -3560,136 +4164,8 @@
   ]
  },
  {
-  "module_code": "HFW-12",
-  "learning_order": 12,
-  "title": "Drug Safety and Side Effects",
-  "description": "Side effects, adverse events and serious adverse events, and why they are reported.",
-  "audience": "GENERAL",
-  "learner_roles": [],
-  "roles_display": [
-   "CDD",
-   "HEALTH_WORKER",
-   "LOGISTICIAN",
-   "MONITOR_SUPERVISOR",
-   "OTHER"
-  ],
-  "estimated_minutes": 15,
-  "credit_from": [],
-  "sections": [
-   {
-    "id": "bb8c2b69-39ce-5fc1-a847-a6bf3b8a326d",
-    "section_number": 1,
-    "content_type": "IMAGE",
-    "title": null,
-    "pdf_pages": [
-     61
-    ],
-    "flipbook_origin": "M5#1",
-    "content": {
-     "image_file": "m5_p61_01.jpg",
-     "caption": "Possible side effects — watch children after AZM and refer any child who becomes unwell.",
-     "alt": "Six drawn panels: a sad child sitting by a puddle, a man holding a crying baby, a girl in bed offered water, a child on a bed given a cup, a girl kneeling and holding her stomach near a latrine, and a woman holding her stomach in pain."
-    },
-    "transcribed_from_image": false
-   },
-   {
-    "id": "10e1c984-22dd-5fd9-aef8-d48fe7f71a93",
-    "section_number": 2,
-    "content_type": "HEADING",
-    "title": null,
-    "pdf_pages": [
-     63
-    ],
-    "flipbook_origin": "M5#2",
-    "content": {
-     "text": "Drug safety during AZM"
-    },
-    "transcribed_from_image": false
-   },
-   {
-    "id": "e1beb005-cd87-58b3-bba2-269d0482d692",
-    "section_number": 3,
-    "content_type": "TEXT",
-    "title": null,
-    "pdf_pages": [
-     63
-    ],
-    "flipbook_origin": "M5#3",
-    "content": {
-     "text": "Drug safety means monitoring and managing the risks of medicines, so the benefits outweigh any harm."
-    },
-    "transcribed_from_image": false
-   },
-   {
-    "id": "4d647a4d-6cff-5a95-b94f-2713c2db421b",
-    "section_number": 4,
-    "content_type": "TABLE",
-    "title": "Side effects and adverse events",
-    "pdf_pages": [
-     63
-    ],
-    "flipbook_origin": "M5#4",
-    "content": {
-     "headers": [
-      "Term",
-      "Meaning"
-     ],
-     "rows": [
-      [
-       "Side effects",
-       "Minor, expected reactions to medicines that do not require stopping treatment."
-      ],
-      [
-       "Adverse events",
-       "Can be serious or non-serious."
-      ],
-      [
-       "Serious adverse event",
-       "Any untoward medical occurrence at any dose resulting in death, hospitalization or longer hospitalization, persistent or significant disability or incapacity, or congenital anomaly or birth defect."
-      ]
-     ]
-    },
-    "transcribed_from_image": false
-   },
-   {
-    "id": "c53d6d00-0e62-56bd-93dc-51ad3b631270",
-    "section_number": 5,
-    "content_type": "WARNING",
-    "title": "Report serious adverse events immediately",
-    "pdf_pages": [
-     63
-    ],
-    "flipbook_origin": "M5#5",
-    "content": {
-     "heading": "Report serious adverse events immediately",
-     "text": "Serious adverse events must be reported immediately."
-    },
-    "transcribed_from_image": false
-   },
-   {
-    "id": "b26c5608-4713-5cb1-a57b-c8d97ff6b83c",
-    "section_number": 6,
-    "content_type": "LIST",
-    "title": "Objectives of pharmacovigilance",
-    "pdf_pages": [
-     63
-    ],
-    "flipbook_origin": "M5#6",
-    "content": {
-     "items": [
-      "Pharmacovigilance aims at rational and safe use of medicines.",
-      "It assesses and communicates the risks and benefits of medicines, to improve patient care and public health.",
-      "No drug is always safe for everyone.",
-      "Know the possible side effects, monitor children, and refer them immediately to the health facility."
-     ]
-    },
-    "transcribed_from_image": false
-   }
-  ]
- },
- {
   "module_code": "HFW-13",
-  "learning_order": 13,
+  "learning_order": 15,
   "title": "NAFDAC Reporting and the Role of DSNOs",
   "description": "Reporting suspected ADRs with the Med Safety app and the e-reporting link, and the DSNO role.",
   "audience": "ROLE_SPECIFIC",
@@ -3700,7 +4176,6 @@
    "HEALTH_WORKER"
   ],
   "estimated_minutes": 20,
-  "credit_from": [],
   "sections": [
    {
     "id": "c17cf5f5-6f8a-52a0-abba-abb329df23d2",
@@ -4070,224 +4545,8 @@
   ]
  },
  {
-  "module_code": "HFW-14",
-  "learning_order": 14,
-  "title": "Interpersonal Communication and SBC",
-  "description": "Good communication with caregivers and the SBC methods used in the AZM campaign.",
-  "audience": "GENERAL",
-  "learner_roles": [],
-  "roles_display": [
-   "CDD",
-   "HEALTH_WORKER",
-   "LOGISTICIAN",
-   "MONITOR_SUPERVISOR",
-   "OTHER"
-  ],
-  "estimated_minutes": 20,
-  "credit_from": [
-   "M5"
-  ],
-  "sections": [
-   {
-    "id": "43832c6d-3e36-55ac-94ee-357c2623328b",
-    "section_number": 1,
-    "content_type": "IMAGE",
-    "title": null,
-    "pdf_pages": [
-     73
-    ],
-    "flipbook_origin": "M6#1",
-    "content": {
-     "image_file": "m6_p73_01.jpg",
-     "caption": "Do talk with caregivers respectfully and explain AZM clearly.",
-     "alt": "Photo of a woman CDD in an orange headscarf and yellow vest gesturing as she talks with a seated mother holding a baby and a standing girl in a yellow dress."
-    },
-    "transcribed_from_image": false
-   },
-   {
-    "id": "96293ebc-647e-5f36-b8f2-f76af6b371ff",
-    "section_number": 2,
-    "content_type": "HEADING",
-    "title": null,
-    "pdf_pages": [
-     75
-    ],
-    "flipbook_origin": "M6#2",
-    "content": {
-     "text": "Why interpersonal communication matters"
-    },
-    "transcribed_from_image": false
-   },
-   {
-    "id": "01cba45f-9dcd-5725-ac03-ed56f15b7e4c",
-    "section_number": 3,
-    "content_type": "LIST",
-    "title": null,
-    "pdf_pages": [
-     75
-    ],
-    "flipbook_origin": "M6#3",
-    "content": {
-     "items": [
-      "Good communication builds trust and helps make sure AZM is given safely.",
-      "Respect the cultural norms of the community.",
-      "Greet the head of household and caregivers with respect, and recognize the child.",
-      "Use words they will understand, and use the pictures in the AZM job aid.",
-      "Use open-ended questions to get more information."
-     ]
-    },
-    "transcribed_from_image": false
-   },
-   {
-    "id": "1a92bba3-243e-534e-adc3-1b0733d78bd3",
-    "section_number": 4,
-    "content_type": "LIST",
-    "title": "Listen and check",
-    "pdf_pages": [
-     75
-    ],
-    "flipbook_origin": "M6#4",
-    "content": {
-     "items": [
-      "Listen carefully to what the head of household or caregiver says.",
-      "Give time to answer, and show you are listening by nodding or saying \"I understand\".",
-      "Stop from time to time to ask if they understand or have any questions."
-     ]
-    },
-    "transcribed_from_image": false
-   },
-   {
-    "id": "1f1cbb37-ac63-5118-9552-f1b2091869f4",
-    "section_number": 5,
-    "content_type": "LIST",
-    "title": "Exercise: confirm understanding",
-    "pdf_pages": [
-     75
-    ],
-    "flipbook_origin": "M6#5",
-    "content": {
-     "items": [
-      "Ask the caregiver to repeat the information about AZM.",
-      "Ask questions that get the answers you need.",
-      "Let others share information without interruption.",
-      "Explain health messages so they are understood."
-     ]
-    },
-    "transcribed_from_image": false
-   },
-   {
-    "id": "264ce042-ab8b-56a0-ad4c-08986cc706b9",
-    "section_number": 6,
-    "content_type": "LIST",
-    "title": "Explain the benefits of AZM",
-    "pdf_pages": [
-     75
-    ],
-    "flipbook_origin": "M6#6",
-    "content": {
-     "items": [
-      "Protects children from pneumonia, diarrhoea and malaria.",
-      "Prevents and treats other bacterial infections."
-     ]
-    },
-    "transcribed_from_image": false
-   },
-   {
-    "id": "fd968349-69fb-5f26-a86b-1d0fdbcfae88",
-    "section_number": 7,
-    "content_type": "TABLE",
-    "title": "Closed and open-ended questions",
-    "pdf_pages": [
-     75
-    ],
-    "flipbook_origin": "M6#7",
-    "content": {
-     "headers": [
-      "Type of question",
-      "Examples"
-     ],
-     "rows": [
-      [
-       "Closed-ended: gets a yes or no answer",
-       "Is your child between 1 to 59 months? Is your child sick today? Did you have any problems with the last round of AZM?"
-      ],
-      [
-       "Open-ended: gets more information",
-       "How old is your child? How is your child feeling today? How did your child feel after the last round of AZM?"
-      ]
-     ]
-    },
-    "transcribed_from_image": false
-   },
-   {
-    "id": "9bd94b97-3885-5024-94d3-17bce53577c8",
-    "section_number": 8,
-    "content_type": "HEADING",
-    "title": null,
-    "pdf_pages": [
-     76
-    ],
-    "flipbook_origin": "M6#8",
-    "content": {
-     "text": "Social and behaviour change (SBC)"
-    },
-    "transcribed_from_image": false
-   },
-   {
-    "id": "055c7f12-8ed7-5c99-9684-6d57961d7bb1",
-    "section_number": 9,
-    "content_type": "TEXT",
-    "title": null,
-    "pdf_pages": [
-     76
-    ],
-    "flipbook_origin": "M6#9",
-    "content": {
-     "text": "SBC is a strategic approach that influences behaviour by engaging communities through tailored messages."
-    },
-    "transcribed_from_image": false
-   },
-   {
-    "id": "b5ead3b3-f4ef-5e4c-b936-a0a4f497d629",
-    "section_number": 10,
-    "content_type": "LIST",
-    "title": "SBC methods in the AZM campaign",
-    "pdf_pages": [
-     76
-    ],
-    "flipbook_origin": "M6#10",
-    "content": {
-     "items": [
-      "Interpersonal communication.",
-      "Mass media campaigns.",
-      "Community mobilization.",
-      "Visual aids."
-     ]
-    },
-    "transcribed_from_image": false
-   },
-   {
-    "id": "4921ddd4-69ce-5cbc-a0ee-62248caa1040",
-    "section_number": 11,
-    "content_type": "LIST",
-    "title": "Facilitator activity",
-    "pdf_pages": [
-     76
-    ],
-    "flipbook_origin": "M6#11",
-    "content": {
-     "items": [
-      "Ask participants which SBC tools for AZM MDA they have seen or used.",
-      "Show examples of AZM job aids, posters and banners used in the community."
-     ]
-    },
-    "transcribed_from_image": false
-   }
-  ]
- },
- {
   "module_code": "HFW-15",
-  "learning_order": 15,
+  "learning_order": 16,
   "title": "Monitoring and Supervision",
   "description": "What supervisors do, the levels of supervision, and the competencies they must show.",
   "audience": "ROLE_SPECIFIC",
@@ -4298,7 +4557,6 @@
    "MONITOR_SUPERVISOR"
   ],
   "estimated_minutes": 20,
-  "credit_from": [],
   "sections": [
    {
     "id": "686edf13-f652-5755-aac4-4df6fbc65de1",
@@ -4488,7 +4746,7 @@
  },
  {
   "module_code": "HFW-16",
-  "learning_order": 16,
+  "learning_order": 17,
   "title": "Supply Chain Management",
   "description": "What supply chain management means for AZM and how to manage AZM supplies.",
   "audience": "ROLE_SPECIFIC",
@@ -4499,7 +4757,6 @@
    "LOGISTICIAN"
   ],
   "estimated_minutes": 15,
-  "credit_from": [],
   "sections": [
    {
     "id": "1fac3099-40d0-54bc-a072-d03ca8c0c05a",
@@ -4618,302 +4875,6 @@
      "items": [
       "Monitoring and evaluation."
      ]
-    },
-    "transcribed_from_image": false
-   }
-  ]
- },
- {
-  "module_code": "HFW-17",
-  "learning_order": 17,
-  "title": "Safeguarding",
-  "description": "Protecting children and vulnerable adults during the AZM campaign, and reporting concerns.",
-  "audience": "GENERAL",
-  "learner_roles": [],
-  "roles_display": [
-   "CDD",
-   "HEALTH_WORKER",
-   "LOGISTICIAN",
-   "MONITOR_SUPERVISOR",
-   "OTHER"
-  ],
-  "estimated_minutes": 20,
-  "credit_from": [
-   "M6"
-  ],
-  "sections": [
-   {
-    "id": "7819a2b5-c5a3-50e8-aab4-9eee0d864e5d",
-    "section_number": 1,
-    "content_type": "IMAGE",
-    "title": null,
-    "pdf_pages": [
-     84
-    ],
-    "flipbook_origin": "M9#1",
-    "content": {
-     "image_file": "m9_p84_01.jpg",
-     "caption": "Do give AZM from the cup while the child sits upright. Do not force medicine into a lying child's mouth.",
-     "alt": "Three photos. A mother gives a seated boy medicine from a cup. A green tick over a girl drinking from a cup among children and caregivers. A red X over an adult forcing liquid from a spoon into a lying baby's mouth."
-    },
-    "transcribed_from_image": false
-   },
-   {
-    "id": "de569438-6d7c-52f0-ab06-e97c2eed5686",
-    "section_number": 2,
-    "content_type": "HEADING",
-    "title": null,
-    "pdf_pages": [
-     86
-    ],
-    "flipbook_origin": "M9#2",
-    "content": {
-     "text": "What safeguarding means"
-    },
-    "transcribed_from_image": false
-   },
-   {
-    "id": "df16e775-e1eb-5829-adc7-7ac6f27b2683",
-    "section_number": 3,
-    "content_type": "LIST",
-    "title": null,
-    "pdf_pages": [
-     86
-    ],
-    "flipbook_origin": "M9#3",
-    "content": {
-     "items": [
-      "Safeguarding is an organization's commitment that staff and activities do not harm children and vulnerable adults.",
-      "It means not exposing them to abuse, harm, risk or exploitation.",
-      "It protects the rights and dignity of all, especially children and vulnerable adults."
-     ]
-    },
-    "transcribed_from_image": false
-   },
-   {
-    "id": "6c74e847-b688-5fa3-aaf3-2674426c602a",
-    "section_number": 4,
-    "content_type": "LIST",
-    "title": "Examples of safeguarding",
-    "pdf_pages": [
-     86
-    ],
-    "flipbook_origin": "M9#4",
-    "content": {
-     "items": [
-      "Respectful interaction with caregivers and their families.",
-      "Educating community members on the benefits of AZM.",
-      "Addressing caregivers' concerns about the AZM campaign.",
-      "Ensuring informed consent from caregivers.",
-      "Handling AZM medicines safely during the campaign."
-     ]
-    },
-    "transcribed_from_image": false
-   },
-   {
-    "id": "05cbb821-e402-52a3-9600-71bf0a419bef",
-    "section_number": 5,
-    "content_type": "HEADING",
-    "title": null,
-    "pdf_pages": [
-     86
-    ],
-    "flipbook_origin": "M9#5",
-    "content": {
-     "text": "Protection during the AZM campaign"
-    },
-    "transcribed_from_image": false
-   },
-   {
-    "id": "27514a85-cd34-5af1-b43f-abc9c122c38d",
-    "section_number": 6,
-    "content_type": "TEXT",
-    "title": null,
-    "pdf_pages": [
-     86
-    ],
-    "flipbook_origin": "M9#6",
-    "content": {
-     "text": "Protection means taking action when children or vulnerable people are at risk or experience harm."
-    },
-    "transcribed_from_image": false
-   },
-   {
-    "id": "00ef7cf0-ac10-5b08-ba8b-98f1ecfa78d6",
-    "section_number": 7,
-    "content_type": "LIST",
-    "title": "Immediate safety measures",
-    "pdf_pages": [
-     86
-    ],
-    "flipbook_origin": "M9#7",
-    "content": {
-     "items": [
-      "Ensure only eligible children receive AZM.",
-      "Give the correct dose.",
-      "Prevent overdosing during MDA.",
-      "Refer sick children to the nearest health facility."
-     ]
-    },
-    "transcribed_from_image": false
-   },
-   {
-    "id": "33dd8710-9ad2-5465-bc3a-8cc7a80639da",
-    "section_number": 8,
-    "content_type": "HEADING",
-    "title": null,
-    "pdf_pages": [
-     87
-    ],
-    "flipbook_origin": "M9#8",
-    "content": {
-     "text": "Safeguarding during the campaign"
-    },
-    "transcribed_from_image": false
-   },
-   {
-    "id": "a6134a33-21fe-552c-8e5c-8c81f6396435",
-    "section_number": 9,
-    "content_type": "LIST",
-    "title": null,
-    "pdf_pages": [
-     87
-    ],
-    "flipbook_origin": "M9#9",
-    "content": {
-     "items": [
-      "Select CDDs with active community involvement, so they represent the community and act with integrity.",
-      "Caregivers have the right to informed consent, dignity and respect. They can know the names of the CDD and supervisors.",
-      "Give caregivers complete, accurate information, including risks and what to do after an adverse reaction.",
-      "Caregivers need a way to get support or raise concerns and complaints.",
-      "The consent form should list a few designated contacts they can reach."
-     ]
-    },
-    "transcribed_from_image": false
-   },
-   {
-    "id": "a8c1d48f-86cf-5965-b678-ff1dfbe19bc9",
-    "section_number": 10,
-    "content_type": "WARNING",
-    "title": "Never force AZM",
-    "pdf_pages": [
-     87
-    ],
-    "flipbook_origin": "M9#10",
-    "content": {
-     "heading": "Never force AZM",
-     "text": "CDDs must not force AZM on caregivers or treat children harshly."
-    },
-    "transcribed_from_image": false
-   },
-   {
-    "id": "fd9c63e8-c87c-5d9f-9fa3-e088b88fef94",
-    "section_number": 11,
-    "content_type": "IMAGE",
-    "title": null,
-    "pdf_pages": [
-     88
-    ],
-    "flipbook_origin": "M9#11",
-    "content": {
-     "image_file": "m9_p88_01.jpg",
-     "caption": "Do not take pictures without consent.",
-     "alt": "Photo of a man holding a camera to his face, with a large red X over it."
-    },
-    "transcribed_from_image": false
-   },
-   {
-    "id": "38504517-deca-50cb-ac07-c7e14dbbe20f",
-    "section_number": 12,
-    "content_type": "IMAGE",
-    "title": null,
-    "pdf_pages": [
-     88
-    ],
-    "flipbook_origin": "M9#12",
-    "content": {
-     "image_file": "m9_p88_02.jpg",
-     "caption": "Do not take pictures without consent, including with a phone.",
-     "alt": "Photo of a person holding up a smartphone to take a picture in a dry field, with a large red X over it."
-    },
-    "transcribed_from_image": false
-   },
-   {
-    "id": "2aacf6dd-3101-56b3-95a7-a3efa84ad9dd",
-    "section_number": 13,
-    "content_type": "IMAGE",
-    "title": null,
-    "pdf_pages": [
-     88
-    ],
-    "flipbook_origin": "M9#13",
-    "content": {
-     "image_file": "m9_p88_03.jpg",
-     "caption": "Do not take or give bribes. Avoid all corrupt practices, sexual harassment and exploitation.",
-     "alt": "Close-up photo of hands holding a bundle of Nigerian 1000 naira notes, with a large red X over it."
-    },
-    "transcribed_from_image": false
-   },
-   {
-    "id": "c3a34f99-0e74-5646-8fda-18f1f986a828",
-    "section_number": 14,
-    "content_type": "WARNING",
-    "title": "Avoid corrupt practices",
-    "pdf_pages": [
-     88
-    ],
-    "flipbook_origin": "M9#14",
-    "content": {
-     "heading": "Avoid corrupt practices",
-     "text": "Avoid bribery and all forms of corrupt practices in the field, including sexual harassment and exploitation."
-    },
-    "transcribed_from_image": false
-   },
-   {
-    "id": "b6c46e54-a747-5ea1-ba6c-f2501a920634",
-    "section_number": 15,
-    "content_type": "HEADING",
-    "title": null,
-    "pdf_pages": [
-     87
-    ],
-    "flipbook_origin": "M9#15",
-    "content": {
-     "text": "Reporting safeguarding issues"
-    },
-    "transcribed_from_image": false
-   },
-   {
-    "id": "6791079f-2599-533b-8e31-64acb96dac81",
-    "section_number": 16,
-    "content_type": "LIST",
-    "title": null,
-    "pdf_pages": [
-     87
-    ],
-    "flipbook_origin": "M9#16",
-    "content": {
-     "items": [
-      "Report all safeguarding issues to the CDD supervisor or health facility OIC.",
-      "They escalate it to the NTD coordinator of the LGA team and partners.",
-      "Report any case or suspected case of violence or neglect of eligible children to the health facility OIC.",
-      "The OIC escalates it to Malaria Consortium through the appropriate MoH structures."
-     ]
-    },
-    "transcribed_from_image": false
-   },
-   {
-    "id": "1fe20de4-2085-57ea-b860-4467d9e7bd4b",
-    "section_number": 17,
-    "content_type": "CALLOUT",
-    "title": "Report safeguarding issues",
-    "pdf_pages": [
-     87
-    ],
-    "flipbook_origin": "M9#17",
-    "content": {
-     "heading": "Report safeguarding issues",
-     "text": "Report all safeguarding issues to concenrns@malariaconsortium.org."
     },
     "transcribed_from_image": false
    }

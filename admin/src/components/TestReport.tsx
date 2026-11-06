@@ -75,15 +75,14 @@ export default function TestReport({
         </button>
         <span className="text-xs text-gray-500">
           A module is completed when the post-test scores at least the pass mark and higher than the pre-test; after a 100%
-          pre-test, a post-test at the auto-approval threshold completes it automatically. "Credited" completions were given
-          because the learner completed the older module with the same content. Click a row for every attempt.
+          pre-test, a post-test at the auto-approval threshold completes it automatically. Click a row for every attempt.
         </span>
       </div>
       <div className="bg-white border rounded-lg overflow-x-auto">
         <table className="w-full text-sm">
           <thead className="bg-gray-50 text-left text-xs text-gray-500">
             <tr>
-              {["Name", "Learner role", "Team", "Module", "Status", "Pre-test", "Post-test attempts", "Best post-test", "Latest post-test", "Completed by rule", "Auto-approved", "Completed how", "Not counted"].map((h) => (
+              {["Name", "Learner role", "Team", "Module", "Status", "Pre-test", "Post-test attempts", "Best post-test", "Latest post-test", "Completed by rule", "Auto-approved", "Not counted"].map((h) => (
                 <th key={h} className="px-3 py-2 whitespace-nowrap">
                   {h}
                 </th>
@@ -93,14 +92,14 @@ export default function TestReport({
           <tbody>
             {report.isLoading && (
               <tr>
-                <td colSpan={13} className="px-3 py-4 text-gray-500">
+                <td colSpan={12} className="px-3 py-4 text-gray-500">
                   Loading…
                 </td>
               </tr>
             )}
             {report.data?.length === 0 && (
               <tr>
-                <td colSpan={13} className="px-3 py-4 text-gray-500">
+                <td colSpan={12} className="px-3 py-4 text-gray-500">
                   No learners or modules with tests match these filters.
                 </td>
               </tr>
@@ -127,18 +126,11 @@ export default function TestReport({
                     <td className="px-3 py-1.5">{pct(r.post_test_latest_score)}</td>
                     <td className="px-3 py-1.5">{r.met_both_rules ? "yes" : "no"}</td>
                     <td className="px-3 py-1.5">{r.auto_approved ? "yes (100% pre-test)" : "—"}</td>
-                    <td className="px-3 py-1.5 whitespace-nowrap">
-                      {r.completion_source === "credited"
-                        ? `credited from ${r.credited_from}${r.credited_score !== null ? ` (${r.credited_score}%)` : ""}`
-                        : r.completion_source === "earned"
-                          ? "earned"
-                          : "—"}
-                    </td>
                     <td className="px-3 py-1.5">{r.attempts_not_counted || "—"}</td>
                   </tr>
                   {open === key && (
                     <tr className="bg-gray-50">
-                      <td colSpan={13} className="px-6 py-2">
+                      <td colSpan={12} className="px-6 py-2">
                         <Attempts userId={r.user_id} moduleCode={r.module_code} />
                       </td>
                     </tr>

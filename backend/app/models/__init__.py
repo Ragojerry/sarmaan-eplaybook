@@ -12,7 +12,6 @@ from app.models.quiz import QuizAttempt, QuizQuestion
 from app.models.media_asset import MediaAsset
 from app.models.video import Video
 from app.models.user_module_progress import UserModuleProgress
-from app.models.module_completion_credit import ModuleCompletionCredit
 from app.models.content_release import ContentRelease
 from app.models.ai_question_log import AiQuestionLog
 from app.models.analytics_event import AnalyticsEvent
@@ -39,7 +38,6 @@ __all__ = [
     "MediaAsset",
     "Video",
     "UserModuleProgress",
-    "ModuleCompletionCredit",
     "ContentRelease",
     "AiQuestionLog",
     "AnalyticsEvent",

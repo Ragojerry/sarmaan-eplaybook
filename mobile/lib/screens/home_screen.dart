@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../db/local_database.dart';
+import '../learning/curriculum_notice.dart';
 import '../learning/learning_rules.dart';
 import '../learning/learning_service.dart';
 import '../models/api_models.dart' show UserProfile;
@@ -118,7 +119,16 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
   @override
   void initState() {
     super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_) => _syncIfCacheEmpty());
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      await _syncIfCacheEmpty();
+      await _showTrainingNotice();
+    });
+  }
+
+  /// One-time notice after the curriculum changeover (set by the release installer).
+  Future<void> _showTrainingNotice() async {
+    if (!mounted) return;
+    await showTrainingNoticeIfPending(context, ref.read(localDatabaseProvider));
   }
 
   Future<void> _syncIfCacheEmpty() async {
@@ -188,6 +198,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
       ref.invalidate(cachedModulesProvider);
       ref.invalidate(homeExtrasProvider);
       ref.invalidate(homeChunksProvider);
+      _showTrainingNotice();
     });
     final modules = modulesAsync.valueOrNull ?? const <CachedModuleRow>[];
     final searching = _query.trim().isNotEmpty;

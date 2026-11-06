@@ -258,7 +258,8 @@ class _ReaderScreenState extends ConsumerState<ReaderScreen> {
       card = _card(
         icon: Icons.block,
         title: 'Not available',
-        body: 'This module is not part of the training for your role.',
+        body: 'This module is not part of your current training. The training may have been updated, '
+            'or the module is for another role. Go back to Modules to continue.',
         action: OutlinedButton(onPressed: () => context.go('/modules'), child: const Text('Back to modules')),
       );
     } else if (state.stage == ModuleStage.locked) {

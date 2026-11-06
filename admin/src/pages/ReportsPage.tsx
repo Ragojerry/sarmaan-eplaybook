@@ -9,36 +9,44 @@ import BiAccess from "../components/BiAccess";
 import TestReport from "../components/TestReport";
 import { LEARNER_ROLES } from "../learnerRoles";
 
-type Tab = "session" | "area" | "user" | "module" | "tests" | "bi";
+type Tab = "session" | "area" | "user" | "module" | "tests" | "legacy" | "bi";
 const AREA_LEVELS = ["country", "state", "lga", "ward", "facility"];
 
 const SESSION_COLS: [string, string][] = [
   ["session", "Session"], ["start_date", "Start"], ["end_date", "End"], ["status", "Status"], ["days_remaining", "Days left"],
   ["users", "People"], ["not_started", "Not started"], ["active_users_30d", "Active (30d)"], ["avg_completion_rate", "Avg completion %"],
-  ["users_completed_all", "Finished all"], ["completed_all_by_end_date", "Finished by end date"], ["modules_completed", "Modules done"], ["modules_completed_credited", "Of which credited"],
+  ["users_completed_all", "Finished all"], ["completed_all_by_end_date", "Finished by end date"], ["modules_completed", "Modules done"],
   ["quizzes_passed", "Quizzes passed"], ["avg_best_quiz_score", "Avg quiz %"], ["training_events", "Training"], ["video_events", "Video"],
   ["questions_asked", "Q&A"], ["technical_events", "Technical"],
 ];
 const AREA_COLS: [string, string][] = [
   ["area", "Area"], ["users", "Users"], ["active_users_30d", "Active (30d)"], ["avg_completion_rate", "Avg completion %"],
-  ["users_completed_all", "Finished all"], ["modules_completed", "Modules done"], ["modules_completed_credited", "Of which credited"], ["quizzes_passed", "Quizzes passed"],
+  ["users_completed_all", "Finished all"], ["modules_completed", "Modules done"], ["quizzes_passed", "Quizzes passed"],
   ["avg_best_quiz_score", "Avg quiz %"], ["training_events", "Training"], ["video_events", "Video"],
   ["questions_asked", "Q&A"], ["technical_events", "Technical"], ["session_events", "Sessions"],
 ];
 const USER_COLS: [string, string][] = [
   ["full_name", "Name"], ["username", "Username"], ["learner_role", "Learner role"], ["team_code", "Team"], ["session", "Session"], ["training_attempt", "Attempt"], ["state", "State"], ["lga", "LGA"], ["ward", "Ward"],
-  ["facility", "Facility"], ["modules_completed", "Done"], ["modules_completed_credited", "Credited"], ["completion_rate", "Completion %"], ["quizzes_passed", "Quizzes passed"],
+  ["facility", "Facility"], ["modules_completed", "Done"], ["completion_rate", "Completion %"], ["quizzes_passed", "Quizzes passed"],
   ["avg_best_quiz_score", "Avg quiz %"], ["training_events", "Training"], ["video_events", "Video"], ["questions_asked", "Q&A"],
   ["technical_events", "Technical"], ["last_activity", "Last activity"],
 ];
+// Old curriculum (archived at the changeover): shown on its own, never in the rates above.
+const LEGACY_COLS: [string, string][] = [
+  ["curriculum", "Curriculum"], ["full_name", "Name"], ["username", "Username"], ["learner_role", "Learner role"],
+  ["module_code", "Module"], ["module_title", "Title"], ["progress_percent", "Read %"], ["completed", "Completed"],
+  ["completed_at", "Completed on"], ["pre_test_score", "Pre-test %"], ["post_test_best_score", "Best post-test %"],
+  ["post_test_attempts", "Post-tests"], ["attempts_not_counted", "Not counted"],
+];
 const MODULE_COLS: [string, string][] = [
   ["module_code", "Module"], ["module_title", "Title"], ["area", "Area"], ["users", "Users"], ["started", "Started"],
-  ["completed", "Completed"], ["completed_credited", "Of which credited"], ["completion_rate", "Completion %"], ["quiz_takers", "Quiz takers"], ["quiz_passed", "Quiz passed"],
+  ["completed", "Completed"], ["completion_rate", "Completion %"], ["quiz_takers", "Quiz takers"], ["quiz_passed", "Quiz passed"],
   ["avg_best_quiz_score", "Avg quiz %"],
 ];
 
-function cell(key: string, v: string | number | null | undefined) {
+function cell(key: string, v: string | number | boolean | null | undefined) {
   if (v === null || v === undefined || v === "") return "—";
+  if (typeof v === "boolean") return v ? "yes" : "no";
   if (key === "last_activity" && typeof v === "string") return new Date(v).toLocaleDateString();
   return String(v);
 }
@@ -151,6 +159,11 @@ export default function ReportsPage() {
     queryFn: async () => (await api.get("/reports/modules", { params: { ...params, ...(modLevel ? { level: modLevel } : {}) } })).data,
     enabled: tab === "module",
   });
+  const legacy = useQuery<ReportRow[]>({
+    queryKey: ["rep-legacy", key],
+    queryFn: async () => (await api.get("/reports/legacy", { params })).data,
+    enabled: tab === "legacy",
+  });
 
   const download = async (path: string, extra: Record<string, string>, filename: string) => {
     try {
@@ -187,6 +200,7 @@ export default function ReportsPage() {
         {tabBtn("user", "By user")}
         {tabBtn("module", "By module")}
         {tabBtn("tests", "Pre/post tests")}
+        {tabBtn("legacy", "Legacy (M1-M6)")}
         {isSuper && tabBtn("bi", "Power BI access")}
       </div>
 
@@ -288,6 +302,20 @@ export default function ReportsPage() {
           )}
           {tab === "tests" && (
             <TestReport params={params} onDownload={() => download("/learning/report.csv", {}, "pre_post_tests.csv")} />
+          )}
+          {tab === "legacy" && (
+            <>
+              <div className="flex items-center gap-3 mb-3">
+                <button className="border bg-white text-sm rounded px-3 py-1.5" onClick={() => download("/reports/legacy.csv", {}, "legacy_m1_m6.csv")}>
+                  Export CSV
+                </button>
+                <span className="text-xs text-gray-500">
+                  Records from the old modules M1-M6, archived at the changeover. Kept for reference; not part of any completion
+                  rate on the other tabs.
+                </span>
+              </div>
+              <Table rows={legacy.data} cols={LEGACY_COLS} loading={legacy.isLoading} />
+            </>
           )}
           {tab === "module" && (
             <>

@@ -46,6 +46,11 @@ def _sha256(data: bytes) -> str:
     return hashlib.sha256(data).hexdigest()
 
 
+def curriculum_of(module_codes) -> str:
+    """'hfw-2026' once the HFW flipbook modules ship, else 'legacy' (M1-M6)."""
+    return "hfw-2026" if any(c.startswith("HFW-") for c in module_codes) else "legacy"
+
+
 def build_package(db: Session, release: ContentRelease) -> dict:
     languages = {l.id: l.code for l in db.query(Language).all()}
     modules_out: list[dict] = []
@@ -181,6 +186,9 @@ def build_package(db: Session, release: ContentRelease) -> dict:
 
     return {
         "schema_version": SCHEMA_VERSION,
+        # Which curriculum this package is. Phones from 0.1.10 show a one-time
+        # "training updated" notice when it changes; older phones ignore it.
+        "curriculum": curriculum_of(m["module_code"] for m in modules_out),
         "release": {
             "release_code": release.release_code,
             "version": release.version,

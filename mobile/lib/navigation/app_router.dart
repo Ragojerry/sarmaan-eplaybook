@@ -14,12 +14,22 @@ import '../screens/video_screen.dart';
 import '../screens/about_screen.dart';
 import '../screens/ai_screen.dart';
 import '../screens/updates_screen.dart';
+import '../screens/update_required_screen.dart';
+import '../learning/curriculum_notice.dart';
+import '../offline/content_sync_service.dart';
 
 /// Splash, language, consent, login, home, modules, reader, videos, Ask (AI),
 /// about, and (Phase 12) the sync & updates screen.
 final appRouterProvider = Provider<GoRouter>((ref) {
   return GoRouter(
     initialLocation: '/splash',
+    // The training screens are closed when the server needs a newer app (min_app_version).
+    // Other screens (splash, login, ...) are never delayed: they return synchronously.
+    redirect: (context, state) {
+      const gated = ['/home', '/modules', '/reader', '/quiz'];
+      if (!gated.any((p) => state.matchedLocation.startsWith(p))) return null;
+      return updateRequired(ref.read(localDatabaseProvider)).then((needed) => needed ? '/update-required' : null);
+    },
     routes: [
       GoRoute(path: '/splash', builder: (context, state) => const SplashScreen()),
       GoRoute(path: '/language', builder: (context, state) => LanguageScreen(changing: state.uri.queryParameters['change'] == '1')),
@@ -46,6 +56,7 @@ final appRouterProvider = Provider<GoRouter>((ref) {
       GoRoute(path: '/ai', builder: (context, state) => const AiScreen()),
       GoRoute(path: '/about', builder: (context, state) => const AboutScreen()),
       GoRoute(path: '/updates', builder: (context, state) => const UpdatesScreen()),
+      GoRoute(path: '/update-required', builder: (context, state) => const UpdateRequiredScreen()),
     ],
   );
 });

@@ -8,6 +8,7 @@ import 'package:dio/dio.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../db/local_database.dart';
+import '../learning/curriculum_notice.dart';
 import '../offline/content_sync_service.dart';
 import '../services/api_client.dart';
 import '../services/auth_service.dart';
@@ -308,6 +309,8 @@ class SyncEngine extends StateNotifier<SyncSnapshot> {
         takenAt: DateTime.parse(a['taken_at'] as String).toLocal(),
       );
     }
+    // Lowest app version the server allows; older apps show "please update the app".
+    await _db.setSetting(kMinAppVersionKey, (data['min_app_version'] as String?) ?? '');
     final threshold = data['auto_approve_percent'];
     if (threshold is num) await _db.setAutoApprovePercent(threshold.toInt());
   }

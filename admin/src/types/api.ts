@@ -257,7 +257,7 @@ export interface Boundary {
   parent_id: string | null;
 }
 
-export type ReportRow = Record<string, string | number | null>;
+export type ReportRow = Record<string, string | number | boolean | null>;
 
 // ---------- Quiz ----------
 
@@ -414,8 +414,4 @@ export interface TestReportRow extends LearnerPerson {
   auto_approved: boolean;
   attempts_not_counted: number;
   completed_at: string | null;
-  /** "credited": completion given from an older module (not earned with this module's tests). */
-  completion_source: "earned" | "credited" | null;
-  credited_from: string | null;
-  credited_score: number | null;
 }

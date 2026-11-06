@@ -7,9 +7,7 @@
   "minutes": 20,
   "image_kb": 245,
   "quiz": 10,
-  "credit_from": [
-   "M1"
-  ]
+  "learning_order": 1
  },
  "HFW-02": {
   "title": "Eligibility for AZM",
@@ -19,9 +17,7 @@
   "minutes": 30,
   "image_kb": 1467,
   "quiz": 10,
-  "credit_from": [
-   "M2"
-  ]
+  "learning_order": 2
  },
  "HFW-03": {
   "title": "MUAC Nutrition Assessment",
@@ -33,9 +29,7 @@
   "minutes": 20,
   "image_kb": 824,
   "quiz": 10,
-  "credit_from": [
-   "M2"
-  ]
+  "learning_order": 8
  },
  "HFW-04": {
   "title": "Referral of Children to the Health Facility",
@@ -45,9 +39,7 @@
   "minutes": 20,
   "image_kb": 829,
   "quiz": 10,
-  "credit_from": [
-   "M3"
-  ]
+  "learning_order": 3
  },
  "HFW-05": {
   "title": "The AZM Referral Form",
@@ -60,7 +52,7 @@
   "minutes": 15,
   "image_kb": 573,
   "quiz": 10,
-  "credit_from": []
+  "learning_order": 9
  },
  "HFW-06": {
   "title": "Giving AZM Safely",
@@ -70,9 +62,7 @@
   "minutes": 25,
   "image_kb": 490,
   "quiz": 10,
-  "credit_from": [
-   "M4"
-  ]
+  "learning_order": 4
  },
  "HFW-07": {
   "title": "The AZM Child Record Card",
@@ -84,9 +74,7 @@
   "minutes": 30,
   "image_kb": 840,
   "quiz": 10,
-  "credit_from": [
-   "M4"
-  ]
+  "learning_order": 10
  },
  "HFW-08": {
   "title": "House Marking",
@@ -99,9 +87,7 @@
   "minutes": 15,
   "image_kb": 177,
   "quiz": 10,
-  "credit_from": [
-   "M4"
-  ]
+  "learning_order": 11
  },
  "HFW-09": {
   "title": "Call-in Data Reporting",
@@ -116,7 +102,7 @@
   "minutes": 20,
   "image_kb": 317,
   "quiz": 10,
-  "credit_from": []
+  "learning_order": 12
  },
  "HFW-10": {
   "title": "Drug Accountability and Reconciliation",
@@ -130,9 +116,7 @@
   "minutes": 15,
   "image_kb": 122,
   "quiz": 10,
-  "credit_from": [
-   "M4"
-  ]
+  "learning_order": 13
  },
  "HFW-11": {
   "title": "Cohort Tracking",
@@ -145,9 +129,7 @@
   "minutes": 15,
   "image_kb": 192,
   "quiz": 10,
-  "credit_from": [
-   "M4"
-  ]
+  "learning_order": 14
  },
  "HFW-12": {
   "title": "Drug Safety and Side Effects",
@@ -157,7 +139,7 @@
   "minutes": 15,
   "image_kb": 140,
   "quiz": 10,
-  "credit_from": []
+  "learning_order": 5
  },
  "HFW-13": {
   "title": "NAFDAC Reporting and the Role of DSNOs",
@@ -169,7 +151,7 @@
   "minutes": 20,
   "image_kb": 105,
   "quiz": 10,
-  "credit_from": []
+  "learning_order": 15
  },
  "HFW-14": {
   "title": "Interpersonal Communication and SBC",
@@ -179,9 +161,7 @@
   "minutes": 20,
   "image_kb": 43,
   "quiz": 10,
-  "credit_from": [
-   "M5"
-  ]
+  "learning_order": 6
  },
  "HFW-15": {
   "title": "Monitoring and Supervision",
@@ -193,7 +173,7 @@
   "minutes": 20,
   "image_kb": 201,
   "quiz": 10,
-  "credit_from": []
+  "learning_order": 16
  },
  "HFW-16": {
   "title": "Supply Chain Management",
@@ -205,7 +185,7 @@
   "minutes": 15,
   "image_kb": 123,
   "quiz": 10,
-  "credit_from": []
+  "learning_order": 17
  },
  "HFW-17": {
   "title": "Safeguarding",
@@ -215,8 +195,6 @@
   "minutes": 20,
   "image_kb": 380,
   "quiz": 10,
-  "credit_from": [
-   "M6"
-  ]
+  "learning_order": 7
  }
 }

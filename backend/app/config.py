@@ -46,6 +46,12 @@ class Settings(BaseSettings):
     # (app/learning/rules.py). Sent to phones with GET /sync/learning.
     post_test_auto_approve_percent: int = 90
     max_reference_upload_mb: int = 10  # reference library uploads (app/routers/references.py)
+    # Curriculum changeover (scripts/cutover_hfw.py). CUTOVER_DATE is set by the programme
+    # (YYYY-MM-DD); there is deliberately no default, and the script refuses to run against
+    # production without it.
+    cutover_date: str | None = None
+    # Lowest app version allowed to train (e.g. "0.1.10"); None = no minimum. Sent with GET /sync/learning.
+    min_app_version: str | None = None
 
 
 @lru_cache

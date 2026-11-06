@@ -25,7 +25,7 @@ import hfw_content_c  # noqa: E402,F401
 from hfw_dsl import MODULES  # noqa: E402
 from hfw_figures import FIGURES, LOGOS  # noqa: E402
 from hfw_meta import BAKED, EXCLUDED, FIGURE_PAGES, FURNITURE, HAUSA, PAGE_NOTES, RIGHTS  # noqa: E402
-from hfw_modules import ALL_ROLES, APP_MODULES  # noqa: E402
+from hfw_modules import ALL_ROLES, APP_MODULES, learning_order  # noqa: E402
 from hfw_quiz import Q  # noqa: E402
 from hfw_quiz_extra import X  # noqa: E402
 
@@ -117,13 +117,15 @@ for fn in os.listdir(os.path.join(out, "en")):
 image_use = Counter()
 img_section = {}
 manifest, alt_rows, content_json = [], [], []
-for order, am in enumerate(APP_MODULES, 1):
+ORDER = {am['code']: i for i, am in enumerate(learning_order(), 1)}
+for am in APP_MODULES:
+    order = ORDER[am['code']]
     rows = [["MODULE|title", "Module title", csv_safe(am["title"]), ""],
             ["MODULE|description", "Module description", csv_safe(am["description"]), ""]]
     jm = {"module_code": am["code"], "learning_order": order, "title": am["title"], "description": am["description"],
           "audience": am["audience"], "learner_roles": am["roles"],
           "roles_display": ALL_ROLES if am["audience"] == "GENERAL" else am["roles"],
-          "estimated_minutes": am["estimated_minutes"], "credit_from": am["credit_from"], "sections": []}
+          "estimated_minutes": am["estimated_minutes"], "sections": []}
     for n, s in enumerate(am["sections"], 1):
         sid = s["id"]
         label = f"Section {n} ({s['type']})"
@@ -157,6 +159,7 @@ for order, am in enumerate(APP_MODULES, 1):
                         warnings.append(f"{am['code']} s{n}: {len(sent.split())} words: {sent[:70]}...")
     write_csv(os.path.join(out, "en", f"module_hfw_{am['code'][4:]}.csv"), ["key", "where", "english", "translation"], rows)
     content_json.append(jm)
+content_json.sort(key=lambda m: m["learning_order"])
 write_csv(os.path.join(out, "alt_text.csv"), ["key", "english", "translation"], alt_rows)
 with open(os.path.join(out, "content_sections.json"), "w", encoding="utf-8") as f:
     json.dump(content_json, f, ensure_ascii=False, indent=1)
@@ -318,16 +321,16 @@ write_csv(os.path.join(out, "quizzes.csv"),
           ["question_id", "module", "module_roles", "order", "question", "option_a", "option_b", "option_c", "option_d",
            "correct_option", "explanation", "pdf_page", "image_file"], quiz_rows)
 
-# ---------------------------------------------------------------- modules.csv (roles, duration, credit)
+# ---------------------------------------------------------------- modules.csv (roles, duration, learning order)
 write_csv(os.path.join(out, "modules.csv"),
           ["learning_order", "module_code", "title", "description", "audience", "learner_roles", "roles_display",
-           "estimated_minutes", "reading_words", "sections", "images", "image_kb", "quiz_questions", "pdf_pages", "credit_from_old_module"],
+           "estimated_minutes", "reading_words", "sections", "images", "image_kb", "quiz_questions", "pdf_pages"],
           [[i, am["code"], am["title"], am["description"], am["audience"], ";".join(am["roles"]),
             "ALL (GENERAL)" if am["audience"] == "GENERAL" else ";".join(am["roles"]), am["estimated_minutes"], am["words"],
             len(am["sections"]), sum(1 for s in am["sections"] if s["type"] == "IMAGE"), round(per_module[am["code"]] / 1024),
             qc[am["code"]], f"{min(p for s in am['sections'] for p in s['pages'])}-{max(p for s in am['sections'] for p in s['pages'])}",
-            ";".join(am["credit_from"]) or "none (new content)"]
-           for i, am in enumerate(APP_MODULES, 1)])
+            ]
+           for i, am in enumerate(learning_order(), 1)])
 
 # ---------------------------------------------------------------- reopen every CSV like the importer does
 alt_keys = {r[0] for r in alt_rows}
@@ -348,10 +351,10 @@ if len(alt_keys) != len(FIGURES):
 summary = {am["code"]: {"title": am["title"], "audience": am["audience"], "roles": am["roles"],
                         "sections": len(am["sections"]), "minutes": am["estimated_minutes"],
                         "image_kb": round(per_module[am["code"]] / 1024), "quiz": qc[am["code"]],
-                        "credit_from": am["credit_from"]} for am in APP_MODULES}
+                        "learning_order": ORDER[am["code"]]} for am in APP_MODULES}
 json.dump(summary, open(os.path.join(work, "build_summary.json"), "w"), indent=1)
 for code, s in summary.items():
-    print(code, s["audience"][:4], ",".join(s["roles"]) or "-", s["sections"], f"{s['minutes']}min", f"{s['image_kb']}KB", s["quiz"], s["credit_from"])
+    print(s["learning_order"], code, s["audience"][:4], ",".join(s["roles"]) or "-", s["sections"], f"{s['minutes']}min", f"{s['image_kb']}KB", s["quiz"])
 print("alt rows:", len(alt_rows), "| quiz:", len(quiz_rows), "| embedded:", len(idx_rows), "unmapped", len(unmapped))
 print("WARNINGS:", len(warnings))
 for w_ in warnings:

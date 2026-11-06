@@ -169,7 +169,7 @@ class _QuizScreenState extends ConsumerState<QuizScreen> {
     final state = learning.of(widget.moduleId);
     String? blocked;
     if (state == null) {
-      blocked = 'This module is not available for your role.';
+      blocked = 'This module is not part of your current training. Go back to Modules to continue.';
     } else if (state.stage == ModuleStage.locked) {
       blocked = 'Complete ${learning.blockerOf(widget.moduleId)?.title ?? 'the previous module'} first.';
     } else if (_isPre && !state.canTakePreTest) {

@@ -33,7 +33,6 @@ from app.models import (
     AiQuestionLog,
     AnalyticsEvent,
     Module,
-    ModuleCompletionCredit,
     QuizAttempt,
     User,
     UserModuleProgress,
@@ -110,9 +109,6 @@ def user_rows(db: Session, f: Filters) -> list[dict]:
     visible_to = {u.id: {m.id for m in modules if module_visible_to(m, u)} for u in users}
 
     completed = defaultdict(int)
-    completed_credited = defaultdict(int)  # of `completed`, how many were credited from an older module
-    credited = {(uid, mid) for uid, mid in db.query(ModuleCompletionCredit.user_id, ModuleCompletionCredit.module_id)
-                .filter(ModuleCompletionCredit.user_id.in_(ids))} if ids else set()
     started = defaultdict(int)
     completion_times = defaultdict(list)
     last_progress = {}
@@ -131,7 +127,6 @@ def user_rows(db: Session, f: Filters) -> list[dict]:
             started[uid] += 1
             if done:
                 completed[uid] += 1
-                completed_credited[uid] += (uid, mid) in credited
                 completion_times[uid].append(completed_at or updated)
             if updated and (uid not in last_progress or updated > last_progress[uid]):
                 last_progress[uid] = updated
@@ -212,7 +207,6 @@ def user_rows(db: Session, f: Filters) -> list[dict]:
                 "modules_total": total_modules,
                 "modules_started": started[u.id],
                 "modules_completed": completed[u.id],
-                "modules_completed_credited": completed_credited[u.id],
                 "completed_all_at": (
                     max(completion_times[u.id]).isoformat()
                     if total_modules and completed[u.id] >= total_modules and completion_times[u.id]
@@ -239,7 +233,7 @@ def user_rows(db: Session, f: Filters) -> list[dict]:
 
 
 SUM_FIELDS = [
-    "modules_completed", "modules_completed_credited", "quiz_attempts", "quizzes_passed", "training_events", "video_events",
+    "modules_completed", "quiz_attempts", "quizzes_passed", "training_events", "video_events",
     "questions_asked", "questions_unanswered", "technical_events", "session_events",
 ]
 UNASSIGNED = "(not assigned)"
@@ -349,8 +343,6 @@ def module_rows(db: Session, f: Filters, level: str | None = None) -> list[dict]
     mods = db.query(Module).filter(Module.status == ModuleStatus.PUBLISHED).order_by(Module.sort_order).all()
     prog = defaultdict(dict)
     quiz_best = defaultdict(dict)
-    credited = {(mid, uid) for uid, mid in db.query(ModuleCompletionCredit.user_id, ModuleCompletionCredit.module_id)
-                .filter(ModuleCompletionCredit.user_id.in_(ids))} if ids else set()
     if ids:
         for uid, mid, done, cat, upd in db.query(
             UserModuleProgress.user_id, UserModuleProgress.module_id, UserModuleProgress.completed,
@@ -386,7 +378,6 @@ def module_rows(db: Session, f: Filters, level: str | None = None) -> list[dict]
                     "users": len(members),
                     "started": len(started),
                     "completed": len(done),
-                    "completed_credited": sum(1 for uid in done if (m.id, uid) in credited),
                     "completion_rate": round(100 * len(done) / len(members), 1) if members else 0.0,
                     "quiz_takers": len(q),
                     "quiz_passed": sum(1 for _, p in q if p),
