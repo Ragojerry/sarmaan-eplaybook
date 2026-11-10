@@ -30,6 +30,11 @@ class Settings(BaseSettings):
     storage_backend: str = "local"  # "local" | "s3"
     storage_local_path: str = "../content/media"
     max_video_upload_mb: int = 500  # reject larger video uploads
+    # Audio/video files uploaded on a content section (app/routers/section_media.py).
+    # Formats are checked from the file's bytes: audio mp3|m4a|wav, video mp4|webm.
+    max_audio_upload_mb: int = 50
+    audio_upload_formats: List[str] = ["mp3", "m4a", "wav"]
+    video_upload_formats: List[str] = ["mp4"]
     release_storage_path: str = "../content/releases"  # built release manifests (Phase 12)
     s3_endpoint_url: str | None = None
     s3_bucket: str | None = None

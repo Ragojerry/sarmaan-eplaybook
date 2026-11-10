@@ -8,6 +8,7 @@ import ModuleTranslationsPanel from "../components/ModuleTranslationsPanel";
 import ModuleDetailsEditor from "../components/ModuleDetailsEditor";
 import ModuleAudienceEditor from "../components/ModuleAudienceEditor";
 import SectionEditor from "../components/SectionEditor";
+import { MEDIA_ACCEPT, ProgressBar, errorText, formatBytes, uploadSectionMedia } from "../components/SectionMediaField";
 import { Module, ModuleTranslation, ContentSection, Language, ContentType } from "../types/api";
 
 const WORKFLOW_STAGES = ["DRAFT", "PROGRAMME_REVIEW", "LOCALISATION_REVIEW", "TECHNICAL_QA", "PUBLISHED"];
@@ -57,9 +58,14 @@ export default function ModuleDetailPage() {
   const { user } = useAuth();
   const [rejectReason, setRejectReason] = useState("");
   const [showReject, setShowReject] = useState<string | null>(null);
-  const [newSection, setNewSection] = useState<{ content_type: ContentType; title: string; text: string } | null>(
-    null,
-  );
+  const [newSection, setNewSection] = useState<{
+    content_type: ContentType;
+    title: string;
+    text: string;
+    file?: File | null;
+  } | null>(null);
+  const [addPct, setAddPct] = useState<number | null>(null);
+  const [addError, setAddError] = useState<string | null>(null);
 
   const queryClient = useQueryClient();
   const [editingId, setEditingId] = useState<string | null>(null);
@@ -132,21 +138,37 @@ export default function ModuleDetailPage() {
   const createSection = useMutation({
     mutationFn: async () => {
       const nextNumber = (sections?.length ?? 0) + 1;
-      return (
+      const { content_type, title, text, file } = newSection!;
+      const isMedia = content_type === "AUDIO" || content_type === "VIDEO";
+      setAddError(null);
+      const created = (
         await api.post(`/modules/${moduleId}/sections`, {
           section_number: nextNumber,
           sort_order: nextNumber,
-          content_type: newSection!.content_type,
-          title: newSection!.title || null,
-          content: { text: newSection!.text },
+          content_type,
+          title: title || null,
+          content: isMedia && !text ? {} : { text },
         })
       ).data;
+      if (isMedia && file) {
+        setAddPct(0);
+        try {
+          await uploadSectionMedia(created.id, file, setAddPct);
+        } catch (e) {
+          // The section exists; the admin retries the file from its Edit button instead of creating a duplicate.
+          setAddError(`Section saved, but the file was not uploaded: ${errorText(e, "upload failed")} Use Edit on the section to try again.`);
+        } finally {
+          setAddPct(null);
+        }
+      }
+      return created;
     },
     onSuccess: () => {
       refetchSections();
       setNewSection(null);
     },
   });
+  const newIsMedia = newSection?.content_type === "AUDIO" || newSection?.content_type === "VIDEO";
 
   const deleteSection = useMutation({
     mutationFn: async (sectionId: string) => api.delete(`/modules/sections/${sectionId}`),
@@ -300,14 +322,44 @@ export default function ModuleDetailPage() {
             />
             <textarea
               className="w-full border rounded px-2 py-1 text-sm"
-              placeholder="Content text"
+              placeholder={newIsMedia ? "Description or transcript (optional)" : "Content text"}
               rows={3}
               value={newSection.text}
               onChange={(e) => setNewSection({ ...newSection, text: e.target.value })}
             />
+            {newIsMedia && (
+              <div className="space-y-1">
+                <input
+                  type="file"
+                  accept={MEDIA_ACCEPT[newSection.content_type as "AUDIO" | "VIDEO"]}
+                  disabled={createSection.isPending}
+                  onChange={(e) => setNewSection({ ...newSection, file: e.target.files?.[0] ?? null })}
+                  className="text-sm"
+                />
+                {newSection.file && (
+                  <p className="text-xs text-gray-500">
+                    {newSection.file.name} · {formatBytes(newSection.file.size)}
+                  </p>
+                )}
+                {addPct !== null && (
+                  <div className="flex items-center gap-2">
+                    <ProgressBar pct={addPct} />
+                    <span className="text-xs text-gray-500 w-10">{addPct}%</span>
+                  </div>
+                )}
+                <p className="text-xs text-gray-400">
+                  {newSection.content_type === "AUDIO" ? "MP3, M4A or WAV." : "MP4 (H.264). A new video starts as a draft."} You
+                  can also add or replace the file later with Edit.
+                </p>
+              </div>
+            )}
             <div className="flex gap-2">
-              <button type="submit" className="bg-gray-900 text-white text-sm rounded px-3 py-1.5">
-                Save section
+              <button
+                type="submit"
+                disabled={createSection.isPending}
+                className="bg-gray-900 text-white text-sm rounded px-3 py-1.5 disabled:opacity-50"
+              >
+                {addPct !== null ? "Uploading…" : createSection.isPending ? "Saving…" : "Save section"}
               </button>
               <button
                 type="button"
@@ -319,6 +371,8 @@ export default function ModuleDetailPage() {
             </div>
           </form>
         )}
+
+        {addError && <p className="text-sm text-red-600 mb-3">{addError}</p>}
 
         {!sections || sections.length === 0 ? (
           <p className="text-sm text-gray-500">No sections yet.</p>
@@ -342,7 +396,7 @@ export default function ModuleDetailPage() {
                   {typeof s.content?.text === "string" && (
                     <p className="text-sm text-gray-600">{s.content.text}</p>
                   )}
-                  {typeof s.content?.media_asset_id === "string" && (
+                  {s.content_type === "IMAGE" && typeof s.content?.media_asset_id === "string" && (
                     <div className="mt-2">
                       <AuthenticatedImage
                         mediaAssetId={s.content.media_asset_id}
@@ -353,6 +407,13 @@ export default function ModuleDetailPage() {
                         <p className="text-xs text-gray-400 mt-1">{s.content.caption}</p>
                       )}
                     </div>
+                  )}
+                  {(s.content_type === "AUDIO" || s.content_type === "VIDEO") && (
+                    <p className="text-xs text-gray-500 mt-1">
+                      {typeof s.content?.filename === "string"
+                        ? `${s.content.filename}${typeof s.content.size_bytes === "number" ? ` · ${formatBytes(s.content.size_bytes)}` : ""}`
+                        : "No file yet. Use Edit to upload one."}
+                    </p>
                   )}
                   {Array.isArray((s.content as any)?.items) && (
                     <ul className="list-disc list-inside text-sm text-gray-600 mt-1">

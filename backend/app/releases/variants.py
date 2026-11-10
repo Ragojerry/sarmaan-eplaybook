@@ -26,7 +26,7 @@ from app.releases.packager import _canonical, _sha256, package_path
 def _media_ids(module: dict) -> set[str]:
     ids = set()
     for s in module.get("sections", []):
-        if s.get("content_type") == "IMAGE" and (s.get("content") or {}).get("media_asset_id"):
+        if s.get("content_type") in ("IMAGE", "AUDIO") and (s.get("content") or {}).get("media_asset_id"):
             ids.add(str(s["content"]["media_asset_id"]))
     for q in module.get("quiz_questions", []):
         if (q.get("content") or {}).get("media_asset_id"):

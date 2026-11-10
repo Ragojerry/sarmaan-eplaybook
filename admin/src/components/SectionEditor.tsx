@@ -2,11 +2,12 @@ import { useState } from "react";
 import { useMutation } from "@tanstack/react-query";
 import { api } from "../services/api";
 import { ContentSection } from "../types/api";
+import SectionMediaField from "./SectionMediaField";
 
 const str = (v: unknown) => (typeof v === "string" ? v : "");
 
 /** Inline editor for the English text of one section. Structure (type, order,
- * pictures) is not changed here; only wording. */
+ * pictures) is not changed here; only wording, and the file of an AUDIO/VIDEO section. */
 export default function SectionEditor({
   section,
   onDone,
@@ -14,7 +15,8 @@ export default function SectionEditor({
   section: ContentSection;
   onDone: (saved: boolean) => void;
 }) {
-  const c = section.content as Record<string, any>;
+  // Kept up to date when an audio/video file is uploaded or removed, so Save never puts back the old file.
+  const [c, setC] = useState(section.content as Record<string, any>);
   const type = section.content_type;
   const [title, setTitle] = useState(section.title ?? "");
   const [text, setText] = useState(str(c.text));
@@ -27,6 +29,7 @@ export default function SectionEditor({
     Array.isArray(c.rows) ? c.rows.map((r: unknown[]) => r.map(String)) : [],
   );
   const [error, setError] = useState<string | null>(null);
+  const [fileChanged, setFileChanged] = useState(false);
 
   const save = useMutation({
     mutationFn: async () => {
@@ -130,7 +133,10 @@ export default function SectionEditor({
         </div>
       )}
       {(type === "VIDEO" || type === "AUDIO") && (
-        <p className="text-xs text-gray-500">Only the title can be edited for this type.</p>
+        <SectionMediaField sectionId={section.id} kind={type} content={c} onChanged={(next) => {
+            setC(next);
+            setFileChanged(true);
+          }} />
       )}
       {error && <p className="text-sm text-red-600">{error}</p>}
       <div className="flex gap-2">
@@ -142,7 +148,7 @@ export default function SectionEditor({
         >
           {save.isPending ? "Saving…" : "Save changes"}
         </button>
-        <button type="button" onClick={() => onDone(false)} className="text-sm text-gray-500 px-3 py-1.5">
+        <button type="button" onClick={() => onDone(fileChanged)} className="text-sm text-gray-500 px-3 py-1.5">
           Cancel
         </button>
       </div>

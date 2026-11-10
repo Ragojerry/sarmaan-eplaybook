@@ -10,7 +10,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from app.config import get_settings
-from app.routers import health, auth, modules, languages, media, videos, releases, sync, ai, analytics, audit, users, quiz, boundaries, reports, bi, sessions, references, faqs, consent, learning
+from app.routers import health, auth, modules, languages, media, videos, releases, sync, ai, analytics, audit, users, quiz, boundaries, reports, bi, sessions, references, faqs, consent, learning, section_media
 
 settings = get_settings()
 
@@ -30,6 +30,7 @@ app.add_middleware(
 
 app.include_router(health.router)
 app.include_router(auth.router, prefix="/auth", tags=["auth"])
+app.include_router(section_media.router, prefix="/modules", tags=["modules"])
 app.include_router(modules.router, prefix="/modules", tags=["modules"])
 app.include_router(languages.router, prefix="/languages", tags=["languages"])
 app.include_router(media.router, prefix="/media", tags=["media"])

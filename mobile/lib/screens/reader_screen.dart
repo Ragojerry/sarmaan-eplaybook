@@ -14,6 +14,7 @@ import '../offline/content_sync_service.dart';
 import '../quiz/quiz_grader.dart';
 import '../theme/app_theme.dart';
 import '../widgets/offline_aware_image.dart';
+import '../widgets/section_audio_player.dart';
 
 /// Phase 8: reads from the LOCAL cache — never the network — matching
 /// master prompt §18's offline-first requirement exactly ("module reading"
@@ -618,6 +619,25 @@ class _ReaderScreenState extends ConsumerState<ReaderScreen> {
               ],
             ),
           ),
+        );
+
+      case 'AUDIO':
+        final audioId = section.content['media_asset_id'] as String?;
+        if (audioId == null) return const SizedBox.shrink();
+        final description = section.content['text'];
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            SectionAudioPlayer(
+              mediaAssetId: audioId,
+              title: section.title ?? section.content['title'] as String? ?? 'Listen',
+            ),
+            if (description is String && description.trim().isNotEmpty)
+              Padding(
+                padding: const EdgeInsets.only(bottom: 14),
+                child: Text(description, style: const TextStyle(fontSize: 13, color: AppColors.ink)),
+              ),
+          ],
         );
 
       default:

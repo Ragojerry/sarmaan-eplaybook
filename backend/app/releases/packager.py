@@ -80,7 +80,7 @@ def build_package(db: Session, release: ContentRelease) -> dict:
             else []
         )
         for s in sections:
-            if s.content_type == ContentType.IMAGE and (s.content or {}).get("media_asset_id"):
+            if s.content_type in (ContentType.IMAGE, ContentType.AUDIO) and (s.content or {}).get("media_asset_id"):
                 media_ids.add(str(s.content["media_asset_id"]))
         quiz = (
             db.query(QuizQuestion)

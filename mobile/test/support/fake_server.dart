@@ -82,11 +82,14 @@ ReleaseInfo publish(FakeServer server, String code, List<Map<String, dynamic>> m
   final media = <Map<String, dynamic>>[];
   for (final m in modules) {
     for (final s in (m['sections'] as List).cast<Map<String, dynamic>>()) {
-      if (s['content_type'] != 'IMAGE') continue;
+      final type = s['content_type'];
+      if (type != 'IMAGE' && type != 'AUDIO') continue;
       final id = s['content']['media_asset_id'] as String;
-      final bytes = imageBytes(id);
+      final bytes = server.files['/media/$id/file'] ?? imageBytes(id);
       server.files['/media/$id/file'] = bytes;
-      media.add({'id': id, 'asset_type': 'IMAGE', 'filename': '$id.png', 'mime_type': 'image/png',
+      final audio = type == 'AUDIO';
+      media.add({'id': id, 'asset_type': type, 'filename': audio ? '$id.mp3' : '$id.png',
+                 'mime_type': audio ? 'audio/mpeg' : 'image/png',
                  'size_bytes': bytes.length, 'checksum': sha256.convert(bytes).toString()});
     }
   }

@@ -299,27 +299,26 @@ class ReleaseInstaller {
     report(InstallStage.done, 1);
   }
 
-  /// Downloads one image to a temp file, verifies its SHA-256, then renames it
-  /// into place. The name embeds the checksum so a changed image never
-  /// overwrites the file the current release is still showing.
+  /// Downloads one media file (picture or section audio) straight to a temp
+  /// file, so a large file is never held in memory, verifies its SHA-256 from
+  /// the file, then renames it into place. The name embeds the checksum so a
+  /// changed file never overwrites the one the current release is still using.
   Future<String> _downloadMedia(Map<String, dynamic> m, Directory dir) async {
     final id = m['id'] as String;
     final checksum = m['checksum'] as String;
+    final target = File(p.join(dir.path, '${id}_${checksum.substring(0, 12)}_${m['filename']}'));
+    final tmp = File('${target.path}.part');
     try {
-      final resp = await _api.dio.get<List<int>>(
-        '/media/$id/file',
-        options: Options(responseType: ResponseType.bytes),
-      );
-      final bytes = Uint8List.fromList(resp.data!);
-      if (sha256.convert(bytes).toString() != checksum) {
+      await _api.dio.download('/media/$id/file', tmp.path);
+      final digest = await sha256.bind(tmp.openRead()).first;
+      if (digest.toString() != checksum) {
+        await tmp.delete();
         throw InstallException(InstallStage.media, '${m['filename']}: checksum mismatch');
       }
-      final target = File(p.join(dir.path, '${id}_${checksum.substring(0, 12)}_${m['filename']}'));
-      final tmp = File('${target.path}.part');
-      await tmp.writeAsBytes(bytes, flush: true);
       await tmp.rename(target.path);
       return target.path;
     } on DioException catch (e) {
+      if (await tmp.exists()) await tmp.delete();
       throw InstallException(InstallStage.media, '${m['filename']}: ${e.message ?? 'network error'}');
     } on FileSystemException catch (e) {
       await recordAnalyticsEvent(_db, 'STORAGE_ERROR', payload: {'stage': 'install_media'});

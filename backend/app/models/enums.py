@@ -196,6 +196,8 @@ class AuditAction(str, enum.Enum):
     FAQ_UPDATE = "FAQ_UPDATE"
     CONSENT_UPDATE = "CONSENT_UPDATE"
     AUDIENCE_CHANGE = "AUDIENCE_CHANGE"
+    MEDIA_UPLOAD = "MEDIA_UPLOAD"
+    MEDIA_REMOVE = "MEDIA_REMOVE"
 
 
 class QuestionType(str, enum.Enum):
