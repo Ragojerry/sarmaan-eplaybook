@@ -290,13 +290,19 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
   }
 
   /// One card per module the learner has started but not finished, most
-  /// recently opened first, each showing that module's own progress.
+  /// recently opened first, each showing that module's own progress. Locked
+  /// modules (General pre-test not taken, or an earlier module unfinished) are
+  /// left out: their reading progress is kept and they come back once unlocked.
   List<Widget> _buildContinueReading(List<CachedModuleRow> modules, HomeExtras? extras) {
     if (extras == null) return const [];
     final byId = {for (final m in modules) m.id: m};
     final started = [
       for (final p in extras.progress.values)
-        if (!p.completed && p.progressPercent > 0 && byId.containsKey(p.moduleId)) p,
+        if (!p.completed &&
+            p.progressPercent > 0 &&
+            byId.containsKey(p.moduleId) &&
+            extras.learning.of(p.moduleId)?.stage != ModuleStage.locked)
+          p,
     ]..sort((a, b) => (b.lastOpenedAt ?? DateTime(0)).compareTo(a.lastOpenedAt ?? DateTime(0)));
     if (started.isEmpty) return const [];
     return [
@@ -804,7 +810,7 @@ class _ModuleCard extends StatelessWidget {
                 ),
               ],
             ),
-            if (!completed && percent > 0) ...[
+            if (!completed && !locked && percent > 0) ...[
               const SizedBox(height: 6),
               ClipRRect(
                 borderRadius: BorderRadius.circular(3),
