@@ -30,6 +30,9 @@ class UserModuleProgress(Base):
     # recorded before pre/post tests existed, which is kept without a pre-test.
     reading_completed_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
     legacy_reading: Mapped[bool] = mapped_column(Boolean, nullable=False, default=False, server_default="false")
+    # Active time in the module (app in front, module on screen), reported by the phone.
+    # Only ever grows: the server keeps the larger of stored and uploaded values.
+    seconds_spent: Mapped[int] = mapped_column(Integer, nullable=False, default=0, server_default="0")
     device_id: Mapped[str | None] = mapped_column(String(255), nullable=True)
     updated_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), server_default=func.now(), onupdate=func.now()

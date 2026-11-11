@@ -1,6 +1,7 @@
 {
   "pass_mark": 90,
   "auto_approve_percent": 90,
+  "module_min_seconds": 180,
   "cases": [
     {
       "pre_correct": 5,
@@ -137,6 +138,89 @@
       "post_total": 10,
       "completes": false,
       "why": "100% pre-test, 80% post-test: below the auto-approval threshold"
+    }
+  ],
+  "completion": [
+    {
+      "unlocked": true,
+      "quiz_statements": 3,
+      "quiz_correct": 3,
+      "seconds": 180,
+      "min_seconds": 180,
+      "can_complete": true,
+      "why": "quiz 3/3 and exactly 3 minutes"
+    },
+    {
+      "unlocked": true,
+      "quiz_statements": 3,
+      "quiz_correct": 2,
+      "seconds": 600,
+      "min_seconds": 180,
+      "can_complete": false,
+      "why": "quiz 2/3 (66.7%) is below the 90% pass mark"
+    },
+    {
+      "unlocked": true,
+      "quiz_statements": 3,
+      "quiz_correct": 3,
+      "seconds": 179,
+      "min_seconds": 180,
+      "can_complete": false,
+      "why": "one second short of the minimum time"
+    },
+    {
+      "unlocked": true,
+      "quiz_statements": 3,
+      "quiz_correct": null,
+      "seconds": 600,
+      "min_seconds": 180,
+      "can_complete": false,
+      "why": "quiz not taken yet"
+    },
+    {
+      "unlocked": true,
+      "quiz_statements": 0,
+      "quiz_correct": null,
+      "seconds": 180,
+      "min_seconds": 180,
+      "can_complete": true,
+      "why": "a module without a quiz needs only the time"
+    },
+    {
+      "unlocked": true,
+      "quiz_statements": 0,
+      "quiz_correct": null,
+      "seconds": 30,
+      "min_seconds": 180,
+      "can_complete": false,
+      "why": "a module without a quiz still needs the time"
+    },
+    {
+      "unlocked": false,
+      "quiz_statements": 3,
+      "quiz_correct": 3,
+      "seconds": 600,
+      "min_seconds": 180,
+      "can_complete": false,
+      "why": "locked: complete the previous module (or the General pre-test) first"
+    },
+    {
+      "unlocked": true,
+      "quiz_statements": 3,
+      "quiz_correct": 3,
+      "seconds": 0,
+      "min_seconds": 0,
+      "can_complete": true,
+      "why": "minimum time set to 0 by an administrator"
+    },
+    {
+      "unlocked": true,
+      "quiz_statements": 10,
+      "quiz_correct": 9,
+      "seconds": 200,
+      "min_seconds": 180,
+      "can_complete": true,
+      "why": "a 10-statement quiz at exactly 90%"
     }
   ]
 }

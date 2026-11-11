@@ -1,0 +1,569 @@
+[
+ {
+  "ref": "1.1",
+  "quiz_module": 1,
+  "topic": "Introduction to AZM",
+  "statement": "AZM prevents and treats pneumonia, diarrhoea and malaria in children 1-59 months",
+  "answer": true,
+  "placements": [
+   {
+    "audience": "HFW",
+    "module_code": "HFW-01",
+    "section_id": "2f80d94d-989a-5945-93cf-315b1d21e168",
+    "after_section_id": "a0d18a28-62ba-5a59-a396-d43cfdcca319",
+    "after_section_number": 11,
+    "note": ""
+   },
+   {
+    "audience": "CDD",
+    "module_code": "CDD-01",
+    "section_id": "c5aea427-a422-52dc-9eba-d3e5def960ef",
+    "note": ""
+   }
+  ]
+ },
+ {
+  "ref": "1.2",
+  "quiz_module": 1,
+  "topic": "Introduction to AZM",
+  "statement": "AZM is delivered through door to door approach",
+  "answer": true,
+  "placements": [
+   {
+    "audience": "HFW",
+    "module_code": "HFW-01",
+    "section_id": "cf920fdb-0137-578c-bce3-591148509474",
+    "after_section_id": "28d4885b-9e50-5032-83fb-35c6440c75fc",
+    "after_section_number": 16,
+    "note": ""
+   },
+   {
+    "audience": "CDD",
+    "module_code": "CDD-01",
+    "section_id": "3d2cfa77-aee1-5a13-adf8-ea0b712358e1",
+    "note": ""
+   }
+  ]
+ },
+ {
+  "ref": "1.3",
+  "quiz_module": 1,
+  "topic": "Introduction to AZM",
+  "statement": "AZM data is collected using Technology App",
+  "answer": true,
+  "placements": [
+   {
+    "audience": "HFW",
+    "module_code": "HFW-01",
+    "section_id": "392a6019-198b-5a9b-b7bf-2d1c0af94d78",
+    "after_section_id": "28d4885b-9e50-5032-83fb-35c6440c75fc",
+    "after_section_number": 16,
+    "note": ""
+   },
+   {
+    "audience": "CDD",
+    "module_code": "CDD-01",
+    "section_id": "7fcaf304-150b-5ef4-babc-a7a3f229b26a",
+    "note": ""
+   }
+  ]
+ },
+ {
+  "ref": "2.1",
+  "quiz_module": 2,
+  "topic": "Determination of eligibility for AZM MDA",
+  "statement": "AZM is given to all children 1-59 months",
+  "answer": false,
+  "placements": [
+   {
+    "audience": "HFW",
+    "module_code": "HFW-02",
+    "section_id": "f06b6073-23d1-579e-8481-ba848a249b3c",
+    "after_section_id": "97723073-29ec-598a-aa14-f85b06b0dcbc",
+    "after_section_number": 3,
+    "note": ""
+   },
+   {
+    "audience": "CDD",
+    "module_code": "CDD-02",
+    "section_id": "a9c62227-b936-58eb-8ea4-c3e0cb134897",
+    "note": ""
+   }
+  ]
+ },
+ {
+  "ref": "2.2",
+  "quiz_module": 2,
+  "topic": "Determination of eligibility for AZM MDA",
+  "statement": "A sick child is eligible for AZM",
+  "answer": false,
+  "placements": [
+   {
+    "audience": "HFW",
+    "module_code": "HFW-02",
+    "section_id": "ce0ffa6c-4425-5c01-bae1-16780e5e52ef",
+    "after_section_id": "0869d141-752c-54c5-9bcf-5e25c9215ecb",
+    "after_section_number": 18,
+    "note": ""
+   },
+   {
+    "audience": "CDD",
+    "module_code": "CDD-02",
+    "section_id": "1794b0eb-7244-5b2e-9f52-2da1783f9869",
+    "note": ""
+   }
+  ]
+ },
+ {
+  "ref": "2.3",
+  "quiz_module": 2,
+  "topic": "Determination of eligibility for AZM MDA",
+  "statement": "A child with SAM is not eligible for AZM",
+  "answer": true,
+  "placements": [
+   {
+    "audience": "HFW",
+    "module_code": "HFW-02",
+    "section_id": "53f1595a-525f-532e-b73f-dd4a1e28b6f7",
+    "after_section_id": "9c755642-3363-5ab9-b9c8-acd3dc3f763e",
+    "after_section_number": 27,
+    "note": ""
+   },
+   {
+    "audience": "CDD",
+    "module_code": "CDD-02",
+    "section_id": "ad9a24fc-f1d5-5013-bb46-887be3355152",
+    "note": ""
+   }
+  ]
+ },
+ {
+  "ref": "3.1",
+  "quiz_module": 3,
+  "topic": "Steps for Referral of Children to HF",
+  "statement": "A sick child should be referred to the Health Facility immediately",
+  "answer": true,
+  "placements": [
+   {
+    "audience": "HFW",
+    "module_code": "HFW-04",
+    "section_id": "c1626659-3415-5796-b250-a5772afa2408",
+    "after_section_id": "3f4c6537-fff9-556d-a8bd-58187dd627f3",
+    "after_section_number": 9,
+    "note": ""
+   },
+   {
+    "audience": "CDD",
+    "module_code": "CDD-03",
+    "section_id": "b2464482-e19b-5a93-aeec-70b87a87cdc1",
+    "note": ""
+   }
+  ]
+ },
+ {
+  "ref": "3.2",
+  "quiz_module": 3,
+  "topic": "Steps for Referral of Children to HF",
+  "statement": "The CDD fills a referral form for the caregiver to take to the HF immediately",
+  "answer": true,
+  "placements": [
+   {
+    "audience": "HFW",
+    "module_code": "HFW-04",
+    "section_id": "e19ac7ec-1e97-58de-8cba-64d7f4f9eef3",
+    "after_section_id": "cecc0374-bbf4-5a99-ae02-437400016f21",
+    "after_section_number": 20,
+    "note": ""
+   },
+   {
+    "audience": "CDD",
+    "module_code": "CDD-03",
+    "section_id": "a75a0c67-1966-5225-b2e7-6141c629bd00",
+    "note": ""
+   }
+  ]
+ },
+ {
+  "ref": "3.3",
+  "quiz_module": 3,
+  "topic": "Steps for Referral of Children to HF",
+  "statement": "Allergies to AZM are rare but may occur",
+  "answer": true,
+  "placements": [
+   {
+    "audience": "HFW",
+    "module_code": "HFW-04",
+    "section_id": "5962d817-c539-5101-a903-dfd0ef9a5428",
+    "after_section_id": "5af43b1f-77d9-5eb4-9f5c-46bd97881f6a",
+    "after_section_number": 12,
+    "note": ""
+   },
+   {
+    "audience": "CDD",
+    "module_code": "CDD-03",
+    "section_id": "28023a82-a071-52bc-bfbf-316e96e58231",
+    "note": ""
+   }
+  ]
+ },
+ {
+  "ref": "4.1",
+  "quiz_module": 4,
+  "topic": "AZM Administration and recording",
+  "statement": "The age or height of the child is used to calculate the dose of AZM to be given",
+  "answer": true,
+  "placements": [
+   {
+    "audience": "HFW",
+    "module_code": "HFW-06",
+    "section_id": "6caa49d4-1bf8-517f-b1c0-06857f9811d3",
+    "after_section_id": "a4a06319-26a5-53c6-ab89-d5eefa00efa2",
+    "after_section_number": 14,
+    "note": ""
+   },
+   {
+    "audience": "CDD",
+    "module_code": "CDD-04",
+    "section_id": "199e99c8-b5da-5ca5-ba67-c6428a7b9c53",
+    "note": ""
+   }
+  ]
+ },
+ {
+  "ref": "4.2",
+  "quiz_module": 4,
+  "topic": "AZM Administration and recording",
+  "statement": "House marking helps keep track of the children reached and households visited",
+  "answer": true,
+  "placements": [
+   {
+    "audience": "HFW",
+    "module_code": "HFW-06",
+    "section_id": "0f05017c-3072-5a74-ae9e-57ffe5cb4f13",
+    "after_section_id": "00c6ed74-b78c-551a-9058-1543115d850e",
+    "after_section_number": 23,
+    "note": "HFW-06 does not teach house marking (that is HFW-08, Monitor/Supervisor only). Kept at the end of HFW-06 by programme decision (2026-11-11): not moved, and no line added to HFW-06."
+   },
+   {
+    "audience": "CDD",
+    "module_code": "CDD-04",
+    "section_id": "e39f4ae6-fa20-501a-b884-1cc8ca71aae7",
+    "note": ""
+   }
+  ]
+ },
+ {
+  "ref": "4.3",
+  "quiz_module": 4,
+  "topic": "AZM Administration and recording",
+  "statement": "There is no re-dosing in AZM administration",
+  "answer": false,
+  "placements": [
+   {
+    "audience": "HFW",
+    "module_code": "HFW-06",
+    "section_id": "81143c91-a40d-5432-bb28-293689a28e1e",
+    "after_section_id": "e7a50a3b-71da-5cd3-adf8-ad60a67bd107",
+    "after_section_number": 18,
+    "note": ""
+   },
+   {
+    "audience": "CDD",
+    "module_code": "CDD-04",
+    "section_id": "ce3f6bd9-3366-507c-a82e-375b39cfa245",
+    "note": ""
+   }
+  ]
+ },
+ {
+  "ref": "5.1",
+  "quiz_module": 5,
+  "topic": "PharmacoVigilance: Reporting side effects and adverse effects",
+  "statement": "Reporting on adverse drug reactions should be to NAFDAC portal",
+  "answer": true,
+  "placements": [
+   {
+    "audience": "HFW",
+    "module_code": "HFW-13",
+    "section_id": "c62e626b-a18e-5a04-a796-1ceb3794c472",
+    "after_section_id": "dee76187-616a-55e2-bfbf-61994a9ef009",
+    "after_section_number": 6,
+    "note": ""
+   }
+  ]
+ },
+ {
+  "ref": "5.2",
+  "quiz_module": 5,
+  "topic": "PharmacoVigilance: Reporting side effects and adverse effects",
+  "statement": "Reporting on adverse drug reaction is paper-based only",
+  "answer": false,
+  "placements": [
+   {
+    "audience": "HFW",
+    "module_code": "HFW-13",
+    "section_id": "3c9d6f52-10f8-5634-8200-6bb46df0284b",
+    "after_section_id": "ff151582-459d-5f0d-a662-43de3d83bc46",
+    "after_section_number": 16,
+    "note": ""
+   }
+  ]
+ },
+ {
+  "ref": "5.3",
+  "quiz_module": 5,
+  "topic": "PharmacoVigilance: Reporting side effects and adverse effects",
+  "statement": "DSNOs are responsible for ADR tracking and reporting",
+  "answer": true,
+  "placements": [
+   {
+    "audience": "HFW",
+    "module_code": "HFW-13",
+    "section_id": "49165d83-1dd9-5885-9394-8b4e6b75ff37",
+    "after_section_id": "f49beb53-721b-5cb5-870b-93f06117027a",
+    "after_section_number": 19,
+    "note": ""
+   }
+  ]
+ },
+ {
+  "ref": "6.1",
+  "quiz_module": 6,
+  "topic": "Interpersonal Communication and SBC",
+  "statement": "CDDs should disregard cultural norms when at the household",
+  "answer": false,
+  "placements": [
+   {
+    "audience": "HFW",
+    "module_code": "HFW-14",
+    "section_id": "477b75aa-dbfa-5eab-834a-1b4450ae9f62",
+    "after_section_id": "01cba45f-9dcd-5725-ac03-ed56f15b7e4c",
+    "after_section_number": 3,
+    "note": ""
+   },
+   {
+    "audience": "CDD",
+    "module_code": "CDD-05",
+    "section_id": "98e90018-43aa-55b6-8f27-cdc5710458b9",
+    "note": ""
+   }
+  ]
+ },
+ {
+  "ref": "6.2",
+  "quiz_module": 6,
+  "topic": "Interpersonal Communication and SBC",
+  "statement": "CDDs should seek consent from the head of the household for administering AZM to eligible children",
+  "answer": true,
+  "placements": [
+   {
+    "audience": "HFW",
+    "module_code": "HFW-14",
+    "section_id": "a82c57b9-5581-5eb6-babe-7b312364d078",
+    "after_section_id": "01cba45f-9dcd-5725-ac03-ed56f15b7e4c",
+    "after_section_number": 3,
+    "note": "Consent is taught in HFW-17 Safeguarding, not in HFW-14; placed after the section on greeting the head of household."
+   },
+   {
+    "audience": "CDD",
+    "module_code": "CDD-05",
+    "section_id": "8e8cc89e-ea15-5035-ba3b-876c0c904e94",
+    "note": "The CDD Module 5 (interpersonal communication) does not mention consent; informed consent is taught in CDD Module 6 (Safeguarding). Placed after the section on respecting the household."
+   }
+  ]
+ },
+ {
+  "ref": "6.3",
+  "quiz_module": 6,
+  "topic": "Interpersonal Communication and SBC",
+  "statement": "Job Aids are an important tool for explaining the AZM administration to caregivers",
+  "answer": true,
+  "placements": [
+   {
+    "audience": "HFW",
+    "module_code": "HFW-14",
+    "section_id": "d9882889-a1f5-56ed-bc53-b40ff8e52595",
+    "after_section_id": "4921ddd4-69ce-5cbc-a0ee-62248caa1040",
+    "after_section_number": 11,
+    "note": ""
+   },
+   {
+    "audience": "CDD",
+    "module_code": "CDD-05",
+    "section_id": "c4fea723-ec91-5242-bdd1-ee17d340432c",
+    "note": ""
+   }
+  ]
+ },
+ {
+  "ref": "7.1",
+  "quiz_module": 7,
+  "topic": "Supply Chain Management",
+  "statement": "OICs are to confirm and ensure documentation of AZM bottles received",
+  "answer": true,
+  "placements": [
+   {
+    "audience": "HFW",
+    "module_code": "HFW-10",
+    "section_id": "8a564a2a-118e-508e-a9b8-9b93ab28682d",
+    "after_section_id": "68e536d5-435c-5bc7-aaf1-a244d43a41c8",
+    "after_section_number": 3,
+    "note": ""
+   }
+  ]
+ },
+ {
+  "ref": "7.2",
+  "quiz_module": 7,
+  "topic": "Supply Chain Management",
+  "statement": "OICs are to document commodities issued to CDD on ICC",
+  "answer": true,
+  "placements": [
+   {
+    "audience": "HFW",
+    "module_code": "HFW-10",
+    "section_id": "69671437-93c0-50a3-ab6b-c457fc0935b5",
+    "after_section_id": "68e536d5-435c-5bc7-aaf1-a244d43a41c8",
+    "after_section_number": 3,
+    "note": ""
+   }
+  ]
+ },
+ {
+  "ref": "7.3",
+  "quiz_module": 7,
+  "topic": "Supply Chain Management",
+  "statement": "Empty bottles of AZM are to be thrown away",
+  "answer": false,
+  "placements": [
+   {
+    "audience": "HFW",
+    "module_code": "HFW-10",
+    "section_id": "57d49849-5731-5a8e-9871-c38564780349",
+    "after_section_id": "1fef85a3-8aea-5c5d-959b-83e03cf9f917",
+    "after_section_number": 6,
+    "note": ""
+   }
+  ]
+ },
+ {
+  "ref": "8.1",
+  "quiz_module": 8,
+  "topic": "Safeguarding",
+  "statement": "Safeguarding means protecting only children from harm and abuse",
+  "answer": false,
+  "placements": [
+   {
+    "audience": "HFW",
+    "module_code": "HFW-17",
+    "section_id": "54335d75-50be-5233-9071-e97cab9026dd",
+    "after_section_id": "df16e775-e1eb-5829-adc7-7ac6f27b2683",
+    "after_section_number": 3,
+    "note": ""
+   },
+   {
+    "audience": "CDD",
+    "module_code": "CDD-06",
+    "section_id": "242b2bb4-078a-5ee6-afa2-6899aa09c25e",
+    "note": ""
+   }
+  ]
+ },
+ {
+  "ref": "8.2",
+  "quiz_module": 8,
+  "topic": "Safeguarding",
+  "statement": "Protection involves specific measures to address immediate safety concerns during AZM MDA",
+  "answer": true,
+  "placements": [
+   {
+    "audience": "HFW",
+    "module_code": "HFW-17",
+    "section_id": "3ad1c077-e439-56ac-9a14-a4c08e6be404",
+    "after_section_id": "00ef7cf0-ac10-5b08-ba8b-98f1ecfa78d6",
+    "after_section_number": 7,
+    "note": ""
+   },
+   {
+    "audience": "CDD",
+    "module_code": "CDD-06",
+    "section_id": "00ca210e-f7e7-5173-b3e9-dc069dad58a1",
+    "note": ""
+   }
+  ]
+ },
+ {
+  "ref": "8.3",
+  "quiz_module": 8,
+  "topic": "Safeguarding",
+  "statement": "Safeguarding entails interacting respectfully with caregiver",
+  "answer": true,
+  "placements": [
+   {
+    "audience": "HFW",
+    "module_code": "HFW-17",
+    "section_id": "67315daf-eb03-5ed9-9a59-3a892a06d7a4",
+    "after_section_id": "6c74e847-b688-5fa3-aaf3-2674426c602a",
+    "after_section_number": 4,
+    "note": ""
+   },
+   {
+    "audience": "CDD",
+    "module_code": "CDD-06",
+    "section_id": "232b2637-4ed7-50e7-a0f1-3871d48a19d5",
+    "note": ""
+   }
+  ]
+ },
+ {
+  "ref": "9.1",
+  "quiz_module": 9,
+  "topic": "Monitoring and Supervision during AZM Campaign",
+  "statement": "Supervision improves quality of AZM MDA",
+  "answer": true,
+  "placements": [
+   {
+    "audience": "HFW",
+    "module_code": "HFW-15",
+    "section_id": "28de2174-d4df-5462-928d-99fc7dceae7e",
+    "after_section_id": "ff28c982-bd6d-5108-8eb1-ad8e65ca0827",
+    "after_section_number": 4,
+    "note": ""
+   }
+  ]
+ },
+ {
+  "ref": "9.2",
+  "quiz_module": 9,
+  "topic": "Monitoring and Supervision during AZM Campaign",
+  "statement": "CDD Supervisors only monitor community engagement",
+  "answer": false,
+  "placements": [
+   {
+    "audience": "HFW",
+    "module_code": "HFW-15",
+    "section_id": "5086abe1-180c-59c0-9080-04773c7f4013",
+    "after_section_id": "42875d9c-a2d1-51bd-960d-ded6be7963a1",
+    "after_section_number": 6,
+    "note": ""
+   }
+  ]
+ },
+ {
+  "ref": "9.3",
+  "quiz_module": 9,
+  "topic": "Monitoring and Supervision during AZM Campaign",
+  "statement": "There is only one level of supervision during MDA",
+  "answer": false,
+  "placements": [
+   {
+    "audience": "HFW",
+    "module_code": "HFW-15",
+    "section_id": "e5edf859-4e38-57f1-8ab4-1977c8367df5",
+    "after_section_id": "d5e74eb4-65d9-5e12-8d19-781ea6d31a36",
+    "after_section_number": 9,
+    "note": ""
+   }
+  ]
+ }
+]

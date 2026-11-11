@@ -45,7 +45,9 @@ def extract_text(section):
         return " ".join(sentences) if sentences else None
     if t == ContentType.IMAGE:
         return c.get("caption")
-    return None  # VIDEO/AUDIO carry no indexable body text
+    # VIDEO/AUDIO carry no indexable body text; TRUE_FALSE quiz statements are left out on
+    # purpose, so Ask never answers with a quiz statement (half of them are false).
+    return None
 
 
 def build_groups(module, sections):

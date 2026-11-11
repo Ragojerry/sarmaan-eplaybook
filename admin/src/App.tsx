@@ -16,6 +16,7 @@ import BoundariesPage from "./pages/BoundariesPage";
 import ReportsPage from "./pages/ReportsPage";
 import SessionsPage from "./pages/SessionsPage";
 import QuizEditorPage from "./pages/QuizEditorPage";
+import GeneralTestPage from "./pages/GeneralTestPage";
 import LoginPage from "./pages/LoginPage";
 import AdminLayout from "./layouts/AdminLayout";
 import ProtectedRoute from "./components/ProtectedRoute";
@@ -41,6 +42,7 @@ export default function App() {
         <Route path="/answers" element={<AnswersPage />} />
         <Route path="/consent" element={<ConsentPage />} />
         <Route path="/learning" element={<LearningReviewPage />} />
+        <Route path="/general-test" element={<GeneralTestPage />} />
         <Route path="/releases" element={<ReleasesPage />} />
         <Route path="/languages" element={<LanguagesPage />} />
         <Route path="/analytics" element={<AnalyticsPage />} />

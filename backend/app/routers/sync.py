@@ -3,9 +3,12 @@ Phase 12: synchronisation endpoints (master prompt §54-56).
 
 Uploads (phone -> server) are batched, IDEMPOTENT and report a result per item:
   GET  /sync/progress        this account's saved progress (restore on a new phone)
-  POST /sync/progress        merge module progress (latest wins; completed never un-completes)
-  POST /sync/quiz-attempts   pre-/post-test attempts; a qualifying post-test completes the module
-  GET  /sync/learning        per-module test state, attempt history and the auto-approval threshold
+  POST /sync/progress        merge module progress and active time (latest wins; time only grows;
+                             completed never un-completes; completion needs the quiz and the time)
+  POST /sync/quiz-attempts   inline module-quiz attempts (old per-module pre/post tests: kept, never count)
+  GET  /sync/learning        per-module state, quiz attempts, the General test state and the rules
+  GET  /sync/general-test    the General test questions (with answers, graded on the phone too)
+  POST /sync/general-test-attempts  General pre-/post-test results, graded again here
   POST /sync/ai-questions    keyed by (user, client_id)
   POST /sync/analytics       keyed by (device, client_id); only the §50 event types
 Downloads (server -> phone), filtered to the modules the account may see
@@ -30,6 +33,8 @@ from app.models import (
     AiQuestionLog,
     AnalyticsEvent,
     ContentRelease,
+    GeneralTestAttempt,
+    GeneralTestQuestion,
     ContentSection,
     Language,
     Module,
@@ -42,7 +47,7 @@ from app.models import (
 )
 from app.learning.access import module_visible_to, visible_module_ids
 from app.learning.rules import auto_approve_percent
-from app.learning.state import READING_PERCENT, ModuleState, complete, learning_states, module_state
+from app.learning.state import READING_PERCENT, ModuleState, learning_overview, module_state
 from app.models.enums import AnalyticsEventType, ContentReviewStatus, ModuleStatus, ReleaseStatus, TestType
 from app.releases.packager import package_path
 from app.releases.variants import variant_for
@@ -53,6 +58,9 @@ from app.schemas.sync import (
     BatchResult,
     AttemptOut,
     CurrentReleaseResponse,
+    GeneralAttemptBatch,
+    GeneralTestOut,
+    GeneralTestState,
     ItemResult,
     LearningState,
     ModuleLearning,
@@ -64,6 +72,7 @@ from app.schemas.sync import (
     TrainingRestartBatch,
     TrainingState,
 )
+from app.learning.settings import training_settings
 from app.training.restart import is_stale, restart_training
 
 router = APIRouter()
@@ -88,49 +97,31 @@ def _aware(moment: datetime) -> datetime:
     return moment if moment.tzinfo else moment.replace(tzinfo=timezone.utc)
 
 
-def _sequence_problem(state: ModuleState | None, test_type: TestType, taken_at: datetime) -> str | None:
-    """Why this attempt cannot count (None = it counts). The phone enforces the
-    same order offline; this is the server's own check."""
+REPLACED = "per-module pre/post tests were replaced (2026-11)"
+
+
+def _quiz_problem(state: ModuleState | None) -> str | None:
+    """Why a module-quiz attempt cannot count (None = it counts). The phone enforces
+    the same rules offline; this is the server's own check."""
     if state is None:
         return "module is not published"
-    if not state.has_tests:
-        return "this module has no test"
+    if not state.has_quiz:
+        return "this module has no quiz"
     if not state.unlocked:
-        return "module is locked: complete the previous module first"
-    taken_at = _aware(taken_at)
-    reading = state.progress.reading_completed_at if state.progress else None
-    legacy = bool(state.progress and state.progress.legacy_reading)
-    if test_type == TestType.PRE:
-        if state.completed:
-            return "module already completed"
-        if state.pre is not None:
-            return "pre-test already taken"
-        if state.posts:
-            return "post-test already taken"
-        if reading is not None and not legacy and _aware(reading) < taken_at:
-            return "pre-test must be taken before reading"
-        return None
+        return state.lock_reason
     if state.completed:
         return "module already completed"  # review only: the result and status stay as they are
-    if state.pre is None:
-        return "no pre-test yet"
-    if _aware(state.pre.taken_at) > taken_at:
-        return "taken before the pre-test"
-    if reading is None:
-        return "reading not finished"
-    if not legacy and _aware(reading) > taken_at:
-        return "taken before reading was finished"
     return None
 
 
 @router.post("/quiz-attempts", response_model=BatchResult)
 def sync_quiz_attempts(payload: QuizAttemptBatch, db: Session = Depends(get_db), user: User = Depends(get_current_user)):
-    """Idempotent upload of pre-/post-test attempts graded on the phone. The
-    pass decision is recomputed here from the reported counts (exact 90%
-    rule); the client's own `passed` flag is never trusted. Every attempt is
-    kept as history; one that breaks the sequence is stored with valid=false
-    and the reason. A post-test that meets the rule (app/learning/rules.py)
-    completes the module here, which unlocks the next one."""
+    """Idempotent upload of inline module-quiz attempts graded on the phone. The
+    pass decision is recomputed here from the reported counts (exact 90% rule);
+    the client's own `passed` flag is never trusted. Every attempt is kept as
+    history; one that cannot count is stored with valid=false and the reason.
+    Completion itself arrives with /sync/progress, which checks the quiz and the time.
+    Attempts of the old per-module pre/post tests (older apps) are kept, never counted."""
     results: list[ItemResult] = []
     for item in sorted(payload.items, key=lambda i: _aware(i.taken_at)):  # a pre-test before its post-test
         try:
@@ -151,11 +142,10 @@ def sync_quiz_attempts(payload: QuizAttemptBatch, db: Session = Depends(get_db),
                 if db.query(QuizAttempt.id).filter_by(user_id=user.id, client_id=item.client_id).first():
                     results.append(ItemResult(key=item.client_id, status="duplicate"))
                     continue
-                if item.test_type is None:
-                    test_type, problem = TestType.POST, "sent by an app without pre/post tests"
+                if item.test_type != TestType.MODULE_QUIZ:
+                    test_type, problem = item.test_type or TestType.POST, REPLACED
                 else:
-                    test_type = item.test_type
-                    problem = _sequence_problem(module_state(db, user, module.id), test_type, item.taken_at)
+                    test_type, problem = TestType.MODULE_QUIZ, _quiz_problem(module_state(db, user, module.id))
                 db.add(
                     QuizAttempt(
                         user_id=user.id, module_id=item.module_id, client_id=item.client_id,
@@ -168,13 +158,7 @@ def sync_quiz_attempts(payload: QuizAttemptBatch, db: Session = Depends(get_db),
                     )
                 )
                 db.flush()
-                detail = problem
-                if problem is None and test_type == TestType.POST:
-                    state = module_state(db, user, module.id)
-                    if state and not state.completed and state.completing_post() is not None:
-                        complete(db, user, module.id, when=_aware(item.taken_at))
-                        detail = "completed"
-            results.append(ItemResult(key=item.client_id, status="ok", detail=detail))
+            results.append(ItemResult(key=item.client_id, status="ok", detail=problem))
         except IntegrityError:
             results.append(ItemResult(key=item.client_id, status="duplicate"))
         except Exception as exc:  # noqa: BLE001
@@ -190,24 +174,31 @@ def _score(a) -> TestScore | None:
                      score_percent=a.score_percent, taken_at=a.taken_at)
 
 
+def _general_state(general) -> GeneralTestState:
+    return GeneralTestState(active=general.active, questions=general.questions, pre_test=_score(general.pre),
+                            post_test=_score(general.post), post_unlocked=general.post_unlocked,
+                            modules_total=general.modules_total, modules_completed=general.modules_completed)
+
+
 @router.get("/learning", response_model=LearningState)
 def get_learning_state(db: Session = Depends(get_db), user: User = Depends(get_current_user)):
-    """The account's own test state per visible module and its attempt
-    history (so a new phone restores pre-test baselines), plus the
-    auto-approval threshold for 100% pre-tests. Never anyone else's."""
-    states = learning_states(db, user)
+    """The account's own state per visible module, its module-quiz attempts (so a new
+    phone restores them), the General test state and the training rules. Never
+    anyone else's. Fields of the retired per-module tests stay, empty, for older apps."""
+    states, general = learning_overview(db, user)
     visible = {s.module.id for s in states}
-    modules = []
-    for st in states:
-        best = max(st.posts, key=lambda a: (a.correct_count / a.total_count, a.taken_at), default=None)
-        modules.append(ModuleLearning(
+    modules = [
+        ModuleLearning(
             module_id=st.module.id, status=st.status, unlocked=st.unlocked, completed=st.completed,
-            has_tests=st.has_tests, pre_test=_score(st.pre), best_post_test=_score(best),
-            post_test_attempts=len(st.posts),
-        ))
+            has_tests=False, has_quiz=st.has_quiz, quiz_statements=st.quiz_statements, quiz_passed=st.quiz_passed,
+            quiz_attempts=len(st.quiz_attempts), seconds_spent=st.seconds_spent, lock_reason=st.lock_reason,
+        )
+        for st in states
+    ]
     attempts = (
         db.query(QuizAttempt)
-        .filter(QuizAttempt.user_id == user.id, QuizAttempt.module_id.in_(visible))
+        .filter(QuizAttempt.user_id == user.id, QuizAttempt.module_id.in_(visible),
+                QuizAttempt.test_type == TestType.MODULE_QUIZ)
         .order_by(QuizAttempt.taken_at)
         .all()
         if visible else []
@@ -216,9 +207,83 @@ def get_learning_state(db: Session = Depends(get_db), user: User = Depends(get_c
         learner_role=user.learner_role.value if user.learner_role else None,
         auto_approve_percent=auto_approve_percent(),
         min_app_version=get_settings().min_app_version,
+        module_min_seconds=training_settings(db).module_min_seconds,
+        general_test=_general_state(general),
         modules=modules,
         attempts=[AttemptOut.model_validate(a) for a in attempts],
     )
+
+
+@router.get("/general-test", response_model=GeneralTestOut)
+def get_general_test(db: Session = Depends(get_db), user: User = Depends(get_current_user)):
+    """The General test questions with their answers (the phone grades offline; the
+    server grades again on upload). Nothing is served until the test is switched on."""
+    active = training_settings(db).general_test_active
+    rows = (db.query(GeneralTestQuestion).filter_by(is_active=True).order_by(GeneralTestQuestion.number).all()
+            if active else [])
+    return GeneralTestOut(active=active, questions=[
+        {"id": q.id, "number": q.number, "prompt": q.prompt, "options": q.options, "correct_index": q.correct_index}
+        for q in rows
+    ])
+
+
+def _general_problem(general, test_type: TestType, taken_at: datetime) -> str | None:
+    """Why a General test upload cannot count (None = it counts). Each test counts once."""
+    if not general.active:
+        return "the General test is not switched on"
+    if test_type == TestType.PRE:
+        return "pre-test already taken" if general.pre is not None else None
+    if test_type != TestType.POST:
+        return "unknown test type"
+    if general.pre is None:
+        return "no pre-test yet"
+    if general.post is not None:
+        return "post-test already taken"
+    if _aware(general.pre.taken_at) > _aware(taken_at):
+        return "taken before the pre-test"
+    if not general.all_modules_completed:
+        return "complete all your modules first"
+    return None
+
+
+@router.post("/general-test-attempts", response_model=BatchResult)
+def sync_general_test_attempts(payload: GeneralAttemptBatch, db: Session = Depends(get_db),
+                               user: User = Depends(get_current_user)):
+    """Idempotent upload of General pre-/post-tests. Graded here from the chosen options
+    against the answer key (unanswered = wrong), out of every active question. Each test
+    counts once: the first valid one is the learner's result; later ones are kept, invalid."""
+    key = sorted(db.query(GeneralTestQuestion).filter_by(is_active=True), key=lambda q: q.number)
+    results: list[ItemResult] = []
+    for item in sorted(payload.items, key=lambda i: _aware(i.taken_at)):  # a pre-test before its post-test
+        try:
+            with db.begin_nested():
+                if is_stale(user, item.taken_at):
+                    results.append(ItemResult(key=item.client_id, status="rejected", detail="before training restart"))
+                    continue
+                if db.query(GeneralTestAttempt.id).filter_by(user_id=user.id, client_id=item.client_id).first():
+                    results.append(ItemResult(key=item.client_id, status="duplicate"))
+                    continue
+                chosen = {a.question_id: a.choice for a in item.answers}
+                graded = [{"question_id": str(q.id), "choice": chosen.get(q.id),
+                           "correct": q.correct_index is not None and chosen.get(q.id) == q.correct_index}
+                          for q in key]
+                correct = sum(1 for g in graded if g["correct"])
+                problem = _general_problem(learning_overview(db, user)[1], item.test_type, item.taken_at)
+                db.add(GeneralTestAttempt(
+                    user_id=user.id, client_id=item.client_id, test_type=item.test_type,
+                    correct_count=correct, total_count=len(graded), score_percent=score_percent(correct, len(graded)),
+                    answers=graded, valid=problem is None, invalid_reason=problem,
+                    device_id=payload.device_id, taken_at=item.taken_at,
+                ))
+                db.flush()
+            results.append(ItemResult(key=item.client_id, status="ok",
+                                      detail=problem or f"score {correct}/{len(graded)}"))
+        except IntegrityError:
+            results.append(ItemResult(key=item.client_id, status="duplicate"))
+        except Exception as exc:  # noqa: BLE001
+            results.append(ItemResult(key=item.client_id, status="error", detail=type(exc).__name__))
+    db.commit()
+    return BatchResult(results=results)
 
 
 @router.get("/translations")
@@ -266,16 +331,15 @@ def get_translations(language: str = Query(..., min_length=2, max_length=10), db
 
 @router.get("/quiz-questions")
 def get_quiz_questions(db: Session = Depends(get_db), user: User = Depends(get_current_user)):
-    """Active quiz questions (with answers, graded on the phone) for every
-    published module this account may see. This is how Home sync gets
-    quizzes; the release package carries the same data for the release
-    installer. `usage` says whether a question is in the pre-test, the
-    post-test or both."""
+    """Per-module pre/post test questions, for apps older than 0.1.12. Those tests were
+    retired in 2026-11 (archived questions are never served), so this is normally
+    empty; the inline module quizzes travel as TRUE_FALSE content sections instead."""
     visible = visible_module_ids(db, user)
     rows = (
         db.query(QuizQuestion)
         .join(Module, Module.id == QuizQuestion.module_id)
-        .filter(QuizQuestion.is_active.is_(True), Module.status == ModuleStatus.PUBLISHED, Module.id.in_(visible))
+        .filter(QuizQuestion.is_active.is_(True), QuizQuestion.archived_at.is_(None),
+                Module.status == ModuleStatus.PUBLISHED, Module.id.in_(visible))
         .order_by(Module.sort_order, QuizQuestion.sort_order, QuizQuestion.created_at)
         .all()
     )
@@ -323,18 +387,11 @@ def get_my_progress(db: Session = Depends(get_db), user: User = Depends(get_curr
 
 
 def _completion_problem(state: ModuleState | None) -> str | None:
-    """Why "Mark as complete" from the phone is refused (None = allowed). A
-    module with tests is completed by its qualifying post-test instead
-    (sync_quiz_attempts), so this only lets an already-qualified one through."""
+    """Why completing a module from the phone is refused (None = allowed): it must be
+    unlocked, its inline quiz passed (if it has one) and the minimum time spent."""
     if state is None:
         return "module is not published"
-    if state.completed:
-        return None
-    if not state.unlocked:
-        return "module is locked: complete the previous module first"
-    if state.has_tests and state.completing_post() is None:
-        return "post-test not passed yet"
-    return None
+    return state.completion_problem()
 
 
 @router.post("/progress", response_model=BatchResult)
@@ -354,9 +411,6 @@ def sync_progress(payload: ProgressBatch, db: Session = Depends(get_db), user: U
                 if is_stale(user, item.last_opened_at):
                     results.append(ItemResult(key=key, status="rejected", detail="before training restart"))
                     continue
-                state = module_state(db, user, module.id)
-                refused = _completion_problem(state) if item.completed else None
-                locked = state is not None and not state.unlocked
                 row = (
                     db.query(UserModuleProgress)
                     .filter_by(user_id=user.id, module_id=item.module_id)
@@ -364,7 +418,8 @@ def sync_progress(payload: ProgressBatch, db: Session = Depends(get_db), user: U
                     .one_or_none()
                 )
                 if row is None:
-                    row = UserModuleProgress(user_id=user.id, module_id=item.module_id, progress_percent=0)
+                    row = UserModuleProgress(user_id=user.id, module_id=item.module_id, progress_percent=0,
+                                             seconds_spent=0)
                     db.add(row)
                     incoming_is_newer = True
                 else:
@@ -373,6 +428,13 @@ def sync_progress(payload: ProgressBatch, db: Session = Depends(get_db), user: U
                         or item.last_opened_at is None
                         or item.last_opened_at >= row.last_opened_at
                     )
+                # Active time only grows (the larger value wins), so a retried or older upload is harmless.
+                if item.seconds_spent is not None and item.seconds_spent > (row.seconds_spent or 0):
+                    row.seconds_spent = item.seconds_spent
+                db.flush()
+                state = module_state(db, user, module.id)
+                refused = _completion_problem(state) if item.completed else None
+                locked = state is not None and not state.unlocked
                 percent = min(item.progress_percent, 99) if refused else item.progress_percent
                 if incoming_is_newer:
                     row.progress_percent = percent

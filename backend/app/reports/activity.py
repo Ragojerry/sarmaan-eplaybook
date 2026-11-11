@@ -32,13 +32,14 @@ from app.models import (
     AdminBoundary,
     AiQuestionLog,
     AnalyticsEvent,
+    GeneralTestAttempt,
     Module,
     QuizAttempt,
     User,
     UserModuleProgress,
 )
 from app.learning.access import module_visible_to
-from app.models.enums import AnalyticsEventType as ET, BoundaryLevel, LearnerRole, ModuleStatus, RoleName
+from app.models.enums import AnalyticsEventType as ET, BoundaryLevel, LearnerRole, ModuleStatus, RoleName, TestType
 
 CATEGORY_EVENTS = {
     "training": (ET.MODULE_OPEN, ET.MODULE_COMPLETE),
@@ -112,13 +113,15 @@ def user_rows(db: Session, f: Filters) -> list[dict]:
     started = defaultdict(int)
     completion_times = defaultdict(list)
     last_progress = {}
+    seconds = defaultdict(int)
     if ids:
-        for uid, mid, done, completed_at, updated in db.query(
+        for uid, mid, done, completed_at, updated, secs in db.query(
             UserModuleProgress.user_id, UserModuleProgress.module_id, UserModuleProgress.completed,
-            UserModuleProgress.completed_at, UserModuleProgress.updated_at,
+            UserModuleProgress.completed_at, UserModuleProgress.updated_at, UserModuleProgress.seconds_spent,
         ).filter(UserModuleProgress.user_id.in_(ids)):
             if mid not in visible_to[uid]:
                 continue
+            seconds[uid] += secs or 0
             ts = completed_at or updated
             if f.start or f.end:
                 ok = (f.start is None or (ts and ts >= f.start)) and (f.end is None or (ts and ts < f.end))
@@ -153,10 +156,16 @@ def user_rows(db: Session, f: Filters) -> list[dict]:
                 last_event[uid] = last
 
     quiz = defaultdict(lambda: {"attempts": 0, "best": {}, "last": None})
+    module_quiz = defaultdict(lambda: {"attempts": 0, "passed": set()})
     if ids:
-        for uid, mid, score, passed, taken in db.query(
-            QuizAttempt.user_id, QuizAttempt.module_id, QuizAttempt.score_percent, QuizAttempt.passed, QuizAttempt.taken_at
+        for uid, mid, score, passed, taken, test_type, valid in db.query(
+            QuizAttempt.user_id, QuizAttempt.module_id, QuizAttempt.score_percent, QuizAttempt.passed,
+            QuizAttempt.taken_at, QuizAttempt.test_type, QuizAttempt.valid,
         ).filter(QuizAttempt.user_id.in_(ids), *_in_range(QuizAttempt.taken_at, f)):
+            if test_type == TestType.MODULE_QUIZ:
+                module_quiz[uid]["attempts"] += 1
+                if valid and passed:
+                    module_quiz[uid]["passed"].add(mid)
             d = quiz[uid]
             d["attempts"] += 1
             prev = d["best"].get(mid)
@@ -166,6 +175,12 @@ def user_rows(db: Session, f: Filters) -> list[dict]:
                 d["best"][mid] = (prev[0], True)
             if d["last"] is None or taken > d["last"]:
                 d["last"] = taken
+
+    general = defaultdict(dict)  # uid -> {PRE: first valid attempt, POST: ...}
+    if ids:
+        for g in db.query(GeneralTestAttempt).filter(GeneralTestAttempt.user_id.in_(ids), GeneralTestAttempt.valid.is_(True)
+                                                     ).order_by(GeneralTestAttempt.taken_at):
+            general[g.user_id].setdefault(g.test_type, g)
 
     qa = defaultdict(lambda: [0, 0, None])
     if ids:
@@ -216,6 +231,12 @@ def user_rows(db: Session, f: Filters) -> list[dict]:
                 "quiz_attempts": quiz[u.id]["attempts"],
                 "quizzes_passed": sum(1 for _, p in best.values() if p),
                 "avg_best_quiz_score": round(sum(scores) / len(scores), 1) if scores else None,
+                # since 2026-11: inline module quizzes, active time and the General pre/post test
+                "learner_group": "CDD" if u.learner_role == LearnerRole.CDD else "HFW & others",
+                "module_quiz_attempts": module_quiz[u.id]["attempts"],
+                "module_quizzes_passed": len(module_quiz[u.id]["passed"] & visible_to[u.id]),
+                "seconds_spent_total": seconds[u.id],
+                **_general_fields(general[u.id]),
                 "training_events": c["training"],
                 "module_opens": c["module_opens"],
                 "video_events": c["video"],
@@ -230,6 +251,19 @@ def user_rows(db: Session, f: Filters) -> list[dict]:
             }
         )
     return rows
+
+
+def _general_fields(mine: dict) -> dict:
+    pre, post = mine.get(TestType.PRE), mine.get(TestType.POST)
+    return {
+        "general_pre_points": pre.correct_count if pre else None,
+        "general_pre_total": pre.total_count if pre else None,
+        "general_pre_percent": pre.score_percent if pre else None,
+        "general_post_points": post.correct_count if post else None,
+        "general_post_total": post.total_count if post else None,
+        "general_post_percent": post.score_percent if post else None,
+        "general_change_points": post.correct_count - pre.correct_count if pre and post else None,
+    }
 
 
 SUM_FIELDS = [

@@ -69,7 +69,10 @@ class _ModulesScreenState extends ConsumerState<ModulesScreen> {
                 }
                 return ListView(
                   padding: const EdgeInsets.symmetric(vertical: 8),
-                  children: [for (final m in filtered) _ModuleRow(module: m, state: learning?.of(m.id))],
+                  children: [
+                    if (learning != null && _query.isEmpty) GeneralTestCard(general: learning.general),
+                    for (final m in filtered) _ModuleRow(module: m, state: learning?.of(m.id)),
+                  ],
                 );
               },
               loading: () => const Center(child: CircularProgressIndicator()),
@@ -79,6 +82,70 @@ class _ModulesScreenState extends ConsumerState<ModulesScreen> {
         ],
       ),
       bottomNavigationBar: const AppBottomNav(currentRoute: '/modules'),
+    );
+  }
+}
+
+/// The General pre-/post-test at the top of the module list (when switched on):
+/// the pre-test opens the modules; the post-test opens after all of them.
+class GeneralTestCard extends StatelessWidget {
+  final GeneralLearning general;
+
+  const GeneralTestCard({super.key, required this.general});
+
+  @override
+  Widget build(BuildContext context) {
+    if (!general.active || general.questions == 0) return const SizedBox.shrink();
+    final pre = general.pre;
+    final post = general.post;
+    final String title;
+    final String body;
+    String? action;
+    String? route;
+    if (pre == null) {
+      title = 'Start with the General pre-test';
+      body = '${general.questions} questions about what you already know. Your modules open after you submit it. '
+          'You take it once.';
+      action = 'Start the pre-test';
+      route = '/general-test/pre';
+    } else if (post == null && general.canTakePost) {
+      title = 'General post-test';
+      body = 'You completed all your modules. Answer the same ${general.questions} questions again. You take it once.';
+      action = 'Start the post-test';
+      route = '/general-test/post';
+    } else if (post == null) {
+      title = 'General test';
+      body = 'Pre-test: ${pre.correct} of ${pre.total} (${pre.percent}%). The post-test opens when you have '
+          'completed all your modules (${general.modulesCompleted} of ${general.modulesTotal}).';
+    } else {
+      title = 'General test';
+      body = 'Pre-test: ${pre.correct} of ${pre.total} (${pre.percent}%). '
+          'Post-test: ${post.correct} of ${post.total} (${post.percent}%).';
+    }
+    return Container(
+      margin: const EdgeInsets.fromLTRB(22, 0, 22, 12),
+      padding: const EdgeInsets.all(14),
+      decoration: BoxDecoration(
+        color: route != null ? AppColors.tealSoft : AppColors.white,
+        borderRadius: BorderRadius.circular(AppRadius.standard),
+        border: Border.all(color: route != null ? AppColors.teal : AppColors.line),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Text(title, style: const TextStyle(fontSize: 13.5, fontWeight: FontWeight.w800, color: AppColors.tealDeep)),
+          const SizedBox(height: 4),
+          Text(body, style: const TextStyle(fontSize: 12, height: 1.45, color: AppColors.textSecondary)),
+          if (route != null) ...[
+            const SizedBox(height: 10),
+            FilledButton(
+              onPressed: () => context.go(route!),
+              style: FilledButton.styleFrom(backgroundColor: AppColors.tealDeep, foregroundColor: AppColors.sand),
+              child: Text(action!),
+            ),
+          ],
+        ],
+      ),
     );
   }
 }

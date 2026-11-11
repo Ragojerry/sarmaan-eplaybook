@@ -1,0 +1,3829 @@
+[
+ {
+  "module_code": "CDD-01",
+  "learning_order": 1,
+  "title": "CDD - Module 1: Introduction to Azithromycin (AZM) Drug Administration",
+  "description": "About this training flipbook, then what AZM is, who receives it, how often, and how it is delivered.",
+  "estimated_minutes": 20,
+  "sections": [
+   {
+    "content_type": "IMAGE",
+    "pdf_pages": [
+     1
+    ],
+    "title": null,
+    "content": {
+     "image_file": "cdd_p01_cover.png",
+     "caption": "Cover of the Azithromycin Drug Administration Training Flipbook for Community Drug Distributors (CDDs).",
+     "alt": "Flipbook cover: Federal Ministry of Health and NPHCDA logos, the title Azithromycin Drug Administration Training Flipbook, an AZM medicine bottle, and the Malaria Consortium, SARMAAN-II Project and Gates Foundation logos."
+    },
+    "transcribed_from_image": false,
+    "id": "77029396-2193-525a-b40d-585548509f57",
+    "section_number": 1
+   },
+   {
+    "content_type": "HEADING",
+    "pdf_pages": [
+     1
+    ],
+    "title": null,
+    "content": {
+     "text": "Azithromycin Drug Administration Training Flipbook"
+    },
+    "transcribed_from_image": false,
+    "id": "2f450c75-c055-518f-ae88-b9647e6a1b14",
+    "section_number": 2
+   },
+   {
+    "content_type": "TEXT",
+    "pdf_pages": [
+     1
+    ],
+    "title": null,
+    "content": {
+     "text": "SARMAAN || Training Document. Community Drug Distributors (CDDs)."
+    },
+    "transcribed_from_image": false,
+    "id": "8919e813-64ee-5a19-b012-f819ae62d840",
+    "section_number": 3
+   },
+   {
+    "content_type": "HEADING",
+    "pdf_pages": [
+     2
+    ],
+    "title": null,
+    "content": {
+     "text": "Contents"
+    },
+    "transcribed_from_image": false,
+    "id": "92c384a9-caf4-5f73-b0d0-f706e89f9217",
+    "section_number": 4
+   },
+   {
+    "content_type": "TABLE",
+    "pdf_pages": [
+     2
+    ],
+    "title": null,
+    "content": {
+     "headers": [
+      "Section",
+      "Page"
+     ],
+     "rows": [
+      [
+       "Purpose of AZM Training",
+       "3"
+      ],
+      [
+       "Module 1 Introduction to Azithromycin Drug Administration",
+       "4"
+      ],
+      [
+       "Module 2 Determination of eligibility for Azithromycin AZM Drug Administration",
+       "8"
+      ],
+      [
+       "Module 3 Steps for referral of Children to health Facility",
+       "20"
+      ],
+      [
+       "Module 4 Azithromycin Drug Administration and Recording",
+       "27"
+      ],
+      [
+       "Module 5 Interpersonal Communication and Social and behaviour Change (SBC)",
+       "59"
+      ],
+      [
+       "Module 6 Safeguarding",
+       "63"
+      ]
+     ]
+    },
+    "transcribed_from_image": false,
+    "id": "ac88e485-f2ed-5cef-9ff8-46fb7e077cb3",
+    "section_number": 5
+   },
+   {
+    "content_type": "HEADING",
+    "pdf_pages": [
+     3
+    ],
+    "title": null,
+    "content": {
+     "text": "Acronyms"
+    },
+    "transcribed_from_image": false,
+    "id": "f63b548e-6ed8-59bd-83c3-28d6659c9f0f",
+    "section_number": 6
+   },
+   {
+    "content_type": "TABLE",
+    "pdf_pages": [
+     3
+    ],
+    "title": null,
+    "content": {
+     "headers": [
+      "Acronym",
+      "Meaning"
+     ],
+     "rows": [
+      [
+       "ADR",
+       "Adverse Drug Reactions"
+      ],
+      [
+       "AZM",
+       "Azithromycin"
+      ],
+      [
+       "CU5",
+       "Children under Five Years"
+      ],
+      [
+       "CDD",
+       "Community Drug Distributors"
+      ],
+      [
+       "EOR",
+       "End of Round"
+      ],
+      [
+       "FMoH",
+       "Federal Ministry of Health"
+      ],
+      [
+       "HF",
+       "Health facility"
+      ],
+      [
+       "HFW",
+       "Health facility Worker"
+      ],
+      [
+       "IDM",
+       "Institute for Disease Modelling"
+      ],
+      [
+       "LGA",
+       "Local Government Area"
+      ],
+      [
+       "LQAS",
+       "Lots Quality Assurance Sampling"
+      ],
+      [
+       "MC",
+       "Malaria Consortium"
+      ],
+      [
+       "NTD",
+       "Neglected Tropical Disease"
+      ],
+      [
+       "RBM",
+       "Roll Back Malaria"
+      ],
+      [
+       "SAE",
+       "Severe adverse Reaction."
+      ],
+      [
+       "SMEP",
+       "State Malaria Elimination program"
+      ],
+      [
+       "SPHCDA",
+       "State primary health care Development Agency"
+      ],
+      [
+       "WHO",
+       "World Health organization"
+      ]
+     ]
+    },
+    "transcribed_from_image": false,
+    "id": "8734a811-79d6-541d-ae17-c6f42d66d7f6",
+    "section_number": 7
+   },
+   {
+    "content_type": "HEADING",
+    "pdf_pages": [
+     4
+    ],
+    "title": null,
+    "content": {
+     "text": "Purpose of AZM training"
+    },
+    "transcribed_from_image": false,
+    "id": "c3aa1067-8135-5c20-812e-6a0ecffd6b54",
+    "section_number": 8
+   },
+   {
+    "content_type": "LIST",
+    "pdf_pages": [
+     4
+    ],
+    "title": null,
+    "content": {
+     "items": [
+      "Equip participants with the knowledge and skills needed to properly administer Azithromycin to eligible children during campaign.",
+      "Ensure that participants understands proper dosing strategies and schedules for AZM medicines and can recognize when children need to be referred to health facilities.",
+      "Train Participants on safeguarding practices to protect children and vulnerable population during AZM drug administration.",
+      "Teach proper interpersonal communication technique to effectively educate caregivers about the administration of AZM and their potential side effects.",
+      "Provide hands-on practice through demonstration and role plays to build competence in all aspects of AZM drug administration."
+     ]
+    },
+    "transcribed_from_image": false,
+    "id": "20c1c583-d42a-5c37-8796-2654a99e6d7c",
+    "section_number": 9
+   },
+   {
+    "content_type": "IMAGE",
+    "pdf_pages": [
+     5
+    ],
+    "title": null,
+    "content": {
+     "image_file": "cdd_p05_m1_opener.jpg",
+     "caption": "Module 1: Introduction to Azithromycin (AZM) Drug Administration.",
+     "alt": "Two CDDs in yellow AZM vests talk with a father and a mother holding a young child outside thatched houses; a baby crawls on a mat."
+    },
+    "transcribed_from_image": false,
+    "id": "2d223d52-3b21-50f4-a0c7-64e8fef05e27",
+    "section_number": 10
+   },
+   {
+    "content_type": "HEADING",
+    "pdf_pages": [
+     5
+    ],
+    "title": null,
+    "content": {
+     "text": "Module 1: Introduction to Azithromycin (AZM) Drug Administration"
+    },
+    "transcribed_from_image": false,
+    "id": "2b90204f-3f11-52b9-b837-4269ec8bd9b2",
+    "section_number": 11
+   },
+   {
+    "content_type": "LIST",
+    "pdf_pages": [
+     6
+    ],
+    "title": "Contents",
+    "content": {
+     "items": [
+      "What is the meaning of AZM?",
+      "What is AZM used for?",
+      "What age group can receive AZM?",
+      "What is the duration of AZM administration to eligible children?",
+      "How is AZM administered to eligible children?",
+      "What is the delivery strategy and platforms for AZM"
+     ]
+    },
+    "transcribed_from_image": false,
+    "id": "82c576bb-ff46-517b-b33c-f73bd0ff9385",
+    "section_number": 12
+   },
+   {
+    "content_type": "LIST",
+    "pdf_pages": [
+     6
+    ],
+    "title": "Tool for each participant",
+    "content": {
+     "items": [
+      "AZM Job Aid.",
+      "Sample of AZM POS",
+      "DIGIT HCM App"
+     ]
+    },
+    "transcribed_from_image": false,
+    "id": "aa4e8867-04c5-55cf-b574-2dbd17a8ac6b",
+    "section_number": 13
+   },
+   {
+    "content_type": "HEADING",
+    "pdf_pages": [
+     7
+    ],
+    "title": null,
+    "content": {
+     "text": "Introduction to drug administration of Azithromycin"
+    },
+    "transcribed_from_image": false,
+    "id": "d135d0f8-38c0-5cd8-8483-b1c6cd1e2d47",
+    "section_number": 14
+   },
+   {
+    "content_type": "TEXT",
+    "pdf_pages": [
+     7
+    ],
+    "title": "Meaning of AZM",
+    "content": {
+     "text": "AZM means Azithromycin."
+    },
+    "transcribed_from_image": false,
+    "id": "1de9cd75-4af0-5642-b015-8422321da3da",
+    "section_number": 15
+   },
+   {
+    "content_type": "LIST",
+    "pdf_pages": [
+     7
+    ],
+    "title": "Purpose of AZM drug administration",
+    "content": {
+     "items": [
+      "Azithromycin is a broad-based spectrum antibiotic which is effective in the prevention and treatment of various bacterial infections including acute lower respiratory tract infections, skin and soft tissue and gastro-enteric infections.",
+      "It offers broad benefits including protection against malaria caused by Plasmodium falciparum.",
+      "Azithromycin reduces childhood mortality by preventing and treating childhood infections such as pneumonia, diarrhoea and malaria."
+     ]
+    },
+    "transcribed_from_image": false,
+    "id": "d2a9fcdb-e25e-590e-bd8e-3e9a452afac1",
+    "section_number": 16
+   },
+   {
+    "content_type": "TRUE_FALSE",
+    "pdf_pages": [],
+    "title": null,
+    "transcribed_from_image": false,
+    "content": {
+     "statement": "AZM prevents and treats pneumonia, diarrhoea and malaria in children 1-59 months",
+     "answer": true,
+     "explanation": null,
+     "audience": "CDD",
+     "quiz_ref": "1.1"
+    },
+    "id": "c5aea427-a422-52dc-9eba-d3e5def960ef",
+    "section_number": 17
+   },
+   {
+    "content_type": "TEXT",
+    "pdf_pages": [
+     7
+    ],
+    "title": "Target age group for AZM administration",
+    "content": {
+     "text": "AZM Drug Administration is aimed protection children aged 1-59 months of age from childhood infections."
+    },
+    "transcribed_from_image": false,
+    "id": "961e6c16-f8bb-5501-83a1-51a2fbf582dc",
+    "section_number": 18
+   },
+   {
+    "content_type": "LIST",
+    "pdf_pages": [
+     7
+    ],
+    "title": "Delivery strategies for AZM",
+    "content": {
+     "items": [
+      "The intervention is delivered through door-to-door approach by trained Community Drug Distributors, under the supervision of the CDD supervisors, LGA, State and National teams.",
+      "The AZM administration is done using the Technology app (DIGIT HCM) installed in the devices of the CDDs."
+     ]
+    },
+    "transcribed_from_image": false,
+    "id": "e6fcabd4-20d3-5775-b191-13d2b0ce8d83",
+    "section_number": 19
+   },
+   {
+    "content_type": "TRUE_FALSE",
+    "pdf_pages": [],
+    "title": null,
+    "transcribed_from_image": false,
+    "content": {
+     "statement": "AZM is delivered through door to door approach",
+     "answer": true,
+     "explanation": null,
+     "audience": "CDD",
+     "quiz_ref": "1.2"
+    },
+    "id": "3d2cfa77-aee1-5a13-adf8-ea0b712358e1",
+    "section_number": 20
+   },
+   {
+    "content_type": "TRUE_FALSE",
+    "pdf_pages": [],
+    "title": null,
+    "transcribed_from_image": false,
+    "content": {
+     "statement": "AZM data is collected using Technology App",
+     "answer": true,
+     "explanation": null,
+     "audience": "CDD",
+     "quiz_ref": "1.3"
+    },
+    "id": "7fcaf304-150b-5ef4-babc-a7a3f229b26a",
+    "section_number": 21
+   },
+   {
+    "content_type": "TEXT",
+    "pdf_pages": [
+     7
+    ],
+    "title": "What is AZM POS",
+    "content": {
+     "text": "AZM POS means Azithromycin Powdered Oral Suspension"
+    },
+    "transcribed_from_image": false,
+    "id": "066befc1-ac57-5cb1-b00e-18d2b7d01f64",
+    "section_number": 22
+   },
+   {
+    "content_type": "TEXT",
+    "pdf_pages": [
+     7
+    ],
+    "title": "Duration of AZM drug administration",
+    "content": {
+     "text": "AZM is administered every six-months (Bi-annually) to children 1 to 59 months of age."
+    },
+    "transcribed_from_image": false,
+    "id": "a471578b-7c64-5331-9e42-553cc18f51a5",
+    "section_number": 23
+   },
+   {
+    "content_type": "LIST",
+    "pdf_pages": [
+     7
+    ],
+    "title": "What are the delivery platforms for AZM MDA",
+    "content": {
+     "items": [
+      "AZM MDA will leverage on the following child health interventions:",
+      "Neglected tropical disease (NTDs).",
+      "Polio Eradication Initiative campaign.",
+      "Seasonal Malaria Chemoprevention (SMC).",
+      "Maternal Newborn and Child health (MNCH).",
+      "Leveraging on these platforms will reduce operational costs, maximizes resources, enhance coverage by minimizing missed opportunities and maximizing health benefits to eligible populations."
+     ]
+    },
+    "transcribed_from_image": false,
+    "id": "62b8582d-94ba-55a1-8779-e4d5dd5e3d0d",
+    "section_number": 24
+   },
+   {
+    "content_type": "CALLOUT",
+    "pdf_pages": [
+     8
+    ],
+    "title": "Key take away from module 1",
+    "content": {
+     "heading": "Key take away from module 1",
+     "text": "1. Azithromycin (AZM) is given to children within the age group of 1-59 months. 2. The medicine is for the prevention of pneumonia, diarrhoea and Malaria. 3. It is delivered using Door to door approach by CDDs under the supervision of the CDD supervisors. 4. The medicine is administered two times a year (every six months) using the DIGIT HCM app."
+    },
+    "transcribed_from_image": false,
+    "id": "e6d96d58-e4a5-51ad-83ea-7d72987c1c3a",
+    "section_number": 25
+   }
+  ],
+  "audience": "ROLE_SPECIFIC",
+  "learner_roles": [
+   "CDD"
+  ]
+ },
+ {
+  "module_code": "CDD-02",
+  "learning_order": 2,
+  "title": "CDD - Module 2: Determination of Eligibility for Azithromycin (AZM) Drug Administration",
+  "description": "Who can receive AZM, how to find a child's age, who must not receive AZM, and the MUAC nutrition check.",
+  "estimated_minutes": 40,
+  "sections": [
+   {
+    "content_type": "IMAGE",
+    "pdf_pages": [
+     9
+    ],
+    "title": null,
+    "content": {
+     "image_file": "cdd_p09_m2_opener.jpg",
+     "caption": "Module 2: Determination of Eligibility for Azithromycin (AZM) Drug Administration.",
+     "alt": "A CDD in an orange hijab and yellow vest shows an AZM box to a mother, a baby and a small girl in a yellow dress."
+    },
+    "transcribed_from_image": false,
+    "id": "789a6320-59ce-5010-b548-e5834fde0294",
+    "section_number": 1
+   },
+   {
+    "content_type": "HEADING",
+    "pdf_pages": [
+     9
+    ],
+    "title": null,
+    "content": {
+     "text": "Module 2: Determination of Eligibility for Azithromycin (AZM) Drug Administration"
+    },
+    "transcribed_from_image": false,
+    "id": "ffc3bb24-e14b-50cd-ad7e-0ad41cd89c35",
+    "section_number": 2
+   },
+   {
+    "content_type": "LIST",
+    "pdf_pages": [
+     10
+    ],
+    "title": "Contents",
+    "content": {
+     "items": [
+      "Age eligibility for AZM Drug Administration",
+      "How to determine a child's age.",
+      "Children that are NOT eligible for AZM during campaign",
+      "Summary of child eligibility for AZM."
+     ]
+    },
+    "transcribed_from_image": false,
+    "id": "42063a5d-8abe-5a1a-912b-1fc34430ae6a",
+    "section_number": 3
+   },
+   {
+    "content_type": "LIST",
+    "pdf_pages": [
+     10
+    ],
+    "title": "Tools for each participant",
+    "content": {
+     "items": [
+      "AZM Job Aid"
+     ]
+    },
+    "transcribed_from_image": false,
+    "id": "8be36efa-5b3a-561c-9a6f-abfa8d26ae52",
+    "section_number": 4
+   },
+   {
+    "content_type": "HEADING",
+    "pdf_pages": [
+     11
+    ],
+    "title": null,
+    "content": {
+     "text": "Age eligibility for Azithromycin (AZM) administration during campaign"
+    },
+    "transcribed_from_image": false,
+    "id": "37f7605b-96fb-5d48-bc14-430c44baae89",
+    "section_number": 5
+   },
+   {
+    "content_type": "LIST",
+    "pdf_pages": [
+     11
+    ],
+    "title": "Eligibility age range for Children to receive AZM",
+    "content": {
+     "items": [
+      "AZM is given to only healthy children between 1 to 59 months of age.",
+      "Children who are less than one month or older than 59 months are not eligible.",
+      "Children who are 59 months old in round one should receive AZM but will not be eligible in the next round.",
+      "Neonates who are less than one month are not eligible."
+     ]
+    },
+    "transcribed_from_image": false,
+    "id": "46702ba2-a61c-5496-99b5-b1af88c2da45",
+    "section_number": 6
+   },
+   {
+    "content_type": "TRUE_FALSE",
+    "pdf_pages": [],
+    "title": null,
+    "transcribed_from_image": false,
+    "content": {
+     "statement": "AZM is given to all children 1-59 months",
+     "answer": false,
+     "explanation": null,
+     "audience": "CDD",
+     "quiz_ref": "2.1"
+    },
+    "id": "a9c62227-b936-58eb-8ea4-c3e0cb134897",
+    "section_number": 7
+   },
+   {
+    "content_type": "LIST",
+    "pdf_pages": [
+     11
+    ],
+    "title": "Why only children 1 to 59 months are eligible for AZM",
+    "content": {
+     "items": [
+      "The safety protocol for AZM has been established for children 1 months and above.",
+      "Younger children are more susceptible to potential side effects.",
+      "Children between 1 to 59 months are at the highest risk of severe malaria and other childhood infections",
+      "The age group experience the highest mortality rates from childhood infections.",
+      "It is easier to monitor and manage potential side effects in this age group (1-59 months)."
+     ]
+    },
+    "transcribed_from_image": false,
+    "id": "e1c9fd68-a4a7-54e8-8757-e495a27e2783",
+    "section_number": 8
+   },
+   {
+    "content_type": "LIST",
+    "pdf_pages": [
+     11
+    ],
+    "title": "What are the ways to determine the age of a child",
+    "content": {
+     "items": [
+      "Ask to see the child's child health card.",
+      "Ask the caregiver the age of the child.",
+      "Use calendar of events."
+     ]
+    },
+    "transcribed_from_image": false,
+    "id": "15bcde96-d5a3-5596-9617-cc3ec98fbfa2",
+    "section_number": 9
+   },
+   {
+    "content_type": "LIST",
+    "pdf_pages": [
+     11
+    ],
+    "title": "How to know if an infant is between 1 to 2 months",
+    "content": {
+     "items": [
+      "Cannot hold head and neck steady when held upright."
+     ]
+    },
+    "transcribed_from_image": false,
+    "id": "5b659d3e-5604-53c7-a110-e45c77c74b2b",
+    "section_number": 10
+   },
+   {
+    "content_type": "LIST",
+    "pdf_pages": [
+     11
+    ],
+    "title": "How to know if an infant is between 3 to 4 months",
+    "content": {
+     "items": [
+      "Can hold head and neck steady when held upright."
+     ]
+    },
+    "transcribed_from_image": false,
+    "id": "8eac1865-7975-56f1-90b2-23a7ee19be8d",
+    "section_number": 11
+   },
+   {
+    "content_type": "LIST",
+    "pdf_pages": [
+     11
+    ],
+    "title": "How to know if an infant is between 3 to 11 months",
+    "content": {
+     "items": [
+      "Can hold head and neck steady when held upright.",
+      "Can crawl.",
+      "Can sit without help."
+     ]
+    },
+    "transcribed_from_image": false,
+    "id": "48809d45-38ea-5b3c-aab0-e920b277265d",
+    "section_number": 12
+   },
+   {
+    "content_type": "LIST",
+    "pdf_pages": [
+     11
+    ],
+    "title": "How do you know if a child is between 12 to 59 months",
+    "content": {
+     "items": [
+      "Can stand, walk or run.",
+      "Not able to raise the arm and touch the opposite side of the ear.",
+      "Not able to stand on one leg."
+     ]
+    },
+    "transcribed_from_image": false,
+    "id": "2eb35e8b-9f82-53f1-b54b-7213bb3e9501",
+    "section_number": 13
+   },
+   {
+    "content_type": "LIST",
+    "pdf_pages": [
+     11
+    ],
+    "title": "How to know children older than 59months",
+    "content": {
+     "items": [
+      "Can raise the arm and touch the opposite side of the ear.",
+      "Can stand on one leg for 10 secs.",
+      "Can jump on one leg.",
+      "They are not eligible for AZM MDA."
+     ]
+    },
+    "transcribed_from_image": false,
+    "id": "49fabfa8-6172-5f46-9b55-23044a748668",
+    "section_number": 14
+   },
+   {
+    "content_type": "HEADING",
+    "pdf_pages": [
+     12
+    ],
+    "title": null,
+    "content": {
+     "text": "How to determine child's age for AZM drug administration"
+    },
+    "transcribed_from_image": false,
+    "id": "bc1b0af2-c4c1-576a-8cd6-27ab81f33643",
+    "section_number": 15
+   },
+   {
+    "content_type": "IMAGE",
+    "pdf_pages": [
+     12
+    ],
+    "title": null,
+    "content": {
+     "image_file": "cdd_p12_age_signs.png",
+     "caption": "How to determine a child's age. Children 1 to 11 months: child 1 to 2 months cannot hold head and neck steady when upright; NOT newborn or less than one month; child 3 to 4 months can hold head and neck steady when upright; child 5 to 11 months can crawl and can sit without help. Child 12 to 59 months: can stand or walk; CANNOT raise arm and touch opposite ear; CANNOT stand or jump on one foot.",
+     "alt": "Illustrated age guide: a baby lying down (1 to 2 months), a crossed-out newborn, a baby held sitting (3 to 4 months), a baby crawling and a child sitting (5 to 11 months); below, children standing and walking (12 to 59 months), a crossed-out child touching the opposite ear and a crossed-out child standing on one foot."
+    },
+    "transcribed_from_image": false,
+    "id": "8164f720-2c4d-5d2e-ae30-a406faa1edd1",
+    "section_number": 16
+   },
+   {
+    "content_type": "HEADING",
+    "pdf_pages": [
+     13
+    ],
+    "title": null,
+    "content": {
+     "text": "Children that are not eligible for AZM drug administration"
+    },
+    "transcribed_from_image": false,
+    "id": "684b0a00-cd2c-5d50-a658-7aad1f6b163b",
+    "section_number": 17
+   },
+   {
+    "content_type": "WARNING",
+    "pdf_pages": [
+     13
+    ],
+    "title": "Sick children",
+    "content": {
+     "heading": "Sick children",
+     "text": "Do NOT give AZM to children who are sick."
+    },
+    "transcribed_from_image": false,
+    "id": "e7cbe799-71d5-56fa-8777-38741986e839",
+    "section_number": 18
+   },
+   {
+    "content_type": "TRUE_FALSE",
+    "pdf_pages": [],
+    "title": null,
+    "transcribed_from_image": false,
+    "content": {
+     "statement": "A sick child is eligible for AZM",
+     "answer": false,
+     "explanation": null,
+     "audience": "CDD",
+     "quiz_ref": "2.2"
+    },
+    "id": "1794b0eb-7244-5b2e-9f52-2da1783f9869",
+    "section_number": 19
+   },
+   {
+    "content_type": "WARNING",
+    "pdf_pages": [
+     13
+    ],
+    "title": "Severe Acute Malnutrition (SAM)",
+    "content": {
+     "heading": "Severe Acute Malnutrition (SAM)",
+     "text": "Do NOT give AZM to children who are suffering from Severe Acute Malnutrition (SAM):"
+    },
+    "transcribed_from_image": false,
+    "id": "046e0a8b-bd77-5178-bc62-58d045f84057",
+    "section_number": 20
+   },
+   {
+    "content_type": "LIST",
+    "pdf_pages": [
+     13
+    ],
+    "title": null,
+    "content": {
+     "items": [
+      "Advise the caregiver to take the child to the nearest health facility for further evaluation.",
+      "Complete the referral form and give to the caregiver to take to the health facility.",
+      "Do not give the caregiver the AZM medicine to administer later or the child record card."
+     ]
+    },
+    "transcribed_from_image": false,
+    "id": "ade97ff8-c4dc-59a9-839f-bf8121ffbe30",
+    "section_number": 21
+   },
+   {
+    "content_type": "WARNING",
+    "pdf_pages": [
+     13
+    ],
+    "title": "Allergy to AZM or macrolide antibiotics",
+    "content": {
+     "heading": "Allergy to AZM or macrolide antibiotics",
+     "text": "Do NOT give AZM to children who are allergic to AZM or other macrolide antibiotics."
+    },
+    "transcribed_from_image": false,
+    "id": "b29fdd78-c5da-5033-8d4f-0265391fd4eb",
+    "section_number": 22
+   },
+   {
+    "content_type": "LIST",
+    "pdf_pages": [
+     13
+    ],
+    "title": "ASK the Caregiver",
+    "content": {
+     "items": [
+      "Does the Child get sick after taking antibiotic medicines or similar medications.",
+      "Has the child taken AZM or similar antibiotics before, If so, did the child get sick after taking them or had reactions such as rashes, swelling or difficulty breathing."
+     ]
+    },
+    "transcribed_from_image": false,
+    "id": "f55e8a40-b819-51c9-b20d-ddbf03715b36",
+    "section_number": 23
+   },
+   {
+    "content_type": "HEADING",
+    "pdf_pages": [
+     14
+    ],
+    "title": null,
+    "content": {
+     "text": "Determination of eligibility for Azithromycin (AZM)"
+    },
+    "transcribed_from_image": false,
+    "id": "afcde5e2-1baa-5974-8040-7ff8315ede9c",
+    "section_number": 24
+   },
+   {
+    "content_type": "IMAGE",
+    "pdf_pages": [
+     14
+    ],
+    "title": null,
+    "content": {
+     "image_file": "cdd_p14_eligible_not_eligible.png",
+     "caption": "Eligible for AZM: healthy children from a young baby to a standing child. NOT eligible for AZM: difficulty in swallowing, severe acute malnutrition, not eating, very sick, fever.",
+     "alt": "Top row with a green tick: a sleeping baby, a baby held sitting, a crawling baby, a sitting child and a standing boy. Bottom row with a red cross: drawings labelled difficulty in swallowing, severe acute malnutrition, not eating, very sick and fever."
+    },
+    "transcribed_from_image": false,
+    "id": "fafc03fa-99f3-5df3-9dbc-f6c62eaec32b",
+    "section_number": 25
+   },
+   {
+    "content_type": "HEADING",
+    "pdf_pages": [
+     15
+    ],
+    "title": null,
+    "content": {
+     "text": "Children that are not eligible for AZM drug administration"
+    },
+    "transcribed_from_image": false,
+    "id": "00d94f33-3eda-518a-9ea7-b420deaa73a2",
+    "section_number": 26
+   },
+   {
+    "content_type": "WARNING",
+    "pdf_pages": [
+     15
+    ],
+    "title": "Antibiotics in the last 28 days",
+    "content": {
+     "heading": "Antibiotics in the last 28 days",
+     "text": "Do not give AZM to children who have taken antibiotics or similar medication in the last 28 days or 4 weeks or one month."
+    },
+    "transcribed_from_image": false,
+    "id": "b4b6fbe9-12d5-5274-b020-88c31c7e8505",
+    "section_number": 27
+   },
+   {
+    "content_type": "LIST",
+    "pdf_pages": [
+     15
+    ],
+    "title": "Ask the caregiver",
+    "content": {
+     "items": [
+      "Has the child taken any medicine in the last 28 days or 4 weeks.",
+      "If yes, what medicine has the child taken in the past one month.",
+      "If possible, ask to see the packet for confirmation."
+     ]
+    },
+    "transcribed_from_image": false,
+    "id": "e1c70a20-0480-59ae-b6b9-3caecd0324b2",
+    "section_number": 28
+   },
+   {
+    "content_type": "LIST",
+    "pdf_pages": [
+     15
+    ],
+    "title": "Children not eligible for AZM MDA due to malnutrition: how to identify a child with severe acute malnutrition (Look and Feel Approach)",
+    "content": {
+     "items": [
+      "Visible severe wasting;",
+      "The child looks extremely thin.",
+      "The ribs, shoulder blades and bones are very prominent.",
+      "The arms and thigh look like “skin and bones” with little or no muscle or flesh.",
+      "The child's buttock may appear flat or baggy."
+     ]
+    },
+    "transcribed_from_image": false,
+    "id": "eff4d5c1-58dc-5f5f-ba79-ea2f2995927a",
+    "section_number": 29
+   },
+   {
+    "content_type": "LIST",
+    "pdf_pages": [
+     15
+    ],
+    "title": "Bilateral Pitting Oedema",
+    "content": {
+     "items": [
+      "Press gently with your thumb on the top of both feet for about 3 seconds.",
+      "If a pit remains after removing the thumb, oedema is present.",
+      "This indicates that the child has Kwashiorkor, a form of SAM."
+     ]
+    },
+    "transcribed_from_image": false,
+    "id": "f3458eb4-c19c-58c4-8152-37bfe89fc4d7",
+    "section_number": 30
+   },
+   {
+    "content_type": "TRUE_FALSE",
+    "pdf_pages": [],
+    "title": null,
+    "transcribed_from_image": false,
+    "content": {
+     "statement": "A child with SAM is not eligible for AZM",
+     "answer": true,
+     "explanation": null,
+     "audience": "CDD",
+     "quiz_ref": "2.3"
+    },
+    "id": "ad9a24fc-f1d5-5013-bb46-887be3355152",
+    "section_number": 31
+   },
+   {
+    "content_type": "WARNING",
+    "pdf_pages": [
+     15
+    ],
+    "title": "AZM should not be given to the following children",
+    "content": {
+     "heading": "AZM should not be given to the following children",
+     "text": "Children from 60 months and older. Children that are allergic to AZM or similar antibiotics. Children who are sick or have fever. Children who have received AZM or other antibiotics in the last one month. Children who are currently taking AZM or other antibiotics. Children who cannot swallow."
+    },
+    "transcribed_from_image": false,
+    "id": "aaee9ed1-d483-555a-9099-bb04d7fa5afd",
+    "section_number": 32
+   },
+   {
+    "content_type": "HEADING",
+    "pdf_pages": [
+     16
+    ],
+    "title": null,
+    "content": {
+     "text": "Summary of child eligibility for AZM"
+    },
+    "transcribed_from_image": false,
+    "id": "5fd9cd51-f766-5a87-b65d-9a75fb75ba3b",
+    "section_number": 33
+   },
+   {
+    "content_type": "IMAGE",
+    "pdf_pages": [
+     16
+    ],
+    "title": null,
+    "content": {
+     "image_file": "cdd_p16_eligibility_summary.png",
+     "caption": "Summary of child eligibility for AZM, with Eligible and Refer columns.",
+     "alt": "A table of drawings with ticks and crosses: children 1 to 59 months eligible; sick, fever, allergy or malnutrition not eligible and referred; AZM or similar antibiotics in the last 28 days not eligible."
+    },
+    "transcribed_from_image": false,
+    "id": "7b8328e9-d95c-5345-ae48-4070f44eded0",
+    "section_number": 34
+   },
+   {
+    "content_type": "TABLE",
+    "pdf_pages": [
+     16
+    ],
+    "title": "Summary of child eligibility for AZM",
+    "content": {
+     "headers": [
+      "Situation",
+      "Eligible",
+      "Refer"
+     ],
+     "rows": [
+      [
+       "Between 1 to 59 months",
+       "Yes",
+       ""
+      ],
+      [
+       "When the child is sick",
+       "No",
+       "Yes"
+      ],
+      [
+       "When the child has fever",
+       "No",
+       "Yes"
+      ],
+      [
+       "When the child has allergy to antibiotics or similar medicines or has mild/severe/acute malnutrition",
+       "No",
+       "Yes"
+      ],
+      [
+       "When the child has taken AZM or other similar antibiotics in the last 28 days (4 weeks)",
+       "No",
+       ""
+      ]
+     ]
+    },
+    "transcribed_from_image": true,
+    "id": "ad325264-2d83-5533-a934-52c6ec2e550c",
+    "section_number": 35
+   },
+   {
+    "content_type": "HEADING",
+    "pdf_pages": [
+     17
+    ],
+    "title": null,
+    "content": {
+     "text": "Section 2: MUAC assessment"
+    },
+    "transcribed_from_image": false,
+    "id": "963f9378-464d-505d-b92f-824718dd973a",
+    "section_number": 36
+   },
+   {
+    "content_type": "LIST",
+    "pdf_pages": [
+     17
+    ],
+    "title": "1. MUAC Assessment and Data Collection within SARMAAN II Workflow: the assessment will be implemented within routine SARMAAN II household visits, leveraging",
+    "content": {
+     "items": [
+      "Trained CDDs.",
+      "Established supervision structures.",
+      "Kobo Collect digital data platform.",
+      "Existing household engagement processes.",
+      "No additional household visits will be required."
+     ]
+    },
+    "transcribed_from_image": false,
+    "id": "a1cb91f3-bbe6-58e4-8a2d-7b57e2d3ae39",
+    "section_number": 37
+   },
+   {
+    "content_type": "TEXT",
+    "pdf_pages": [
+     17
+    ],
+    "title": "2. MUAC/Nutrition Assessment (Children 6–59 months): Measurement",
+    "content": {
+     "text": "Mid-Upper Arm Circumference (MUAC) using standard colour-coded MUAC tapes."
+    },
+    "transcribed_from_image": false,
+    "id": "1a47c94d-ae3b-5f6a-9bdc-63d280013550",
+    "section_number": 38
+   },
+   {
+    "content_type": "LIST",
+    "pdf_pages": [
+     17
+    ],
+    "title": "Measurement protocol",
+    "content": {
+     "items": [
+      "Left arm.",
+      "Correct midpoint.",
+      "Tape applied lightly or comfortably, not tight or too tight."
+     ]
+    },
+    "transcribed_from_image": false,
+    "id": "6b79c4b6-87ce-5392-9aba-5a9721432743",
+    "section_number": 39
+   },
+   {
+    "content_type": "TEXT",
+    "pdf_pages": [
+     17
+    ],
+    "title": "Automated classification",
+    "content": {
+     "text": "Kobo Collect will automatically classify MUAC values using WHO/UNICEF thresholds."
+    },
+    "transcribed_from_image": false,
+    "id": "0cc2f462-6044-5ad2-b85a-a4fb9d0d4062",
+    "section_number": 40
+   },
+   {
+    "content_type": "HEADING",
+    "pdf_pages": [
+     18
+    ],
+    "title": null,
+    "content": {
+     "text": "MUAC/Nutrition Assessment (Children 6–59 months)"
+    },
+    "transcribed_from_image": false,
+    "id": "b153db62-853c-51a6-980c-33dc2dac8e77",
+    "section_number": 41
+   },
+   {
+    "content_type": "TABLE",
+    "pdf_pages": [
+     18
+    ],
+    "title": "MUAC ranges and action required",
+    "content": {
+     "headers": [
+      "MUAC Range",
+      "Status",
+      "Classification",
+      "Action Required"
+     ],
+     "rows": [
+      [
+       "≥ 12.5 cm",
+       "Well-nourished",
+       "Normal",
+       "No immediate action"
+      ],
+      [
+       "11.5 - 12.4 cm",
+       "At Risk / MAM",
+       "Moderate Acute Malnutrition",
+       "Immediate referral to health facility for counselling"
+      ],
+      [
+       "< 11.5 cm",
+       "SAM",
+       "Severe Acute Malnutrition",
+       "Immediate referral to health facility"
+      ]
+     ]
+    },
+    "transcribed_from_image": true,
+    "id": "acae4d12-f515-5163-90db-8f1570825175",
+    "section_number": 42
+   },
+   {
+    "content_type": "IMAGE",
+    "pdf_pages": [
+     18
+    ],
+    "title": null,
+    "content": {
+     "image_file": "cdd_p18_muac_table.png",
+     "caption": "MUAC ranges: green 12.5 cm or more (normal), yellow 11.5 to 12.4 cm (MAM), red below 11.5 cm (SAM).",
+     "alt": "The original MUAC table with green, yellow and red rows for MUAC range, status, classification and action required."
+    },
+    "transcribed_from_image": false,
+    "id": "4a492eb4-9745-5071-bdee-23b8650226a6",
+    "section_number": 43
+   },
+   {
+    "content_type": "IMAGE",
+    "pdf_pages": [
+     19
+    ],
+    "title": null,
+    "content": {
+     "image_file": "cdd_p19_muac_right_wrong.jpg",
+     "caption": "MUAC assessment, right and wrong. Good MUAC assessment: left arm, not too tight. Bad MUAC assessment: right arm, too tight.",
+     "alt": "Two illustrations side by side: a CDD measuring a girl's left arm loosely (good), and a CDD measuring a girl's right arm too tightly (bad)."
+    },
+    "transcribed_from_image": false,
+    "id": "e8367142-2e95-587d-9a1b-94f9b3b36268",
+    "section_number": 44
+   },
+   {
+    "content_type": "IMAGE",
+    "pdf_pages": [
+     20
+    ],
+    "title": null,
+    "content": {
+     "image_file": "cdd_p20_cdd_taking_muac.jpg",
+     "caption": "A CDD taking MUAC reading of a child within the age group 6-59 months.",
+     "alt": "Close-up of hands wrapping a MUAC tape around a child's upper arm."
+    },
+    "transcribed_from_image": false,
+    "id": "8c5344dd-62a0-5afb-b65c-09151d77f9da",
+    "section_number": 45
+   },
+   {
+    "content_type": "IMAGE",
+    "pdf_pages": [
+     20
+    ],
+    "title": null,
+    "content": {
+     "image_file": "cdd_p20_muac_tape.jpg",
+     "caption": "MUAC Tape.",
+     "alt": "Diagram of a UNICEF MUAC tape with a red section from 6 to 11 cm, a yellow section at 12 cm and a green section from 13 to 26 cm."
+    },
+    "transcribed_from_image": false,
+    "id": "45436033-66ea-5e0f-b8ed-75be2bf372b8",
+    "section_number": 46
+   }
+  ],
+  "audience": "ROLE_SPECIFIC",
+  "learner_roles": [
+   "CDD"
+  ]
+ },
+ {
+  "module_code": "CDD-03",
+  "learning_order": 3,
+  "title": "CDD - Module 3: Steps for Referral of Children to Health Facility",
+  "description": "When and how to refer a sick child or a child with a suspected reaction, and how to fill the AZM referral form.",
+  "estimated_minutes": 30,
+  "sections": [
+   {
+    "content_type": "IMAGE",
+    "pdf_pages": [
+     21
+    ],
+    "title": null,
+    "content": {
+     "image_file": "cdd_p21_m3_opener.jpg",
+     "caption": "Module 3: Steps for referral of Children to health facility.",
+     "alt": "A CDD in a yellow AZM vest holds a referral form and points the way while a mother holds a small child, with another CDD beside her."
+    },
+    "transcribed_from_image": false,
+    "id": "da5b51f5-7fb8-5c31-96fa-befb66e02403",
+    "section_number": 1
+   },
+   {
+    "content_type": "HEADING",
+    "pdf_pages": [
+     21
+    ],
+    "title": null,
+    "content": {
+     "text": "Module 3: Steps for referral of Children to health facility"
+    },
+    "transcribed_from_image": false,
+    "id": "a2b821c9-84fb-59df-89f5-544eeda8259a",
+    "section_number": 2
+   },
+   {
+    "content_type": "HEADING",
+    "pdf_pages": [
+     22
+    ],
+    "title": null,
+    "content": {
+     "text": "Steps for referral of children to health facility"
+    },
+    "transcribed_from_image": false,
+    "id": "8de03b04-9b5b-5cf3-89af-02c7d31aa8ec",
+    "section_number": 3
+   },
+   {
+    "content_type": "LIST",
+    "pdf_pages": [
+     22
+    ],
+    "title": "Contents",
+    "content": {
+     "items": [
+      "When to refer a sick child.",
+      "When to refer children for possible adverse drug reactions due to AZM.",
+      "AZM referral steps.",
+      "How to complete the AZM Referral Form.",
+      "When to complete PV Form and Med Safety App for AZM (for HFWs only)."
+     ]
+    },
+    "transcribed_from_image": false,
+    "id": "f4713f11-593f-525d-acb4-51d8a1651dbd",
+    "section_number": 4
+   },
+   {
+    "content_type": "LIST",
+    "pdf_pages": [
+     22
+    ],
+    "title": "Tools for each participant",
+    "content": {
+     "items": [
+      "AZM Job Aid.",
+      "AZM Referral Form."
+     ]
+    },
+    "transcribed_from_image": false,
+    "id": "b2163337-2ac9-54b1-a37e-61f33cafeed5",
+    "section_number": 5
+   },
+   {
+    "content_type": "IMAGE",
+    "pdf_pages": [
+     22
+    ],
+    "title": null,
+    "content": {
+     "image_file": "cdd_p22_referral_photo.jpg",
+     "caption": "A CDD explaining a referral to a caregiver.",
+     "alt": "A CDD in a yellow AZM vest holding a paper and pointing, talking with a mother who holds a small child."
+    },
+    "transcribed_from_image": false,
+    "id": "eb7cfd29-f895-5daf-89b1-962552d0fda5",
+    "section_number": 6
+   },
+   {
+    "content_type": "HEADING",
+    "pdf_pages": [
+     23
+    ],
+    "title": null,
+    "content": {
+     "text": "When to refer a sick child"
+    },
+    "transcribed_from_image": false,
+    "id": "614e654e-8448-5a1a-8bae-dc354f470f40",
+    "section_number": 7
+   },
+   {
+    "content_type": "LIST",
+    "pdf_pages": [
+     23
+    ],
+    "title": "Explain what it means when a child is sick or has danger signs",
+    "content": {
+     "items": [
+      "Convulsion.",
+      "Fever or high temperature.",
+      "Difficulty breathing.",
+      "Difficulty staying awake.",
+      "Vomiting.",
+      "Not able to eat or drink.",
+      "Severe pains or bleeding.",
+      "Neck pain or severe headache.",
+      "Severe Acute Malnutrition"
+     ]
+    },
+    "transcribed_from_image": false,
+    "id": "134e645a-855f-5862-9209-eeab63f14d73",
+    "section_number": 8
+   },
+   {
+    "content_type": "LIST",
+    "pdf_pages": [
+     23
+    ],
+    "title": "EXPLAIN why children needs to be referred to the nearest health facility",
+    "content": {
+     "items": [
+      "Children with fever may likely have malaria or other childhood infections.",
+      "Malaria, pneumonia and diarrhoea remain the leading causes of death among under five children in Nigeria.",
+      "Children with fever needs to be evaluated to avoid complications.",
+      "Children with severe acute malnutrition following the nutrition screening using a MUAC tape should be excluded, further evaluation conducted and receive the required support (resuscitation, feeding programme, etc.)"
+     ]
+    },
+    "transcribed_from_image": false,
+    "id": "f4fa2a3d-8491-5d91-8d86-39694e8acba3",
+    "section_number": 9
+   },
+   {
+    "content_type": "TRUE_FALSE",
+    "pdf_pages": [],
+    "title": null,
+    "transcribed_from_image": false,
+    "content": {
+     "statement": "A sick child should be referred to the Health Facility immediately",
+     "answer": true,
+     "explanation": null,
+     "audience": "CDD",
+     "quiz_ref": "3.1"
+    },
+    "id": "b2464482-e19b-5a93-aeec-70b87a87cdc1",
+    "section_number": 10
+   },
+   {
+    "content_type": "IMAGE",
+    "pdf_pages": [
+     23
+    ],
+    "title": null,
+    "content": {
+     "image_file": "cdd_p23_sick_danger_fever.png",
+     "caption": "Refer: when the child is sick, when the child has danger signs, when the child has fever.",
+     "alt": "Two drawings with green ticks: a mother holding a sick baby, labelled when the child is sick or has danger signs, and a boy holding his forehead, labelled when the child has fever."
+    },
+    "transcribed_from_image": false,
+    "id": "fa1afc74-8607-5e07-a4bf-4fb488c3a43a",
+    "section_number": 11
+   },
+   {
+    "content_type": "HEADING",
+    "pdf_pages": [
+     24
+    ],
+    "title": null,
+    "content": {
+     "text": "When to refer children to health facility"
+    },
+    "transcribed_from_image": false,
+    "id": "9b3bfa16-15f4-5b98-92e4-0b5f5ebfc784",
+    "section_number": 12
+   },
+   {
+    "content_type": "TEXT",
+    "pdf_pages": [
+     24
+    ],
+    "title": "STEP 1: Explain that some children may have allergy to AZM",
+    "content": {
+     "text": "Allergies to AZM are rare but may occur."
+    },
+    "transcribed_from_image": false,
+    "id": "4e8e0a00-73e9-515c-8af3-17e1178d9dcb",
+    "section_number": 13
+   },
+   {
+    "content_type": "TRUE_FALSE",
+    "pdf_pages": [],
+    "title": null,
+    "transcribed_from_image": false,
+    "content": {
+     "statement": "Allergies to AZM are rare but may occur",
+     "answer": true,
+     "explanation": null,
+     "audience": "CDD",
+     "quiz_ref": "3.3"
+    },
+    "id": "28023a82-a071-52bc-bfbf-316e96e58231",
+    "section_number": 14
+   },
+   {
+    "content_type": "TEXT",
+    "pdf_pages": [
+     24
+    ],
+    "title": "STEP 2: Explain that Children need to be referred to the nearest health facilities if they have side effects or suspected adverse reactions",
+    "content": {
+     "text": "Children need to be referred to the nearest health facilities if they have side effects or suspected adverse reactions."
+    },
+    "transcribed_from_image": false,
+    "id": "4e65e639-c573-56d9-b400-edbc68b13544",
+    "section_number": 15
+   },
+   {
+    "content_type": "LIST",
+    "pdf_pages": [
+     24
+    ],
+    "title": "Show and describe some possible allergy to AZM or reasons for exclusion",
+    "content": {
+     "items": [
+      "Swelling of the face, mouth, tongue or other parts of the body.",
+      "Nausea or continuous vomiting.",
+      "Skin rashes or blistering of the skin.",
+      "Body itching.",
+      "Weakness or fatigue",
+      "Loss of appetite.",
+      "Abdominal pains, Diarrhoea.",
+      "Headache.",
+      "Yellowing of the skin or eyes."
+     ]
+    },
+    "transcribed_from_image": false,
+    "id": "76815f7e-37de-545d-8ab0-41d773baece9",
+    "section_number": 16
+   },
+   {
+    "content_type": "IMAGE",
+    "pdf_pages": [
+     24
+    ],
+    "title": null,
+    "content": {
+     "image_file": "cdd_p24_allergy_exclusion_signs.png",
+     "caption": "Signs to show: very sick, fever, swelling, rash; difficulty in swallowing, severe acute malnutrition, not eating, very sick, fever.",
+     "alt": "Two rows of drawings: a sick baby, a boy with fever, a boy with a swollen face and a boy with a rash; below, line drawings of difficulty swallowing, severe acute malnutrition, not eating, a very sick baby and fever."
+    },
+    "transcribed_from_image": false,
+    "id": "e136a069-e35e-5827-a3b6-2d297cf5b854",
+    "section_number": 17
+   },
+   {
+    "content_type": "HEADING",
+    "pdf_pages": [
+     25
+    ],
+    "title": null,
+    "content": {
+     "text": "Referral steps during AZM campaign"
+    },
+    "transcribed_from_image": false,
+    "id": "ae8a5c6b-0659-5a87-963d-faef716a9345",
+    "section_number": 18
+   },
+   {
+    "content_type": "LIST",
+    "pdf_pages": [
+     25
+    ],
+    "title": "Explain the steps for referral to the health facilities for children who are sick, or have severe acute malnutrition or suspected adverse reactions",
+    "content": {
+     "items": [
+      "Do not Give AZM.",
+      "Complete the top portion of the referral form.",
+      "Explain to the caregiver the reason for the referral and the need to respond immediately.",
+      "If the child has fever, or severe acute malnutrition, explain to the caregivers that the child could have malaria or other diseases and could get worse or even result in death if not treated immediately.",
+      "Tell the caregiver how to get to the nearest health facility.",
+      "Give AZM referral form to the caregiver to take to the health facility.",
+      "Explain to the caregiver that the health worker will evaluate the child at the facility."
+     ]
+    },
+    "transcribed_from_image": false,
+    "id": "c218b3f5-d300-5b0b-9b89-24efc6c6f164",
+    "section_number": 19
+   },
+   {
+    "content_type": "TRUE_FALSE",
+    "pdf_pages": [],
+    "title": null,
+    "transcribed_from_image": false,
+    "content": {
+     "statement": "The CDD fills a referral form for the caregiver to take to the HF immediately",
+     "answer": true,
+     "explanation": null,
+     "audience": "CDD",
+     "quiz_ref": "3.2"
+    },
+    "id": "a75a0c67-1966-5225-b2e7-6141c629bd00",
+    "section_number": 20
+   },
+   {
+    "content_type": "IMAGE",
+    "pdf_pages": [
+     25
+    ],
+    "title": null,
+    "content": {
+     "image_file": "cdd_p25_referral_steps.png",
+     "caption": "Do not give AZM, then fill the referral form, then explain the referral to the caregiver.",
+     "alt": "Three pictures joined by arrows: AZM being poured with a red cross, a health worker filling a form, and a health worker explaining a form to a seated mother."
+    },
+    "transcribed_from_image": false,
+    "id": "78ee9eb1-b432-549a-bf45-4c676ce0dec1",
+    "section_number": 21
+   },
+   {
+    "content_type": "HEADING",
+    "pdf_pages": [
+     26
+    ],
+    "title": null,
+    "content": {
+     "text": "Completing the top section of the AZM referral form"
+    },
+    "transcribed_from_image": false,
+    "id": "71b3db6e-3e21-5ec2-8f79-9ba2c7feab40",
+    "section_number": 22
+   },
+   {
+    "content_type": "IMAGE",
+    "pdf_pages": [
+     26
+    ],
+    "title": null,
+    "content": {
+     "image_file": "cdd_p26_referral_form.png",
+     "caption": "The AZM Referral Form. The top part is completed by the CDD; the lower part by the Health Facility Worker.",
+     "alt": "The printed AZM Referral Form with logos, a section to be completed by the CDD (child's name, beneficiary ID, age, gender, state, LGA, ward, settlement, date of referral, facility, AZM round, reason for referral, CDD team code, signature) and a section to be completed by the Health Facility Worker."
+    },
+    "transcribed_from_image": false,
+    "id": "538e0f2d-fd4d-566e-817a-6a087f9d65ee",
+    "section_number": 23
+   },
+   {
+    "content_type": "TEXT",
+    "pdf_pages": [
+     26
+    ],
+    "title": "Explain",
+    "content": {
+     "text": "Each CDD team will have a referral forms which are double carbon copy."
+    },
+    "transcribed_from_image": false,
+    "id": "6a18f3b5-46f4-5ed2-8499-8157bba7da14",
+    "section_number": 24
+   },
+   {
+    "content_type": "LIST",
+    "pdf_pages": [
+     26
+    ],
+    "title": "Ask what is the purpose of AZM referral form",
+    "content": {
+     "items": [
+      "To track the number of children referred to the health facility.",
+      "To track the number of children who get to the health facility."
+     ]
+    },
+    "transcribed_from_image": false,
+    "id": "f82b1f52-4039-5c3a-980b-620e2e23d73c",
+    "section_number": 25
+   },
+   {
+    "content_type": "LIST",
+    "pdf_pages": [
+     26
+    ],
+    "title": "Demonstrate and practice",
+    "content": {
+     "items": [
+      "Show how to complete the top portion of the AZM referral form for the CDDs.",
+      "Let the CDDs practice how to fill the top portion of the form."
+     ]
+    },
+    "transcribed_from_image": false,
+    "id": "dc68dd49-732a-5ef5-a9cc-b13ac01334ba",
+    "section_number": 26
+   },
+   {
+    "content_type": "CALLOUT",
+    "pdf_pages": [
+     26
+    ],
+    "title": "Role play",
+    "content": {
+     "heading": "Role play",
+     "text": "Instruct the CDDs to role play how to give the caregivers referral instructions for this scenario: The Child is 2 years old and has had high fever for 2 days."
+    },
+    "transcribed_from_image": false,
+    "id": "2ed79bba-86d5-50ba-b5a8-4b8425e0c813",
+    "section_number": 27
+   },
+   {
+    "content_type": "CALLOUT",
+    "pdf_pages": [
+     27
+    ],
+    "title": "Key take away of module 3",
+    "content": {
+     "heading": "Key take away of module 3",
+     "text": "1. Refer children who are sick or malnourished to the nearest health Facility. 2. Fill out the referral form and give to the caregiver to take to the health facility. 3. Explain the reason for referral to the caregiver and encourage them to take the child to the health facility immediately."
+    },
+    "transcribed_from_image": false,
+    "id": "f78e8a97-2767-5e73-b31d-056e7aaa6029",
+    "section_number": 28
+   }
+  ],
+  "audience": "ROLE_SPECIFIC",
+  "learner_roles": [
+   "CDD"
+  ]
+ },
+ {
+  "module_code": "CDD-04",
+  "learning_order": 4,
+  "title": "CDD - Module 4: Azithromycin Drug Administration and Recording",
+  "description": "Preparing and giving AZM safely, recording on the child record card, house marking, call-in data, drug accountability and cohort tracking.",
+  "estimated_minutes": 90,
+  "sections": [
+   {
+    "content_type": "IMAGE",
+    "pdf_pages": [
+     28
+    ],
+    "title": null,
+    "content": {
+     "image_file": "cdd_p28_m4_opener.jpg",
+     "caption": "Module 4: Azithromycin Drug Administration and Recording.",
+     "alt": "A mother in a teal hijab gives a boy medicine from a small cup."
+    },
+    "transcribed_from_image": false,
+    "id": "07ad3b1d-7231-56c8-91ae-20dd66c2ece3",
+    "section_number": 1
+   },
+   {
+    "content_type": "HEADING",
+    "pdf_pages": [
+     28
+    ],
+    "title": null,
+    "content": {
+     "text": "Module 4: Azithromycin Drug Administration and Recording"
+    },
+    "transcribed_from_image": false,
+    "id": "1161cd38-7431-52ff-9a06-e42ec26c01bb",
+    "section_number": 2
+   },
+   {
+    "content_type": "LIST",
+    "pdf_pages": [
+     29
+    ],
+    "title": "Contents",
+    "content": {
+     "items": [
+      "AZM POS",
+      "Safe AZM Administration",
+      "Steps to Administering AZM to eligible children",
+      "Completing the AZM Child Record Card",
+      "House marking during AZM campaign.",
+      "Accountability, reconciliation and storage"
+     ]
+    },
+    "transcribed_from_image": false,
+    "id": "1c65c363-ac3a-53ba-b192-85d28299dd3a",
+    "section_number": 3
+   },
+   {
+    "content_type": "LIST",
+    "pdf_pages": [
+     29
+    ],
+    "title": "Tools for each participant",
+    "content": {
+     "items": [
+      "AZM Job Aid",
+      "Sample AZM POS"
+     ]
+    },
+    "transcribed_from_image": false,
+    "id": "9333c03e-e0b8-53bb-a0b7-aaca245c94e0",
+    "section_number": 4
+   },
+   {
+    "content_type": "HEADING",
+    "pdf_pages": [
+     30
+    ],
+    "title": null,
+    "content": {
+     "text": "Azithromycin Powdered Oral Suspension (AZM POS)"
+    },
+    "transcribed_from_image": false,
+    "id": "d18d05e3-6b6b-5dd7-8b8e-8d7933e37fb0",
+    "section_number": 5
+   },
+   {
+    "content_type": "LIST",
+    "pdf_pages": [
+     30
+    ],
+    "title": "Explain and show: Azithromycin POS",
+    "content": {
+     "items": [
+      "The Azithromycin (AZM) comes in small powdered Oral suspension (POS) bottle.",
+      "The medicine comes with a small dispensing cup for measuring accurate dose or volume of reconstituted AZM to be administered to eligible children.",
+      "The medicine will need to be reconstituted with 15ml of clean water to obtain 30ml AZM suspension.",
+      "Each bottle of AZM will be used to reach 4 children."
+     ]
+    },
+    "transcribed_from_image": false,
+    "id": "4ed5e53f-9c5d-52be-9fc2-6fb45f7fe85b",
+    "section_number": 6
+   },
+   {
+    "content_type": "IMAGE",
+    "pdf_pages": [
+     30
+    ],
+    "title": null,
+    "content": {
+     "image_file": "cdd_p30_reconstitution_steps.png",
+     "caption": "1. Check expiry date of the medicine. 2. Wash hand. 3. Provide clean water from the household. 4. Reconstitute AZM medicine. 5. Measure out AZM for dispensing.",
+     "alt": "Five numbered pictures: a medicine bottle marked expiry date, hands washing under a tap, a measuring beaker of water, a CDD preparing AZM with a mother and child, and AZM suspension poured into a measuring cup."
+    },
+    "transcribed_from_image": false,
+    "id": "50801f17-e737-517b-99a2-279271e7ad7c",
+    "section_number": 7
+   },
+   {
+    "content_type": "HEADING",
+    "pdf_pages": [
+     31
+    ],
+    "title": null,
+    "content": {
+     "text": "Azithromycin drug administration protocol"
+    },
+    "transcribed_from_image": false,
+    "id": "f802578b-3993-5ac3-beab-b4824826dea0",
+    "section_number": 8
+   },
+   {
+    "content_type": "LIST",
+    "pdf_pages": [
+     31
+    ],
+    "title": "Explain and show: how to safely administer AZM",
+    "content": {
+     "items": [
+      "The CDD should check the expiry date of drug before reconstitution.",
+      "Wash hands with soap and water before administering AZM.",
+      "Limit AZM administration to 5 eligible children at a time.",
+      "Ask the caregiver to bring drinking water in a small cup."
+     ]
+    },
+    "transcribed_from_image": false,
+    "id": "5c7f8f8d-697d-59c3-a5ba-8487a542e051",
+    "section_number": 9
+   },
+   {
+    "content_type": "LIST",
+    "pdf_pages": [
+     31
+    ],
+    "title": "Steps for administering AZM",
+    "content": {
+     "items": [
+      "First, shake the AZM powder vigorously to loosen it.",
+      "Add 15ml of clean water and shake the bottle thoroughly to mix.",
+      "For children 1-11 months, determine the dose using the age-based dosing strategy (3-tier dosing schedule) as follows: 1-2 months will receive 2ml, 3-4 months will receive 3ml while 5-11 months will receive 4ml.",
+      "For children 12-59 months: The dosing pole will be used to measure their height (Height based dosing strategy). The measurement in cm is on one side of the pole while the corresponding dose to be administered to the child is indicated on the opposite side of the pole.",
+      "The DIGIT HCM app will indicate the dose to be administered when the age or height of the child is inputted into the app.",
+      "The CDD should measure out the accurate dose of AZM to be administered using the provided dispensing cup.",
+      "AZM should be administered to one child per time.",
+      "If the child vomits within 5 minutes after receiving AZM, the child should be redosed with the same dose according to their age or height.",
+      "Observe the child for 30 minutes after administration for any side effect or Suspected ADR for referral."
+     ]
+    },
+    "transcribed_from_image": false,
+    "id": "993e04c9-77eb-5276-a7f4-8f2bf5b163d6",
+    "section_number": 10
+   },
+   {
+    "content_type": "TRUE_FALSE",
+    "pdf_pages": [],
+    "title": null,
+    "transcribed_from_image": false,
+    "content": {
+     "statement": "The age or height of the child is used to calculate the dose of AZM to be given",
+     "answer": true,
+     "explanation": null,
+     "audience": "CDD",
+     "quiz_ref": "4.1"
+    },
+    "id": "199e99c8-b5da-5ca5-ba67-c6428a7b9c53",
+    "section_number": 11
+   },
+   {
+    "content_type": "TRUE_FALSE",
+    "pdf_pages": [],
+    "title": null,
+    "transcribed_from_image": false,
+    "content": {
+     "statement": "There is no re-dosing in AZM administration",
+     "answer": false,
+     "explanation": null,
+     "audience": "CDD",
+     "quiz_ref": "4.3"
+    },
+    "id": "ce3f6bd9-3366-507c-a82e-375b39cfa245",
+    "section_number": 12
+   },
+   {
+    "content_type": "IMAGE",
+    "pdf_pages": [
+     32
+    ],
+    "title": null,
+    "content": {
+     "image_file": "cdd_p32_dosing_pole_1.jpg",
+     "caption": "A CDD measuring the height of a child (within the age group 12-59 months) with a dosing pole.",
+     "alt": "A CDD in a dark hijab measures a small child standing against a dosing pole while the mother holds the child."
+    },
+    "transcribed_from_image": false,
+    "id": "cf5174b6-c9bb-5dc2-b6c3-82c543e1973c",
+    "section_number": 13
+   },
+   {
+    "content_type": "IMAGE",
+    "pdf_pages": [
+     32
+    ],
+    "title": null,
+    "content": {
+     "image_file": "cdd_p32_dosing_pole_2.jpg",
+     "caption": "A CDD holding a dosing pole.",
+     "alt": "A smiling CDD in a purple hijab and green vest stands holding a tall coloured dosing pole."
+    },
+    "transcribed_from_image": false,
+    "id": "5cc499a3-79f4-57c1-9bb1-cf3844d5f279",
+    "section_number": 14
+   },
+   {
+    "content_type": "IMAGE",
+    "pdf_pages": [
+     32
+    ],
+    "title": null,
+    "content": {
+     "image_file": "cdd_p32_measuring_dose.jpg",
+     "caption": "A CDD measuring out a dose of AZM.",
+     "alt": "A CDD in a brown hijab pours AZM suspension into a small measuring cup, with children watching."
+    },
+    "transcribed_from_image": false,
+    "id": "8c088c80-cd81-5da9-994d-20e5eac26b07",
+    "section_number": 15
+   },
+   {
+    "content_type": "HEADING",
+    "pdf_pages": [
+     33
+    ],
+    "title": null,
+    "content": {
+     "text": "Azithromycin drug administration protocol"
+    },
+    "transcribed_from_image": false,
+    "id": "aa2e043f-6a09-53c0-a6b0-8669b3cdd03d",
+    "section_number": 16
+   },
+   {
+    "content_type": "LIST",
+    "pdf_pages": [
+     33
+    ],
+    "title": "How AZM Medicines are issued",
+    "content": {
+     "items": [
+      "OICs in the facilities will issue AZM medicine and other implementation tools to each CDD team at the beginning of each day of the implementation period.",
+      "CDD teams must meet the OIC every morning during the implementation period to request for AZM medicine needed for administration to the target population.",
+      "Each CDD team is expected to reach a total of 100 children each day during the 4 days distribution period"
+     ]
+    },
+    "transcribed_from_image": false,
+    "id": "9812c3f9-630d-58aa-9a37-a59ff69827f6",
+    "section_number": 17
+   },
+   {
+    "content_type": "LIST",
+    "pdf_pages": [
+     33
+    ],
+    "title": "What need to be returned to the OICs at the end of each day during MDA",
+    "content": {
+     "items": [
+      "All AZM bottles must be accounted for daily during the MDA.",
+      "All used and unused bottles of AZM medicines must be returned to the Health facility OIC.",
+      "Partially used AZM medicines remain viable for up to 2 to 3 days and must be reused before a new one is opened.",
+      "CDDs must measure the exact dose displayed on the DIGIT app because overdosing or under dosing will result in wastage that will affect drug reconciliation leading to accountability issues, and drug resistance.",
+      "CDD must ensure that dosing poles are returned to the health facility daily.",
+      "The OICs must check the technology app to know the number of children reached by each CDD team .",
+      "The OICs should document the distribution of AZM in the inventory control cards and all the empty bottles should be properly arranged in the cartons."
+     ]
+    },
+    "transcribed_from_image": false,
+    "id": "89cd47a8-7bf3-5e81-b48c-bd3fc310a663",
+    "section_number": 18
+   },
+   {
+    "content_type": "HEADING",
+    "pdf_pages": [
+     34
+    ],
+    "title": null,
+    "content": {
+     "text": "Correct positioning for administration of AZM"
+    },
+    "transcribed_from_image": false,
+    "id": "e47153df-2650-54b4-b9d0-194568d62daf",
+    "section_number": 19
+   },
+   {
+    "content_type": "LIST",
+    "pdf_pages": [
+     34
+    ],
+    "title": null,
+    "content": {
+     "items": [
+      "Ensure that the child is awake.",
+      "Sit the child upright to avoid spitting or vomiting.",
+      "Give medicine slowly with the dispensing cup.",
+      "Ensure that the child drinks ALL the medicine by rinsing the cup with a small amount of water and give to swallow again",
+      "Do not force the child to swallow the medicines by holding the child's head and neck backwards or pinching the nose.",
+      "Repeat steps 3,4,5 and 6 until all the children in the group have received AZM.",
+      "Redose if the child vomits within 5 minutes of AZM administration.",
+      "The CDD team should observe the child for 30mins for any side effect or suspected adverse reaction."
+     ]
+    },
+    "transcribed_from_image": false,
+    "id": "fbf2705e-b029-59e3-81ba-238b8bcc56db",
+    "section_number": 20
+   },
+   {
+    "content_type": "LIST",
+    "pdf_pages": [
+     34
+    ],
+    "title": "STEP 1: Steps for mixing and administering AZM POS. Gather the following required materials",
+    "content": {
+     "items": [
+      "Azithromycin POS",
+      "Safe drinking water in a clean cup.",
+      "A calibrated measuring cup."
+     ]
+    },
+    "transcribed_from_image": false,
+    "id": "10d7f17d-6b87-554c-ab3b-80c6a0368424",
+    "section_number": 21
+   },
+   {
+    "content_type": "WARNING",
+    "pdf_pages": [
+     34
+    ],
+    "title": "Check the expiry date",
+    "content": {
+     "heading": "Check the expiry date",
+     "text": "Check the expiry date of the AZM POS before administration. (Do not use if expired)."
+    },
+    "transcribed_from_image": false,
+    "id": "959ffdee-8f1e-5b78-815d-f2505e538370",
+    "section_number": 22
+   },
+   {
+    "content_type": "LIST",
+    "pdf_pages": [
+     34
+    ],
+    "title": null,
+    "content": {
+     "items": [
+      "Shake the powder to loosen the contents.",
+      "Tap the bottle gently to loosen the dry powder before adding water.",
+      "Measure and add 15ml of water to obtain 30ml final volume of AZM suspension.",
+      "Use the provided measuring cup to add the correct amount of water.",
+      "Close the bottle tightly and shake well for at least 30 secs to ensure that the powder dissolves completely into a smooth suspension.",
+      "Shake again before each use to maintain consistency."
+     ]
+    },
+    "transcribed_from_image": false,
+    "id": "1dee1d1d-de0e-5da8-9808-de1627974a55",
+    "section_number": 23
+   },
+   {
+    "content_type": "TEXT",
+    "pdf_pages": [
+     34
+    ],
+    "title": "Determine and administer the correct dose",
+    "content": {
+     "text": "The dose of AZM to be administered depends on the child's age: For Children 1-11 months: use age-based dosing Strategy (3-tier schedule) and for children 12-59months; use height based dosing strategy by measuring their height with a dosing pole."
+    },
+    "transcribed_from_image": false,
+    "id": "f6741651-7b2a-545f-9e11-ae99dcdfbeb6",
+    "section_number": 24
+   },
+   {
+    "content_type": "IMAGE",
+    "pdf_pages": [
+     35
+    ],
+    "title": null,
+    "content": {
+     "image_file": "cdd_p35_giving_azm.jpg",
+     "caption": "AZM is given slowly and the child properly positioned",
+     "alt": "A mother in a green hijab holds a baby upright and gives medicine from a small cup."
+    },
+    "transcribed_from_image": false,
+    "id": "6c2582a1-5007-5f16-9683-1c2247333fde",
+    "section_number": 25
+   },
+   {
+    "content_type": "HEADING",
+    "pdf_pages": [
+     36
+    ],
+    "title": null,
+    "content": {
+     "text": "Completing the child record card"
+    },
+    "transcribed_from_image": false,
+    "id": "ee25e2a3-b326-5602-8840-f0563a15e43f",
+    "section_number": 26
+   },
+   {
+    "content_type": "LIST",
+    "pdf_pages": [
+     36
+    ],
+    "title": "What needs to be recorded on the AZM Child Record Card",
+    "content": {
+     "items": [
+      "The Child's name, age, beneficiary ID, settlement, ward, LGA and Gender.",
+      "Indicate the dosing strategy used for the child(age or height-based dosing strategy).",
+      "Tick as appropriate on the age range and indicate the dose of AZM given to the child in ml."
+     ]
+    },
+    "transcribed_from_image": false,
+    "id": "b639283d-61e4-5024-8ed5-9af1a8f20070",
+    "section_number": 27
+   },
+   {
+    "content_type": "LIST",
+    "pdf_pages": [
+     36
+    ],
+    "title": "Demonstrate and practice",
+    "content": {
+     "items": [
+      "Show CDDs how to complete the card.",
+      "Ask the CDDs to complete the child record card for children 1 to 2 months, 3-4 months, 5-11 months and 12-59 months"
+     ]
+    },
+    "transcribed_from_image": false,
+    "id": "db6bfe05-2d28-5b69-a570-81a533bcb1b8",
+    "section_number": 28
+   },
+   {
+    "content_type": "IMAGE",
+    "pdf_pages": [
+     36
+    ],
+    "title": null,
+    "content": {
+     "image_file": "cdd_p36_child_record_card.png",
+     "caption": "The Child Record Card for drug administration of Azithromycin (AZM) for children aged 1-59 months, to be completed and updated by CDDs during each round.",
+     "alt": "The printed child record card: child and household details, the administration record for age-based (1-11 months) and height-based (12-59 months) dosing, the dosing guideline tables, follow-up on other interventions, a health advisory box and a detachable part kept at the health facility."
+    },
+    "transcribed_from_image": false,
+    "id": "b12847ed-9f6d-53b5-a3a5-055fbd48d038",
+    "section_number": 29
+   },
+   {
+    "content_type": "TABLE",
+    "pdf_pages": [
+     36
+    ],
+    "title": "Age-Based Dosing Strategy: AZM Administration guideline for children 1-11 months (printed on the card)",
+    "content": {
+     "headers": [
+      "Age",
+      "Dosage"
+     ],
+     "rows": [
+      [
+       "1-2 Months",
+       "2 ml"
+      ],
+      [
+       "3-4 Months",
+       "3 ml"
+      ],
+      [
+       "5-11 Months",
+       "4 ml"
+      ]
+     ]
+    },
+    "transcribed_from_image": true,
+    "id": "40efb1ca-7edd-545a-95b4-b443eb3a5d72",
+    "section_number": 30
+   },
+   {
+    "content_type": "TABLE",
+    "pdf_pages": [
+     36
+    ],
+    "title": "Height-Based Dosing Strategy: AZM Administration guideline for children 12-59 months (printed on the card)",
+    "content": {
+     "headers": [
+      "Height",
+      "Dosage"
+     ],
+     "rows": [
+      [
+       "50-53 cm",
+       "2 ml"
+      ],
+      [
+       "54-64 cm",
+       "4 ml"
+      ],
+      [
+       "65-75 cm",
+       "6 ml"
+      ],
+      [
+       "76-86 cm",
+       "8 ml"
+      ],
+      [
+       "87-97 cm",
+       "10 ml"
+      ],
+      [
+       "98-109 cm",
+       "12 ml"
+      ],
+      [
+       "110-121 cm",
+       "14 ml"
+      ],
+      [
+       "122-129 cm",
+       "16 ml"
+      ],
+      [
+       "130-136 cm",
+       "19 ml"
+      ],
+      [
+       "137- 140 cm",
+       "25 ml"
+      ]
+     ]
+    },
+    "transcribed_from_image": true,
+    "id": "bb8b1e68-5f15-5933-bb90-abc9a62ab0a8",
+    "section_number": 31
+   },
+   {
+    "content_type": "LIST",
+    "pdf_pages": [
+     36
+    ],
+    "title": "Health advice printed on the card",
+    "content": {
+     "items": [
+      "AZM is safe",
+      "All medicines can cause side effects in some children.",
+      "If your child becomes sick after AZM administration, take your child immediately to the health facility.",
+      "If your child has fever at any time, take the child immediately to the health facility to be tested for malaria",
+      "Retain this card for future references during all"
+     ]
+    },
+    "transcribed_from_image": false,
+    "id": "73807ec0-a218-5a01-91f2-1f54076af297",
+    "section_number": 32
+   },
+   {
+    "content_type": "HEADING",
+    "pdf_pages": [
+     37
+    ],
+    "title": null,
+    "content": {
+     "text": "Housemarking guide during AZM MDA"
+    },
+    "transcribed_from_image": false,
+    "id": "45fcefdd-a363-5849-ba20-5b22fd3702c2",
+    "section_number": 33
+   },
+   {
+    "content_type": "LIST",
+    "pdf_pages": [
+     37
+    ],
+    "title": "Why House Marking is important",
+    "content": {
+     "items": [
+      "Marking houses helps CDD supervisors to keep track of the houses visited during implementation so that no child is missed.",
+      "Every house visited must be marked with a chalk."
+     ]
+    },
+    "transcribed_from_image": false,
+    "id": "e0f3134a-8edf-51d5-b382-b442da26ddf5",
+    "section_number": 34
+   },
+   {
+    "content_type": "LIST",
+    "pdf_pages": [
+     37
+    ],
+    "title": "Why it is important to mark houses",
+    "content": {
+     "items": [
+      "If a child is between 1-59 months and the caregivers is not present to give permission for AZM administration, the CDD should return during the MDA to visit the house again.",
+      "Mark the house to be revisited with the letter “R” if it needs to be revisited.",
+      "The CDD should re-visit the house and mark it completed."
+     ]
+    },
+    "transcribed_from_image": false,
+    "id": "9fa71481-c317-5fca-95db-ee6b20f3ab54",
+    "section_number": 35
+   },
+   {
+    "content_type": "TRUE_FALSE",
+    "pdf_pages": [],
+    "title": null,
+    "transcribed_from_image": false,
+    "content": {
+     "statement": "House marking helps keep track of the children reached and households visited",
+     "answer": true,
+     "explanation": null,
+     "audience": "CDD",
+     "quiz_ref": "4.2"
+    },
+    "id": "e39f4ae6-fa20-501a-b884-1cc8ca71aae7",
+    "section_number": 36
+   },
+   {
+    "content_type": "IMAGE",
+    "pdf_pages": [
+     37
+    ],
+    "title": null,
+    "content": {
+     "image_file": "cdd_p37_house_marking.jpg",
+     "caption": "A CDD marking a house with chalk: AZM/26/1 0041/021/2/2/c.",
+     "alt": "A CDD in a patterned hijab and yellow vest writes AZM/26/1 and 0041/021/2/2/c in chalk on a house wall."
+    },
+    "transcribed_from_image": false,
+    "id": "69dd92b2-c26f-54d0-b053-48af62e46b2f",
+    "section_number": 37
+   },
+   {
+    "content_type": "HEADING",
+    "pdf_pages": [
+     38
+    ],
+    "title": null,
+    "content": {
+     "text": "Housemarking guide during AZM campaign"
+    },
+    "transcribed_from_image": false,
+    "id": "cbd9e644-cd15-5fc5-800a-41e89246f8ec",
+    "section_number": 38
+   },
+   {
+    "content_type": "LIST",
+    "pdf_pages": [
+     38
+    ],
+    "title": "How to mark houses during AZM MDA",
+    "content": {
+     "items": [
+      "Program: AZM.",
+      "The year given (26 for 2026).",
+      "The round in numbers: 1 or 2 or 3 or 4 or 5 or 6)",
+      "The CDD team code (4 digits).",
+      "Number of children eligible for AZM/ number of children given AZM.",
+      "Status of the visit: Completed (C). Needs to be revisited (R). Excluded (E): Children not eligible for AZM."
+     ]
+    },
+    "transcribed_from_image": false,
+    "id": "950a80ec-2938-5108-b8d9-97cdba18757c",
+    "section_number": 39
+   },
+   {
+    "content_type": "LIST",
+    "pdf_pages": [
+     38
+    ],
+    "title": "How to mark houses for AZM MDA",
+    "content": {
+     "items": [
+      "Demonstrate how to mark a house in the year 2026 where: AZM was given to all 3 children in round 3. AZM/26/3/56708/021/3/3/C.",
+      "Demonstrate how to mark a house in the year 2026 that will need to be revisited where AZM was given to only 1 child out of the 3 children in round 3: AZM was given to only 1 child in round 3. AZM/26/3/56708/021/3/1/R.",
+      "Demonstrate how to mark a house in the year 2026 where AZM was given to the remaining children in round 3: AZM/26/3/56708/021/3/3/R/C.",
+      "Demonstrate how to mark a house in the year 2026 where children are excluded in the round: AZM/26/3/56708/021/0/0/E."
+     ]
+    },
+    "transcribed_from_image": false,
+    "id": "cb238cd1-59a7-5469-909b-18a7b3758d7b",
+    "section_number": 40
+   },
+   {
+    "content_type": "HEADING",
+    "pdf_pages": [
+     39
+    ],
+    "title": null,
+    "content": {
+     "text": "Section 2: Call-in-data reporting during AZM MDA (for CDDs and OICs)"
+    },
+    "transcribed_from_image": false,
+    "id": "7dc71af9-3707-5607-99e5-8b16f16696a5",
+    "section_number": 41
+   },
+   {
+    "content_type": "HEADING",
+    "pdf_pages": [
+     40
+    ],
+    "title": null,
+    "content": {
+     "text": "Introduction to call-in data in AZM MDA"
+    },
+    "transcribed_from_image": false,
+    "id": "963303ea-616b-56e2-bc21-355806d317ae",
+    "section_number": 42
+   },
+   {
+    "content_type": "LIST",
+    "pdf_pages": [
+     40
+    ],
+    "title": "Implementation steps",
+    "content": {
+     "items": [
+      "CDD teams should document every child reached according to the two age categories: 1–11 months and 12–59 months.",
+      "At the end of each day at the health facility, each CDD team should total the number of children reached in both age categories (1–11 months and 12–59 months). These totals must correspond with the number of children recorded in the DIGIT HCM app.",
+      "The Officer-in-Charge (OIC) should aggregate the totals from all CDD teams in the facility for each age (1–11 months and 12–59 months).",
+      "OICs should download the call-in data form from Kobo Collect into their devices for data entry.",
+      "Each health facility has a unique Facility ID, which should be used to access the appropriate form.",
+      "The aggregated totals for each age category (1–11 months and 12–59 months) should be entered into the Kobo Collect form and submit."
+     ]
+    },
+    "transcribed_from_image": false,
+    "id": "e16f7e4e-b053-5cce-afa1-7c96e7ff69f3",
+    "section_number": 43
+   },
+   {
+    "content_type": "LIST",
+    "pdf_pages": [
+     40
+    ],
+    "title": "For Integrated campaigns (AZM+MUAC; AZM+ MNCHW – VITAMIN A, MUAC, ANC; Albendazole, etc)",
+    "content": {
+     "items": [
+      "CDD teams should document every child reached according to the two age categories: 6 –11 months and 12–59 months.",
+      "At the end of each day at the health facility, each CDD team should total the number of children reached in both age categories (6 –11 months and 12–59 months). These totals must correspond with the number of children recorded in the Kobo Collect tool or DIGIT HCM app.",
+      "The Officer-in-Charge (OIC) should aggregate the totals from all CDD teams in the facility for each age (6–11 months and 12–59 months).",
+      "OICs should download the call-in data form from Kobo Collect into their devices for data entry.",
+      "Each health facility has a unique Facility ID, which should be used to access the appropriate form.",
+      "The aggregated totals for each age category (6–11 months and 12–59 months) should be entered into the Kobo Collect form and submit.",
+      "Call-in data must be submitted daily throughout the implementation period including mop-up."
+     ]
+    },
+    "transcribed_from_image": false,
+    "id": "969b597e-23e4-5023-8902-3857f37110bc",
+    "section_number": 44
+   },
+   {
+    "content_type": "IMAGE",
+    "pdf_pages": [
+     41
+    ],
+    "title": null,
+    "content": {
+     "image_file": "cdd_p41_reconciliation_photo.jpg",
+     "caption": "Section 3: Procedures for Azithromycin drug accountability and reconciliation in the health facility.",
+     "alt": "Several people bend over open cardboard cartons, sorting white AZM bottles."
+    },
+    "transcribed_from_image": false,
+    "id": "41cf813b-2ef6-5682-8387-e9e0f0392198",
+    "section_number": 45
+   },
+   {
+    "content_type": "HEADING",
+    "pdf_pages": [
+     41
+    ],
+    "title": null,
+    "content": {
+     "text": "Section 3: Procedures for Azithromycin drug accountability and reconciliation in the health facility"
+    },
+    "transcribed_from_image": false,
+    "id": "6bf1a04a-d71d-5686-845d-f1e1e87ce30d",
+    "section_number": 46
+   },
+   {
+    "content_type": "HEADING",
+    "pdf_pages": [
+     42
+    ],
+    "title": null,
+    "content": {
+     "text": "Procedures for AZM drug accountability and reconciliation"
+    },
+    "transcribed_from_image": false,
+    "id": "71040a85-41bc-5747-be1d-c80b92214d05",
+    "section_number": 47
+   },
+   {
+    "content_type": "LIST",
+    "pdf_pages": [
+     42
+    ],
+    "title": "Steps for AZM drug accountability (Explain)",
+    "content": {
+     "items": [
+      "OICs should confirm and ensure proper documentation of AZM bottles received in the facility using the Issue and Receipt Voucher and Inventory Control Card.",
+      "OICs are to issue to the CDD teams, the quantities of Azithromycin bottles needed to meet their daily target both physically and digitally through the technology app. Please note that the quantity of AZM bottles issued digitally in the app must correspond to the number of physical bottles issued.",
+      "All the physical quantities issued to each CDD teams must be documented in the Inventory control card.",
+      "CDD teams are to ensure that the physical bottles of AZM are kept safely in the AZM bags provided to avoid unintended losses",
+      "In the field, the CDD teams are to ensure that each bottle of AZM POS is reconstituted with exactly 15 ml of water.",
+      "During dispensing, CDDs are to ensure that the exact dose displayed on the app is measured using the calibrated cups to avoid over or underdosing.",
+      "Any redosing due to vomiting within 5 minutes must be properly captured in the app for accountability.",
+      "CDD teams are to ensure that each opened bottle is exhausted before opening another AZM bottle for reconstitution."
+     ]
+    },
+    "transcribed_from_image": false,
+    "id": "05a283e6-7b54-5859-ba4d-4a6379deb6c5",
+    "section_number": 48
+   },
+   {
+    "content_type": "LIST",
+    "pdf_pages": [
+     43
+    ],
+    "title": "Steps for AZM drug reconciliation and accountability: continues",
+    "content": {
+     "items": [
+      "CDD teams should separate the empty AZM bottles from all unopened or unused bottles in the AZM bag.",
+      "In the facility, OICs should count the number of empty bottles returned by each CDD team and multiply this by 4 to get the number of children to be reached. The number is then compared with the number of actual children reached in the DIGIT HCM app.",
+      "The number of unopened and empty bottles of AZM returned by each CDD team must correspond to the number of bottles issued to them in the morning by the OIC.",
+      "Both empty and unopened bottles should be arranged in separate cartons in the health facility for ease of accountability.",
+      "All missing bottles should be escalated to the LGA logistician and the NTD coordinator for possible investigation.",
+      "All AZM bottles (used and unused bottles) should be arranged in cartons and returned to the LGA store within 3 days after implementation to avoid pilferages and diversion."
+     ]
+    },
+    "transcribed_from_image": false,
+    "id": "8a5aa7bd-1216-5dee-886d-5c8535467575",
+    "section_number": 49
+   },
+   {
+    "content_type": "CALLOUT",
+    "pdf_pages": [
+     44
+    ],
+    "title": "Key take away for participants",
+    "content": {
+     "heading": "Key take away for participants",
+     "text": "CDD teams and OICs are responsible for Azithromycin drug accountability at the health facility level. Lack of accountability will lead to pilferages and diversion that will result in AZM drug influx into the markets and community drug sales outlets. The reconciliation and accountability of AZM Drugs and other commodities should be conducted daily between the CDD teams and the OICs in the health facility at the end of the day. All AZM bottles (used and unused bottles) should be arranged in cartons for easy accountability."
+    },
+    "transcribed_from_image": false,
+    "id": "fbaca66e-aa2e-5627-a06a-1bc35bb759fb",
+    "section_number": 50
+   },
+   {
+    "content_type": "HEADING",
+    "pdf_pages": [
+     45
+    ],
+    "title": null,
+    "content": {
+     "text": "Section 4: Steps for filling the child record card by CDDs during AZM MDA in SARMAAN II project"
+    },
+    "transcribed_from_image": false,
+    "id": "651a28a4-a7a4-5c79-9b98-e9ce32c330a4",
+    "section_number": 51
+   },
+   {
+    "content_type": "LIST",
+    "pdf_pages": [
+     46
+    ],
+    "title": "Contents",
+    "content": {
+     "items": [
+      "Completing the front page.",
+      "Completing the inner page.",
+      "Age based dosage administration.",
+      "Height based dosage administration.",
+      "Tracking of other interventions.",
+      "Completing the detachable sections.",
+      "AZM child's information.",
+      "SMC Child information (For Kebbi State- Integrated child record card."
+     ]
+    },
+    "transcribed_from_image": false,
+    "id": "ffe079df-923f-5ca8-aeba-c7e4206bf9c3",
+    "section_number": 52
+   },
+   {
+    "content_type": "LIST",
+    "pdf_pages": [
+     46
+    ],
+    "title": "Tools for each participant",
+    "content": {
+     "items": [
+      "AZM Job Aid"
+     ]
+    },
+    "transcribed_from_image": false,
+    "id": "377d9bc6-a2b2-5849-856f-bb4178afd900",
+    "section_number": 53
+   },
+   {
+    "content_type": "HEADING",
+    "pdf_pages": [
+     47
+    ],
+    "title": null,
+    "content": {
+     "text": "Steps for completing the child record card during AZM MDA"
+    },
+    "transcribed_from_image": false,
+    "id": "325556c0-c8df-57a1-884b-fe3451613450",
+    "section_number": 54
+   },
+   {
+    "content_type": "LIST",
+    "pdf_pages": [
+     47
+    ],
+    "title": "Facilitators guide: ask the participants (discuss and explain)",
+    "content": {
+     "items": [
+      "Why do we need to issue the Child record card.",
+      "Who is supposed to fill the child record card.",
+      "What are the contents of the Child record card.",
+      "Why do we need to fill the child record card accurately.",
+      "What other interventions are we tracking for every child.",
+      "What is the importance of the detachable section of the child record card.",
+      "How many years will a Child record card last for each child.",
+      "How do we ensure that the caregivers keep the Child Record cards safe for use in subsequent rounds."
+     ]
+    },
+    "transcribed_from_image": false,
+    "id": "0377544c-e63a-5f80-ad29-1c912d0f83ba",
+    "section_number": 55
+   },
+   {
+    "content_type": "IMAGE",
+    "pdf_pages": [
+     47
+    ],
+    "title": null,
+    "content": {
+     "image_file": "cdd_p47_child_record_card_front.png",
+     "caption": "Front page of the Child Record Card for drug administration of Azithromycin (AZM) for children aged 1-59 months.",
+     "alt": "The front page of the child record card with logos, the child's name, beneficiary ID boxes, date of birth, household details, gender, CDD team code and phone number, and the detachable child's information."
+    },
+    "transcribed_from_image": false,
+    "id": "36a6434c-e38d-5af5-898a-13feaad088aa",
+    "section_number": 56
+   },
+   {
+    "content_type": "LIST",
+    "pdf_pages": [
+     48
+    ],
+    "title": "Facilitators: explain with practical demonstration. Completing the Front page of the Child Record Card",
+    "content": {
+     "items": [
+      "Child's Name: Write the Child's name and surname as obtained from the caregiver.",
+      "Beneficiary ID: Write the 12-digit alpha-numeric ID generated from the DIGIT app.",
+      "Date of birth: Write the date of birth as date/month/year.",
+      "Gender: Tick the gender as either male or female.",
+      "CDD team code: Write the code of the CDD team that visited the household and administered the medications to the child.",
+      "CDD phone number: Write the phone number of the recorder."
+     ]
+    },
+    "transcribed_from_image": false,
+    "id": "8b3a3832-d2ce-5bcb-aa6a-9d2d8ad65529",
+    "section_number": 57
+   },
+   {
+    "content_type": "LIST",
+    "pdf_pages": [
+     48
+    ],
+    "title": "Completing the Household/ Caregivers Information",
+    "content": {
+     "items": [
+      "Name: Write the name of the caregiver.",
+      "Phone number: Write the contact phone number of the caregiver.",
+      "State: Write the State.",
+      "LGA: Write the name of the LGA.",
+      "Ward: Write the name of the Ward.",
+      "Settlement: Write the name of the settlement or community"
+     ]
+    },
+    "transcribed_from_image": false,
+    "id": "1ec1f59a-2d5a-584a-b9c3-46f82d15cc98",
+    "section_number": 58
+   },
+   {
+    "content_type": "TEXT",
+    "pdf_pages": [
+     48
+    ],
+    "title": "Completing the Inner page of the Child Record Card. Age-based dosage administration (1-11 months): administration record",
+    "content": {
+     "text": "This record should be completed if the child is between 1 month to 11 months of age."
+    },
+    "transcribed_from_image": false,
+    "id": "bbfe242e-be0a-553c-a9d2-7af9161d0b1e",
+    "section_number": 59
+   },
+   {
+    "content_type": "LIST",
+    "pdf_pages": [
+     48,
+     50
+    ],
+    "title": "Complete the following elements for a child 1-11 months",
+    "content": {
+     "items": [
+      "Year: complete the year of implementation. e.g., 2026.",
+      "Round: Write round:1 or 2 in the year of implementation.",
+      "Child's age (months): Write the child's age in months. Note: not more than 11 months.",
+      "Dose (ml): Write the dose of Azithromycin administered to the child. Please note that the dose to be administered to the child will be displayed by the app when the age is inputted into the app.",
+      "Date administered: Write the date the AZM was administered to the child :"
+     ]
+    },
+    "transcribed_from_image": false,
+    "id": "bffb6eef-3071-5866-b3a6-7ab8b72a89b9",
+    "section_number": 60
+   },
+   {
+    "content_type": "IMAGE",
+    "pdf_pages": [
+     49
+    ],
+    "title": null,
+    "content": {
+     "image_file": "cdd_p49_cdd_filling_card.jpg",
+     "caption": "A CDD filling the Child Record Card DURING AZM administration",
+     "alt": "A CDD in a brown hijab writes on a child record card."
+    },
+    "transcribed_from_image": false,
+    "id": "0549fd22-021d-5967-92ac-e451e3112c1a",
+    "section_number": 61
+   },
+   {
+    "content_type": "TEXT",
+    "pdf_pages": [
+     50
+    ],
+    "title": "Height-based dosage administration (12-59 months): administration record",
+    "content": {
+     "text": "This section should be completed when the child is 12 months (1 year) and above."
+    },
+    "transcribed_from_image": false,
+    "id": "a5d54856-0a66-560e-bdd3-a50090eeaaef",
+    "section_number": 62
+   },
+   {
+    "content_type": "LIST",
+    "pdf_pages": [
+     50
+    ],
+    "title": "Complete the following elements for a child 12-59 months",
+    "content": {
+     "items": [
+      "Year: complete the year of implementation. e.g. 2026.",
+      "Round: Write the round; 1 or 2 in the year of implementation.",
+      "Height (cm): Measure the height of the child using a dosing pole and write the child's height in centimeters.",
+      "Dose (ml): Write the dose of Azithromycin administered to the child. Please note that the dose to be administered to the child will be displayed when the height of the child is entered into the app. This will correspond with the dosage on the opposite side of the dosing pole",
+      "Date administered: Write the date the AZM was administered to the child."
+     ]
+    },
+    "transcribed_from_image": false,
+    "id": "daf9a826-0df2-5841-abf7-39833393a647",
+    "section_number": 63
+   },
+   {
+    "content_type": "LIST",
+    "pdf_pages": [
+     50,
+     51
+    ],
+    "title": "Tracking other interventions: this section is aimed at tracking other child health interventions received by the child. This information should be obtained from the caregiver",
+    "content": {
+     "items": [
+      "Last SMC cycle: Yes/No: Tick yes or no if the child received SMC.",
+      "Last Polio: Yes/No: Tick yes or no if the child received polio vaccine.",
+      "Last Malaria vaccine received: Complete the data on the malaria vaccine received by the child using the immunization card.",
+      "Measles/rubella vaccine Yes /No: Tick yes or no if the child received measles or rubella vaccine."
+     ]
+    },
+    "transcribed_from_image": false,
+    "id": "7ab1c636-2c55-5d06-93a2-e70a9eac9345",
+    "section_number": 64
+   },
+   {
+    "content_type": "TEXT",
+    "pdf_pages": [
+     51
+    ],
+    "title": "Detachable section of the child record card (CRC)",
+    "content": {
+     "text": "This section should be accurately completed, detached properly, returned, and kept safely in the health facility."
+    },
+    "transcribed_from_image": false,
+    "id": "a1adca2e-be16-5404-9cdc-4fe69c8419a2",
+    "section_number": 65
+   },
+   {
+    "content_type": "LIST",
+    "pdf_pages": [
+     51
+    ],
+    "title": "AZM Child information",
+    "content": {
+     "items": [
+      "Beneficiary ID: Write the beneficiary ID of the child as displayed from the app.",
+      "Child first name and surname: Write the name and surname of the child which must be the same as the one written above.",
+      "Gender: Write the gender of the child as either male or female.",
+      "Age: Write the age of the child.",
+      "State: Write the State.",
+      "LGA: Write the name of the LGA.",
+      "Ward: Write the name of the Ward.",
+      "Health facility: Write the name of the health facility.",
+      "Settlement: Write the name of the settlement.",
+      "CDD Team Code: Write the code of the CDD team that administered medication to the child.",
+      "CDD Phone Number: Write the phone number of the recorder."
+     ]
+    },
+    "transcribed_from_image": false,
+    "id": "20e16d99-b889-5137-900b-48c08d2d32b1",
+    "section_number": 66
+   },
+   {
+    "content_type": "HEADING",
+    "pdf_pages": [
+     52
+    ],
+    "title": null,
+    "content": {
+     "text": "AZM MDA section of the detachable component of the child record card"
+    },
+    "transcribed_from_image": false,
+    "id": "bc355bfe-46e6-5a54-8b65-293ba4030f50",
+    "section_number": 67
+   },
+   {
+    "content_type": "LIST",
+    "pdf_pages": [
+     52
+    ],
+    "title": "Age and Height based AZM dosage administration",
+    "content": {
+     "items": [
+      "Year: complete the year in the appropriate round (1 or 2)."
+     ]
+    },
+    "transcribed_from_image": false,
+    "id": "9d0c4fb9-c99d-562b-8ec8-e0d3a2cc7258",
+    "section_number": 68
+   },
+   {
+    "content_type": "LIST",
+    "pdf_pages": [
+     52
+    ],
+    "title": "Age-based AZM dosage administration section for children 1-11 months",
+    "content": {
+     "items": [
+      "Child's age(months): Write the child's age in months.",
+      "Dose (ml): Write the dose of AZM administered to the child.",
+      "Date of administration: Write the date that AZM was administered to the child."
+     ]
+    },
+    "transcribed_from_image": false,
+    "id": "1d64a3b1-f6e9-57c2-8817-9083ba3f18c1",
+    "section_number": 69
+   },
+   {
+    "content_type": "LIST",
+    "pdf_pages": [
+     52
+    ],
+    "title": "Height-based AZM dosage administration (12-59 months)",
+    "content": {
+     "items": [
+      "Height (cm): Write the height of the child measured in cm.",
+      "Dose (ml): Write the dose of AZM administered to the child based on height."
+     ]
+    },
+    "transcribed_from_image": false,
+    "id": "fbb509b9-fd0f-5aae-9a4a-88e001880c86",
+    "section_number": 70
+   },
+   {
+    "content_type": "LIST",
+    "pdf_pages": [
+     52
+    ],
+    "title": "SMC child's information (Applicable in Kebbi State)",
+    "content": {
+     "items": [
+      "Child's name: Write the child's name and surname.",
+      "Beneficiary ID: Write the beneficiary ID as displayed in the technology app.",
+      "CDD team code: Write the Code of the CDD team that administers SPAQ to the child.",
+      "LGA: Write the name of the LGA.",
+      "Ward: Write the name of the Ward.",
+      "Settlement: Write the name of the settlement or community.",
+      "Gender: Write the gender of the child either male or female.",
+      "Cycles: indicate the cycle (1-4).",
+      "Address: Write the full address of the child or caregiver."
+     ]
+    },
+    "transcribed_from_image": false,
+    "id": "24c514db-bce6-554d-8332-6f58676be84e",
+    "section_number": 71
+   },
+   {
+    "content_type": "TEXT",
+    "pdf_pages": [
+     52
+    ],
+    "title": "Safe keeping of the Child record card",
+    "content": {
+     "text": "The Child Record Card is expected to last for 2 years and therefore should be kept safely by the caregivers in the household."
+    },
+    "transcribed_from_image": false,
+    "id": "2f60c513-f9dc-5661-914a-fdbc432afd58",
+    "section_number": 72
+   },
+   {
+    "content_type": "TEXT",
+    "pdf_pages": [
+     53
+    ],
+    "title": "SMC-SPAQ administration - Kebbi State only",
+    "content": {
+     "text": "Kindly complete this section of the child record card for Seasonal Malaria chemoprevention. The elements are segregated into year 1 and year 2 categorized into cycles 1 to 4 each."
+    },
+    "transcribed_from_image": false,
+    "id": "c89f9b2f-b2bf-5f8d-8478-d7c3993ed8b7",
+    "section_number": 73
+   },
+   {
+    "content_type": "LIST",
+    "pdf_pages": [
+     53
+    ],
+    "title": "Complete the elements as follows",
+    "content": {
+     "items": [
+      "Age: Write the age of the child under this column. Also tick the appropriate age of the child within the box in either age category: 3 to < 12 months or 12 to 59 months.",
+      "Year: Complete the year of implementation.",
+      "Cycle: Tick the cycle of implementation (1 to 4 cycles).",
+      "Dates SPAQ was given: Write the date that the SPAQ was administered to the child.",
+      "Day 2 AQ: The caregiver should tick this when the second day dose of amodiaquine is administered to the child.",
+      "Day 3 AQ: The caregiver should tick this when the third day dose of amodiaquine is administered to the child."
+     ]
+    },
+    "transcribed_from_image": false,
+    "id": "3d66e155-298c-5c60-81c8-5b7156832785",
+    "section_number": 74
+   },
+   {
+    "content_type": "CALLOUT",
+    "pdf_pages": [
+     53
+    ],
+    "title": "Review the health advisory at the back of the card to guide the CDD appropriately.",
+    "content": {
+     "heading": "Review the health advisory at the back of the card to guide the CDD appropriately.",
+     "text": "CDDs should endeavor to leave their phone numbers in the card to enable the caregivers to contact them in case of suspected ADR for direction on the steps to take as part of Passive ADR monitoring."
+    },
+    "transcribed_from_image": false,
+    "id": "38ef854e-b2c9-5d66-a098-4fa37c2bff6d",
+    "section_number": 75
+   },
+   {
+    "content_type": "HEADING",
+    "pdf_pages": [
+     54
+    ],
+    "title": null,
+    "content": {
+     "text": "AZM cohort tracking"
+    },
+    "transcribed_from_image": false,
+    "id": "e2944f44-6b35-5f1b-9f7f-ebb42ee05d88",
+    "section_number": 76
+   },
+   {
+    "content_type": "IMAGE",
+    "pdf_pages": [
+     54
+    ],
+    "title": null,
+    "content": {
+     "image_file": "cdd_p54_cohort_icon.jpg",
+     "caption": "AZM cohort tracking.",
+     "alt": "An icon of a group of people divided into segments, linked boxes, a magnifying glass over a bar chart and pills, labelled COHORT."
+    },
+    "transcribed_from_image": false,
+    "id": "bdfbb1f0-2130-5f28-8deb-67418bc96c94",
+    "section_number": 77
+   },
+   {
+    "content_type": "LIST",
+    "pdf_pages": [
+     55
+    ],
+    "title": "Contents",
+    "content": {
+     "items": [
+      "What is cohort tracking in AZM?",
+      "Why cohort tracking",
+      "Who is responsible for cohort tracking",
+      "How to track cohort"
+     ]
+    },
+    "transcribed_from_image": false,
+    "id": "ce4bd25c-2b28-5404-abb4-ba12ce76a6bb",
+    "section_number": 78
+   },
+   {
+    "content_type": "LIST",
+    "pdf_pages": [
+     55
+    ],
+    "title": "Tools for each participant",
+    "content": {
+     "items": [
+      "AZM Job Aid"
+     ]
+    },
+    "transcribed_from_image": false,
+    "id": "385085ba-61e5-5de2-bc9f-7fa4186087e6",
+    "section_number": 79
+   },
+   {
+    "content_type": "HEADING",
+    "pdf_pages": [
+     56
+    ],
+    "title": null,
+    "content": {
+     "text": "Introduction to cohort tracking in AZM"
+    },
+    "transcribed_from_image": false,
+    "id": "e1800b59-9094-5630-a602-92efd8780fe3",
+    "section_number": 80
+   },
+   {
+    "content_type": "LIST",
+    "pdf_pages": [
+     56
+    ],
+    "title": null,
+    "content": {
+     "items": [
+      "One of the critical challenges in AZM implementation is ensuring that eligible children are retained throughout the entire campaign period.",
+      "Retention tracking becomes paramount to assess the program's effectiveness and ensure consistent protection against malaria.",
+      "AZM Cohort Tracking addresses this challenge by systematically monitoring and evaluating the progress of individual children enrolled in the program across multiple treatment rounds.",
+      "Through innovative tools like the DIGIT HCM App, data managers can track the same cohort of beneficiaries over successive rounds, enabling comprehensive evaluation of the program's impact on preventing key childhood diseases like diarrhea, pneumonia and malaria"
+     ]
+    },
+    "transcribed_from_image": false,
+    "id": "13de8e4e-11b2-5e61-9dfe-35ac951ce8c4",
+    "section_number": 81
+   },
+   {
+    "content_type": "TEXT",
+    "pdf_pages": [
+     57
+    ],
+    "title": "What is cohort tracking in AZM?",
+    "content": {
+     "text": "In the context of Safety and Antimicrobial Resistance of Mass Administration of Azithromycin in Children 1–59 months in Nigeria (SARMAAN II), cohort tracking means following groups of children who receive Azithromycin during each campaign round, so that their health outcomes can be monitored over time."
+    },
+    "transcribed_from_image": false,
+    "id": "8decc0b4-7e08-55ef-8e59-40ea1c235c9d",
+    "section_number": 82
+   },
+   {
+    "content_type": "LIST",
+    "pdf_pages": [
+     57
+    ],
+    "title": "Why Cohort Tracking in AZM Campaigns",
+    "content": {
+     "items": [
+      "Measure effectiveness: By tracking cohorts of children who received AZM, researchers and program managers can see how well the intervention reduces under 5 morbidity and mortality:",
+      "Monitor safety: Cohorts help identify any side effects or adverse reactions to the drugs.",
+      "Evaluate coverage & adherence: Tracking shows whether children consistently receive all rounds treatment during campaign periods.",
+      "Policy decisions: Evidence from cohorts guides governments and partners on whether to expand, adjust, or improve AZM campaigns."
+     ]
+    },
+    "transcribed_from_image": false,
+    "id": "0562a661-7be2-510b-bcf5-c195e7f11a3e",
+    "section_number": 83
+   },
+   {
+    "content_type": "LIST",
+    "pdf_pages": [
+     58
+    ],
+    "title": "Who are responsible for cohort tracking",
+    "content": {
+     "items": [
+      "Cohort tracking is not the job of one person; it's a chain of responsibility.",
+      "CDDs gather the raw data,",
+      "M&E teams analyze it, and",
+      "policymakers use the insights to improve AZM Campaign.",
+      "CDDs administer AZM and record which children received on DIGIT HCM.",
+      "Supervisors ensure data is collected correctly and cohorts are defined.",
+      "M&E teams analyze cohort data; tracking drop out and provide timely feedback.",
+      "Government and IPs uses the findings to adjust campaign strategies."
+     ]
+    },
+    "transcribed_from_image": false,
+    "id": "9493a171-cd53-54d0-83ad-e88528beefb9",
+    "section_number": 84
+   },
+   {
+    "content_type": "IMAGE",
+    "pdf_pages": [
+     59
+    ],
+    "title": null,
+    "content": {
+     "image_file": "cdd_p59_cohort_flow.jpg",
+     "caption": "Cohort Tracking Responsibility Flow: Community Drug Distributors (administer treatment, collect data) → CDDs supervisors, health facility supervisors, Nat'l, State & LGA team (monitor & verify data) → State & Country M&E team (analyze & compare cohorts) → Government & Partners (policy decisions, program adjustments). Data collection (field work) → data reporting (supervision) → analysis & reports (data analysis) → policy action.",
+     "alt": "A Malaria Consortium diagram with four coloured boxes from left to right, each with icons, and a row of arrows below: data collection, data reporting, analysis and reports, policy action."
+    },
+    "transcribed_from_image": false,
+    "id": "76b029f0-129c-5c16-8d66-c5d79cea4acc",
+    "section_number": 85
+   },
+   {
+    "content_type": "TABLE",
+    "pdf_pages": [
+     59
+    ],
+    "title": "Cohort Tracking Responsibility Flow",
+    "content": {
+     "headers": [
+      "Who",
+      "Role",
+      "Stage"
+     ],
+     "rows": [
+      [
+       "Community Drug Distributors",
+       "Administer Treatment; Collect Data",
+       "Data Collection (Field Work)"
+      ],
+      [
+       "CDDs Supervisors, Health Facility Supervisors, Nat'l, State & LGA Team",
+       "Monitor & Verify Data",
+       "Data Reporting (Supervision)"
+      ],
+      [
+       "State & Country M&E Team",
+       "Analyze & Compare Cohorts",
+       "Analysis & Reports (Data Analysis)"
+      ],
+      [
+       "Government & Partners",
+       "Policy Decisions; Program Adjustments",
+       "Policy Action"
+      ]
+     ]
+    },
+    "transcribed_from_image": true,
+    "id": "ad244f6e-1598-5f7f-a34c-8986bc424688",
+    "section_number": 86
+   }
+  ],
+  "audience": "ROLE_SPECIFIC",
+  "learner_roles": [
+   "CDD"
+  ]
+ },
+ {
+  "module_code": "CDD-05",
+  "learning_order": 5,
+  "title": "CDD - Module 5: Interpersonal Communication and Social and Behaviour Change (SBC)",
+  "description": "Talking with caregivers respectfully and clearly, open and closed questions, and SBC methods in the AZM campaign.",
+  "estimated_minutes": 25,
+  "sections": [
+   {
+    "content_type": "IMAGE",
+    "pdf_pages": [
+     60
+    ],
+    "title": null,
+    "content": {
+     "image_file": "cdd_p60_m5_opener.jpg",
+     "caption": "Module 5: Interpersonal communication and Social behaviour (SBC).",
+     "alt": "A CDD in an orange hijab and yellow vest talks with a mother holding a baby, with a girl in a yellow dress beside them."
+    },
+    "transcribed_from_image": false,
+    "id": "4956cdc4-79d3-5852-8f6a-863cdb3d674a",
+    "section_number": 1
+   },
+   {
+    "content_type": "HEADING",
+    "pdf_pages": [
+     60
+    ],
+    "title": null,
+    "content": {
+     "text": "Module 5: Interpersonal communication and Social behaviour (SBC)"
+    },
+    "transcribed_from_image": false,
+    "id": "a0a9725e-e3d9-5944-94d5-93f17c0f4ed3",
+    "section_number": 2
+   },
+   {
+    "content_type": "LIST",
+    "pdf_pages": [
+     61
+    ],
+    "title": "Contents",
+    "content": {
+     "items": [
+      "Introduction to Interpersonal Communication",
+      "Guidelines for Using Good IPC with Caregivers",
+      "Social and behavior change in AZM campaign"
+     ]
+    },
+    "transcribed_from_image": false,
+    "id": "19ecaa62-dd62-5274-acf0-1634a8d6fdcb",
+    "section_number": 3
+   },
+   {
+    "content_type": "LIST",
+    "pdf_pages": [
+     61
+    ],
+    "title": "Tools for each participant",
+    "content": {
+     "items": [
+      "AZM Job Aid"
+     ]
+    },
+    "transcribed_from_image": false,
+    "id": "a273bffe-95cd-5571-b829-28f416c2909c",
+    "section_number": 4
+   },
+   {
+    "content_type": "HEADING",
+    "pdf_pages": [
+     62
+    ],
+    "title": null,
+    "content": {
+     "text": "Introduction to interpersonal communication"
+    },
+    "transcribed_from_image": false,
+    "id": "c7651282-845a-5fd0-af8a-5b4565273201",
+    "section_number": 5
+   },
+   {
+    "content_type": "LIST",
+    "pdf_pages": [
+     62
+    ],
+    "title": "Explain the importance of interpersonal communication in AZM MDA",
+    "content": {
+     "items": [
+      "Good communication helps to build trust and ensure that AZM is given safely.",
+      "Respect cultural norms of the community.",
+      "Greet the head of the household and caregivers with respect and recognize the child.",
+      "Use words the head of household and caregivers will understand.",
+      "Use the pictures in the AZM job aid to communicate",
+      "Use open ended questions to get more information.",
+      "Listen carefully to what the head of household or caregiver tells you.",
+      "Allow time for the caregiver to answer questions and show that you are listening by nodding your head or saying I understand.",
+      "Stop from time to time to ask the caregiver if he/she understand or has any question."
+     ]
+    },
+    "transcribed_from_image": false,
+    "id": "1669404d-71b7-5f19-8f09-c86230acdccd",
+    "section_number": 6
+   },
+   {
+    "content_type": "TRUE_FALSE",
+    "pdf_pages": [],
+    "title": null,
+    "transcribed_from_image": false,
+    "content": {
+     "statement": "CDDs should disregard cultural norms when at the household",
+     "answer": false,
+     "explanation": null,
+     "audience": "CDD",
+     "quiz_ref": "6.1"
+    },
+    "id": "98e90018-43aa-55b6-8f27-cdc5710458b9",
+    "section_number": 7
+   },
+   {
+    "content_type": "TRUE_FALSE",
+    "pdf_pages": [],
+    "title": null,
+    "transcribed_from_image": false,
+    "content": {
+     "statement": "CDDs should seek consent from the head of the household for administering AZM to eligible children",
+     "answer": true,
+     "explanation": null,
+     "audience": "CDD",
+     "quiz_ref": "6.2"
+    },
+    "id": "8e8cc89e-ea15-5035-ba3b-876c0c904e94",
+    "section_number": 8
+   },
+   {
+    "content_type": "LIST",
+    "pdf_pages": [
+     62
+    ],
+    "title": "Exercise: ask the caregiver to repeat information about AZM to confirm it was understood",
+    "content": {
+     "items": [
+      "Ask questions in a way that helps to get the answers you need.",
+      "Listen to others and allow them to share information without interruption.",
+      "Explain health messages in a way that should be understood."
+     ]
+    },
+    "transcribed_from_image": false,
+    "id": "e1087f65-9afb-5716-821a-26d319f9ed88",
+    "section_number": 9
+   },
+   {
+    "content_type": "LIST",
+    "pdf_pages": [
+     62
+    ],
+    "title": "Explain the benefits of AZM",
+    "content": {
+     "items": [
+      "Protects children from pneumonia, diarrhoea and malaria.",
+      "Prevents and treat other bacterial infections."
+     ]
+    },
+    "transcribed_from_image": false,
+    "id": "aaf662af-0170-5ea1-88ef-6a138ee0e517",
+    "section_number": 10
+   },
+   {
+    "content_type": "LIST",
+    "pdf_pages": [
+     62
+    ],
+    "title": "Facilitate activity: guidelines for using the IPC with caregivers. Explain the difference between closed and open-ended questions",
+    "content": {
+     "items": [
+      "A closed ended questions gets a yes or no answer e.g. is your child between 1 to 59 months?",
+      "Is your child sick today?",
+      "Did you have any problems with the last round of AZM."
+     ]
+    },
+    "transcribed_from_image": false,
+    "id": "5b0d81ac-e5fa-577e-a356-be15127960ae",
+    "section_number": 11
+   },
+   {
+    "content_type": "LIST",
+    "pdf_pages": [
+     62
+    ],
+    "title": "An open-ended question gets more information: example",
+    "content": {
+     "items": [
+      "How old is your child or what is your child's age.",
+      "How is your child feeling today.",
+      "How did your child feel after the last round of AZM?"
+     ]
+    },
+    "transcribed_from_image": false,
+    "id": "c4d1a225-c4e0-538b-a476-b1ce5cc191bd",
+    "section_number": 12
+   },
+   {
+    "content_type": "HEADING",
+    "pdf_pages": [
+     63
+    ],
+    "title": null,
+    "content": {
+     "text": "Social and behaviour change in AZM campaign"
+    },
+    "transcribed_from_image": false,
+    "id": "baa9f66b-dff2-5c32-a3fc-5ead40952bdf",
+    "section_number": 13
+   },
+   {
+    "content_type": "TEXT",
+    "pdf_pages": [
+     63
+    ],
+    "title": "Explain what social and behaviour change communication is",
+    "content": {
+     "text": "SBC is a strategic approach that aims to influence behaviour by engaging communities through tailored messages."
+    },
+    "transcribed_from_image": false,
+    "id": "fa82b5ff-bd5a-571a-b695-8d996ea468fb",
+    "section_number": 14
+   },
+   {
+    "content_type": "LIST",
+    "pdf_pages": [
+     63
+    ],
+    "title": "Explain what type of SBC communication methods will be used in the AZM campaign",
+    "content": {
+     "items": [
+      "Interpersonal communication.",
+      "Mass media Campaigns.",
+      "Community Mobilization.",
+      "Visual aids."
+     ]
+    },
+    "transcribed_from_image": false,
+    "id": "0d66f416-5c24-522e-b771-a577e112d83b",
+    "section_number": 15
+   },
+   {
+    "content_type": "CALLOUT",
+    "pdf_pages": [
+     63
+    ],
+    "title": "Ask participants",
+    "content": {
+     "heading": "Ask participants",
+     "text": "Ask participants what SBC tools for AZM MDA they have seen or used."
+    },
+    "transcribed_from_image": false,
+    "id": "e62aa0d9-81bb-509b-b717-daffed58e9d1",
+    "section_number": 16
+   },
+   {
+    "content_type": "CALLOUT",
+    "pdf_pages": [
+     63
+    ],
+    "title": "Show examples of SBC tools",
+    "content": {
+     "heading": "Show examples of SBC tools",
+     "text": "Show examples of AZM Job aids, poster and banner used in the community."
+    },
+    "transcribed_from_image": false,
+    "id": "a355e14d-9c86-5629-ac0a-466d5aab86ab",
+    "section_number": 17
+   },
+   {
+    "content_type": "TRUE_FALSE",
+    "pdf_pages": [],
+    "title": null,
+    "transcribed_from_image": false,
+    "content": {
+     "statement": "Job Aids are an important tool for explaining the AZM administration to caregivers",
+     "answer": true,
+     "explanation": null,
+     "audience": "CDD",
+     "quiz_ref": "6.3"
+    },
+    "id": "c4fea723-ec91-5242-bdd1-ee17d340432c",
+    "section_number": 18
+   }
+  ],
+  "audience": "ROLE_SPECIFIC",
+  "learner_roles": [
+   "CDD"
+  ]
+ },
+ {
+  "module_code": "CDD-06",
+  "learning_order": 6,
+  "title": "CDD - Module 6: Safeguarding",
+  "description": "Protecting children and vulnerable adults during AZM MDA, caregivers' rights, and how to report concerns.",
+  "estimated_minutes": 25,
+  "sections": [
+   {
+    "content_type": "IMAGE",
+    "pdf_pages": [
+     64
+    ],
+    "title": null,
+    "content": {
+     "image_file": "cdd_p64_m6_do_dont.jpg",
+     "caption": "Module 6: Safeguarding. Right (tick): a caregiver gives AZM gently from a cup, and children are given AZM calmly. Wrong (cross): a crying child held down and given medicine by force with a spoon.",
+     "alt": "Three photos: top left, a mother gently gives a boy medicine from a cup; top right, children drink medicine near seated women, with a green tick; bottom, a crying baby held down while medicine is forced in with a spoon, with a red cross."
+    },
+    "transcribed_from_image": false,
+    "id": "670f9687-7101-52c1-a135-f3af7decc439",
+    "section_number": 1
+   },
+   {
+    "content_type": "HEADING",
+    "pdf_pages": [
+     64
+    ],
+    "title": null,
+    "content": {
+     "text": "Module 6: Safeguarding"
+    },
+    "transcribed_from_image": false,
+    "id": "223e96cb-7fec-5927-8208-79564e4c1941",
+    "section_number": 2
+   },
+   {
+    "content_type": "HEADING",
+    "pdf_pages": [
+     65
+    ],
+    "title": null,
+    "content": {
+     "text": "Safeguarding during AZM MDA and AZM MDA"
+    },
+    "transcribed_from_image": false,
+    "id": "89113dcb-e71a-5cd0-ae52-c52ec53e4903",
+    "section_number": 3
+   },
+   {
+    "content_type": "LIST",
+    "pdf_pages": [
+     65
+    ],
+    "title": "Contents",
+    "content": {
+     "items": [
+      "Introduction to safeguarding",
+      "Safeguarding during AZM MDA.",
+      "Protection during AZM MDA.",
+      "Safeguarding Case Studies."
+     ]
+    },
+    "transcribed_from_image": false,
+    "id": "db96a10e-5c0e-567d-9ba7-d97ae59415a5",
+    "section_number": 4
+   },
+   {
+    "content_type": "LIST",
+    "pdf_pages": [
+     65
+    ],
+    "title": "Tools for each participant",
+    "content": {
+     "items": [
+      "AZM Job Aid"
+     ]
+    },
+    "transcribed_from_image": false,
+    "id": "198fd4bc-4691-5f8f-92d6-c467d33524fd",
+    "section_number": 5
+   },
+   {
+    "content_type": "HEADING",
+    "pdf_pages": [
+     66
+    ],
+    "title": null,
+    "content": {
+     "text": "Introduction to safeguarding"
+    },
+    "transcribed_from_image": false,
+    "id": "ddc30a7c-d104-5ce0-8678-1e39d3ab2366",
+    "section_number": 6
+   },
+   {
+    "content_type": "LIST",
+    "pdf_pages": [
+     66
+    ],
+    "title": "What safeguarding means and why it is important",
+    "content": {
+     "items": [
+      "Safeguarding refers to the commitment of an organization to ensure that staff and program activities do not harm children and vulnerable adults or expose them to potential abuse, harm, risk or exploitation.",
+      "It involves the protection of the rights and dignity of all individual especially children and vulnerable adults to ensure that they are free from abuse, harm and exploitation."
+     ]
+    },
+    "transcribed_from_image": false,
+    "id": "77ea69ee-da15-5b51-8292-0d84b288d2b7",
+    "section_number": 7
+   },
+   {
+    "content_type": "TRUE_FALSE",
+    "pdf_pages": [],
+    "title": null,
+    "transcribed_from_image": false,
+    "content": {
+     "statement": "Safeguarding means protecting only children from harm and abuse",
+     "answer": false,
+     "explanation": null,
+     "audience": "CDD",
+     "quiz_ref": "8.1"
+    },
+    "id": "242b2bb4-078a-5ee6-afa2-6899aa09c25e",
+    "section_number": 8
+   },
+   {
+    "content_type": "LIST",
+    "pdf_pages": [
+     66
+    ],
+    "title": "Safeguarding during AZM Campaign: Safeguarding is",
+    "content": {
+     "items": [
+      "An organization's resolve to safeguarding children and vulnerable adults from harm and abuse during campaign.",
+      "This include upholding and protecting the rights and dignity of all individuals with particular attention to children."
+     ]
+    },
+    "transcribed_from_image": false,
+    "id": "990099a4-93ab-574f-acd1-425d23494769",
+    "section_number": 9
+   },
+   {
+    "content_type": "LIST",
+    "pdf_pages": [
+     66
+    ],
+    "title": "Examples of safeguarding",
+    "content": {
+     "items": [
+      "Respectful interaction with caregivers and their families.",
+      "Educating community members on the benefits of AZM.",
+      "Addressing concerns of caregivers regarding AZM Campaign.",
+      "Ensuring informed consent from caregivers.",
+      "Handling AZM medicines safely during AZM Campaign."
+     ]
+    },
+    "transcribed_from_image": false,
+    "id": "e8624405-5ccd-5c48-b249-d9ff86efce03",
+    "section_number": 10
+   },
+   {
+    "content_type": "TRUE_FALSE",
+    "pdf_pages": [],
+    "title": null,
+    "transcribed_from_image": false,
+    "content": {
+     "statement": "Safeguarding entails interacting respectfully with caregiver",
+     "answer": true,
+     "explanation": null,
+     "audience": "CDD",
+     "quiz_ref": "8.3"
+    },
+    "id": "232b2637-4ed7-50e7-a0f1-3871d48a19d5",
+    "section_number": 11
+   },
+   {
+    "content_type": "LIST",
+    "pdf_pages": [
+     66
+    ],
+    "title": "Protection during AZM Campaign",
+    "content": {
+     "items": [
+      "Protection means taking action when children or vulnerable individuals are found to be at risk or experience harm.",
+      "It involves specific measures to address immediate safety concerns such as:",
+      "Ensuring that only eligible children receive AZM.",
+      "Administering the correct dose.",
+      "Preventing overdosing during MDA.",
+      "Referring sick children to the nearest health facility."
+     ]
+    },
+    "transcribed_from_image": false,
+    "id": "d516e69c-0507-5cbd-bdd8-f2b0d2dc5169",
+    "section_number": 12
+   },
+   {
+    "content_type": "TRUE_FALSE",
+    "pdf_pages": [],
+    "title": null,
+    "transcribed_from_image": false,
+    "content": {
+     "statement": "Protection involves specific measures to address immediate safety concerns during AZM MDA",
+     "answer": true,
+     "explanation": null,
+     "audience": "CDD",
+     "quiz_ref": "8.2"
+    },
+    "id": "00ca210e-f7e7-5173-b3e9-dc069dad58a1",
+    "section_number": 13
+   },
+   {
+    "content_type": "HEADING",
+    "pdf_pages": [
+     67
+    ],
+    "title": null,
+    "content": {
+     "text": "Safeguarding case studies"
+    },
+    "transcribed_from_image": false,
+    "id": "78077649-2940-53db-9bcc-ff4f53aaf3e4",
+    "section_number": 14
+   },
+   {
+    "content_type": "LIST",
+    "pdf_pages": [
+     67
+    ],
+    "title": "Safeguarding during AZM Campaign extends to the following",
+    "content": {
+     "items": [
+      "Ensuring the safe selection of Community volunteers. The selection of CDDs should be carried out with active involvement of the community to guarantee that those chosen truly represent the community, uphold integrity and are motivated primarily by the community interest.",
+      "Caregivers have the right to give informed consent, treated with dignity and respect, be informed of their rights and know the names of both the CDD and their supervisors.",
+      "Caregivers must be provided with complete and accurate information including potential risks and steps to take in the event of any adverse reaction.",
+      "Caregivers should have the means to contact someone for support, advice, or to raise concerns and complaints if they feel misinformed or maltreated. The consent form should list few designated contacts they can reach out to for assistance."
+     ]
+    },
+    "transcribed_from_image": false,
+    "id": "a872d666-31b1-5b70-b462-4894a1813cc2",
+    "section_number": 15
+   },
+   {
+    "content_type": "WARNING",
+    "pdf_pages": [
+     67
+    ],
+    "title": "CDDs must not force AZM",
+    "content": {
+     "heading": "CDDs must not force AZM",
+     "text": "CDDs must not force AZM on caregivers or treat children harshly."
+    },
+    "transcribed_from_image": false,
+    "id": "2e7beb6b-ba75-5414-b8cb-8ecaf7184d62",
+    "section_number": 16
+   },
+   {
+    "content_type": "LIST",
+    "pdf_pages": [
+     67
+    ],
+    "title": "Reporting safeguarding issues",
+    "content": {
+     "items": [
+      "All safeguarding issues should be reported to the CDD supervisors or health facility OICs who will scale it up to the NTD coordinator of the LGA team and partners.",
+      "CDDs are required to report any cases or suspected cases of violence or neglect involving eligible children to the health facility OIC, who will in turn escalate these to malaria consortium through the appropriate MoH structures.",
+      "All safeguarding issues should be reported to concenrns@malariaconsortium.org."
+     ]
+    },
+    "transcribed_from_image": false,
+    "id": "eaecd24d-8d26-5fa1-b1da-8a8465992088",
+    "section_number": 17
+   },
+   {
+    "content_type": "IMAGE",
+    "pdf_pages": [
+     68
+    ],
+    "title": null,
+    "content": {
+     "image_file": "cdd_p68_no_photos_camera.jpg",
+     "caption": "Avoid taking pictures without consent.",
+     "alt": "A man holding a camera up to his face, crossed out with a red X."
+    },
+    "transcribed_from_image": false,
+    "id": "6cb8e94f-7bf3-5de8-9e8e-768e77cf68de",
+    "section_number": 18
+   },
+   {
+    "content_type": "IMAGE",
+    "pdf_pages": [
+     68
+    ],
+    "title": null,
+    "content": {
+     "image_file": "cdd_p68_no_photos_phone.jpg",
+     "caption": "Avoid taking pictures without consent.",
+     "alt": "A hand holding up a mobile phone to take a photo in a field, crossed out with a red X."
+    },
+    "transcribed_from_image": false,
+    "id": "b9846458-b62f-5f56-ac6e-29ca18e07927",
+    "section_number": 19
+   },
+   {
+    "content_type": "IMAGE",
+    "pdf_pages": [
+     68
+    ],
+    "title": null,
+    "content": {
+     "image_file": "cdd_p68_no_bribery.jpg",
+     "caption": "Avoid bribery and all forms of corrupt practices in the field including sexual harassment and exploitation.",
+     "alt": "A hand holding a bundle of naira banknotes, crossed out with a red X."
+    },
+    "transcribed_from_image": false,
+    "id": "cb4a9fa4-ff31-5e34-8e42-d48a4dc7e5e6",
+    "section_number": 20
+   },
+   {
+    "content_type": "LIST",
+    "pdf_pages": [
+     68
+    ],
+    "title": null,
+    "content": {
+     "items": [
+      "Avoid taking pictures without consent",
+      "Avoid bribery and all forms of corrupt practices in the field including sexual harassment and exploitation."
+     ]
+    },
+    "transcribed_from_image": false,
+    "id": "74988d32-1e5d-5362-8ced-077e4497fe12",
+    "section_number": 21
+   }
+  ],
+  "audience": "ROLE_SPECIFIC",
+  "learner_roles": [
+   "CDD"
+  ]
+ }
+]

@@ -30,6 +30,9 @@ class QuizQuestion(Base):
         server_default=QuestionUsage.BOTH.value,
     )
     is_active: Mapped[bool] = mapped_column(Boolean, nullable=False, default=True)
+    # Set when the per-module pre/post tests were retired (2026-11): the row is kept for
+    # history and old attempts, but never served again.
+    archived_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
     updated_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now(), onupdate=func.now())
 

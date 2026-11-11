@@ -84,7 +84,7 @@ def build_package(db: Session, release: ContentRelease) -> dict:
                 media_ids.add(str(s.content["media_asset_id"]))
         quiz = (
             db.query(QuizQuestion)
-            .filter_by(module_id=m.id, is_active=True)
+            .filter_by(module_id=m.id, is_active=True, archived_at=None)  # retired per-module tests never ship
             .order_by(QuizQuestion.sort_order, QuizQuestion.created_at)
             .all()
         )

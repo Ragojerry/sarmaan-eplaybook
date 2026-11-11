@@ -1,0 +1,376 @@
+[
+ {
+  "file": "cdd_p01_cover.png",
+  "page": 1,
+  "source": "slide area rendered at 200 dpi",
+  "px": [
+   2051,
+   1653
+  ],
+  "bytes": 450869,
+  "sha256": "a021145a2bf58969e5d08ccb9f998c9808d61978ae1cc2c3c85cd49c2f48efb6"
+ },
+ {
+  "file": "cdd_p05_m1_opener.jpg",
+  "page": 5,
+  "source": "embedded original, passed through",
+  "px": [
+   895,
+   1150
+  ],
+  "bytes": 159998,
+  "sha256": "65b2ebc77a6be53115b2d2e38ac2943fec4b4b10c6b6b05c42902f8f6da24c8e"
+ },
+ {
+  "file": "cdd_p09_m2_opener.jpg",
+  "page": 9,
+  "source": "embedded original, passed through",
+  "px": [
+   895,
+   1150
+  ],
+  "bytes": 116140,
+  "sha256": "bdc083a93a3336b83048f1f18cea32608f173ad9aef5b1fad320523f5a449e49"
+ },
+ {
+  "file": "cdd_p12_age_signs.png",
+  "page": 12,
+  "source": "slide area rendered at 250 dpi",
+  "px": [
+   2437,
+   1367
+  ],
+  "bytes": 879805,
+  "sha256": "53107cd837563748e4397849294a3fffddee41728fa90eb7ce0ae41fe8f993a8"
+ },
+ {
+  "file": "cdd_p14_eligible_not_eligible.png",
+  "page": 14,
+  "source": "slide area rendered at 250 dpi",
+  "px": [
+   2166,
+   1103
+  ],
+  "bytes": 833159,
+  "sha256": "a104dfee4674fcc3fa291c8275ed78e4f6288e1f8b43a07e37b44ab61a05033d"
+ },
+ {
+  "file": "cdd_p16_eligibility_summary.png",
+  "page": 16,
+  "source": "slide area rendered at 250 dpi",
+  "px": [
+   2360,
+   1256
+  ],
+  "bytes": 663314,
+  "sha256": "b1c6590d1a7bdf66b172809475d0d38635b66b47ead3a0e6d9a4969c185774b6"
+ },
+ {
+  "file": "cdd_p18_muac_table.png",
+  "page": 18,
+  "source": "slide area rendered at 250 dpi",
+  "px": [
+   2308,
+   1145
+  ],
+  "bytes": 262877,
+  "sha256": "42f3246cb16d2819047783280e6b63e851cd751184f700b5cd2824db1895ce13"
+ },
+ {
+  "file": "cdd_p19_muac_right_wrong.jpg",
+  "page": 19,
+  "source": "embedded original, passed through",
+  "px": [
+   374,
+   344
+  ],
+  "bytes": 28827,
+  "sha256": "debc7614d60391a900b899e03809b123ec9128b0a8471f025ff5086897fcb7d1"
+ },
+ {
+  "file": "cdd_p20_cdd_taking_muac.jpg",
+  "page": 20,
+  "source": "embedded original, passed through",
+  "px": [
+   325,
+   318
+  ],
+  "bytes": 19746,
+  "sha256": "6c5cf736bf85fa625f5675557bd51c330c830433828effbe8aacf03d203c11b7"
+ },
+ {
+  "file": "cdd_p20_muac_tape.jpg",
+  "page": 20,
+  "source": "embedded original, passed through",
+  "px": [
+   623,
+   104
+  ],
+  "bytes": 9312,
+  "sha256": "0bf416b44bab98650b23339ba2d255db008b29a177cc81db6e0a61b6b67e88cc"
+ },
+ {
+  "file": "cdd_p21_m3_opener.jpg",
+  "page": 21,
+  "source": "embedded original, passed through",
+  "px": [
+   895,
+   1151
+  ],
+  "bytes": 130035,
+  "sha256": "aeef9510b0d0df8a0b979f15c278225fbe138ed17ca701042a289a990d44753b"
+ },
+ {
+  "file": "cdd_p22_referral_photo.jpg",
+  "page": 22,
+  "source": "embedded original, passed through",
+  "px": [
+   567,
+   730
+  ],
+  "bytes": 60495,
+  "sha256": "47f595dd120b5f5b71cd5f52e6ed9373e84fc8c981c281dd0f1ea0388f184293"
+ },
+ {
+  "file": "cdd_p23_sick_danger_fever.png",
+  "page": 23,
+  "source": "slide area rendered at 250 dpi; hidden first: body text",
+  "px": [
+   791,
+   1162
+  ],
+  "bytes": 254467,
+  "sha256": "56bf12da7975ba385806db06e52da22b8c34355df7a04d6fbb82cd75e947ca34"
+ },
+ {
+  "file": "cdd_p24_allergy_exclusion_signs.png",
+  "page": 24,
+  "source": "slide area rendered at 300 dpi; hidden first: body text",
+  "px": [
+   1591,
+   749
+  ],
+  "bytes": 565928,
+  "sha256": "bbab6dd1755f0c4358d22343ba0bc3d296a3bfe1a27cafd3208fc91b99b51486"
+ },
+ {
+  "file": "cdd_p25_referral_steps.png",
+  "page": 25,
+  "source": "slide area rendered at 250 dpi",
+  "px": [
+   2093,
+   450
+  ],
+  "bytes": 287806,
+  "sha256": "e56022305cb1522664f25ad0cb99edc9d46412951e21bbdedd90c8b439ae16a5"
+ },
+ {
+  "file": "cdd_p26_referral_form.png",
+  "page": 26,
+  "source": "slide area rendered at 450 dpi",
+  "px": [
+   1300,
+   2213
+  ],
+  "bytes": 603503,
+  "sha256": "49928901c00aee544a881c17c378ed2b2bd549dd6bb96b0907f80f877f16a273"
+ },
+ {
+  "file": "cdd_p28_m4_opener.jpg",
+  "page": 28,
+  "source": "embedded original, passed through",
+  "px": [
+   809,
+   1078
+  ],
+  "bytes": 113437,
+  "sha256": "6ddd225f6cfca18292d44edb17c3ce0f76a42f1a381928fa298cf2682296a8d7"
+ },
+ {
+  "file": "cdd_p30_reconstitution_steps.png",
+  "page": 30,
+  "source": "slide area rendered at 250 dpi",
+  "px": [
+   2339,
+   499
+  ],
+  "bytes": 510862,
+  "sha256": "49a0126bcc386ac25f4cc48bb99ec77856281338a811aead59aec16093e7a89a"
+ },
+ {
+  "file": "cdd_p32_dosing_pole_1.jpg",
+  "page": 32,
+  "source": "embedded original, passed through",
+  "px": [
+   353,
+   276
+  ],
+  "bytes": 27467,
+  "sha256": "3033806ddb0efba30efade4f94519ed2bffe4722408056bc30768bc048a25609"
+ },
+ {
+  "file": "cdd_p32_dosing_pole_2.jpg",
+  "page": 32,
+  "source": "embedded original, passed through",
+  "px": [
+   251,
+   272
+  ],
+  "bytes": 15830,
+  "sha256": "c3b5c3617603daf8e03679e4ae5b6b96172cb3f37d719b4f549e462365e2d3b2"
+ },
+ {
+  "file": "cdd_p32_measuring_dose.jpg",
+  "page": 32,
+  "source": "embedded original, passed through",
+  "px": [
+   623,
+   417
+  ],
+  "bytes": 58848,
+  "sha256": "4813907ae64d81f21a3bd9464545b2283abcebea77fcacb36dcbc4fa1e82728e"
+ },
+ {
+  "file": "cdd_p35_giving_azm.jpg",
+  "page": 35,
+  "source": "embedded original, passed through",
+  "px": [
+   623,
+   417
+  ],
+  "bytes": 57842,
+  "sha256": "c0adc846f3fe40208b0dfdba7a9d0120c7d56ab1206122052c8769327bd3de00"
+ },
+ {
+  "file": "cdd_p36_child_record_card.png",
+  "page": 36,
+  "source": "slide area rendered at 450 dpi",
+  "px": [
+   1762,
+   2300
+  ],
+  "bytes": 762272,
+  "sha256": "fe7720d9b0aaee8d26f6b2c5b704bdb7178381206f4e2f29330037ac746537a4"
+ },
+ {
+  "file": "cdd_p37_house_marking.jpg",
+  "page": 37,
+  "source": "slide area rendered at 250 dpi, JPEG q92",
+  "px": [
+   1142,
+   1231
+  ],
+  "bytes": 316826,
+  "sha256": "86d998aae5d980b8e1feb0b36ebb3099eeeb05113fc9b6d686e22c122c134709"
+ },
+ {
+  "file": "cdd_p41_reconciliation_photo.jpg",
+  "page": 41,
+  "source": "embedded original, passed through",
+  "px": [
+   1168,
+   986
+  ],
+  "bytes": 111208,
+  "sha256": "924dc9d003ed9d5770ffcec7222cb5f40a607d2a1039b3d1ce5ca1a12a1766e0"
+ },
+ {
+  "file": "cdd_p47_child_record_card_front.png",
+  "page": 47,
+  "source": "embedded original, passed through",
+  "px": [
+   403,
+   522
+  ],
+  "bytes": 54500,
+  "sha256": "9455ae0b93087027d4722590f119fa9abc8e34efb2823132980a3f7b3f343bf5"
+ },
+ {
+  "file": "cdd_p49_cdd_filling_card.jpg",
+  "page": 49,
+  "source": "embedded original, passed through",
+  "px": [
+   623,
+   417
+  ],
+  "bytes": 42351,
+  "sha256": "ee296eb16b29bc1ec3bd100ccb47b88f3325e268dbb98dd6e0fc00196182e234"
+ },
+ {
+  "file": "cdd_p54_cohort_icon.jpg",
+  "page": 54,
+  "source": "embedded original, passed through",
+  "px": [
+   1600,
+   770
+  ],
+  "bytes": 48449,
+  "sha256": "982232b36690e4bef6d9ec7e7486f2ccb149505d773dba9b5619f5f2b869b499"
+ },
+ {
+  "file": "cdd_p59_cohort_flow.jpg",
+  "page": 59,
+  "source": "embedded original, passed through",
+  "px": [
+   1536,
+   1024
+  ],
+  "bytes": 129206,
+  "sha256": "0a0d952e4d17a39ad9c5d7e66face5d546b099d741c565c6fb02e47a48b42641"
+ },
+ {
+  "file": "cdd_p60_m5_opener.jpg",
+  "page": 60,
+  "source": "embedded original, passed through",
+  "px": [
+   809,
+   540
+  ],
+  "bytes": 40241,
+  "sha256": "0be8ee2f05bc1ac139cf753b7352426cdd1e53d54b1a529d54a039e326faa2c1"
+ },
+ {
+  "file": "cdd_p64_m6_do_dont.jpg",
+  "page": 64,
+  "source": "slide area rendered at 250 dpi, JPEG q92; hidden first: page-number bubble",
+  "px": [
+   1822,
+   1957
+  ],
+  "bytes": 638006,
+  "sha256": "1697fb0bb39c0292357f225f0302c5fc4a4138af426b2c8b7923d52939d0d361"
+ },
+ {
+  "file": "cdd_p68_no_photos_camera.jpg",
+  "page": 68,
+  "source": "slide area rendered at 250 dpi, JPEG q92",
+  "px": [
+   1110,
+   625
+  ],
+  "bytes": 76387,
+  "sha256": "0b7942d44a209e3c4dd66f27b83d950fed507589d3cc9df97d5d0775c3d00d4c"
+ },
+ {
+  "file": "cdd_p68_no_photos_phone.jpg",
+  "page": 68,
+  "source": "slide area rendered at 250 dpi, JPEG q92",
+  "px": [
+   995,
+   627
+  ],
+  "bytes": 135004,
+  "sha256": "baf524cee88ae7e0263f6a1858e9cd31a97c54cb3afe8b8a8ce2372e750364cd"
+ },
+ {
+  "file": "cdd_p68_no_bribery.jpg",
+  "page": 68,
+  "source": "slide area rendered at 250 dpi, JPEG q92",
+  "px": [
+   933,
+   527
+  ],
+  "bytes": 86843,
+  "sha256": "f3fc4cd07549a5f2581f10527222a2373c9cce5c451cf67958d8afae6deab0ef"
+ }
+]

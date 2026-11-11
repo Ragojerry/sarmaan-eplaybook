@@ -7,6 +7,7 @@ import 'package:path/path.dart' as p;
 import 'package:path_provider/path_provider.dart';
 
 import '../learning/learning_rules.dart';
+import '../quiz/quiz_grader.dart';
 
 part 'local_database.g.dart';
 
@@ -123,9 +124,11 @@ class LocalProgress extends Table {
   TextColumn get lastSection => text().nullable()();
   DateTimeColumn get lastOpenedAt => dateTime().nullable()();
   DateTimeColumn get completedAt => dateTime().nullable()();
-  // When reading reached the end (v7). The post-test unlocks only after it.
+  // When reading reached the end (v7).
   DateTimeColumn get readingCompletedAt => dateTime().nullable()();
   BoolColumn get synced => boolean().withDefault(const Constant(false))();
+  // Active time in the module (v8): only while it is on screen and the app is in front.
+  IntColumn get secondsSpent => integer().withDefault(const Constant(0))();
 
   /// Owner of this row: every account on a shared phone keeps its own progress.
   TextColumn get userId => text().withDefault(const Constant(''))();
@@ -203,6 +206,8 @@ List<String> decodeFaqQuestions(String? column) =>
 
 /// Setting holding the server's POST_TEST_AUTO_APPROVE_PERCENT.
 const kAutoApprovePercentKey = 'post_test_auto_approve_percent';
+const kModuleMinSecondsKey = 'module_min_seconds';
+const kGeneralTestActiveKey = 'general_test_active';
 
 /// A JSON list of strings stored in a text column (e.g. a module's learner roles).
 List<String> decodeStringList(String? column) {
@@ -288,6 +293,38 @@ class LocalQuizAttempts extends Table {
   TextColumn get invalidReason => text().nullable()();
 }
 
+/// The General test questions (v8), from GET /sync/general-test; the phone grades
+/// offline with [correctIndex] and the server grades again on upload.
+@DataClassName('CachedGeneralQuestionRow')
+class CachedGeneralQuestions extends Table {
+  TextColumn get id => text()();
+  IntColumn get number => integer()();
+  TextColumn get prompt => text()();
+  TextColumn get optionsJson => text()(); // ["...", "...", ...] in the printed order
+  IntColumn get correctIndex => integer().nullable()();
+
+  @override
+  Set<Column> get primaryKey => {id};
+}
+
+/// Every General pre-/post-test taken on this phone, per user (v8). Uploaded to
+/// /sync/general-test-attempts (idempotent on clientId); each test counts once.
+@DataClassName('LocalGeneralAttemptRow')
+class LocalGeneralAttempts extends Table {
+  IntColumn get id => integer().autoIncrement()();
+  TextColumn get userId => text().withDefault(const Constant(''))();
+  TextColumn get clientId => text().unique()();
+  TextColumn get testType => text()(); // PRE or POST
+  IntColumn get correctCount => integer()();
+  IntColumn get totalCount => integer()();
+  IntColumn get scorePercent => integer()();
+  TextColumn get answersJson => text()(); // [{question_id, choice}]
+  DateTimeColumn get takenAt => dateTime()();
+  BoolColumn get synced => boolean().withDefault(const Constant(false))();
+  BoolColumn get serverValid => boolean().nullable()();
+  TextColumn get invalidReason => text().nullable()();
+}
+
 @DriftDatabase(
   tables: [
     CachedModules,
@@ -305,6 +342,8 @@ class LocalQuizAttempts extends Table {
     CachedQuizQuestions,
     LocalQuizAttempts,
     CachedSectionTranslations,
+    CachedGeneralQuestions,
+    LocalGeneralAttempts,
   ],
 )
 class LocalDatabase extends _$LocalDatabase {
@@ -322,8 +361,10 @@ class LocalDatabase extends _$LocalDatabase {
   // person resumes exactly where they stopped.
   // v7: learner-role audiences on modules, pre/post-test usage on questions,
   // test type + server verdict on attempts, reading completion on progress.
+  // v8: active time per module on progress, and the General test (questions
+  // and attempts). The per-module pre/post tests were retired; their rows stay.
   @override
-  int get schemaVersion => 7;
+  int get schemaVersion => 8;
 
   String? _activeUserId;
   String? _learnerRole;
@@ -397,6 +438,12 @@ class LocalDatabase extends _$LocalDatabase {
             // Attempts from the single end-of-module quiz are kept as history only.
             await customStatement("UPDATE local_quiz_attempts SET test_type = 'LEGACY'");
           }
+          if (from < 8) {
+            // Every existing row keeps its data; time starts at 0.
+            await m.addColumn(localProgress, localProgress.secondsSpent);
+            await m.createTable(cachedGeneralQuestions);
+            await m.createTable(localGeneralAttempts);
+          }
           if (from < 3) {
             await m.addColumn(localProgress, localProgress.userId);
             await m.addColumn(pendingSync, pendingSync.userId);
@@ -462,15 +509,16 @@ class LocalDatabase extends _$LocalDatabase {
     });
   }
 
-  /// A module's questions; with [testType] (PRE/POST) only that test's, or
-  /// every question when none is tagged for it (see learning_rules.dart).
+  /// A module's cached per-module test questions (retired in 2026-11; the
+  /// server no longer sends any). With [testType] (PRE/POST) only that test's,
+  /// or every question when none is tagged for it.
   Future<List<CachedQuizQuestionRow>> getQuizQuestions(String moduleId, {String? testType}) async {
     final all = await (select(cachedQuizQuestions)
           ..where((q) => q.moduleId.equals(moduleId))
           ..orderBy([(q) => OrderingTerm(expression: q.sortOrder)]))
         .get();
     if (testType == null) return all;
-    final mine = all.where((q) => usedIn(q.usage, testType)).toList();
+    final mine = all.where((q) => q.usage == 'BOTH' || q.usage == testType).toList();
     return mine.isEmpty ? all : mine;
   }
 
@@ -593,6 +641,97 @@ class LocalDatabase extends _$LocalDatabase {
         serverValid: valid == null ? const Value.absent() : Value(valid),
         invalidReason: valid == null ? const Value.absent() : Value(reason),
       ));
+
+  /// How many inline True/False quiz statements each cached module has.
+  Future<Map<String, int>> quizStatementCountsByModule() async {
+    final rows = await customSelect(
+      "SELECT module_id, COUNT(*) AS n FROM cached_sections WHERE content_type = 'TRUE_FALSE' GROUP BY module_id",
+      readsFrom: {cachedSections},
+    ).get();
+    return {for (final r in rows) r.read<String>('module_id'): r.read<int>('n')};
+  }
+
+  // ---------- Training rules from the server (GET /sync/learning) ----------
+
+  Future<int> getModuleMinSeconds() async =>
+      int.tryParse(await getSetting(kModuleMinSecondsKey) ?? '') ?? kDefaultModuleMinSeconds;
+
+  Future<void> setModuleMinSeconds(int seconds) => setSetting(kModuleMinSecondsKey, '$seconds');
+
+  Future<bool> isGeneralTestActive() async => (await getSetting(kGeneralTestActiveKey)) == 'true';
+
+  Future<void> setGeneralTestActive(bool active) => setSetting(kGeneralTestActiveKey, '$active');
+
+  // ---------- General pre-/post-test ----------
+
+  Future<void> replaceGeneralQuestions(List<CachedGeneralQuestionsCompanion> rows) => transaction(() async {
+        await delete(cachedGeneralQuestions).go();
+        await batch((b) => b.insertAll(cachedGeneralQuestions, rows));
+      });
+
+  Future<List<CachedGeneralQuestionRow>> getGeneralQuestions() =>
+      (select(cachedGeneralQuestions)..orderBy([(q) => OrderingTerm.asc(q.number)])).get();
+
+  Future<void> insertGeneralAttempt({
+    required String clientId,
+    required String testType,
+    required int correct,
+    required int total,
+    required String answersJson,
+    DateTime? takenAt,
+  }) =>
+      into(localGeneralAttempts).insert(LocalGeneralAttemptsCompanion.insert(
+        userId: Value(_uid),
+        clientId: clientId,
+        testType: testType,
+        correctCount: correct,
+        totalCount: total,
+        scorePercent: quizScorePercent(correct, total),
+        answersJson: answersJson,
+        takenAt: takenAt ?? DateTime.now(),
+      ));
+
+  /// The signed-in user's General tests, oldest first.
+  Future<List<LocalGeneralAttemptRow>> getGeneralAttempts() => (select(localGeneralAttempts)
+        ..where((a) => a.userId.equals(_uid))
+        ..orderBy([(a) => OrderingTerm.asc(a.takenAt)]))
+      .get();
+
+  Future<List<LocalGeneralAttemptRow>> getUnsyncedGeneralAttempts() =>
+      (select(localGeneralAttempts)..where((a) => a.synced.equals(false) & a.userId.equals(_uid))).get();
+
+  Future<void> markGeneralAttemptSynced(String clientId, {bool? valid, String? reason}) =>
+      (update(localGeneralAttempts)..where((a) => a.clientId.equals(clientId))).write(LocalGeneralAttemptsCompanion(
+        synced: const Value(true),
+        serverValid: valid == null ? const Value.absent() : Value(valid),
+        invalidReason: valid == null ? const Value.absent() : Value(reason),
+      ));
+
+  /// A General test result the server already holds (new phone or reinstall).
+  Future<void> restoreGeneralAttemptFromServer({
+    required String clientId,
+    required String testType,
+    required int correct,
+    required int total,
+    required DateTime takenAt,
+  }) =>
+      transaction(() async {
+        final existing =
+            await (select(localGeneralAttempts)..where((a) => a.clientId.equals(clientId))).getSingleOrNull();
+        if (existing != null) return;
+        await into(localGeneralAttempts).insert(LocalGeneralAttemptsCompanion.insert(
+          userId: Value(_uid),
+          clientId: clientId,
+          testType: testType,
+          correctCount: correct,
+          totalCount: total,
+          scorePercent: quizScorePercent(correct, total),
+          answersJson: '[]',
+          takenAt: takenAt,
+          synced: const Value(true),
+          serverValid: const Value(true),
+        ));
+      });
 
   // ---------- Auto-approval threshold for 100% pre-tests (from the server) ----------
 
@@ -778,6 +917,29 @@ class LocalDatabase extends _$LocalDatabase {
             .write(LocalProgressCompanion(readingCompletedAt: Value(DateTime.now()), synced: const Value(false)));
       });
 
+  /// Adds active time to a module (the reader calls this while the module is on
+  /// screen and the app is in front). Never lowers it; marks the row for upload.
+  Future<void> addModuleSeconds(String moduleId, int seconds) => transaction(() async {
+        if (seconds <= 0) return;
+        final existing = await getProgressForModule(moduleId);
+        if (existing == null) {
+          await into(localProgress).insert(LocalProgressCompanion.insert(
+            moduleId: moduleId,
+            lastOpenedAt: Value(DateTime.now()),
+            secondsSpent: Value(seconds),
+            userId: Value(_uid),
+          ));
+          return;
+        }
+        await (update(localProgress)..where((p) => p.moduleId.equals(moduleId) & p.userId.equals(_uid))).write(
+          LocalProgressCompanion(
+            secondsSpent: Value(existing.secondsSpent + seconds),
+            lastOpenedAt: Value(DateTime.now()),
+            synced: const Value(false),
+          ),
+        );
+      });
+
   Future<List<LocalProgressRow>> getAllProgress() =>
       (select(localProgress)..where((p) => p.userId.equals(_uid))).get();
 
@@ -792,6 +954,7 @@ class LocalDatabase extends _$LocalDatabase {
     DateTime? lastOpenedAt,
     DateTime? completedAt,
     DateTime? readingCompletedAt,
+    int secondsSpent = 0,
   }) =>
       transaction(() async {
     final local = await getProgressForModule(moduleId);
@@ -807,11 +970,17 @@ class LocalDatabase extends _$LocalDatabase {
           readingCompletedAt: Value(readingCompletedAt),
           synced: const Value(true),
           userId: Value(_uid),
+          secondsSpent: Value(secondsSpent),
         ),
       );
       return;
     }
     if (!local.synced) return;
+    if (secondsSpent > local.secondsSpent) {
+      // Time spent on another phone counts here too (time only grows).
+      await (update(localProgress)..where((p) => p.moduleId.equals(moduleId) & p.userId.equals(_uid)))
+          .write(LocalProgressCompanion(secondsSpent: Value(secondsSpent)));
+    }
     if (local.readingCompletedAt == null && readingCompletedAt != null) {
       await (update(localProgress)..where((p) => p.moduleId.equals(moduleId) & p.userId.equals(_uid)))
           .write(LocalProgressCompanion(readingCompletedAt: Value(readingCompletedAt)));
@@ -840,8 +1009,9 @@ class LocalDatabase extends _$LocalDatabase {
   Future<void> restartTraining({DateTime? at, bool enqueue = true}) async {
     final when = (at ?? DateTime.now()).toUtc();
     await transaction(() async {
-      await (delete(localProgress)..where((p) => p.userId.equals(_uid))).go();
+      await (delete(localProgress)..where((p) => p.userId.equals(_uid))).go(); // with its active time
       await (delete(localQuizAttempts)..where((a) => a.userId.equals(_uid))).go();
+      await (delete(localGeneralAttempts)..where((a) => a.userId.equals(_uid))).go();
       // Queued progress markers belong to the attempt being replaced.
       await (update(pendingSync)
             ..where((s) => s.syncedAt.isNull() & s.userId.equals(_uid) & s.entityType.equals('progress')))
@@ -865,6 +1035,8 @@ class LocalDatabase extends _$LocalDatabase {
             ..where((p) => p.userId.equals(_uid) & (p.lastOpenedAt.isNull() | p.lastOpenedAt.isSmallerThanValue(cutoff))))
           .go();
       await (delete(localQuizAttempts)..where((a) => a.userId.equals(_uid) & a.takenAt.isSmallerThanValue(cutoff))).go();
+      await (delete(localGeneralAttempts)..where((a) => a.userId.equals(_uid) & a.takenAt.isSmallerThanValue(cutoff)))
+          .go();
       await setSetting('training_restarted_at_$_uid', cutoff.toIso8601String());
     });
   }

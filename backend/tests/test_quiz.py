@@ -14,7 +14,7 @@ from fastapi.testclient import TestClient
 
 from app.database import SessionLocal
 from app.main import app
-from app.models import ContentRelease, Language, MediaAsset, Module, QuizAttempt, QuizQuestion, UserModuleProgress
+from app.models import ContentRelease, ContentSection, Language, MediaAsset, Module, QuizAttempt, QuizQuestion, UserModuleProgress
 from app.models.enums import ModuleStatus, QuestionType as T, RoleName
 from app.quiz import grading
 from app.releases.packager import package_path
@@ -87,6 +87,7 @@ def world(db):
     db.query(QuizAttempt).filter_by(module_id=module.id).delete()
     db.query(UserModuleProgress).filter_by(module_id=module.id).delete()
     db.query(QuizQuestion).filter_by(module_id=module.id).delete()
+    db.query(ContentSection).filter_by(module_id=module.id).delete()
     db.delete(db.get(Module, module.id))
     db.commit()
     _cleanup(db, learner)
@@ -98,35 +99,30 @@ def _mc(prompt="Which?", correct=1):
             "explanation": "because"}
 
 
-def test_author_all_seven_types_and_learner_cannot_read_answers(world, db):
-    module, eh, lh, _ = world
-    image = db.query(MediaAsset).first()
-    bodies = [
-        _mc(),
-        {"question_type": "TRUE_FALSE", "prompt": "AZM is a vitamin.", "content": {"correct": False}},
-        {"question_type": "MULTIPLE_SELECT", "prompt": "Pick two", "content": {"options": ["a", "b", "c", "d"], "correct": [1, 3]}},
-        {"question_type": "MATCHING", "prompt": "Match", "content": {"pairs": [{"left": "1-2 months", "right": "2 ml"}, {"left": "3-4 months", "right": "3 ml"}]}},
-        {"question_type": "ORDERING", "prompt": "Order", "content": {"items": ["one", "two", "three"]}},
-        {"question_type": "IMAGE_CHOICE", "prompt": "What is shown?", "content": {"media_asset_id": str(image.id), "options": ["x", "y"], "correct": 0}},
-        {"question_type": "NUMERIC", "prompt": "How many ml?", "content": {"correct": 15, "unit": "ml"}},
-    ]
-    for b in bodies:
-        r = client.post(f"/quiz/modules/{module.id}/questions", headers=eh, json=b)
-        assert r.status_code == 201, (b["question_type"], r.text)
-    listing = client.get(f"/quiz/modules/{module.id}/questions", headers=eh).json()
-    assert [q["question_type"] for q in listing] == [b["question_type"] for b in bodies]  # authored order kept
-    assert client.get(f"/quiz/modules/{module.id}/questions", headers=lh).status_code == 403
-    assert client.post(f"/quiz/modules/{module.id}/questions", headers=lh, json=bodies[0]).status_code == 403
+def _archived(db, module, prompt="Which?", **content):
+    """A per-module question as the retirement migration left it: kept, archived, never served."""
+    q = QuizQuestion(module_id=module.id, question_type="MULTIPLE_CHOICE", prompt=prompt,
+                     content=content or {"options": ["a", "b", "c"], "correct": 1}, is_active=False,
+                     archived_at=datetime.now(timezone.utc))
+    db.add(q)
+    db.commit()
+    return q
 
-    bad = client.post(f"/quiz/modules/{module.id}/questions", headers=eh,
-                      json={"question_type": "IMAGE_CHOICE", "prompt": "Pic?", "content": {"media_asset_id": str(uuid.uuid4()), "options": ["a", "b"], "correct": 0}})
-    assert bad.status_code == 422
-    qid = listing[0]["id"]
-    up = client.patch(f"/quiz/questions/{qid}", headers=eh, json={"content": {"options": ["a", "b", "c"], "correct": 2}, "prompt": "New wording?"})
-    assert up.status_code == 200 and up.json()["content"]["correct"] == 2
-    assert client.patch(f"/quiz/questions/{qid}", headers=eh, json={"content": {"options": ["a"], "correct": 0}}).status_code == 422
-    assert client.delete(f"/quiz/questions/{qid}", headers=eh).status_code == 204
-    assert client.delete(f"/quiz/questions/{qid}", headers=eh).status_code == 404
+
+def test_per_module_tests_are_retired_and_kept_read_only(world, db):
+    """2026-11: per-module pre/post tests were replaced by the General test and inline quizzes.
+    The old questions stay for history; they cannot be added, re-activated or deleted here."""
+    module, eh, lh, _ = world
+    q = _archived(db, module)
+    r = client.post(f"/quiz/modules/{module.id}/questions", headers=eh, json=_mc())
+    assert r.status_code == 410 and "retired" in r.json()["detail"]
+    listing = client.get(f"/quiz/modules/{module.id}/questions", headers=eh).json()
+    assert [x["id"] for x in listing] == [str(q.id)]  # still readable by staff
+    assert client.get(f"/quiz/modules/{module.id}/questions", headers=lh).status_code == 403
+    assert client.patch(f"/quiz/questions/{q.id}", headers=eh, json={"is_active": True}).status_code == 409
+    assert client.delete(f"/quiz/questions/{q.id}", headers=eh).status_code == 409
+    db.refresh(q)
+    assert q.is_active is False and q.archived_at is not None
 
 
 def _attempt(client_id, module, correct, total):
@@ -147,16 +143,19 @@ def test_attempts_are_idempotent_and_server_recomputes_pass(world):
     assert s["learners_passed"] == 0 and s["pass_mark"] == 90
 
 
-def test_module_with_a_quiz_cannot_be_completed_by_mark_as_complete(world):
+def test_an_old_apps_quiz_never_completes_a_module(world, db):
+    """A module with an inline quiz needs that quiz; an older app's pre/post or untyped
+    attempt is stored as history and never counts."""
     module, eh, lh, _ = world
-    client.post(f"/quiz/modules/{module.id}/questions", headers=eh, json=_mc())
-    done = {"module_id": str(module.id), "progress_percent": 100, "completed": True, "last_opened_at": NOW, "completed_at": NOW}
-
+    db.add(ContentSection(module_id=module.id, section_number=1, sort_order=1, content_type="TRUE_FALSE",
+                          content={"statement": "AZM is given door to door", "answer": True, "audience": "HFW"}))
+    db.commit()
+    done = {"module_id": str(module.id), "progress_percent": 100, "completed": True, "last_opened_at": NOW,
+            "completed_at": NOW, "seconds_spent": 600}
     r = client.post("/sync/progress", headers=lh, json={"device_id": "d", "items": [done]})
-    assert r.json()["results"][0]["detail"].startswith("not completed: post-test not passed")
-
-    # Even a 90% quiz from an old app (no test_type) does not complete it.
-    client.post("/sync/quiz-attempts", headers=lh, json={"device_id": "d", "items": [_attempt("f2", module, 9, 10)]})
+    assert r.json()["results"][0]["detail"] == "not completed: module quiz not passed yet"
+    old = client.post("/sync/quiz-attempts", headers=lh, json={"device_id": "d", "items": [_attempt("f2", module, 9, 10)]})
+    assert old.json()["results"][0]["detail"] == "per-module pre/post tests were replaced (2026-11)"
     client.post("/sync/progress", headers=lh, json={"device_id": "d", "items": [done]})
     mine = [p for p in client.get("/sync/progress", headers=lh).json() if p["module_id"] == str(module.id)]
     assert mine and mine[0]["completed"] is False and mine[0]["progress_percent"] == 99
@@ -164,19 +163,19 @@ def test_module_with_a_quiz_cannot_be_completed_by_mark_as_complete(world):
 
 def test_module_without_a_quiz_can_still_be_completed(world):
     module, _, lh, _ = world
-    done = {"module_id": str(module.id), "progress_percent": 100, "completed": True, "last_opened_at": NOW, "completed_at": NOW}
-    r = client.post("/sync/progress", headers=lh, json={"device_id": "d", "items": [done]})
+    early = {"module_id": str(module.id), "progress_percent": 100, "completed": True, "last_opened_at": NOW,
+             "completed_at": NOW, "seconds_spent": 179}
+    r = client.post("/sync/progress", headers=lh, json={"device_id": "d", "items": [early]})
+    assert r.json()["results"][0]["detail"] == "not completed: less than 180 seconds in this module"
+    r = client.post("/sync/progress", headers=lh, json={"device_id": "d", "items": [{**early, "seconds_spent": 180}]})
     assert r.json()["results"][0] == {"key": str(module.id), "status": "ok", "detail": None}
     mine = [p for p in client.get("/sync/progress", headers=lh).json() if p["module_id"] == str(module.id)]
-    assert mine and mine[0]["completed"] is True
+    assert mine and mine[0]["completed"] is True and mine[0]["seconds_spent"] == 180
 
 
-def test_questions_and_image_ship_in_the_release_package(world, db):
+def test_archived_questions_never_ship_in_the_release_package(world, db):
     module, eh, _, _ = world
-    image = db.query(MediaAsset).first()
-    client.post(f"/quiz/modules/{module.id}/questions", headers=eh, json=_mc("Text question?"))
-    client.post(f"/quiz/modules/{module.id}/questions", headers=eh, json={
-        "question_type": "IMAGE_CHOICE", "prompt": "Pic?", "content": {"media_asset_id": str(image.id), "options": ["a", "b"], "correct": 0}})
+    _archived(db, module, "Text question?")
     from app.models import ModuleTranslation
     from app.models.enums import ContentReviewStatus
     english = db.query(Language).filter_by(code="en").one()
@@ -191,10 +190,7 @@ def test_questions_and_image_ship_in_the_release_package(world, db):
         assert client.post(f"/releases/{rid}/publish", headers=th).status_code == 200
         pkg = json.loads(package_path(code).read_bytes())
         entry = next(m for m in pkg["modules"] if m["module_code"] == module.module_code)
-        assert pkg["quiz_pass_mark"] == 90 and len(entry["quiz_questions"]) == 2
-        assert {q["question_type"] for q in entry["quiz_questions"]} == {"MULTIPLE_CHOICE", "IMAGE_CHOICE"}
-        assert str(image.id) in {m["id"] for m in pkg["media"]}
-        assert pkg["counts"]["quiz_questions"] >= 2
+        assert entry["quiz_questions"] == []
     finally:
         rel = db.query(ContentRelease).filter_by(release_code=code).one_or_none()
         if rel:
@@ -236,11 +232,12 @@ def test_picture_upload_and_library_list(world, db):
             f.unlink(missing_ok=True)
 
 
-def test_learner_can_fetch_quiz_for_home_sync(world):
+def test_archived_questions_are_not_served_to_phones(world, db):
     module, eh, lh, _ = world
-    client.post(f"/quiz/modules/{module.id}/questions", headers=eh, json=_mc("Sync me?"))
+    _archived(db, module, "Sync me?")
     r = client.get("/sync/quiz-questions", headers=lh)
     assert r.status_code == 200
-    mine = [q for q in r.json() if q["module_id"] == str(module.id)]
-    assert len(mine) == 1 and mine[0]["prompt"] == "Sync me?" and mine[0]["content"]["correct"] == 1
+    assert [q for q in r.json() if q["module_id"] == str(module.id)] == []
     assert client.get("/sync/quiz-questions").status_code in (401, 403)
+
+

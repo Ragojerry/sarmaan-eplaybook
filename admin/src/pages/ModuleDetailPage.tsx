@@ -7,7 +7,7 @@ import AuthenticatedImage from "../components/AuthenticatedImage";
 import ModuleTranslationsPanel from "../components/ModuleTranslationsPanel";
 import ModuleDetailsEditor from "../components/ModuleDetailsEditor";
 import ModuleAudienceEditor from "../components/ModuleAudienceEditor";
-import SectionEditor from "../components/SectionEditor";
+import SectionEditor, { TrueFalseFields } from "../components/SectionEditor";
 import { MEDIA_ACCEPT, ProgressBar, errorText, formatBytes, uploadSectionMedia } from "../components/SectionMediaField";
 import { Module, ModuleTranslation, ContentSection, Language, ContentType } from "../types/api";
 
@@ -24,6 +24,7 @@ const CONTENT_TYPES: ContentType[] = [
   "VIDEO",
   "AUDIO",
   "LIST",
+  "TRUE_FALSE",
 ];
 
 function WorkflowBar({ status }: { status: string }) {
@@ -63,6 +64,9 @@ export default function ModuleDetailPage() {
     title: string;
     text: string;
     file?: File | null;
+    answer?: boolean;
+    explanation?: string;
+    audience?: string;
   } | null>(null);
   const [addPct, setAddPct] = useState<number | null>(null);
   const [addError, setAddError] = useState<string | null>(null);
@@ -141,13 +145,24 @@ export default function ModuleDetailPage() {
       const { content_type, title, text, file } = newSection!;
       const isMedia = content_type === "AUDIO" || content_type === "VIDEO";
       setAddError(null);
+      const content =
+        content_type === "TRUE_FALSE"
+          ? {
+              statement: text,
+              answer: newSection!.answer ?? true,
+              explanation: (newSection!.explanation ?? "").trim() || null,
+              audience: newSection!.audience ?? defaultAudience,
+            }
+          : isMedia && !text
+            ? {}
+            : { text };
       const created = (
         await api.post(`/modules/${moduleId}/sections`, {
           section_number: nextNumber,
           sort_order: nextNumber,
           content_type,
           title: title || null,
-          content: isMedia && !text ? {} : { text },
+          content,
         })
       ).data;
       if (isMedia && file) {
@@ -167,8 +182,27 @@ export default function ModuleDetailPage() {
       refetchSections();
       setNewSection(null);
     },
+    onError: (e: any) => setAddError(e?.response?.data?.detail ?? "Could not save the section."),
   });
   const newIsMedia = newSection?.content_type === "AUDIO" || newSection?.content_type === "VIDEO";
+  const defaultAudience = module?.module_code.startsWith("CDD-") ? "CDD" : "HFW";
+
+  /** Swaps a section with its neighbour (used to place quiz statements after the section that teaches them). */
+  const moveSection = useMutation({
+    mutationFn: async ({ index, by }: { index: number; by: -1 | 1 }) => {
+      const list = sections ?? [];
+      const a = list[index];
+      const b = list[index + by];
+      if (!a || !b) return;
+      // number every section by its position first, so equal sort orders can still be swapped
+      const order = list.map((s, i) => ({ s, n: i + 1 }));
+      const target = order.map(({ s, n }) => ({ s, n: s.id === a.id ? index + by + 1 : s.id === b.id ? index + 1 : n }));
+      await Promise.all(
+        target.filter(({ s, n }) => s.sort_order !== n).map(({ s, n }) => api.patch(`/modules/sections/${s.id}`, { sort_order: n })),
+      );
+    },
+    onSuccess: () => refetchSections(),
+  });
 
   const deleteSection = useMutation({
     mutationFn: async (sectionId: string) => api.delete(`/modules/sections/${sectionId}`),
@@ -186,8 +220,11 @@ export default function ModuleDetailPage() {
         {module.module_code} — {module.title}
       </h1>
       <p className="text-sm text-gray-500 mb-2">Module status: {module.status}</p>
-      <Link to={`/content/${module.id}/quiz`} className="inline-block text-sm underline mb-6">
-        Manage the module quiz →
+      <p className="text-sm text-gray-600 mb-1">
+        Module quiz: add <strong>TRUE_FALSE</strong> sections below, right after the section each one checks.
+      </p>
+      <Link to={`/content/${module.id}/quiz`} className="inline-block text-xs text-gray-500 underline mb-6">
+        Retired per-module pre/post tests (archive, read-only) →
       </Link>
 
       {canEdit && (
@@ -320,13 +357,31 @@ export default function ModuleDetailPage() {
               value={newSection.title}
               onChange={(e) => setNewSection({ ...newSection, title: e.target.value })}
             />
-            <textarea
-              className="w-full border rounded px-2 py-1 text-sm"
-              placeholder={newIsMedia ? "Description or transcript (optional)" : "Content text"}
-              rows={3}
-              value={newSection.text}
-              onChange={(e) => setNewSection({ ...newSection, text: e.target.value })}
-            />
+            {newSection.content_type === "TRUE_FALSE" ? (
+              <TrueFalseFields
+                statement={newSection.text}
+                answer={newSection.answer ?? true}
+                explanation={newSection.explanation ?? ""}
+                audience={newSection.audience ?? defaultAudience}
+                onChange={(v) =>
+                  setNewSection({
+                    ...newSection,
+                    text: v.statement ?? newSection.text,
+                    answer: v.answer ?? newSection.answer,
+                    explanation: v.explanation ?? newSection.explanation,
+                    audience: v.audience ?? newSection.audience,
+                  })
+                }
+              />
+            ) : (
+              <textarea
+                className="w-full border rounded px-2 py-1 text-sm"
+                placeholder={newIsMedia ? "Description or transcript (optional)" : "Content text"}
+                rows={3}
+                value={newSection.text}
+                onChange={(e) => setNewSection({ ...newSection, text: e.target.value })}
+              />
+            )}
             {newIsMedia && (
               <div className="space-y-1">
                 <input
@@ -378,7 +433,7 @@ export default function ModuleDetailPage() {
           <p className="text-sm text-gray-500">No sections yet.</p>
         ) : (
           <ul className="divide-y">
-            {sections.map((s) => (
+            {sections.map((s, index) => (
               <li key={s.id} className="py-3 flex items-start justify-between gap-4">
                 {editingId === s.id ? (
                   <SectionEditor
@@ -415,6 +470,18 @@ export default function ModuleDetailPage() {
                         : "No file yet. Use Edit to upload one."}
                     </p>
                   )}
+                  {s.content_type === "TRUE_FALSE" && (
+                    <div className="mt-1 text-sm">
+                      <span className="inline-block text-xs bg-teal-50 text-teal-800 rounded px-1.5 py-0.5 mr-2">
+                        Quiz · {s.content?.audience === "CDD" ? "CDD" : "HFW & others"}
+                      </span>
+                      <span className="text-gray-700">{String(s.content?.statement ?? "")}</span>
+                      <span className="ml-2 font-medium">{s.content?.answer === true ? "True" : "False"}</span>
+                      {typeof s.content?.explanation === "string" && s.content.explanation && (
+                        <p className="text-xs text-gray-500 mt-0.5">{s.content.explanation}</p>
+                      )}
+                    </div>
+                  )}
                   {Array.isArray((s.content as any)?.items) && (
                     <ul className="list-disc list-inside text-sm text-gray-600 mt-1">
                       {(s.content as any).items.map((item: string, i: number) => (
@@ -425,6 +492,22 @@ export default function ModuleDetailPage() {
                 </div>
                 {canEdit && (
                   <div className="shrink-0 flex gap-3">
+                    <button
+                      onClick={() => moveSection.mutate({ index, by: -1 })}
+                      disabled={index === 0 || moveSection.isPending}
+                      className="text-xs text-gray-500 hover:underline disabled:opacity-30"
+                      title="Move up"
+                    >
+                      ↑
+                    </button>
+                    <button
+                      onClick={() => moveSection.mutate({ index, by: 1 })}
+                      disabled={index === sections.length - 1 || moveSection.isPending}
+                      className="text-xs text-gray-500 hover:underline disabled:opacity-30"
+                      title="Move down"
+                    >
+                      ↓
+                    </button>
                     <button onClick={() => setEditingId(s.id)} className="text-xs text-blue-600 hover:underline">
                       Edit
                     </button>

@@ -8,18 +8,31 @@ import 'package:sarmaan_eplaybook/db/local_database.dart';
 import 'package:sarmaan_eplaybook/learning/learning_rules.dart';
 import 'package:sarmaan_eplaybook/learning/learning_service.dart';
 
-/// Pre-test -> reading -> post-test on the phone, and role-based visibility of
-/// the local cache. The pass rule itself is checked against the vectors the
-/// backend generates (test/learning_vectors.json), so both sides agree.
+/// Module completion (inline True/False quiz + minimum active time), the General
+/// pre/post test, and role-based visibility of the local cache. The rules are
+/// checked against the vectors the backend generates (test/learning_vectors.json),
+/// so both sides agree.
 void main() {
-  group('pass rule (shared vectors)', () {
+  group('rules (shared vectors)', () {
     final vectors = jsonDecode(File('test/learning_vectors.json').readAsStringSync()) as Map<String, dynamic>;
-    test('pass mark and auto-approval threshold are 90', () {
+    test('pass mark 90, default minimum time 180 seconds', () {
       expect(vectors['pass_mark'], 90);
-      expect(vectors['auto_approve_percent'], kAutoApprovePercent);
+      expect(vectors['module_min_seconds'], kDefaultModuleMinSeconds);
     });
+    for (final c in (vectors['completion'] as List).cast<Map<String, dynamic>>()) {
+      test('completion: ${c['why']}', () {
+        final n = c['quiz_statements'] as int;
+        final correct = c['quiz_correct'] as int?;
+        final passed = n > 0 && correct != null && moduleQuizPasses(correct, n);
+        expect(
+          canCompleteModule(
+              unlocked: c['unlocked'] as bool, hasQuiz: n > 0, quizPassed: passed, seconds: c['seconds'] as int, minSeconds: c['min_seconds'] as int),
+          c['can_complete'],
+        );
+      });
+    }
     for (final c in (vectors['cases'] as List).cast<Map<String, dynamic>>()) {
-      test(c['why'] as String, () {
+      test('retired pre/post rule: ${c['why']}', () {
         expect(
           postTestCompletes(c['post_correct'] as int, c['post_total'] as int, c['pre_correct'] as int, c['pre_total'] as int,
               autoApprovePercent: vectors['auto_approve_percent'] as int),
@@ -29,83 +42,61 @@ void main() {
     }
   });
 
-  group('state machine', () {
-    TestScore t(String type, int correct, int total, int minute) => TestScore(
-          clientId: '$type$minute',
-          testType: type,
-          correct: correct,
-          total: total,
-          takenAt: DateTime(2026, 11, 4, 9, minute),
-        );
+  group('state', () {
+    TestScore quiz(int correct, int minute, {int total = 3}) => TestScore(
+          clientId: 'q$minute', testType: 'MODULE_QUIZ', correct: correct, total: total, takenAt: DateTime(2026, 11, 10, 9, minute));
 
-    test('question usage: a test with no questions of its own uses all of them', () {
-      expect(testQuestionCounts(['BOTH', 'BOTH', 'PRE']), (3, 2));
-      expect(testQuestionCounts(['POST', 'POST']), (2, 2));
-      expect(testQuestionCounts([]), (0, 0));
-    });
-
-    test('pre-test first, reading, then post-test; completing unlocks the next module', () {
-      List<ModuleLearning> run(List<TestScore> a, {bool read = false, bool done = false}) => computeLearning([
-            ModuleInput(moduleId: 'A', questionUsages: const ['BOTH'], attempts: a, readingDone: read, completed: done),
-            const ModuleInput(moduleId: 'B', questionUsages: ['BOTH']),
+    test('the quiz and the minimum time both decide completion; the next module waits', () {
+      List<ModuleLearning> run({List<TestScore> a = const [], int secs = 0, bool done = false}) => computeLearning(minSeconds: 180, [
+            ModuleInput(moduleId: 'A', quizStatements: 3, quizAttempts: a, secondsSpent: secs, completed: done),
+            const ModuleInput(moduleId: 'B', quizStatements: 3),
           ]);
-      var s = run([]);
-      expect(s[0].stage, ModuleStage.preTest);
-      expect(s[0].canRead, isFalse);
-      expect(s[0].canTakePostTest, isFalse);
-      expect(s[1].stage, ModuleStage.locked);
-
-      s = run([t('PRE', 5, 10, 1)]);
+      var s = run();
       expect(s[0].stage, ModuleStage.reading);
-      expect(s[0].canRead, isTrue);
-      expect(s[0].canTakePreTest, isFalse, reason: 'the pre-test is taken once');
-      expect(s[0].canTakePostTest, isFalse, reason: 'not before reading');
-
-      s = run([t('PRE', 5, 10, 1)], read: true);
-      expect(s[0].stage, ModuleStage.postTest);
-      expect(s[0].canTakePostTest, isTrue);
-      expect(s[0].completingPost, isNull);
-
-      s = run([t('PRE', 5, 10, 1), t('POST', 9, 10, 3)], read: true);
-      expect(s[0].completingPost?.clientId, 'POST3');
-
-      s = run([t('PRE', 5, 10, 1), t('POST', 9, 10, 3)], read: true, done: true);
+      expect(s[0].canRead && s[0].canTakeQuiz, isTrue);
+      expect(s[0].canComplete, isFalse);
+      expect(s[1].stage, ModuleStage.locked);
+      s = run(a: [quiz(2, 1)], secs: 600);
+      expect(s[0].quizPassed, isFalse, reason: '2 of 3 is below 90%');
+      s = run(a: [quiz(2, 1), quiz(3, 2)], secs: 179);
+      expect(s[0].quizPassed, isTrue, reason: 'retakes until passed');
+      expect(s[0].canComplete, isFalse, reason: 'one second short');
+      expect(s[0].secondsLeft, 1);
+      s = run(a: [quiz(3, 2)], secs: 180);
+      expect(s[0].canComplete, isTrue);
+      s = run(a: [quiz(3, 2)], secs: 180, done: true);
       expect(s[0].stage, ModuleStage.completed);
-      expect(s[1].stage, ModuleStage.preTest, reason: 'the next module unlocks');
+      expect(s[0].canTakeQuiz || s[0].canComplete, isFalse, reason: 'a completed module is review-only');
+      expect(s[1].stage, ModuleStage.reading, reason: 'the next module unlocks');
     });
 
-    test('a 100% pre-test is auto-approved at the threshold, with no approval step', () {
-      ModuleLearning run(List<TestScore> a, {int threshold = kAutoApprovePercent}) => computeLearning(autoApprovePercent: threshold, [
-            ModuleInput(moduleId: 'A', questionUsages: const ['BOTH'], attempts: a, readingDone: true),
-          ]).single;
-      expect(run([t('PRE', 10, 10, 1)]).stage, ModuleStage.postTest);
-      expect(run([t('PRE', 10, 10, 1)]).canTakePostTest, isTrue);
-      for (final (correct, total) in [(9, 10), (19, 20), (10, 10)]) {
-        expect(run([t('PRE', 10, 10, 1), t('POST', correct, total, 2)]).completingPost, isNotNull, reason: '$correct/$total');
-      }
-      expect(run([t('PRE', 10, 10, 1), TestScore(clientId: 'p', testType: 'POST', correct: 89, total: 100, takenAt: DateTime(2026, 11, 4, 9, 2))])
-          .completingPost, isNull, reason: '89%');
-      expect(run([t('PRE', 10, 10, 1), t('POST', 9, 10, 2)], threshold: 95).completingPost, isNull, reason: 'the threshold is a setting');
+    test('a module without a quiz needs only the time', () {
+      final s = computeLearning(minSeconds: 180, [const ModuleInput(moduleId: 'A', secondsSpent: 180)]);
+      expect(s[0].hasQuiz, isFalse);
+      expect(s[0].quizPassed && s[0].canComplete, isTrue);
     });
 
-    test('a completed module is review-only', () {
-      final s = computeLearning([
-        ModuleInput(moduleId: 'A', questionUsages: const ['BOTH'], completed: true, readingDone: true,
-            attempts: [t('PRE', 5, 10, 1), t('POST', 10, 10, 2)]),
-      ]).single;
-      expect(s.canRead, isTrue);
-      expect(s.canTakePostTest, isFalse);
-      expect(s.canTakePreTest, isFalse);
-      final legacy = computeLearning([const ModuleInput(moduleId: 'A', questionUsages: ['BOTH'], completed: true)]).single;
-      expect(legacy.pre, isNull, reason: 'completed before pre/post tests');
-      expect(legacy.canRead, isTrue);
+    test('the General pre-test gate locks every module until it is taken; completed ones stay open', () {
+      final s = computeLearning(gateOpen: false, [
+        const ModuleInput(moduleId: 'A', completed: true),
+        const ModuleInput(moduleId: 'B'),
+      ]);
+      expect(s[0].stage, ModuleStage.completed);
+      expect(s[1].stage, ModuleStage.locked);
+      expect(s[1].lockedByGeneralTest, isTrue);
     });
 
-    test('modules without questions are read and marked complete as before', () {
-      final s = computeLearning([const ModuleInput(moduleId: 'A', questionUsages: [])]).single;
-      expect(s.hasTests, isFalse);
-      expect(s.canRead, isTrue);
-      expect(s.stage, ModuleStage.reading);
+    test('General test: pre once, post once after all modules', () {
+      final pre = TestScore(clientId: 'p', testType: 'PRE', correct: 10, total: 25, takenAt: DateTime(2026, 11, 10));
+      expect(const GeneralLearning(active: true, questions: 25, pre: null, post: null, modulesTotal: 2, modulesCompleted: 0).canTakePre, isTrue);
+      final half = GeneralLearning(active: true, questions: 25, pre: pre, post: null, modulesTotal: 2, modulesCompleted: 1);
+      expect(half.canTakePre || half.canTakePost, isFalse);
+      expect(half.gateOpen, isTrue);
+      final all = GeneralLearning(active: true, questions: 25, pre: pre, post: null, modulesTotal: 2, modulesCompleted: 2);
+      expect(all.canTakePost, isTrue);
+      expect(const GeneralLearning(active: false, questions: 0, pre: null, post: null, modulesTotal: 2, modulesCompleted: 0).gateOpen, isTrue);
+      expect(formatDuration(80), '1:20');
+      expect(formatDuration(180), '3:00');
     });
 
     test('visibility: general for everyone, role-specific for its roles, staff see all', () {
@@ -117,50 +108,40 @@ void main() {
     });
   });
 
-  test('upgrading a version 6 database keeps attempts (as legacy) and reading progress', () async {
-    final dir = await Directory.systemTemp.createTemp('sarmaan-v6');
+  test('upgrading a version 7 database keeps progress and attempts, with time starting at 0', () async {
+    final dir = await Directory.systemTemp.createTemp('sarmaan-v7');
     final file = File('${dir.path}/db.sqlite');
-    // Build today's schema, then take it back to version 6 (drop the v7 columns).
+    // Build today's schema, then take it back to version 7 (drop what v8 added).
     var db = LocalDatabase.forTesting(NativeDatabase(file));
     await db.customSelect('SELECT 1').get();
-    for (final (table, column) in [
-      ('cached_modules', 'audience'),
-      ('cached_modules', 'learner_roles_json'),
-      ('local_progress', 'reading_completed_at'),
-      ('cached_quiz_questions', 'usage'),
-      ('local_quiz_attempts', 'test_type'),
-      ('local_quiz_attempts', 'server_valid'),
-      ('local_quiz_attempts', 'invalid_reason'),
-    ]) {
-      await db.customStatement('ALTER TABLE $table DROP COLUMN $column');
-    }
+    await db.customStatement('ALTER TABLE local_progress DROP COLUMN seconds_spent');
+    await db.customStatement('DROP TABLE cached_general_questions');
+    await db.customStatement('DROP TABLE local_general_attempts');
     await db.customStatement(
-        "INSERT INTO local_quiz_attempts (user_id, module_id, client_id, correct_count, total_count, score_percent, passed, results_json, taken_at, synced) "
-        "VALUES ('u', 'A', 'old-1', 9, 10, 90, 1, '[]', 1700000000, 1)");
+        "INSERT INTO local_quiz_attempts (user_id, module_id, client_id, correct_count, total_count, score_percent, passed, results_json, taken_at, synced, test_type) "
+        "VALUES ('u', 'A', 'old-pre', 9, 10, 90, 1, '[]', 1700000000, 1, 'PRE')");
     await db.customStatement(
-        "INSERT INTO local_progress (module_id, progress_percent, completed, last_opened_at, synced, user_id) VALUES ('A', 99, 0, 1700000500, 1, 'u')");
-    await db.customStatement(
-        "INSERT INTO local_progress (module_id, progress_percent, completed, last_opened_at, synced, user_id) VALUES ('B', 10, 0, 1700000600, 1, 'u')");
-    await db.customStatement('PRAGMA user_version = 6');
+        "INSERT INTO local_progress (module_id, progress_percent, completed, last_opened_at, synced, user_id) VALUES ('A', 100, 1, 1700000500, 1, 'u')");
+    await db.customStatement('PRAGMA user_version = 7');
     await db.close();
 
     db = LocalDatabase.forTesting(NativeDatabase(file));
     db.setActiveUser('u', learnerRole: 'CDD');
-    final attempt = (await db.getQuizAttempts()).single;
-    expect(attempt.testType, 'LEGACY');
-    final progress = {for (final p in await db.getAllProgress()) p.moduleId: p};
-    expect(progress['A']!.readingCompletedAt, isNotNull, reason: 'reading already done is kept');
-    expect(progress['B']!.readingCompletedAt, isNull);
-    expect(progress['A']!.progressPercent, 99);
+    expect((await db.getQuizAttempts()).single.testType, 'PRE', reason: 'old attempts are kept as history');
+    final p = (await db.getAllProgress()).single;
+    expect(p.completed && p.progressPercent == 100, isTrue, reason: 'a completed module stays completed');
+    expect(p.secondsSpent, 0);
+    expect(await db.getGeneralAttempts(), isEmpty);
+    expect(await db.getGeneralQuestions(), isEmpty);
     await db.close();
     await dir.delete(recursive: true);
   });
 
   group('local database', () {
     late LocalDatabase db;
-    final now = DateTime(2026, 11, 4);
+    final now = DateTime(2026, 11, 10);
 
-    Future<void> module(String id, int order, {String audience = 'GENERAL', List<String> roles = const [], int questions = 2}) async {
+    Future<void> module(String id, int order, {String audience = 'GENERAL', List<String> roles = const [], List<bool> quiz = const [true, false, true]}) async {
       await db.into(db.cachedModules).insert(CachedModulesCompanion.insert(
             id: id,
             moduleCode: id,
@@ -173,28 +154,36 @@ void main() {
             learnerRolesJson: Value(jsonEncode(roles)),
           ));
       await db.into(db.contentChunks).insert(ContentChunksCompanion.insert(
-            id: 'chunk-$id', moduleId: id, moduleCode: id, language: 'en', sourceTitle: 'Module $id', chunkText: 'text $id'));
-      for (var i = 0; i < questions; i++) {
-        await db.into(db.cachedQuizQuestions).insert(CachedQuizQuestionsCompanion.insert(
-              id: '$id-q$i', moduleId: id, questionType: 'TRUE_FALSE', prompt: 'Q$i', contentJson: '{"correct": true}', sortOrder: i));
+          id: 'chunk-$id', moduleId: id, moduleCode: id, language: 'en', sourceTitle: 'Module $id', chunkText: 'text $id'));
+      await db.into(db.cachedSections).insert(CachedSectionsCompanion.insert(
+          id: '$id-s0', moduleId: id, sectionNumber: 1, contentType: 'TEXT', contentJson: '{"text": "Reading $id"}', sortOrder: 1));
+      for (var i = 0; i < quiz.length; i++) {
+        await db.into(db.cachedSections).insert(CachedSectionsCompanion.insert(
+            id: '$id-tf$i',
+            moduleId: id,
+            sectionNumber: i + 2,
+            contentType: 'TRUE_FALSE',
+            contentJson: jsonEncode({'statement': 'Statement $i', 'answer': quiz[i], 'audience': 'HFW'}),
+            sortOrder: i + 2));
       }
     }
 
-    Future<TestOutcome> take(String moduleId, String type, int correct, int total) => recordTestAttempt(
-          db,
-          moduleId: moduleId,
-          testType: type,
-          correct: correct,
-          total: total,
-          resultsJson: '[]',
-          clientId: '$type-$moduleId-${DateTime.now().microsecondsSinceEpoch}',
-        );
+    Map<String, bool> right(String id) => {'$id-tf0': true, '$id-tf1': false, '$id-tf2': true};
+
+    Future<void> generalTest() async {
+      await db.setGeneralTestActive(true);
+      await db.replaceGeneralQuestions([
+        for (var i = 0; i < 3; i++)
+          CachedGeneralQuestionsCompanion.insert(
+              id: 'g$i', number: i + 1, prompt: 'Question $i?', optionsJson: '["a","b","c","d"]', correctIndex: Value(i)),
+      ]);
+    }
 
     setUp(() async {
       db = LocalDatabase.forTesting(NativeDatabase.memory());
       db.setActiveUser('user-1', learnerRole: 'CDD');
       await module('A', 1);
-      await module('B', 2);
+      await module('B', 2, quiz: const []);
       await module('R', 3, audience: 'ROLE_SPECIFIC', roles: ['HEALTH_WORKER']);
     });
     tearDown(() => db.close());
@@ -204,79 +193,97 @@ void main() {
       expect(await db.getModule('R'), isNull);
       expect({for (final c in await db.getChunks('en')) c.moduleId}, {'A', 'B'});
       expect((await loadLearning(db)).of('R'), isNull);
-
       db.setActiveUser('user-2', learnerRole: 'HEALTH_WORKER');
       expect([for (final m in await db.getAllModules()) m.id], ['A', 'B', 'R']);
       db.setActiveUser('staff-1', staff: true);
       expect((await db.getAllModules()).length, 3);
     });
 
-    test('pre-test, reading, post-test at exactly 90% completes and queues the upload', () async {
-      expect((await loadLearning(db)).of('A')!.stage, ModuleStage.preTest);
-      await expectLater(take('A', 'POST', 9, 10), throwsStateError, reason: 'no post-test before the pre-test');
-      final pre = await take('A', 'PRE', 5, 10);
-      expect(pre.after.stage, ModuleStage.reading);
-      await expectLater(take('A', 'PRE', 1, 10), throwsStateError, reason: 'the pre-test is taken once');
-      await expectLater(take('A', 'POST', 9, 10), throwsStateError, reason: 'no post-test before reading');
-
-      await db.markReadingComplete('A');
-      final post = await take('A', 'POST', 9, 10);
-      expect(post.reachedPassMark && post.beatPreTest && post.completedNow, isTrue);
+    test('the module quiz, retries and the minimum time complete a module offline and queue the upload', () async {
+      expect((await db.quizStatementCountsByModule())['A'], 3);
+      var wrong = await recordModuleQuiz(db, moduleId: 'A', answers: {...right('A'), 'A-tf1': true});
+      expect((wrong.correct, wrong.total, wrong.passed), (2, 3, false));
+      expect(await completeModule(db, 'A'), 'Answer the module quiz correctly to finish this module.');
+      final ok = await recordModuleQuiz(db, moduleId: 'A', answers: right('A'));
+      expect(ok.passed && ok.completedModuleQuiz, isTrue);
+      expect(await completeModule(db, 'A'), contains('Please spend at least 3:00 in this module.'));
+      await db.addModuleSeconds('A', 120);
+      await db.addModuleSeconds('A', 60);
+      expect((await db.getProgressForModule('A'))!.secondsSpent, 180);
+      expect(await completeModule(db, 'A'), isNull);
       expect((await db.getProgressForModule('A'))!.completed, isTrue);
-      final queued = await db.getPendingByType('progress');
-      expect(queued.single.payloadJson, contains('"completed":true'));
-      expect((await loadLearning(db)).of('B')!.stage, ModuleStage.preTest);
+      expect((await db.getPendingByType('progress')).single.payloadJson, contains('"completed":true'));
+      expect([for (final a in await db.getUnsyncedQuizAttempts()) a.testType], ['MODULE_QUIZ', 'MODULE_QUIZ']);
+      final b = (await loadLearning(db)).of('B')!;
+      expect(b.stage, ModuleStage.reading, reason: 'the next module unlocks');
+      expect(b.hasQuiz, isFalse);
+      await expectLater(recordModuleQuiz(db, moduleId: 'A', answers: right('A')), throwsStateError,
+          reason: 'a completed module is review-only');
     });
 
-    test('below 90% or not higher than the pre-test does not complete; retries are kept', () async {
-      await take('A', 'PRE', 9, 10);
-      await db.markReadingComplete('A');
-      expect((await take('A', 'POST', 8, 10)).completedNow, isFalse); // below 90%
-      final equal = await take('A', 'POST', 9, 10); // 90% but equal to the pre-test
-      expect(equal.reachedPassMark, isTrue);
-      expect(equal.beatPreTest, isFalse);
-      expect(equal.completedNow, isFalse);
-      expect((await loadLearning(db)).of('B')!.stage, ModuleStage.locked);
-      final ok = await take('A', 'POST', 10, 10);
-      expect(ok.completedNow, isTrue);
-      expect((await db.getQuizAttempts(moduleId: 'A')).length, 4);
-    });
-
-    test('an attempt the server did not count is ignored, and restored attempts keep the baseline', () async {
+    test('old per-module test attempts and attempts the server refused never count', () async {
+      for (final type in ['PRE', 'POST', 'LEGACY']) {
+        await db.into(db.localQuizAttempts).insert(LocalQuizAttemptsCompanion.insert(
+              userId: const Value('user-1'), moduleId: 'A', clientId: 'old-$type', correctCount: 3, totalCount: 3,
+              scorePercent: 100, passed: true, resultsJson: '[]', takenAt: now, testType: Value(type)));
+      }
       await db.restoreAttemptFromServer(
-        clientId: 'srv-pre', moduleId: 'A', testType: 'PRE', correct: 6, total: 10, scorePercent: 60, passed: false,
-        valid: true, takenAt: now);
+          clientId: 'srv-bad', moduleId: 'A', testType: 'MODULE_QUIZ', correct: 3, total: 3, scorePercent: 100, passed: true,
+          valid: false, invalidReason: 'module is locked', takenAt: now);
+      expect((await loadLearning(db)).of('A')!.quizPassed, isFalse);
       await db.restoreAttemptFromServer(
-        clientId: 'srv-bad', moduleId: 'A', testType: 'PRE', correct: 1, total: 10, scorePercent: 10, passed: false,
-        valid: false, invalidReason: 'pre-test already taken', takenAt: now.add(const Duration(minutes: 5)));
-      final s = (await loadLearning(db)).of('A')!;
-      expect(s.pre?.clientId, 'srv-pre');
-      expect((await db.getUnsyncedQuizAttempts()), isEmpty, reason: 'restored attempts are not uploaded again');
+          clientId: 'srv-ok', moduleId: 'A', testType: 'MODULE_QUIZ', correct: 3, total: 3, scorePercent: 100, passed: true,
+          valid: true, takenAt: now);
+      expect((await loadLearning(db)).of('A')!.quizPassed, isTrue, reason: 'restored from the server (new phone)');
     });
 
-    test('legacy single-quiz attempts never count', () async {
-      await db.into(db.localQuizAttempts).insert(LocalQuizAttemptsCompanion.insert(
-            userId: const Value('user-1'), moduleId: 'A', clientId: 'old', correctCount: 10, totalCount: 10,
-            scorePercent: 100, passed: true, resultsJson: '[]', takenAt: now, testType: const Value('LEGACY')));
-      expect((await loadLearning(db)).of('A')!.stage, ModuleStage.preTest);
+    test('the General pre-test opens the modules; the post-test opens after all of them; each is taken once', () async {
+      await generalTest();
+      var l = await loadLearning(db);
+      expect(l.of('A')!.lockedByGeneralTest, isTrue);
+      expect(await completeModule(db, 'A'), 'Take the General pre-test first.');
+      await expectLater(recordGeneralTest(db, testType: 'POST', answers: const {}), throwsStateError);
+      final pre = await recordGeneralTest(db, testType: 'PRE', answers: {'g0': 0, 'g1': 0}); // g1 wrong, g2 unanswered
+      expect((pre.correct, pre.total, pre.percent), (1, 3, 33));
+      await expectLater(recordGeneralTest(db, testType: 'PRE', answers: const {}), throwsStateError, reason: 'once only');
+      l = await loadLearning(db);
+      expect(l.of('A')!.unlocked && l.general.gateOpen, isTrue);
+      expect(l.general.canTakePost, isFalse);
+      for (final id in ['A', 'B']) {
+        if (id == 'A') await recordModuleQuiz(db, moduleId: id, answers: right(id));
+        await db.addModuleSeconds(id, 200);
+        expect(await completeModule(db, id), isNull);
+      }
+      expect((await loadLearning(db)).general.canTakePost, isTrue);
+      final post = await recordGeneralTest(db, testType: 'POST', answers: {'g0': 0, 'g1': 1, 'g2': 2});
+      expect((post.correct, post.pre!.correct), (3, 1));
+      await expectLater(recordGeneralTest(db, testType: 'POST', answers: const {}), throwsStateError, reason: 'once only');
+      final queued = await db.getUnsyncedGeneralAttempts();
+      expect([for (final a in queued) a.testType], ['PRE', 'POST']);
+      expect(jsonDecode(queued.first.answersJson), [
+        {'question_id': 'g0', 'choice': 0},
+        {'question_id': 'g1', 'choice': 0},
+        {'question_id': 'g2', 'choice': null},
+      ]);
     });
 
-    test('a 100% pre-test learner auto-completes with 90% (threshold from the server)', () async {
-      await take('A', 'PRE', 10, 10);
-      await db.markReadingComplete('A');
-      expect((await loadLearning(db)).of('A')!.stage, ModuleStage.postTest);
-      await db.setAutoApprovePercent(95);
-      expect((await take('A', 'POST', 9, 10)).completedNow, isFalse, reason: '90% < 95%');
-      await db.setAutoApprovePercent(90);
-      final o = await take('A', 'POST', 9, 10);
-      expect(o.autoApproval && o.reachedAutoApproval && o.completedNow, isTrue);
-      await expectLater(take('A', 'POST', 10, 10), throwsStateError, reason: 'no re-submitting a completed module');
+    test('restarting the training clears the General results and the time spent', () async {
+      await generalTest();
+      await recordGeneralTest(db, testType: 'PRE', answers: const {'g0': 0});
+      await db.addModuleSeconds('A', 90);
+      await db.restartTraining();
+      expect(await db.getGeneralAttempts(), isEmpty);
+      expect(await db.getAllProgress(), isEmpty);
+      expect((await loadLearning(db)).of('A')!.lockedByGeneralTest, isTrue, reason: 'the pre-test is needed again');
     });
 
-    test('pre-test and post-test questions follow their usage tags', () async {
-      await (db.update(db.cachedQuizQuestions)..where((q) => q.id.equals('A-q0'))).write(const CachedQuizQuestionsCompanion(usage: Value('PRE')));
-      expect([for (final q in await db.getQuizQuestions('A', testType: 'PRE')) q.id], ['A-q0', 'A-q1']);
-      expect([for (final q in await db.getQuizQuestions('A', testType: 'POST')) q.id], ['A-q1']);
+    test('time from another phone counts here too, and never goes down', () async {
+      await db.addModuleSeconds('A', 50);
+      await db.markProgressSynced('A', (await db.getProgressForModule('A'))!.lastOpenedAt);
+      await db.restoreProgressFromServer(moduleId: 'A', progressPercent: 10, completed: false, secondsSpent: 140);
+      expect((await db.getProgressForModule('A'))!.secondsSpent, 140);
+      await db.restoreProgressFromServer(moduleId: 'A', progressPercent: 10, completed: false, secondsSpent: 20);
+      expect((await db.getProgressForModule('A'))!.secondsSpent, 140);
     });
 
     test('a hidden module\'s downloaded video is removed after a role change', () async {

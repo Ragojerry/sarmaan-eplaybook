@@ -1,5 +1,6 @@
 """
-Learner roles, role-based content, and the pre-test -> reading -> post-test flow.
+Learner roles, role-based content, and module completion (inline quiz + minimum time).
+The General pre/post test is in tests/test_general_test.py.
 
     cd backend && python -m pytest tests/test_learning.py -v
 """
@@ -55,7 +56,15 @@ def at(minutes: int) -> str:
     return (T0 + timedelta(minutes=minutes)).isoformat()
 
 
-# ---------- the rule itself (the Dart rules pass the same file) ----------
+# ---------- the rules themselves (the Dart rules pass the same file) ----------
+@pytest.mark.parametrize("case", VECTORS["completion"], ids=lambda c: c["why"][:50])
+def test_completion_rule_vectors(case):
+    passed = case["quiz_statements"] > 0 and case["quiz_correct"] is not None and rules.module_quiz_passes(
+        case["quiz_correct"], case["quiz_statements"])
+    got = rules.can_complete_module(case["unlocked"], case["quiz_statements"] > 0, passed, case["seconds"], case["min_seconds"])
+    assert got is case["can_complete"], case["why"]
+
+
 @pytest.mark.parametrize("case", VECTORS["cases"], ids=lambda c: c["why"][:50])
 def test_pass_rule_vectors(case):
     assert VECTORS["pass_mark"] == 90
@@ -88,13 +97,18 @@ def world(db):
                    status=ModuleStatus.PUBLISHED, sort_order=order, audience=audience, learner_roles=roles)
         db.add(m)
         db.flush()
+        # a retired per-module question, archived as the 2026-11 migration left every one of them
         db.add(QuizQuestion(module_id=m.id, question_type="MULTIPLE_CHOICE", prompt=f"Question {key}?",
-                            content={"options": ["a", "b"], "correct": 0}))
+                            content={"options": ["a", "b"], "correct": 0}, is_active=False,
+                            archived_at=datetime.now(timezone.utc)))
         db.add(ModuleTranslation(module_id=m.id, language_id=english.id, title=m.title,
                                  status=ContentReviewStatus.PUBLISHED))
         sec = ContentSection(module_id=m.id, section_number=1, title=f"Section {key}", content_type=ContentType.TEXT,
                              content={"text": f"Secret words for module {key} zebracrossing{key}"}, sort_order=1)
         db.add(sec)
+        db.add(ContentSection(module_id=m.id, section_number=2, content_type=ContentType.TRUE_FALSE, sort_order=2,
+                              content={"statement": f"Module {key} quiz statement quaggafact{key}", "answer": True,
+                                       "explanation": None, "audience": "HFW"}))
         db.flush()
         db.add(ContentChunk(module_id=m.id, module_code=m.module_code, section_id=sec.id, section_title=sec.title,
                             language="en", source_title=m.title, chunk_text=f"zebracrossing{key} dosage words"))
@@ -136,15 +150,19 @@ def _attempt(cid, module, correct, total, kind, minute):
             "taken_at": at(minute), "test_type": kind}
 
 
+def _quiz(cid, module, correct, minute, total=1):
+    return _attempt(cid, module, correct, total, "MODULE_QUIZ", minute)
+
+
 def _upload(h, *items):
     r = client.post("/sync/quiz-attempts", headers=h, json={"device_id": "dev", "items": list(items)})
     assert r.status_code == 200, r.text
     return r.json()["results"]
 
 
-def _read(h, module, minute, completed=False):
+def _read(h, module, minute, completed=False, seconds=None):
     item = {"module_id": str(module.id), "progress_percent": 100 if completed else 50, "completed": completed,
-            "last_opened_at": at(minute), "reading_completed_at": at(minute)}
+            "last_opened_at": at(minute), "reading_completed_at": at(minute), "seconds_spent": seconds}
     r = client.post("/sync/progress", headers=h, json={"device_id": "dev", "items": [item]})
     assert r.status_code == 200, r.text
     return r.json()["results"][0]
@@ -155,10 +173,10 @@ def _state(h, module):
     return next((m for m in body["modules"] if m["module_id"] == str(module.id)), None)
 
 
-def _complete_through_tests(h, module, start=0):
-    assert _upload(h, _attempt(f"pre-{uuid.uuid4().hex[:8]}", module, 2, 10, "PRE", start))[0]["detail"] is None
-    _read(h, module, start + 1)
-    assert _upload(h, _attempt(f"post-{uuid.uuid4().hex[:8]}", module, 10, 10, "POST", start + 2))[0]["detail"] == "completed"
+def _complete(h, module, start=0):
+    """Pass the module's quiz and report the minimum time, as the phone does."""
+    assert _upload(h, _quiz(f"q-{uuid.uuid4().hex[:8]}", module, 1, start))[0]["detail"] is None
+    assert _read(h, module, start + 1, completed=True, seconds=180)["detail"] is None
 
 
 # ---------- learner roles ----------
@@ -290,8 +308,8 @@ def test_existing_content_stays_available_to_every_learner_role(world):
     for role in LearnerRole:
         codes = {m["module_code"] for m in client.get("/modules", headers=h[role]).json()}
         assert {"M1", "M2", "M3", "M4", "M5", "M6"} <= codes, role
-        questions = client.get("/sync/quiz-questions", headers=h[role]).json()
-        assert questions and all(q["usage"] in ("BOTH", "PRE", "POST") for q in questions)
+        # the per-module pre/post tests were retired and archived (2026-11): none is served any more
+        assert client.get("/sync/quiz-questions", headers=h[role]).json() == []
 
 
 # ---------- role-based visibility, enforced on every route ----------
@@ -311,8 +329,8 @@ def test_general_content_for_every_role_and_restricted_content_only_for_its_role
         assert client.get(f"/videos/{video.id}", headers=lh).status_code == want
         assert (str(video.id) in {v["id"] for v in client.get("/videos", headers=lh).json()}) is mine
         assert client.get(f"/videos/{video.id}/file", headers=lh).status_code == 404  # (no file uploaded either way)
-        quiz_modules = {q["module_id"] for q in client.get("/sync/quiz-questions", headers=lh).json()}
-        assert str(a.id) in quiz_modules and (str(r.id) in quiz_modules) is mine
+        # R's inline quiz statement travels with its sections (404 above for other roles)
+        assert (_state(lh, r) is not None) is mine
         tr = {x["module_id"] for x in client.get("/sync/translations?language=en", headers=lh).json()["modules"]}
         assert (str(r.id) in tr) is mine
         chunks = {c["module_id"] for c in client.get("/ai/chunks?language=en", headers=lh).json()}
@@ -381,143 +399,130 @@ def test_release_package_is_filtered_per_role_and_a_role_change_triggers_a_new_d
         db.commit()
 
 
-# ---------- the pre-test -> reading -> post-test sequence ----------
-def test_pre_test_before_reading_and_post_test_only_after_reading(world):
+# ---------- completing a module: inline quiz + minimum time ----------
+def test_module_quiz_and_three_minutes_complete_a_module(world):
     m, h = world["m"], world["h"]
     lh = h[LearnerRole.CDD]
     a = m["A"]
-    assert _state(lh, a)["status"] == "PRE_TEST"
-    res = _upload(lh, _attempt("s1", a, 9, 10, "POST", 1))[0]
-    assert res["status"] == "ok" and res["detail"] == "no pre-test yet"  # kept, but it does not count
-    assert _upload(lh, _attempt("s2", a, 5, 10, "PRE", 2))[0]["detail"] is None
     st = _state(lh, a)
-    assert st["status"] == "READING" and st["pre_test"]["score_percent"] == 50
-    assert _upload(lh, _attempt("s3", a, 10, 10, "POST", 3))[0]["detail"] == "reading not finished"
-    _read(lh, a, 4)
-    assert _state(lh, a)["status"] == "POST_TEST"
-    assert _upload(lh, _attempt("s4", a, 10, 10, "POST", 3))[0]["detail"] == "taken before reading was finished"
-    assert _upload(lh, _attempt("s5", a, 9, 10, "POST", 5))[0]["detail"] == "completed"
+    assert st["status"] == "READING" and st["has_quiz"] and st["quiz_statements"] == 1 and not st["quiz_passed"]
+    assert st["has_tests"] is False and client.get("/sync/learning", headers=lh).json()["module_min_seconds"] == 180
+    assert _read(lh, a, 1, completed=True, seconds=60)["detail"] == "not completed: module quiz not passed yet"
+    assert _upload(lh, _quiz("w1", a, 0, 2))[0]["detail"] is None       # wrong answer: kept, not passed
+    assert _state(lh, a)["quiz_passed"] is False
+    assert _upload(lh, _quiz("w2", a, 1, 3))[0]["detail"] is None       # retake: passed
     st = _state(lh, a)
-    assert st["status"] == "COMPLETED" and st["completed"] is True
+    assert st["quiz_passed"] is True and st["quiz_attempts"] == 2 and st["completed"] is False  # completing is the learner's step
+    assert _read(lh, a, 4, completed=True, seconds=179)["detail"] == "not completed: less than 180 seconds in this module"
+    assert _read(lh, a, 5, completed=True, seconds=180)["detail"] is None
+    st = _state(lh, a)
+    assert st["status"] == "COMPLETED" and st["seconds_spent"] == 180
+    assert _state(lh, m["B"])["unlocked"] is True
     attempts = client.get("/sync/learning", headers=lh).json()["attempts"]
-    mine = {x["client_id"]: x for x in attempts if x["module_id"] == str(a.id)}
-    assert set(mine) == {"s1", "s2", "s3", "s4", "s5"}  # every attempt is kept as history
-    assert [k for k, x in mine.items() if x["valid"]] == ["s2", "s5"]
-    # B: reading before the pre-test means the pre-test cannot count.
-    b = m["B"]
-    _read(lh, b, 10)
-    assert _upload(lh, _attempt("s6", b, 2, 10, "PRE", 11))[0]["detail"] == "pre-test must be taken before reading"
+    assert {x["client_id"] for x in attempts if x["module_id"] == str(a.id)} == {"w1", "w2"}  # every attempt kept
 
 
 def test_next_module_is_locked_until_the_previous_one_is_completed(world):
     m, h = world["m"], world["h"]
     lh = h[LearnerRole.LOGISTICIAN]
     assert _state(lh, m["B"])["status"] == "LOCKED"
-    assert _upload(lh, _attempt("k1", m["B"], 2, 10, "PRE", 1))[0]["detail"] == "module is locked: complete the previous module first"
-    res = _read(lh, m["B"], 2, completed=True)
-    assert res["detail"] == "not completed: module is locked: complete the previous module first"
-    _complete_through_tests(lh, m["A"], start=3)
-    assert _state(lh, m["B"])["status"] == "PRE_TEST"
-    assert _upload(lh, _attempt("k2", m["B"], 2, 10, "PRE", 10))[0]["detail"] is None
+    locked = "module is locked: complete the previous module first"
+    assert _upload(lh, _quiz("k1", m["B"], 1, 1))[0]["detail"] == locked
+    assert _read(lh, m["B"], 2, completed=True, seconds=900)["detail"] == f"not completed: {locked}"
+    _complete(lh, m["A"], start=3)
+    assert _state(lh, m["B"])["status"] == "READING"
+    assert _upload(lh, _quiz("k2", m["B"], 1, 10))[0]["detail"] is None
 
 
-@pytest.mark.parametrize("pre,post,completes", [
-    ((5, 10), (9, 10), True),     # exactly 90%
-    ((5, 10), (8, 10), False),    # below 90%
-    ((9, 10), (9, 10), False),    # 90% but not higher than the pre-test
-    ((9, 10), (19, 20), True),    # higher, with a different number of questions
-])
-def test_ninety_percent_and_strictly_higher_than_the_pre_test(world, pre, post, completes):
+def test_the_old_per_module_tests_no_longer_count(world):
+    """Older apps may still upload PRE/POST attempts: they are kept as history and never
+    complete or unlock anything; the archived questions are not served."""
     m, lh = world["m"], world["h"][LearnerRole.OTHER]
     a = m["A"]
-    _upload(lh, _attempt("p1", a, *pre, "PRE", 1))
-    _read(lh, a, 2)
-    res = _upload(lh, _attempt("p2", a, *post, "POST", 3))[0]
-    assert (res["detail"] == "completed") is completes
-    assert _state(lh, a)["completed"] is completes
-    assert _state(lh, m["B"])["unlocked"] is completes
-
-
-def test_failed_post_tests_can_be_retried_but_a_new_pre_test_cannot_lower_the_bar(world):
-    m, lh = world["m"], world["h"][LearnerRole.MONITOR_SUPERVISOR]
-    a = m["A"]
-    _upload(lh, _attempt("r1", a, 9, 10, "PRE", 1))
-    _read(lh, a, 2)
-    assert _upload(lh, _attempt("r2", a, 9, 10, "POST", 3))[0]["detail"] is None  # equal: not completed
-    res = _upload(lh, _attempt("r3", a, 1, 10, "PRE", 4))[0]  # trying to lower the baseline
-    assert res["status"] == "ok" and res["detail"] == "pre-test already taken"
-    assert _upload(lh, _attempt("r4", a, 9, 10, "POST", 5))[0]["detail"] is None
+    res = _upload(lh, _attempt("o1", a, 2, 10, "PRE", 1), _attempt("o2", a, 10, 10, "POST", 2),
+                  {k: v for k, v in _attempt("o3", a, 10, 10, "POST", 3).items() if k != "test_type"})
+    assert [r["detail"] for r in res] == ["per-module pre/post tests were replaced (2026-11)"] * 3
     st = _state(lh, a)
-    assert st["pre_test"]["client_id"] == "r1" and st["post_test_attempts"] == 2 and st["status"] == "POST_TEST"
-    assert _upload(lh, _attempt("r5", a, 10, 10, "POST", 6))[0]["detail"] == "completed"
+    assert st["completed"] is False and st["pre_test"] is None and st["post_test_attempts"] == 0
+    assert _state(lh, m["B"])["unlocked"] is False
+    assert [q for q in client.get("/sync/quiz-questions", headers=lh).json() if q["module_id"] == str(a.id)] == []
+    assert client.post(f"/quiz/modules/{a.id}/questions", headers=world["h"][RoleName.CONTENT_ADMIN], json={
+        "question_type": "MULTIPLE_CHOICE", "prompt": "Which one?", "content": {"options": ["a", "b", "c"], "correct": 1},
+        "explanation": "because"}).status_code == 410
 
 
-@pytest.mark.parametrize("post,completes", [((9, 10), True), ((19, 20), True), ((10, 10), True), ((89, 100), False)])
-def test_perfect_pre_test_is_auto_approved_at_the_threshold(world, post, completes):
-    """A 100% pre-test cannot be beaten, so a post-test at or above the
-    auto-approval threshold (90) completes the module at once: no approval
-    step, and nothing is written to the audit log."""
-    m, h, db = world["m"], world["h"], world["db"]
-    learner = world["learners"][LearnerRole.CDD]
-    lh = h[LearnerRole.CDD]
-    a = m["A"]
-    _upload(lh, _attempt("e1", a, 10, 10, "PRE", 1))
-    _read(lh, a, 2)
-    assert _state(lh, a)["status"] == "POST_TEST"
-    res = _upload(lh, _attempt("e2", a, *post, "POST", 3))[0]
-    assert (res["detail"] == "completed") is completes
-    st = _state(lh, a)
-    assert st["completed"] is completes and st["status"] == ("COMPLETED" if completes else "POST_TEST")
-    assert _state(lh, m["B"])["unlocked"] is completes
-    # Nothing but the learner's own sign-in is in the audit log.
-    logged = {a.action for a in db.query(AuditLog).filter(AuditLog.entity_id == learner.id)}
-    assert logged <= {AuditAction.LOGIN}
-    assert client.get("/sync/learning", headers=lh).json()["auto_approve_percent"] == 90
-    assert client.post("/learning/exceptions", headers=h[RoleName.CONTENT_ADMIN], json={}).status_code in (404, 405)
-
-
-def test_auto_approval_threshold_is_a_setting(world, monkeypatch):
-    from app.config import get_settings
-
-    monkeypatch.setattr(get_settings(), "post_test_auto_approve_percent", 95)
-    m, lh = world["m"], world["h"][LearnerRole.CDD]
-    a = m["A"]
-    _upload(lh, _attempt("t1", a, 10, 10, "PRE", 1))
-    _read(lh, a, 2)
-    assert _upload(lh, _attempt("t2", a, 9, 10, "POST", 3))[0]["detail"] is None  # 90% < 95%
-    assert _upload(lh, _attempt("t3", a, 19, 20, "POST", 4))[0]["detail"] == "completed"
-    assert client.get("/sync/learning", headers=lh).json()["auto_approve_percent"] == 95
-
-
-def test_a_completed_module_cannot_be_resubmitted(world, db):
+def test_a_completed_module_is_review_only(world, db):
     m, lh = world["m"], world["h"][LearnerRole.OTHER]
     learner = world["learners"][LearnerRole.OTHER]
     a = m["A"]
-    _complete_through_tests(lh, a)
-    res = _upload(lh, _attempt("again", a, 3, 10, "POST", 10))[0]
+    _complete(lh, a)
+    res = _upload(lh, _quiz("again", a, 0, 10))[0]
     assert res["status"] == "ok" and res["detail"] == "module already completed"
     assert _read(lh, a, 11)["status"] == "ok"
     db.expire_all()
     row = db.query(UserModuleProgress).filter_by(user_id=learner.id, module_id=a.id).one()
     assert row.completed is True and row.progress_percent == 100
-    st = _state(lh, a)
-    assert st["completed"] is True and st["best_post_test"]["score_percent"] == 100
+    assert _state(lh, a)["quiz_passed"] is True
 
 
-def test_offline_batch_in_any_order_and_duplicates_are_idempotent(world):
-    m, lh, db = world["m"], world["h"][LearnerRole.HEALTH_WORKER], world["db"]
+def test_offline_batch_is_idempotent_and_time_only_grows(world, db):
+    m, lh = world["m"], world["h"][LearnerRole.HEALTH_WORKER]
     learner = world["learners"][LearnerRole.HEALTH_WORKER]
     a = m["A"]
-    # The phone was offline: it uploads reading first, then both tests (listed post first).
-    _read(lh, a, 2)
-    batch = [_attempt("o-post", a, 10, 10, "POST", 3), _attempt("o-pre", a, 3, 10, "PRE", 1)]
-    first = _upload(lh, *batch)
-    assert {x["key"]: x["detail"] for x in first} == {"o-pre": None, "o-post": "completed"}
-    again = _upload(lh, *batch)
-    assert [x["status"] for x in again] == ["duplicate", "duplicate"]
+    batch = [_quiz("o-1", a, 0, 1), _quiz("o-2", a, 1, 2)]
+    assert [x["status"] for x in _upload(lh, *batch)] == ["ok", "ok"]
+    assert [x["status"] for x in _upload(lh, *batch)] == ["duplicate", "duplicate"]
     assert db.query(QuizAttempt).filter_by(user_id=learner.id, module_id=a.id).count() == 2
-    assert _read(lh, a, 4, completed=True)["status"] == "ok"  # the phone's own "completed" is accepted now
-    assert _state(lh, a)["completed"] is True
+    _read(lh, a, 3, seconds=120)
+    _read(lh, a, 4, seconds=60)    # an older phone's smaller value never lowers it
+    assert _state(lh, a)["seconds_spent"] == 120
+    assert _read(lh, a, 5, completed=True, seconds=200)["detail"] is None
+    assert _read(lh, a, 5, completed=True, seconds=200)["status"] in ("ok", "duplicate")
+    assert _state(lh, a)["completed"] is True and _state(lh, a)["seconds_spent"] == 200
+
+
+def test_a_module_completed_before_the_change_stays_completed(world, db):
+    """Completed before the new rules (no quiz attempt, no time recorded): never re-locked."""
+    m, lh = world["m"], world["h"][LearnerRole.CDD]
+    learner = world["learners"][LearnerRole.CDD]
+    db.add(UserModuleProgress(user_id=learner.id, module_id=m["A"].id, progress_percent=100, completed=True,
+                              completed_at=T0, seconds_spent=0))
+    db.commit()
+    st = _state(lh, m["A"])
+    assert st["completed"] is True and st["seconds_spent"] == 0 and st["quiz_passed"] is False
+    assert _state(lh, m["B"])["unlocked"] is True
+
+
+def test_quiz_statements_follow_the_module_audience_and_are_never_search_answers(world):
+    m, h = world["m"], world["h"]
+    r = m["R"]
+    hw = client.get(f"/modules/{r.id}/sections", headers=h[LearnerRole.HEALTH_WORKER])
+    assert hw.status_code == 200 and any(x["content_type"] == "TRUE_FALSE" for x in hw.json())
+    assert client.get(f"/modules/{r.id}/sections", headers=h[LearnerRole.CDD]).status_code in (403, 404)
+    from app.ai.indexer import rebuild_all_chunks
+    rebuild_all_chunks(world["db"])
+    world["db"].commit()
+    ask = client.post("/ai/ask", headers=h[LearnerRole.HEALTH_WORKER], json={"question": "quaggafactR quiz statement"})
+    assert all("quaggafact" not in (s.get("chunk_text") or "") for s in ask.json().get("sources", []))
+    assert "quaggafact" not in (ask.json().get("answer") or "")
+
+
+def test_true_false_sections_are_checked_when_saved(world):
+    m, ch = world["m"], world["h"][RoleName.CONTENT_ADMIN]
+    a = m["A"]
+    base = {"section_number": 9, "content_type": "TRUE_FALSE", "sort_order": 9}
+    assert client.post(f"/modules/{a.id}/sections", headers=ch, json={**base, "content": {"statement": "x"}}).status_code == 422
+    bad = client.post(f"/modules/{a.id}/sections", headers=ch,
+                      json={**base, "content": {"statement": "x", "answer": "yes", "audience": "HFW"}})
+    assert bad.status_code == 422
+    ok = client.post(f"/modules/{a.id}/sections", headers=ch, json={**base, "content": {
+        "statement": "  AZM is given door to door ", "answer": True, "explanation": "", "audience": "CDD", "junk": 1}})
+    assert ok.status_code == 201
+    assert ok.json()["content"] == {"statement": "AZM is given door to door", "answer": True, "explanation": None, "audience": "CDD"}
+    up = client.patch(f"/modules/sections/{ok.json()['id']}", headers=ch,
+                      json={"content": {"statement": "Changed", "answer": False, "audience": "CDD"}})
+    assert up.status_code == 200 and up.json()["content"]["answer"] is False
+    assert _state(world["h"][LearnerRole.CDD], a)["quiz_statements"] == 2
 
 
 # ---------- admin configuration and reports ----------
@@ -539,34 +544,31 @@ def test_admins_classify_modules_and_tag_questions(world):
     r = client.patch(f"/modules/{a.id}", headers=ch, json={"audience": "GENERAL", "learner_roles": ["CDD"]})
     assert r.json()["audience"] == "GENERAL" and r.json()["learner_roles"] == []
 
-    # Questions can be tagged for the pre-test, the post-test or both.
-    q = {"question_type": "TRUE_FALSE", "prompt": "Pre only?", "content": {"correct": True}, "usage": "PRE"}
-    r = client.post(f"/quiz/modules/{a.id}/questions", headers=ch, json=q)
-    assert r.status_code == 201 and r.json()["usage"] == "PRE"
-    s = client.get(f"/quiz/modules/{a.id}/summary", headers=ch).json()
-    assert (s["questions"], s["pre_test_questions"], s["post_test_questions"]) == (2, 2, 1)
-    assert client.patch(f"/quiz/questions/{r.json()['id']}", headers=ch, json={"usage": "POST"}).json()["usage"] == "POST"
-    phone = [x for x in client.get("/sync/quiz-questions", headers=h[LearnerRole.CDD]).json() if x["module_id"] == str(a.id)]
-    assert sorted(x["usage"] for x in phone) == ["BOTH", "POST"]
 
 
-def test_report_shows_pre_and_post_tests_separately(world):
+def test_report_shows_quiz_time_and_the_old_tests_separately(world):
     m, h = world["m"], world["h"]
     lh = h[LearnerRole.LOGISTICIAN]
     a = m["A"]
-    _upload(lh, _attempt("t1", a, 4, 10, "PRE", 1))
-    _read(lh, a, 2)
-    _upload(lh, _attempt("t2", a, 7, 10, "POST", 3), _attempt("t3", a, 9, 10, "POST", 4))
+    _upload(lh, _attempt("t1", a, 4, 10, "PRE", 1))          # an old app's test: history only
+    _upload(lh, _quiz("t2", a, 0, 2), _quiz("t3", a, 1, 3))
+    _read(lh, a, 4, completed=True, seconds=240)
     rows = client.get("/learning/report?learner_role=LOGISTICIAN", headers=h[RoleName.PROGRAM_REVIEWER]).json()
     row = next(r for r in rows if r["module_code"] == a.module_code and r["username"] == world["learners"][LearnerRole.LOGISTICIAN].username)
-    assert row["pre_test_score"] == 40 and row["post_test_attempts"] == 2
-    assert row["post_test_best_score"] == 90 and row["post_test_latest_score"] == 90
-    assert row["met_both_rules"] is True and row["status"] == "COMPLETED" and row["learner_role"] == "LOGISTICIAN"
+    assert row["status"] == "COMPLETED" and row["learner_role"] == "LOGISTICIAN" and row["learner_group"] == "HFW & others"
+    assert row["quiz_attempts"] == 2 and row["quiz_passed"] is True and row["quiz_latest_score"] == 100
+    assert row["seconds_spent"] == 240 and row["min_seconds"] == 180 and row["curriculum"] == "HFW"
+    assert row["pre_test_score"] is None and row["attempts_not_counted"] == 1  # the old PRE was not counted
     csv = client.get("/learning/report.csv?learner_role=LOGISTICIAN", headers=h[RoleName.PROGRAM_REVIEWER])
     assert csv.status_code == 200 and csv.headers["content-type"].startswith("text/csv")
-    assert "pre_test_score" in csv.text.splitlines()[0] and "post_test_best_score" in csv.text.splitlines()[0]
+    header = csv.text.splitlines()[0]
+    assert all(k in header for k in ("pre_test_score", "post_test_best_score", "quiz_passed", "seconds_spent"))
     assert client.get("/learning/report", headers=lh).status_code == 403
     detail = client.get(f"/learning/attempts/{world['learners'][LearnerRole.LOGISTICIAN].id}", headers=h[RoleName.PROGRAM_REVIEWER]).json()
-    assert [(d["test_type"], d["score_percent"]) for d in detail if d["module_code"] == a.module_code] == [("PRE", 40), ("POST", 70), ("POST", 90)]
+    assert [(d["test_type"], d["score_percent"]) for d in detail if d["module_code"] == a.module_code] == [
+        ("PRE", 40), ("MODULE_QUIZ", 0), ("MODULE_QUIZ", 100)]
     users = client.get("/reports/users?learner_role=LOGISTICIAN", headers=h[RoleName.PROGRAM_REVIEWER]).json()
     assert users and all(u["learner_role"] == "LOGISTICIAN" for u in users)
+    me = next(u for u in users if u["username"] == world["learners"][LearnerRole.LOGISTICIAN].username)
+    assert me["module_quiz_attempts"] == 2 and me["module_quizzes_passed"] == 1 and me["seconds_spent_total"] == 240
+    assert me["general_pre_points"] is None and "quiz_attempts" in me  # existing fields are still there

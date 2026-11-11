@@ -2,7 +2,6 @@ import { useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { api } from "../services/api";
-import { useAuth } from "../services/auth";
 import AuthenticatedImage from "../components/AuthenticatedImage";
 import { MediaItem, Module, QuestionType, QuestionUsage, QuizQuestionRow, QuizSummaryRow } from "../types/api";
 
@@ -129,9 +128,10 @@ function errorText(err: unknown, fallback: string) {
 /** Per-module quiz authoring. Learners pass at 90%; changes ship with the next published release. */
 export default function QuizEditorPage() {
   const { moduleId } = useParams<{ moduleId: string }>();
-  const { user } = useAuth();
   const queryClient = useQueryClient();
-  const canEdit = user?.role === "CONTENT_ADMIN" || user?.role === "SUPER_ADMIN";
+  // An archive since 2026-11: the per-module pre/post tests were retired and their
+  // questions archived, so nothing is added or changed here (the server refuses it too).
+  const canEdit = false;
   const [draft, setDraft] = useState<Draft | null>(null);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [message, setMessage] = useState<{ kind: "error" | "info"; text: string } | null>(null);
@@ -446,12 +446,16 @@ export default function QuizEditorPage() {
       <Link to={`/content/${moduleId}`} className="text-sm text-gray-500 hover:underline">
         ← Back to module
       </Link>
-      <h1 className="text-xl font-semibold mt-2 mb-1">Quiz{module.data ? ` — ${module.data.module_code} ${module.data.title}` : ""}</h1>
-      <p className="text-sm text-gray-500 mb-1">
-        Learners take a pre-test before reading the module and a post-test after reading it. The module is completed (and the
-        next one unlocked) only when the post-test scores {summary.data?.pass_mark ?? 90}% or more <em>and</em> higher than
-        their pre-test. Each question is used in both tests unless you tag it for one.
-      </p>
+      <h1 className="text-xl font-semibold mt-2 mb-1">
+        Retired pre/post test{module.data ? ` — ${module.data.module_code} ${module.data.title}` : ""}
+      </h1>
+      <div className="bg-amber-50 border border-amber-200 text-amber-900 text-sm rounded p-3 mb-3">
+        The per-module pre-tests and post-tests were retired in November 2026. These questions are archived: kept with their
+        old attempts for history, never shown to learners, and read-only here. Learners now take one{" "}
+        <Link to="/general-test" className="underline">General test</Link> before and after the training, and each module has
+        an inline True/False quiz (TRUE_FALSE sections in the{" "}
+        <Link to={`/content/${moduleId}`} className="underline">module editor</Link>).
+      </div>
       {summary.data && (
         <p className="text-sm text-gray-500 mb-4">
           {summary.data.questions} active questions ({summary.data.pre_test_questions} in the pre-test,{" "}

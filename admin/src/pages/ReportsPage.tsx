@@ -29,7 +29,8 @@ const USER_COLS: [string, string][] = [
   ["full_name", "Name"], ["username", "Username"], ["learner_role", "Learner role"], ["team_code", "Team"], ["session", "Session"], ["training_attempt", "Attempt"], ["state", "State"], ["lga", "LGA"], ["ward", "Ward"],
   ["facility", "Facility"], ["modules_completed", "Done"], ["completion_rate", "Completion %"], ["quizzes_passed", "Quizzes passed"],
   ["avg_best_quiz_score", "Avg quiz %"], ["training_events", "Training"], ["video_events", "Video"], ["questions_asked", "Q&A"],
-  ["technical_events", "Technical"], ["last_activity", "Last activity"],
+  ["technical_events", "Technical"], ["general_pre_points", "General pre"], ["general_post_points", "General post"],
+  ["module_quizzes_passed", "Module quizzes passed"], ["seconds_spent_total", "Seconds in modules"], ["last_activity", "Last activity"],
 ];
 const MODULE_COLS: [string, string][] = [
   ["module_code", "Module"], ["module_title", "Title"], ["area", "Area"], ["users", "Users"], ["started", "Started"],
@@ -186,7 +187,7 @@ export default function ReportsPage() {
         {tabBtn("area", "By area")}
         {tabBtn("user", "By user")}
         {tabBtn("module", "By module")}
-        {tabBtn("tests", "Pre/post tests")}
+        {tabBtn("tests", "Tests, quizzes & time")}
         {isSuper && tabBtn("bi", "Power BI access")}
       </div>
 
@@ -287,7 +288,7 @@ export default function ReportsPage() {
             </>
           )}
           {tab === "tests" && (
-            <TestReport params={params} onDownload={() => download("/learning/report.csv", {}, "pre_post_tests.csv")} />
+            <TestReport params={params} onDownload={(path, filename) => download(path, {}, filename)} />
           )}
           {tab === "module" && (
             <>

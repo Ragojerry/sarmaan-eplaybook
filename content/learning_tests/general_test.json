@@ -1,0 +1,302 @@
+[
+ {
+  "number": 1,
+  "prompt": "What does AZM MDA stand for?",
+  "options": [
+   "Azithromycin Multi Drug Administration",
+   "Mass Administration of Azithromycin",
+   "Amoxicillin Mass Dosage Assessment",
+   "Amoxicillin Medical Distribution Activity"
+  ],
+  "cdd_specific": false,
+  "correct_index": null
+ },
+ {
+  "number": 2,
+  "prompt": "What is the target age group for AZM administration?",
+  "options": [
+   "6 to 12 months",
+   "1 to 59 months",
+   "3 to 24 months",
+   "5 to 10 years"
+  ],
+  "cdd_specific": false,
+  "correct_index": null
+ },
+ {
+  "number": 3,
+  "prompt": "Which age group is eligible for the height-based dosing strategy?",
+  "options": [
+   "6 to 12 months",
+   "1 to 59 months",
+   "12 to 59 months",
+   "5 to 10 years"
+  ],
+  "cdd_specific": false,
+  "correct_index": null
+ },
+ {
+  "number": 4,
+  "prompt": "Which of the following represents the correct ages used in the three-tier strategy?",
+  "options": [
+   "1-3 months, 4-6 months, 7-11 Months",
+   "1-2 months, 3-7 months, 8-11 months",
+   "1-2 months, 3-4 months, 5-11 months",
+   "1-4 months, 5-7 months, 8-11 months"
+  ],
+  "cdd_specific": false,
+  "correct_index": null
+ },
+ {
+  "number": 5,
+  "prompt": "Which of the following represents the correct doses used in the three-tier strategy?",
+  "options": [
+   "1ml, 2ml, 3ml",
+   "2ml, 3ml, 4ml",
+   "3ml, 4ml, 5ml",
+   "2ml, 4ml, 5ml"
+  ],
+  "cdd_specific": false,
+  "correct_index": null
+ },
+ {
+  "number": 6,
+  "prompt": "Where should AZM be administered to children?",
+  "options": [
+   "At a Fixed Post",
+   "At the Health Facility",
+   "At the house",
+   "At School"
+  ],
+  "cdd_specific": false,
+  "correct_index": null
+ },
+ {
+  "number": 7,
+  "prompt": "How many rounds of AZM are there in one Year?",
+  "options": [
+   "1",
+   "4",
+   "2",
+   "3"
+  ],
+  "cdd_specific": false,
+  "correct_index": null
+ },
+ {
+  "number": 8,
+  "prompt": "What should a CDD (dispenser) do if a child vomits within 5 minutes of taking AZM?",
+  "options": [
+   "Re-dose the child",
+   "Ignore and move on",
+   "Wait until the next administration cycle",
+   "Give a double dose immediately"
+  ],
+  "cdd_specific": true,
+  "correct_index": null
+ },
+ {
+  "number": 9,
+  "prompt": "How does the CDD receive informed consent from the head of house before administering AZM?",
+  "options": [
+   "Head of house or Caregivers are forced to accept the medicine",
+   "Head of house or Caregivers are informed of the benefits and risks and asked to agree",
+   "Only verbal consent is required from community leaders",
+   "No consent is needed"
+  ],
+  "cdd_specific": true,
+  "correct_index": null
+ },
+ {
+  "number": 10,
+  "prompt": "Who is responsible for administering AZM in communities?",
+  "options": [
+   "Pharmacists",
+   "Community Drug Distributors (CDDs)",
+   "Health Supervisors",
+   "Parents"
+  ],
+  "cdd_specific": false,
+  "correct_index": null
+ },
+ {
+  "number": 11,
+  "prompt": "Which platform is NOT used to deliver AZM?",
+  "options": [
+   "Seasonal Malaria Chemoprevention (SMC)",
+   "Neglected Tropical Diseases (NTD)",
+   "Polio Eradication Initiative (PEI)",
+   "School feeding programs"
+  ],
+  "cdd_specific": false,
+  "correct_index": null
+ },
+ {
+  "number": 12,
+  "prompt": "What should be done if a caregiver refuses AZM for their child?",
+  "options": [
+   "Force them to accept it",
+   "Respect their decision but provide more education",
+   "Ignore them and move on",
+   "Report them to the authorities"
+  ],
+  "cdd_specific": false,
+  "correct_index": null
+ },
+ {
+  "number": 13,
+  "prompt": "What is the correct way to mix AZM medicine (powdered oral suspension (POS))?",
+  "options": [
+   "Shake the bottle and add 15ml of clean water, then shake again",
+   "Mix with fruit juice",
+   "Heat before use",
+   "Pour directly into the child's mouth"
+  ],
+  "cdd_specific": false,
+  "correct_index": null
+ },
+ {
+  "number": 14,
+  "prompt": "Which child should NOT receive AZM?",
+  "options": [
+   "A child with no history of allergies",
+   "A child currently taking antibiotics",
+   "A child who eats well",
+   "A child whose sibling has an allergy"
+  ],
+  "cdd_specific": false,
+  "correct_index": null
+ },
+ {
+  "number": 15,
+  "prompt": "What is the purpose of house marking during the campaign?",
+  "options": [
+   "To identify houses where food is available",
+   "To mark houses where AZM has been administered",
+   "To warn others of disease outbreaks",
+   "To mark new houses in the community"
+  ],
+  "cdd_specific": false,
+  "correct_index": null
+ },
+ {
+  "number": 16,
+  "prompt": "Tick the correct House Marking when AZM only is completely given to a household in Round 1",
+  "options": [
+   "AZM / 26 / 1 / 56708 / 021/ 0/2 / Complete",
+   "AZM / 26 / 1 / 56708 / 021/ 2/2 / C",
+   "AZM / 26 / 1 / 56708 / 021/ 2/2 / E",
+   "AZM / 26/ 1 / 56708 / 021/ 3/2 / C"
+  ],
+  "cdd_specific": false,
+  "correct_index": null
+ },
+ {
+  "number": 17,
+  "prompt": "What should be done for a child experiencing severe allergic reaction after taking AZM?",
+  "options": [
+   "Give another dose",
+   "Report immediately and refer the child to a health facility",
+   "Wait for the reaction to stop",
+   "Ignore and continue the campaign"
+  ],
+  "cdd_specific": false,
+  "correct_index": null
+ },
+ {
+  "number": 18,
+  "prompt": "What is the correct order for administering AZM to a child?",
+  "options": [
+   "Determine eligibility, obtain consent, administer the correct dose, and record",
+   "Give the medicine first, then ask for consent",
+   "Record first before giving medicine",
+   "Ask the community leader for consent"
+  ],
+  "cdd_specific": false,
+  "correct_index": null
+ },
+ {
+  "number": 19,
+  "prompt": "What should a CDD do if a caregiver is not at home during a visit?",
+  "options": [
+   "Administer the medicine to another child",
+   "Mark the house for a revisit",
+   "Skip the house and never return",
+   "Give the medicine to a neighbor"
+  ],
+  "cdd_specific": true,
+  "correct_index": null
+ },
+ {
+  "number": 20,
+  "prompt": "What does PV stand for in the context of drug safety?",
+  "options": [
+   "Patient Verification",
+   "Pharmacovigilance",
+   "Public Vaccination",
+   "Pediatric Validation"
+  ],
+  "cdd_specific": false,
+  "correct_index": null
+ },
+ {
+  "number": 21,
+  "prompt": "Which organization is responsible for reporting adverse drug reactions in Nigeria?",
+  "options": [
+   "UNICEF",
+   "WHO",
+   "NAFDAC",
+   "NDLEA"
+  ],
+  "cdd_specific": false,
+  "correct_index": null
+ },
+ {
+  "number": 22,
+  "prompt": "What is an expected mild side effect of AZM?",
+  "options": [
+   "Loss of vision",
+   "Nausea and diarrhea",
+   "Paralysis",
+   "High fever"
+  ],
+  "cdd_specific": false,
+  "correct_index": null
+ },
+ {
+  "number": 23,
+  "prompt": "How should unused AZM be handled at the end of each day?",
+  "options": [
+   "Thrown away",
+   "Given to the next child",
+   "Returned to the health facility",
+   "Stored at home"
+  ],
+  "cdd_specific": false,
+  "correct_index": null
+ },
+ {
+  "number": 24,
+  "prompt": "What is the purpose of the AZM Child Record Card?",
+  "options": [
+   "To track the administration of AZM",
+   "To register children for school",
+   "To track immunizations",
+   "To register children for welfare services"
+  ],
+  "cdd_specific": false,
+  "correct_index": null
+ },
+ {
+  "number": 25,
+  "prompt": "What is the main goal of the AZM MDA?",
+  "options": [
+   "To distribute drugs to children under 5",
+   "To reduce under 5 child mortality",
+   "To reduce above 5 child mortality",
+   "To distribute drugs to children above 5"
+  ],
+  "cdd_specific": false,
+  "correct_index": null
+ }
+]

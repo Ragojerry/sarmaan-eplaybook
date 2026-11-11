@@ -26,7 +26,7 @@ final appRouterProvider = Provider<GoRouter>((ref) {
     // The training screens are closed when the server needs a newer app (min_app_version).
     // Other screens (splash, login, ...) are never delayed: they return synchronously.
     redirect: (context, state) {
-      const gated = ['/home', '/modules', '/reader', '/quiz'];
+      const gated = ['/home', '/modules', '/reader', '/general-test'];
       if (!gated.any((p) => state.matchedLocation.startsWith(p))) return null;
       return updateRequired(ref.read(localDatabaseProvider)).then((needed) => needed ? '/update-required' : null);
     },
@@ -41,12 +41,10 @@ final appRouterProvider = Provider<GoRouter>((ref) {
         path: '/reader/:moduleId',
         builder: (context, state) => ReaderScreen(moduleId: state.pathParameters['moduleId']!),
       ),
+      // The General pre-/post-test (the per-module tests were retired in 2026-11).
       GoRoute(
-        path: '/quiz/:moduleId',
-        builder: (context, state) => QuizScreen(
-          moduleId: state.pathParameters['moduleId']!,
-          testType: state.uri.queryParameters['test'] == 'pre' ? 'PRE' : 'POST',
-        ),
+        path: '/general-test/:type',
+        builder: (context, state) => GeneralTestScreen(testType: state.pathParameters['type'] == 'post' ? 'POST' : 'PRE'),
       ),
       GoRoute(path: '/videos', builder: (context, state) => const VideoLibraryScreen()),
       GoRoute(

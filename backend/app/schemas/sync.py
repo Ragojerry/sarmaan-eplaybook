@@ -21,6 +21,8 @@ class ProgressItem(BaseModel):
     completed_at: datetime | None = None
     # When reading reached the end (app 0.1.8+). Older apps: inferred from progress_percent.
     reading_completed_at: datetime | None = None
+    # Active time in the module, in seconds (app 0.1.12+). The server keeps the larger value.
+    seconds_spent: int | None = Field(default=None, ge=0, le=10_000_000)
 
 
 class ProgressOut(BaseModel):
@@ -31,6 +33,7 @@ class ProgressOut(BaseModel):
     last_opened_at: datetime | None = None
     completed_at: datetime | None = None
     reading_completed_at: datetime | None = None
+    seconds_spent: int = 0
 
     model_config = {"from_attributes": True}
 
@@ -154,10 +157,18 @@ class ModuleLearning(BaseModel):
     status: str
     unlocked: bool
     completed: bool
+    # The retired per-module pre/post tests (always false/empty since 2026-11; kept for older apps).
     has_tests: bool
     pre_test: TestScore | None = None
     best_post_test: TestScore | None = None
     post_test_attempts: int = 0
+    # The inline True/False quiz and the active time (app 0.1.12+).
+    has_quiz: bool = False
+    quiz_statements: int = 0
+    quiz_passed: bool = True
+    quiz_attempts: int = 0
+    seconds_spent: int = 0
+    lock_reason: str | None = None
 
 
 class AttemptOut(BaseModel):
@@ -182,5 +193,52 @@ class LearningState(BaseModel):
     # Phones older than this show "Training updated, please update the app" (None = no minimum).
     # Only apps from 0.1.10 read it; older apps ignore unknown fields.
     min_app_version: str | None = None
+    # Active time a learner must spend in a module before completing it (app 0.1.12+).
+    module_min_seconds: int = 0
+    general_test: "GeneralTestState | None" = None
     modules: list[ModuleLearning]
     attempts: list[AttemptOut]
+
+
+class GeneralTestState(BaseModel):
+    """The learner's General pre-/post-test (each counts once; the first valid one)."""
+    active: bool
+    questions: int
+    pre_test: TestScore | None = None
+    post_test: TestScore | None = None
+    post_unlocked: bool = False
+    modules_total: int = 0
+    modules_completed: int = 0
+
+
+LearningState.model_rebuild()
+
+
+class GeneralQuestionOut(BaseModel):
+    id: uuid.UUID
+    number: int
+    prompt: str
+    options: list[str]
+    correct_index: int | None = None
+
+
+class GeneralTestOut(BaseModel):
+    active: bool
+    questions: list[GeneralQuestionOut]
+
+
+class GeneralAnswer(BaseModel):
+    question_id: uuid.UUID
+    choice: int | None = Field(default=None, ge=0, le=9)  # index of the chosen option; None = not answered
+
+
+class GeneralAttemptItem(BaseModel):
+    client_id: str = Field(min_length=1, max_length=80)
+    test_type: TestType  # PRE or POST
+    taken_at: datetime
+    answers: list[GeneralAnswer] = Field(default_factory=list, max_length=200)
+
+
+class GeneralAttemptBatch(BaseModel):
+    device_id: str = Field(min_length=1, max_length=255)
+    items: list[GeneralAttemptItem] = Field(max_length=20)

@@ -38,8 +38,11 @@ class ModuleAudience(str, enum.Enum):
 
 
 class TestType(str, enum.Enum):
+    # PRE and POST: the per-module tests used until 2026-11 (archived; old attempts keep them).
     PRE = "PRE"
     POST = "POST"
+    # One attempt at a module's inline True/False quiz (TRUE_FALSE sections).
+    MODULE_QUIZ = "MODULE_QUIZ"
 
 
 class QuestionUsage(str, enum.Enum):
@@ -110,6 +113,8 @@ class ContentType(str, enum.Enum):
     VIDEO = "VIDEO"
     AUDIO = "AUDIO"
     LIST = "LIST"
+    # An inline True/False quiz statement placed between the reading sections.
+    TRUE_FALSE = "TRUE_FALSE"
 
 
 class MediaAssetType(str, enum.Enum):
@@ -198,6 +203,8 @@ class AuditAction(str, enum.Enum):
     AUDIENCE_CHANGE = "AUDIENCE_CHANGE"
     MEDIA_UPLOAD = "MEDIA_UPLOAD"
     MEDIA_REMOVE = "MEDIA_REMOVE"
+    GENERAL_TEST_UPDATE = "GENERAL_TEST_UPDATE"
+    SETTING_CHANGE = "SETTING_CHANGE"
 
 
 class QuestionType(str, enum.Enum):

@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
@@ -99,7 +100,7 @@ class ReaderScreen extends ConsumerStatefulWidget {
   ConsumerState<ReaderScreen> createState() => _ReaderScreenState();
 }
 
-class _ReaderScreenState extends ConsumerState<ReaderScreen> {
+class _ReaderScreenState extends ConsumerState<ReaderScreen> with WidgetsBindingObserver {
   final FlutterTts _tts = FlutterTts();
   bool _speaking = false;
   final ScrollController _scroll = ScrollController();
@@ -108,26 +109,87 @@ class _ReaderScreenState extends ConsumerState<ReaderScreen> {
   int _savedPercent = 0;
   int _pendingPercent = 0;
   String? _pendingWhere;
-  bool _canRead = false; // false until the pre-test is taken (and while locked)
+  bool _canRead = false; // false while the module is locked
   bool _readingRecorded = false;
+
+  // Active time: counted only while this module is on screen and the app is in front.
+  bool _timing = false; // the module is open and not completed yet
+  int _baseSeconds = 0; // stored before this visit
+  int _savedThisVisit = 0; // already added to the database during this visit
+  DateTime? _activeSince; // null while paused (app in the background, screen locked)
+  Timer? _ticker;
+
+  // The inline quiz: this attempt's answers (section id -> True/False) and its result.
+  final Map<String, bool> _answers = {};
+  QuizResult? _quizResult;
+  bool _submittingQuiz = false;
 
   @override
   void initState() {
     super.initState();
     _db = ref.read(localDatabaseProvider);
     _scroll.addListener(_onScroll);
+    WidgetsBinding.instance.addObserver(this);
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       final db = ref.read(localDatabaseProvider);
       final state = (await loadLearning(db)).of(widget.moduleId);
       _canRead = state?.canRead ?? false;
       _readingRecorded = state?.readingDone ?? false;
-      if (!_canRead) return; // reading starts only after the pre-test
+      if (!_canRead) return; // a locked module is not opened (and its time not counted)
       final existing = await db.getProgressForModule(widget.moduleId);
       _savedPercent = existing?.progressPercent ?? 0;
       await db.upsertProgress(moduleId: widget.moduleId);
       recordAnalyticsEvent(db, 'MODULE_OPEN', moduleId: widget.moduleId);
       _checkShortModule();
+      if (mounted && state != null && !state.completed) {
+        _baseSeconds = state.secondsSpent;
+        _timing = true;
+        _resumeTimer();
+      }
     });
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState lifecycle) {
+    if (lifecycle == AppLifecycleState.resumed) {
+      _resumeTimer();
+    } else {
+      _pauseTimer(); // background, screen locked, or another app on top: time stops
+    }
+  }
+
+  void _resumeTimer() {
+    if (!_timing || _activeSince != null) return;
+    _activeSince = DateTime.now();
+    _ticker ??= Timer.periodic(const Duration(seconds: 1), (t) {
+      if (!mounted) return;
+      if (t.tick % 10 == 0) _saveTime(); // saved every 10 seconds, so little is lost if the phone dies
+      setState(() {});
+    });
+  }
+
+  void _pauseTimer() {
+    _saveTime();
+    _activeSince = null;
+    _ticker?.cancel();
+    _ticker = null;
+  }
+
+  /// Moves the whole seconds counted since the last save into the database.
+  Future<void> _saveTime() async {
+    final since = _activeSince;
+    if (since == null) return;
+    final whole = DateTime.now().difference(since).inSeconds;
+    if (whole <= 0) return;
+    _activeSince = since.add(Duration(seconds: whole));
+    _savedThisVisit += whole;
+    await _db.addModuleSeconds(widget.moduleId, whole);
+  }
+
+  int get _secondsNow {
+    final since = _activeSince;
+    final running = since == null ? 0 : DateTime.now().difference(since).inSeconds;
+    return _baseSeconds + _savedThisVisit + running;
   }
 
   /// A module short enough to fit on the screen is read as soon as it shows.
@@ -178,6 +240,8 @@ class _ReaderScreenState extends ConsumerState<ReaderScreen> {
 
   @override
   void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+    _pauseTimer();
     _flushProgress();
     _scroll.dispose();
     _tts.stop();
@@ -198,25 +262,48 @@ class _ReaderScreenState extends ConsumerState<ReaderScreen> {
     }
   }
 
-  /// Modules without tests only: modules with tests are completed by their post-test.
-  Future<void> _markComplete() async {
+  /// "Complete module": allowed when the quiz is passed (if the module has one) and
+  /// the minimum time is reached; otherwise a plain message says what is missing.
+  Future<void> _complete() async {
     final db = ref.read(localDatabaseProvider);
-    final state = (await loadLearning(db)).of(widget.moduleId);
-    if (state == null || !state.unlocked || state.hasTests) return;
-    await db.upsertProgress(moduleId: widget.moduleId, progressPercent: 100, completed: true);
-    await db.enqueueSync(
-      'progress',
-      jsonEncode({'module_id': widget.moduleId, 'completed': true, 'completed_at': DateTime.now().toUtc().toIso8601String()}),
-    );
-    await recordAnalyticsEvent(db, 'MODULE_COMPLETE', moduleId: widget.moduleId);
+    await _saveTime();
+    final problem = await completeModule(db, widget.moduleId);
+    if (problem == null) {
+      _pauseTimer();
+      _timing = false;
+    }
     ref.invalidate(localProgressProvider(widget.moduleId));
     ref.invalidate(learningProvider);
     if (mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Marked complete. Will sync to your account when online.')),
-      );
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+        content: Text(problem ?? 'Module completed. It will sync to your account when online.'),
+      ));
     }
   }
+
+  /// Records the learner's answer; when every statement is answered, the attempt
+  /// is graded and saved (offline too).
+  Future<void> _answer(String sectionId, bool value, int statements) async {
+    if (_quizResult != null || _answers.containsKey(sectionId) || _submittingQuiz) return;
+    setState(() => _answers[sectionId] = value);
+    if (_answers.length < statements) return;
+    _submittingQuiz = true;
+    try {
+      final result = await recordModuleQuiz(ref.read(localDatabaseProvider), moduleId: widget.moduleId, answers: Map.of(_answers));
+      if (mounted) setState(() => _quizResult = result);
+      ref.invalidate(learningProvider);
+    } catch (_) {
+      // The quiz closed meanwhile (e.g. the module was completed on another device).
+    } finally {
+      _submittingQuiz = false;
+    }
+  }
+
+  /// "Try again": every statement is answered again (unlimited until the module is completed).
+  void _retryQuiz() => setState(() {
+        _answers.clear();
+        _quizResult = null;
+      });
 
   Widget _card({required IconData icon, required String title, required String body, Widget? action, bool good = false}) {
     return Container(
@@ -263,7 +350,15 @@ class _ReaderScreenState extends ConsumerState<ReaderScreen> {
             'or the module is for another role. Go back to Modules to continue.',
         action: OutlinedButton(onPressed: () => context.go('/modules'), child: const Text('Back to modules')),
       );
-    } else if (state.stage == ModuleStage.locked) {
+    } else if (state.lockedByGeneralTest) {
+      card = _card(
+        icon: Icons.quiz_outlined,
+        title: 'Start with the General pre-test',
+        body: 'Before the modules, answer ${learning.general.questions} questions to show what you already know. '
+            'It is not a pass or fail: it is your starting point, and you take it once.',
+        action: _primary('Start the General pre-test', () => context.go('/general-test/pre')),
+      );
+    } else {
       final blocker = learning.blockerOf(widget.moduleId);
       card = _card(
         icon: Icons.lock_outline,
@@ -272,95 +367,149 @@ class _ReaderScreenState extends ConsumerState<ReaderScreen> {
             'when the previous one is completed.',
         action: blocker == null ? null : _primary('Go to ${blocker.moduleCode}', () => context.go('/reader/${blocker.id}')),
       );
-    } else {
-      card = _card(
-        icon: Icons.quiz_outlined,
-        title: 'Start with the pre-test',
-        body: 'Before reading, answer ${state.preQuestions} questions to show what you already know. It is not a pass '
-            'or fail: it is your starting point. After reading, a post-test of at least $kQuizPassMark% and higher than '
-            'your pre-test score completes the module.',
-        action: _primary('Start the pre-test', () => context.go('/quiz/${widget.moduleId}?test=pre')),
-      );
     }
     return ListView(padding: const EdgeInsets.fromLTRB(22, 22, 22, 28), children: [card]);
   }
 
-  /// Pre-test score, shown above the module once taken.
-  Widget _preTestBanner(ModuleLearning state) {
-    final pre = state.pre;
-    if (!state.hasTests || pre == null) return const SizedBox.shrink();
+  /// "Time in this module: 1:20 / 3:00", until the module is completed.
+  Widget _timeIndicator(ModuleLearning state) {
+    if (state.completed || !_timing) return const SizedBox.shrink();
+    final secs = _secondsNow;
+    final done = secs >= state.minSeconds;
     return Container(
       margin: const EdgeInsets.only(bottom: 14),
-      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 9),
       decoration: BoxDecoration(color: AppColors.tealSoft, borderRadius: BorderRadius.circular(10)),
-      child: Text(
-        state.completed
-            ? 'Pre-test ${pre.percent}% · completed'
-            : 'Your pre-test: ${pre.percent}% (${pre.correct}/${pre.total}). Read to the end to open the post-test.',
-        style: const TextStyle(fontSize: 12, color: AppColors.calloutGoodText),
+      child: Row(
+        children: [
+          Icon(done ? Icons.check_circle_outline : Icons.timer_outlined, size: 16, color: AppColors.tealDeep),
+          const SizedBox(width: 8),
+          Expanded(
+            child: Text(
+              'Time in this module: ${formatDuration(done ? state.minSeconds : secs)} / ${formatDuration(state.minSeconds)}',
+              style: const TextStyle(fontSize: 12, color: AppColors.calloutGoodText),
+            ),
+          ),
+        ],
       ),
     );
   }
 
-  /// The end of the module: "Mark as complete" (no tests) or the post-test.
-  Widget _completionArea(ModuleLearning state) {
-    final completed = state.completed;
-    if (!state.hasTests) {
-      return OutlinedButton.icon(
-        onPressed: completed ? null : _markComplete,
-        icon: Icon(completed ? Icons.check_circle : Icons.check_circle_outline, size: 18),
-        label: Text(completed ? 'Completed' : 'Mark as complete'),
-        style: completed
-            ? OutlinedButton.styleFrom(
-                backgroundColor: AppColors.tealDeep,
-                foregroundColor: AppColors.sand,
-                side: const BorderSide(color: AppColors.tealDeep),
-              )
-            : null,
-      );
-    }
-    final best = state.bestPost;
-    if (completed) {
-      // Review mode. Never assume a pre-test exists here: modules completed
-      // before pre/post tests (or whose pre-test the server did not count)
-      // have none, and a null assertion here used to throw inside build and
-      // replace the whole screen, back button included (the "freeze").
-      final pre = state.pre;
-      final done = state.completingPost ?? best;
-      final scores = [
-        if (pre != null) 'pre-test ${pre.percent}%',
-        if (done != null) 'post-test ${done.percent}%',
-      ];
+  /// The end of the module: the quiz status, the time, and "Complete module".
+  Widget _completionArea(ModuleLearning state, int statements) {
+    if (state.completed) {
       return _card(
         icon: Icons.check_circle,
         good: true,
         title: 'Module completed',
-        body: '${scores.isEmpty ? 'You completed this module.' : 'Your result: ${scores.join(' · ')}.'} '
-            'You can re-read it, play its audio and video and view its pictures; the result stays as it is.',
+        body: 'You can re-read it, play its audio and video and view its pictures; the result stays as it is.',
       );
     }
-    final pre = state.pre;
-    if (pre == null) return const SizedBox.shrink(); // not reachable: reading needs the pre-test
-    final open = '/quiz/${widget.moduleId}?test=post';
-    if (!state.readingDone) {
-      return _card(
-        icon: Icons.menu_book_outlined,
-        title: 'Post-test',
-        body: 'Read to the end of the module to open the post-test.',
-        action: _primary('Take the post-test', null),
-      );
-    }
-    final needs = state.prePerfect
-        ? 'You scored 100% on the pre-test, so a post-test of at least ${state.autoApprovePercent}% completes the module automatically.'
-        : 'You need at least $kQuizPassMark% and more than your pre-test score (${pre.percent}%).';
+    final secs = _secondsNow;
+    final ready = canCompleteModule(
+        unlocked: state.unlocked, hasQuiz: state.hasQuiz, quizPassed: state.quizPassed, seconds: secs, minSeconds: state.minSeconds);
+    final lines = [
+      if (state.hasQuiz)
+        state.quizPassed
+            ? 'Module quiz: passed.'
+            : 'Module quiz: answer all $statements statements correctly ($kQuizPassMark% pass mark). '
+                'You can try again as often as you need.',
+      secs >= state.minSeconds
+          ? 'Time: ${formatDuration(state.minSeconds)} reached.'
+          : 'Time: ${formatDuration(secs)} of ${formatDuration(state.minSeconds)}. Please stay a little longer in this module.',
+    ];
     return _card(
-      icon: Icons.quiz_outlined,
-      title: 'Post-test',
-      body: '${state.postQuestions} questions. $needs'
-          '${best != null ? ' Best so far: ${best.percent}% (${state.posts.length} attempt${state.posts.length == 1 ? '' : 's'}).' : ''}',
-      action: _primary(best == null ? 'Take the post-test' : 'Try again', () => context.go(open)),
+      icon: ready ? Icons.flag_outlined : Icons.hourglass_bottom,
+      title: 'Finish this module',
+      body: lines.join('\n'),
+      action: _primary('Complete module', _complete),
     );
   }
+
+  /// One inline True/False statement. Answered once per attempt; when every
+  /// statement is answered the attempt is graded, and "Try again" starts a new one.
+  Widget _quizCard(ContentSection section, ModuleLearning? state, int statements) {
+    final statement = section.content['statement'] as String? ?? '';
+    final correctAnswer = section.content['answer'] as bool?;
+    final explanation = section.content['explanation'] as String?;
+    final review = state == null || state.completed || (state.hasQuiz && state.quizPassed && _quizResult == null);
+    final mine = _answers[section.id];
+    final answered = mine != null;
+    final right = answered && mine == correctAnswer;
+    final graded = _quizResult != null;
+    Widget choice(bool value) {
+      final chosen = mine == value;
+      return Expanded(
+        child: OutlinedButton(
+          onPressed: review || answered ? null : () => _answer(section.id, value, statements),
+          style: OutlinedButton.styleFrom(
+            backgroundColor: chosen ? (right ? AppColors.tealSoft : AppColors.claySoft) : null,
+            side: BorderSide(color: chosen ? (right ? AppColors.teal : AppColors.clay) : AppColors.line),
+          ),
+          child: Text(value ? 'True' : 'False'),
+        ),
+      );
+    }
+
+    return Container(
+      margin: const EdgeInsets.only(bottom: 14),
+      padding: const EdgeInsets.fromLTRB(14, 12, 14, 12),
+      decoration: BoxDecoration(
+        color: AppColors.white,
+        borderRadius: BorderRadius.circular(10),
+        border: Border.all(color: AppColors.teal),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Text('QUICK CHECK · TRUE OR FALSE?',
+              style: TextStyle(fontWeight: FontWeight.w700, fontSize: 10.5, letterSpacing: 0.5, color: AppColors.tealDeep)),
+          const SizedBox(height: 6),
+          Text(statement, style: const TextStyle(fontSize: 13, height: 1.5, color: AppColors.readerBody)),
+          const SizedBox(height: 10),
+          if (review)
+            Text('Answer: ${correctAnswer == true ? 'True' : 'False'}',
+                style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w700, color: AppColors.tealDeep))
+          else
+            Row(children: [choice(true), const SizedBox(width: 10), choice(false)]),
+          if (!review && answered)
+            Padding(
+              padding: const EdgeInsets.only(top: 8),
+              child: Text(
+                right ? 'Correct.' : 'Not quite. The answer is ${correctAnswer == true ? 'True' : 'False'}.',
+                style: TextStyle(fontSize: 12, fontWeight: FontWeight.w700, color: right ? AppColors.tealDeep : AppColors.clay),
+              ),
+            ),
+          if ((review || answered) && explanation != null && explanation.isNotEmpty)
+            Padding(
+              padding: const EdgeInsets.only(top: 4),
+              child: Text(explanation, style: const TextStyle(fontSize: 11.5, height: 1.4, color: AppColors.textSecondary)),
+            ),
+          if (graded && section.id == _lastStatementId)
+            Padding(
+              padding: const EdgeInsets.only(top: 12),
+              child: _quizResult!.passed
+                  ? const Text('Quiz passed. Well done!',
+                      style: TextStyle(fontSize: 12.5, fontWeight: FontWeight.w800, color: AppColors.tealDeep))
+                  : Column(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: [
+                        Text(
+                          'You got ${_quizResult!.correct} of ${_quizResult!.total}. All need to be right to pass. '
+                          'Try again: you answer all ${_quizResult!.total} statements again.',
+                          style: const TextStyle(fontSize: 12, color: AppColors.calloutWarningText),
+                        ),
+                        const SizedBox(height: 8),
+                        _primary('Try again', _retryQuiz),
+                      ],
+                    ),
+            ),
+        ],
+      ),
+    );
+  }
+
+  String? _lastStatementId;
 
   @override
   Widget build(BuildContext context) {
@@ -380,6 +529,8 @@ class _ReaderScreenState extends ConsumerState<ReaderScreen> {
           final state = learning.of(widget.moduleId);
           if (state == null || !state.canRead) return _gate(learning, state);
           _canRead = true;
+          final statements = sections.where((x) => x.contentType == 'TRUE_FALSE').toList();
+          _lastStatementId = statements.isEmpty ? null : statements.last.id;
           if (_loadedSections.isEmpty && sections.isNotEmpty) _checkShortModule();
           _loadedSections = sections;
           return sections.isEmpty
@@ -402,10 +553,13 @@ class _ReaderScreenState extends ConsumerState<ReaderScreen> {
                         : const SizedBox.shrink(),
                     orElse: () => const SizedBox.shrink(),
                   ),
-                  _preTestBanner(state),
-                  for (final section in sections) _buildSection(context, section),
+                  _timeIndicator(state),
+                  for (final section in sections)
+                    section.contentType == 'TRUE_FALSE'
+                        ? _quizCard(section, state, statements.length)
+                        : _buildSection(context, section),
                   const SizedBox(height: 22),
-                  _completionArea(state),
+                  _completionArea(state, statements.length),
                 ],
               );
         },

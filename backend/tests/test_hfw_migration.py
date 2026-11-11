@@ -245,7 +245,7 @@ def test_cutover_makes_hfw_the_first_content_and_wipes_all_history(sandbox, tmp_
     assert [m.module_code for m in visible_modules(db, logi)] == GENERAL + ["HFW-10", "HFW-16"]
     states = learning_states(db, cdd)
     assert states[0].unlocked and not states[1].unlocked
-    assert not any(s.completed or s.pre or s.posts for s in states)
+    assert not any(s.completed or s.quiz_attempts for s in states)
     assert not {r["module_code"] for r in module_rows(db, Filters())} - {f"HFW-{i:02d}" for i in range(1, 18)}
 
     # running it again finds nothing more to do

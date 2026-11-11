@@ -23,6 +23,7 @@ from app.models import (
     ContentRelease,
     Language,
     Module,
+    GeneralTestAttempt,
     QuizAttempt,
     QuizQuestion,
     RefreshToken,
@@ -46,6 +47,7 @@ def db():
 
 def _cleanup(db, user, device_ids=()):
     db.query(QuizAttempt).filter_by(user_id=user.id).delete()
+    db.query(GeneralTestAttempt).filter_by(user_id=user.id).delete()
     db.query(UserModuleProgress).filter_by(user_id=user.id).delete()
     db.query(AiQuestionLog).filter_by(user_id=user.id).delete()
     db.query(AnalyticsEvent).filter_by(user_id=user.id).delete()
@@ -70,7 +72,7 @@ def module_id(db):
     return str(db.query(Module).first().id)
 
 
-def _prog(module_id, pct, completed=False, opened=None, section="s1"):
+def _prog(module_id, pct, completed=False, opened=None, section="s1", seconds=None):
     return {
         "module_id": module_id,
         "progress_percent": pct,
@@ -78,6 +80,8 @@ def _prog(module_id, pct, completed=False, opened=None, section="s1"):
         "last_section": section,
         "last_opened_at": (opened or NOW).isoformat(),
         "completed_at": NOW.isoformat() if completed else None,
+        # a completion carries the minimum active time (3 minutes by default)
+        "seconds_spent": seconds if seconds is not None else (180 if completed else None),
     }
 
 

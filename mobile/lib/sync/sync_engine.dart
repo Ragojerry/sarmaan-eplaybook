@@ -5,6 +5,7 @@ import 'dart:math';
 
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:dio/dio.dart';
+import 'package:drift/drift.dart' show Value;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../db/local_database.dart';
@@ -193,10 +194,17 @@ class SyncEngine extends StateNotifier<SyncSnapshot> {
       // Uploads first, so a slow or failing update can never block them.
       Object? uploadError;
       // A restart goes first: everything after it belongs to the new attempt.
-      // Progress goes before test attempts: the server accepts a post-test
-      // only once it knows reading was finished, and then completes the
-      // module itself (so the order of a backlog after days offline is safe).
-      for (final step in [_uploadRestart, _uploadProgress, _uploadQuizAttempts, _uploadAiQuestions, _uploadAnalytics]) {
+      // Then the General test (it opens the modules), then module-quiz attempts,
+      // then progress: a completion is accepted only once the server knows the
+      // quiz was passed, so a backlog after days offline lands in a safe order.
+      for (final step in [
+        _uploadRestart,
+        _uploadGeneralAttempts,
+        _uploadQuizAttempts,
+        _uploadProgress,
+        _uploadAiQuestions,
+        _uploadAnalytics,
+      ]) {
         try {
           await step(device);
         } catch (e) {
@@ -218,6 +226,7 @@ class SyncEngine extends StateNotifier<SyncSnapshot> {
         if (await _db.countPending(entityTypes: ['training_restart']) == 0) {
           await _applyServerRestart();
           await _pullLearning();
+          await _pullGeneralTest();
           await _pullProgress();
         }
       } catch (_) {
@@ -273,6 +282,7 @@ class SyncEngine extends StateNotifier<SyncSnapshot> {
         completedAt: r['completed_at'] == null ? null : DateTime.parse(r['completed_at'] as String),
         readingCompletedAt:
             r['reading_completed_at'] == null ? null : DateTime.parse(r['reading_completed_at'] as String),
+        secondsSpent: (r['seconds_spent'] as num?)?.toInt() ?? 0,
       );
     }
     state = state.copyWith(contentRevision: state.contentRevision + 1);
@@ -289,9 +299,9 @@ class SyncEngine extends StateNotifier<SyncSnapshot> {
     } catch (_) {}
   }
 
-  /// Pre-/post-test history the server holds for this account (so a new
-  /// phone keeps the pre-test baseline) and the auto-approval threshold for
-  /// 100% pre-tests.
+  /// The module-quiz attempts and General test results the server holds for
+  /// this account (a new phone keeps them), and the training rules: the
+  /// minimum time per module and whether the General test is switched on.
   Future<void> _pullLearning() async {
     final resp = await _api.dio.get('/sync/learning');
     final data = resp.data as Map<String, dynamic>;
@@ -313,6 +323,41 @@ class SyncEngine extends StateNotifier<SyncSnapshot> {
     await _db.setSetting(kMinAppVersionKey, (data['min_app_version'] as String?) ?? '');
     final threshold = data['auto_approve_percent'];
     if (threshold is num) await _db.setAutoApprovePercent(threshold.toInt());
+    final minSeconds = data['module_min_seconds'];
+    if (minSeconds is num) await _db.setModuleMinSeconds(minSeconds.toInt());
+    final general = data['general_test'] as Map<String, dynamic>?;
+    if (general != null) {
+      await _db.setGeneralTestActive(general['active'] == true);
+      for (final type in ['PRE', 'POST']) {
+        final t = general[type == 'PRE' ? 'pre_test' : 'post_test'] as Map<String, dynamic>?;
+        if (t == null) continue;
+        await _db.restoreGeneralAttemptFromServer(
+          clientId: t['client_id'] as String,
+          testType: type,
+          correct: (t['correct_count'] as num).toInt(),
+          total: (t['total_count'] as num).toInt(),
+          takenAt: DateTime.parse(t['taken_at'] as String).toLocal(),
+        );
+      }
+    }
+  }
+
+  /// The General test questions, with answers (graded offline too). Empty
+  /// while the test is switched off.
+  Future<void> _pullGeneralTest() async {
+    final resp = await _api.dio.get('/sync/general-test');
+    final data = resp.data as Map<String, dynamic>;
+    await _db.setGeneralTestActive(data['active'] == true);
+    await _db.replaceGeneralQuestions([
+      for (final q in (data['questions'] as List).cast<Map<String, dynamic>>())
+        CachedGeneralQuestionsCompanion.insert(
+          id: q['id'] as String,
+          number: (q['number'] as num).toInt(),
+          prompt: q['prompt'] as String,
+          optionsJson: jsonEncode(q['options']),
+          correctIndex: Value((q['correct_index'] as num?)?.toInt()),
+        ),
+    ]);
   }
 
   /// One DEVICE_HEARTBEAT per UTC day (opt-in devices only) so the admin
@@ -385,7 +430,7 @@ class SyncEngine extends StateNotifier<SyncSnapshot> {
               'total_count': r.totalCount,
               'taken_at': r.takenAt.toUtc().toIso8601String(),
               'results': jsonDecode(r.resultsJson),
-              // Attempts from before pre/post tests go without a type: kept as history only.
+              // MODULE_QUIZ now; older PRE/POST/LEGACY rows are kept by the server as history only.
               if (r.testType != 'LEGACY') 'test_type': r.testType,
             },
         ],
@@ -398,6 +443,32 @@ class SyncEngine extends StateNotifier<SyncSnapshot> {
         final counts = status == 'duplicate' ? null : (status == 'ok' && (detail == null || detail == 'completed'));
         await _db.markQuizAttemptSynced(res['key'] as String, valid: counts, reason: counts == false ? detail : null);
       }
+    }
+  }
+
+  /// General pre-/post-tests; the server grades them again from the answers.
+  Future<void> _uploadGeneralAttempts(String device) async {
+    final rows = await _db.getUnsyncedGeneralAttempts();
+    if (rows.isEmpty) return;
+    final resp = await _api.dio.post('/sync/general-test-attempts', data: {
+      'device_id': device,
+      'items': [
+        for (final r in rows)
+          {
+            'client_id': r.clientId,
+            'test_type': r.testType,
+            'taken_at': r.takenAt.toUtc().toIso8601String(),
+            'answers': jsonDecode(r.answersJson),
+          },
+      ],
+    });
+    for (final res in _results(resp)) {
+      final status = res['status'] as String;
+      if (!_final(status)) continue;
+      // ok with "score x/y" = counts; ok with any other detail = stored but does not count.
+      final detail = res['detail'] as String?;
+      final counts = status == 'duplicate' ? null : (status == 'ok' && (detail == null || detail.startsWith('score ')));
+      await _db.markGeneralAttemptSynced(res['key'] as String, valid: counts, reason: counts == false ? detail : null);
     }
   }
 
@@ -420,6 +491,7 @@ class SyncEngine extends StateNotifier<SyncSnapshot> {
               'last_opened_at': r.lastOpenedAt?.toUtc().toIso8601String(),
               'completed_at': r.completedAt?.toUtc().toIso8601String(),
               'reading_completed_at': r.readingCompletedAt?.toUtc().toIso8601String(),
+              'seconds_spent': r.secondsSpent,
             },
         ],
       });

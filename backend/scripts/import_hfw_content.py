@@ -356,7 +356,11 @@ def upsert_quizzes(db, content_dir, mods, image_assets, rep):
         else:
             rep.counts["quiz questions updated"] += 1
         q.module_id, q.question_type, q.prompt, q.content = mod.id, qtype, r["question"], content
-        q.explanation, q.sort_order, q.usage, q.is_active = r["explanation"], int(r["order"]), QuestionUsage.BOTH, True
+        q.explanation, q.sort_order, q.usage = r["explanation"], int(r["order"]), QuestionUsage.BOTH
+        # The per-module pre/post tests were retired in 2026-11 (migration e7b2c4d91a35): these
+        # questions are kept for history and old attempts, but always stored archived, so a
+        # re-run never brings them back to phones.
+        q.is_active, q.archived_at = False, q.archived_at or datetime.now(timezone.utc)
     db.flush()
 
 

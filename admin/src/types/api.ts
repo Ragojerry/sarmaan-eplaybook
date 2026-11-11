@@ -16,7 +16,8 @@ export type ContentType =
   | "JOB_AID"
   | "VIDEO"
   | "AUDIO"
-  | "LIST";
+  | "LIST"
+  | "TRUE_FALSE";
 export type LanguageStatus = "ACTIVE" | "BETA" | "IN_REVIEW" | "NOT_STARTED";
 export type ReleaseStatus = "DRAFT" | "IN_REVIEW" | "APPROVED" | "PUBLISHED" | "ROLLED_BACK";
 export type RoleName =
@@ -414,4 +415,33 @@ export interface TestReportRow extends LearnerPerson {
   auto_approved: boolean;
   attempts_not_counted: number;
   completed_at: string | null;
+  // since 2026-11: the inline module quiz and the active time
+  learner_group: string;
+  curriculum: string;
+  quiz_statements: number;
+  quiz_attempts: number;
+  quiz_passed: boolean;
+  quiz_passed_at: string | null;
+  quiz_latest_score: number | null;
+  seconds_spent: number;
+  min_seconds: number;
+}
+
+/** One learner's General pre/post test (GET /learning/general-report). */
+export interface GeneralReportRow extends LearnerPerson {
+  learner_group: string;
+  modules_total: number;
+  modules_completed: number;
+  seconds_spent_total: number;
+  pre_test_points: number | null;
+  pre_test_total: number | null;
+  pre_test_percent: number | null;
+  pre_test_taken_at: string | null;
+  post_test_points: number | null;
+  post_test_total: number | null;
+  post_test_percent: number | null;
+  post_test_taken_at: string | null;
+  change_points: number | null;
+  change_percent: number | null;
+  attempts_not_counted: number;
 }

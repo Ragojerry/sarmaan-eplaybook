@@ -13,6 +13,7 @@ import '../sync/release_installer.dart' show ReleaseInfo;
 import '../sync/sync_engine.dart';
 import '../theme/app_theme.dart';
 import '../widgets/app_bottom_nav.dart';
+import 'modules_screen.dart' show GeneralTestCard;
 
 /// Reads from the LOCAL cache (Phase 8), never directly from the network —
 /// this is what makes master prompt §18's offline-first guarantee real
@@ -240,6 +241,8 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
               _SyncCard(snap: snap, onSync: _syncAndUpdate),
               if (snap.availableRelease != null) _UpdateBanner(release: snap.availableRelease!),
               ..._buildContinueReading(modules, extras),
+              // The General pre-test opens the modules; the post-test follows them.
+              if (extras != null) GeneralTestCard(general: extras.learning.general),
               const _SectionLabel('SARMAAN-II · AZM MDA MODULES'),
               modulesAsync.when(
                 data: (modules) => modules.isEmpty

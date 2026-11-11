@@ -2425,6 +2425,14 @@ class $LocalProgressTable extends LocalProgress
       defaultConstraints:
           GeneratedColumn.constraintIsAlways('CHECK ("synced" IN (0, 1))'),
       defaultValue: const Constant(false));
+  static const VerificationMeta _secondsSpentMeta =
+      const VerificationMeta('secondsSpent');
+  @override
+  late final GeneratedColumn<int> secondsSpent = GeneratedColumn<int>(
+      'seconds_spent', aliasedName, false,
+      type: DriftSqlType.int,
+      requiredDuringInsert: false,
+      defaultValue: const Constant(0));
   static const VerificationMeta _userIdMeta = const VerificationMeta('userId');
   @override
   late final GeneratedColumn<String> userId = GeneratedColumn<String>(
@@ -2443,6 +2451,7 @@ class $LocalProgressTable extends LocalProgress
         completedAt,
         readingCompletedAt,
         synced,
+        secondsSpent,
         userId
       ];
   @override
@@ -2502,6 +2511,12 @@ class $LocalProgressTable extends LocalProgress
       context.handle(_syncedMeta,
           synced.isAcceptableOrUnknown(data['synced']!, _syncedMeta));
     }
+    if (data.containsKey('seconds_spent')) {
+      context.handle(
+          _secondsSpentMeta,
+          secondsSpent.isAcceptableOrUnknown(
+              data['seconds_spent']!, _secondsSpentMeta));
+    }
     if (data.containsKey('user_id')) {
       context.handle(_userIdMeta,
           userId.isAcceptableOrUnknown(data['user_id']!, _userIdMeta));
@@ -2534,6 +2549,8 @@ class $LocalProgressTable extends LocalProgress
           data['${effectivePrefix}reading_completed_at']),
       synced: attachedDatabase.typeMapping
           .read(DriftSqlType.bool, data['${effectivePrefix}synced'])!,
+      secondsSpent: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}seconds_spent'])!,
       userId: attachedDatabase.typeMapping
           .read(DriftSqlType.string, data['${effectivePrefix}user_id'])!,
     );
@@ -2556,6 +2573,7 @@ class LocalProgressRow extends DataClass
   final DateTime? completedAt;
   final DateTime? readingCompletedAt;
   final bool synced;
+  final int secondsSpent;
 
   /// Owner of this row: every account on a shared phone keeps its own progress.
   final String userId;
@@ -2569,6 +2587,7 @@ class LocalProgressRow extends DataClass
       this.completedAt,
       this.readingCompletedAt,
       required this.synced,
+      required this.secondsSpent,
       required this.userId});
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
@@ -2590,6 +2609,7 @@ class LocalProgressRow extends DataClass
       map['reading_completed_at'] = Variable<DateTime>(readingCompletedAt);
     }
     map['synced'] = Variable<bool>(synced);
+    map['seconds_spent'] = Variable<int>(secondsSpent);
     map['user_id'] = Variable<String>(userId);
     return map;
   }
@@ -2613,6 +2633,7 @@ class LocalProgressRow extends DataClass
           ? const Value.absent()
           : Value(readingCompletedAt),
       synced: Value(synced),
+      secondsSpent: Value(secondsSpent),
       userId: Value(userId),
     );
   }
@@ -2631,6 +2652,7 @@ class LocalProgressRow extends DataClass
       readingCompletedAt:
           serializer.fromJson<DateTime?>(json['readingCompletedAt']),
       synced: serializer.fromJson<bool>(json['synced']),
+      secondsSpent: serializer.fromJson<int>(json['secondsSpent']),
       userId: serializer.fromJson<String>(json['userId']),
     );
   }
@@ -2647,6 +2669,7 @@ class LocalProgressRow extends DataClass
       'completedAt': serializer.toJson<DateTime?>(completedAt),
       'readingCompletedAt': serializer.toJson<DateTime?>(readingCompletedAt),
       'synced': serializer.toJson<bool>(synced),
+      'secondsSpent': serializer.toJson<int>(secondsSpent),
       'userId': serializer.toJson<String>(userId),
     };
   }
@@ -2661,6 +2684,7 @@ class LocalProgressRow extends DataClass
           Value<DateTime?> completedAt = const Value.absent(),
           Value<DateTime?> readingCompletedAt = const Value.absent(),
           bool? synced,
+          int? secondsSpent,
           String? userId}) =>
       LocalProgressRow(
         id: id ?? this.id,
@@ -2675,6 +2699,7 @@ class LocalProgressRow extends DataClass
             ? readingCompletedAt.value
             : this.readingCompletedAt,
         synced: synced ?? this.synced,
+        secondsSpent: secondsSpent ?? this.secondsSpent,
         userId: userId ?? this.userId,
       );
   LocalProgressRow copyWithCompanion(LocalProgressCompanion data) {
@@ -2696,6 +2721,9 @@ class LocalProgressRow extends DataClass
           ? data.readingCompletedAt.value
           : this.readingCompletedAt,
       synced: data.synced.present ? data.synced.value : this.synced,
+      secondsSpent: data.secondsSpent.present
+          ? data.secondsSpent.value
+          : this.secondsSpent,
       userId: data.userId.present ? data.userId.value : this.userId,
     );
   }
@@ -2712,6 +2740,7 @@ class LocalProgressRow extends DataClass
           ..write('completedAt: $completedAt, ')
           ..write('readingCompletedAt: $readingCompletedAt, ')
           ..write('synced: $synced, ')
+          ..write('secondsSpent: $secondsSpent, ')
           ..write('userId: $userId')
           ..write(')'))
         .toString();
@@ -2728,6 +2757,7 @@ class LocalProgressRow extends DataClass
       completedAt,
       readingCompletedAt,
       synced,
+      secondsSpent,
       userId);
   @override
   bool operator ==(Object other) =>
@@ -2742,6 +2772,7 @@ class LocalProgressRow extends DataClass
           other.completedAt == this.completedAt &&
           other.readingCompletedAt == this.readingCompletedAt &&
           other.synced == this.synced &&
+          other.secondsSpent == this.secondsSpent &&
           other.userId == this.userId);
 }
 
@@ -2755,6 +2786,7 @@ class LocalProgressCompanion extends UpdateCompanion<LocalProgressRow> {
   final Value<DateTime?> completedAt;
   final Value<DateTime?> readingCompletedAt;
   final Value<bool> synced;
+  final Value<int> secondsSpent;
   final Value<String> userId;
   const LocalProgressCompanion({
     this.id = const Value.absent(),
@@ -2766,6 +2798,7 @@ class LocalProgressCompanion extends UpdateCompanion<LocalProgressRow> {
     this.completedAt = const Value.absent(),
     this.readingCompletedAt = const Value.absent(),
     this.synced = const Value.absent(),
+    this.secondsSpent = const Value.absent(),
     this.userId = const Value.absent(),
   });
   LocalProgressCompanion.insert({
@@ -2778,6 +2811,7 @@ class LocalProgressCompanion extends UpdateCompanion<LocalProgressRow> {
     this.completedAt = const Value.absent(),
     this.readingCompletedAt = const Value.absent(),
     this.synced = const Value.absent(),
+    this.secondsSpent = const Value.absent(),
     this.userId = const Value.absent(),
   }) : moduleId = Value(moduleId);
   static Insertable<LocalProgressRow> custom({
@@ -2790,6 +2824,7 @@ class LocalProgressCompanion extends UpdateCompanion<LocalProgressRow> {
     Expression<DateTime>? completedAt,
     Expression<DateTime>? readingCompletedAt,
     Expression<bool>? synced,
+    Expression<int>? secondsSpent,
     Expression<String>? userId,
   }) {
     return RawValuesInsertable({
@@ -2803,6 +2838,7 @@ class LocalProgressCompanion extends UpdateCompanion<LocalProgressRow> {
       if (readingCompletedAt != null)
         'reading_completed_at': readingCompletedAt,
       if (synced != null) 'synced': synced,
+      if (secondsSpent != null) 'seconds_spent': secondsSpent,
       if (userId != null) 'user_id': userId,
     });
   }
@@ -2817,6 +2853,7 @@ class LocalProgressCompanion extends UpdateCompanion<LocalProgressRow> {
       Value<DateTime?>? completedAt,
       Value<DateTime?>? readingCompletedAt,
       Value<bool>? synced,
+      Value<int>? secondsSpent,
       Value<String>? userId}) {
     return LocalProgressCompanion(
       id: id ?? this.id,
@@ -2828,6 +2865,7 @@ class LocalProgressCompanion extends UpdateCompanion<LocalProgressRow> {
       completedAt: completedAt ?? this.completedAt,
       readingCompletedAt: readingCompletedAt ?? this.readingCompletedAt,
       synced: synced ?? this.synced,
+      secondsSpent: secondsSpent ?? this.secondsSpent,
       userId: userId ?? this.userId,
     );
   }
@@ -2863,6 +2901,9 @@ class LocalProgressCompanion extends UpdateCompanion<LocalProgressRow> {
     if (synced.present) {
       map['synced'] = Variable<bool>(synced.value);
     }
+    if (secondsSpent.present) {
+      map['seconds_spent'] = Variable<int>(secondsSpent.value);
+    }
     if (userId.present) {
       map['user_id'] = Variable<String>(userId.value);
     }
@@ -2881,6 +2922,7 @@ class LocalProgressCompanion extends UpdateCompanion<LocalProgressRow> {
           ..write('completedAt: $completedAt, ')
           ..write('readingCompletedAt: $readingCompletedAt, ')
           ..write('synced: $synced, ')
+          ..write('secondsSpent: $secondsSpent, ')
           ..write('userId: $userId')
           ..write(')'))
         .toString();
@@ -6392,6 +6434,940 @@ class CachedSectionTranslationsCompanion
   }
 }
 
+class $CachedGeneralQuestionsTable extends CachedGeneralQuestions
+    with TableInfo<$CachedGeneralQuestionsTable, CachedGeneralQuestionRow> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $CachedGeneralQuestionsTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<String> id = GeneratedColumn<String>(
+      'id', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _numberMeta = const VerificationMeta('number');
+  @override
+  late final GeneratedColumn<int> number = GeneratedColumn<int>(
+      'number', aliasedName, false,
+      type: DriftSqlType.int, requiredDuringInsert: true);
+  static const VerificationMeta _promptMeta = const VerificationMeta('prompt');
+  @override
+  late final GeneratedColumn<String> prompt = GeneratedColumn<String>(
+      'prompt', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _optionsJsonMeta =
+      const VerificationMeta('optionsJson');
+  @override
+  late final GeneratedColumn<String> optionsJson = GeneratedColumn<String>(
+      'options_json', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _correctIndexMeta =
+      const VerificationMeta('correctIndex');
+  @override
+  late final GeneratedColumn<int> correctIndex = GeneratedColumn<int>(
+      'correct_index', aliasedName, true,
+      type: DriftSqlType.int, requiredDuringInsert: false);
+  @override
+  List<GeneratedColumn> get $columns =>
+      [id, number, prompt, optionsJson, correctIndex];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'cached_general_questions';
+  @override
+  VerificationContext validateIntegrity(
+      Insertable<CachedGeneralQuestionRow> instance,
+      {bool isInserting = false}) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    } else if (isInserting) {
+      context.missing(_idMeta);
+    }
+    if (data.containsKey('number')) {
+      context.handle(_numberMeta,
+          number.isAcceptableOrUnknown(data['number']!, _numberMeta));
+    } else if (isInserting) {
+      context.missing(_numberMeta);
+    }
+    if (data.containsKey('prompt')) {
+      context.handle(_promptMeta,
+          prompt.isAcceptableOrUnknown(data['prompt']!, _promptMeta));
+    } else if (isInserting) {
+      context.missing(_promptMeta);
+    }
+    if (data.containsKey('options_json')) {
+      context.handle(
+          _optionsJsonMeta,
+          optionsJson.isAcceptableOrUnknown(
+              data['options_json']!, _optionsJsonMeta));
+    } else if (isInserting) {
+      context.missing(_optionsJsonMeta);
+    }
+    if (data.containsKey('correct_index')) {
+      context.handle(
+          _correctIndexMeta,
+          correctIndex.isAcceptableOrUnknown(
+              data['correct_index']!, _correctIndexMeta));
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  CachedGeneralQuestionRow map(Map<String, dynamic> data,
+      {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return CachedGeneralQuestionRow(
+      id: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}id'])!,
+      number: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}number'])!,
+      prompt: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}prompt'])!,
+      optionsJson: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}options_json'])!,
+      correctIndex: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}correct_index']),
+    );
+  }
+
+  @override
+  $CachedGeneralQuestionsTable createAlias(String alias) {
+    return $CachedGeneralQuestionsTable(attachedDatabase, alias);
+  }
+}
+
+class CachedGeneralQuestionRow extends DataClass
+    implements Insertable<CachedGeneralQuestionRow> {
+  final String id;
+  final int number;
+  final String prompt;
+  final String optionsJson;
+  final int? correctIndex;
+  const CachedGeneralQuestionRow(
+      {required this.id,
+      required this.number,
+      required this.prompt,
+      required this.optionsJson,
+      this.correctIndex});
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id'] = Variable<String>(id);
+    map['number'] = Variable<int>(number);
+    map['prompt'] = Variable<String>(prompt);
+    map['options_json'] = Variable<String>(optionsJson);
+    if (!nullToAbsent || correctIndex != null) {
+      map['correct_index'] = Variable<int>(correctIndex);
+    }
+    return map;
+  }
+
+  CachedGeneralQuestionsCompanion toCompanion(bool nullToAbsent) {
+    return CachedGeneralQuestionsCompanion(
+      id: Value(id),
+      number: Value(number),
+      prompt: Value(prompt),
+      optionsJson: Value(optionsJson),
+      correctIndex: correctIndex == null && nullToAbsent
+          ? const Value.absent()
+          : Value(correctIndex),
+    );
+  }
+
+  factory CachedGeneralQuestionRow.fromJson(Map<String, dynamic> json,
+      {ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return CachedGeneralQuestionRow(
+      id: serializer.fromJson<String>(json['id']),
+      number: serializer.fromJson<int>(json['number']),
+      prompt: serializer.fromJson<String>(json['prompt']),
+      optionsJson: serializer.fromJson<String>(json['optionsJson']),
+      correctIndex: serializer.fromJson<int?>(json['correctIndex']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<String>(id),
+      'number': serializer.toJson<int>(number),
+      'prompt': serializer.toJson<String>(prompt),
+      'optionsJson': serializer.toJson<String>(optionsJson),
+      'correctIndex': serializer.toJson<int?>(correctIndex),
+    };
+  }
+
+  CachedGeneralQuestionRow copyWith(
+          {String? id,
+          int? number,
+          String? prompt,
+          String? optionsJson,
+          Value<int?> correctIndex = const Value.absent()}) =>
+      CachedGeneralQuestionRow(
+        id: id ?? this.id,
+        number: number ?? this.number,
+        prompt: prompt ?? this.prompt,
+        optionsJson: optionsJson ?? this.optionsJson,
+        correctIndex:
+            correctIndex.present ? correctIndex.value : this.correctIndex,
+      );
+  CachedGeneralQuestionRow copyWithCompanion(
+      CachedGeneralQuestionsCompanion data) {
+    return CachedGeneralQuestionRow(
+      id: data.id.present ? data.id.value : this.id,
+      number: data.number.present ? data.number.value : this.number,
+      prompt: data.prompt.present ? data.prompt.value : this.prompt,
+      optionsJson:
+          data.optionsJson.present ? data.optionsJson.value : this.optionsJson,
+      correctIndex: data.correctIndex.present
+          ? data.correctIndex.value
+          : this.correctIndex,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('CachedGeneralQuestionRow(')
+          ..write('id: $id, ')
+          ..write('number: $number, ')
+          ..write('prompt: $prompt, ')
+          ..write('optionsJson: $optionsJson, ')
+          ..write('correctIndex: $correctIndex')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode =>
+      Object.hash(id, number, prompt, optionsJson, correctIndex);
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is CachedGeneralQuestionRow &&
+          other.id == this.id &&
+          other.number == this.number &&
+          other.prompt == this.prompt &&
+          other.optionsJson == this.optionsJson &&
+          other.correctIndex == this.correctIndex);
+}
+
+class CachedGeneralQuestionsCompanion
+    extends UpdateCompanion<CachedGeneralQuestionRow> {
+  final Value<String> id;
+  final Value<int> number;
+  final Value<String> prompt;
+  final Value<String> optionsJson;
+  final Value<int?> correctIndex;
+  final Value<int> rowid;
+  const CachedGeneralQuestionsCompanion({
+    this.id = const Value.absent(),
+    this.number = const Value.absent(),
+    this.prompt = const Value.absent(),
+    this.optionsJson = const Value.absent(),
+    this.correctIndex = const Value.absent(),
+    this.rowid = const Value.absent(),
+  });
+  CachedGeneralQuestionsCompanion.insert({
+    required String id,
+    required int number,
+    required String prompt,
+    required String optionsJson,
+    this.correctIndex = const Value.absent(),
+    this.rowid = const Value.absent(),
+  })  : id = Value(id),
+        number = Value(number),
+        prompt = Value(prompt),
+        optionsJson = Value(optionsJson);
+  static Insertable<CachedGeneralQuestionRow> custom({
+    Expression<String>? id,
+    Expression<int>? number,
+    Expression<String>? prompt,
+    Expression<String>? optionsJson,
+    Expression<int>? correctIndex,
+    Expression<int>? rowid,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (number != null) 'number': number,
+      if (prompt != null) 'prompt': prompt,
+      if (optionsJson != null) 'options_json': optionsJson,
+      if (correctIndex != null) 'correct_index': correctIndex,
+      if (rowid != null) 'rowid': rowid,
+    });
+  }
+
+  CachedGeneralQuestionsCompanion copyWith(
+      {Value<String>? id,
+      Value<int>? number,
+      Value<String>? prompt,
+      Value<String>? optionsJson,
+      Value<int?>? correctIndex,
+      Value<int>? rowid}) {
+    return CachedGeneralQuestionsCompanion(
+      id: id ?? this.id,
+      number: number ?? this.number,
+      prompt: prompt ?? this.prompt,
+      optionsJson: optionsJson ?? this.optionsJson,
+      correctIndex: correctIndex ?? this.correctIndex,
+      rowid: rowid ?? this.rowid,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<String>(id.value);
+    }
+    if (number.present) {
+      map['number'] = Variable<int>(number.value);
+    }
+    if (prompt.present) {
+      map['prompt'] = Variable<String>(prompt.value);
+    }
+    if (optionsJson.present) {
+      map['options_json'] = Variable<String>(optionsJson.value);
+    }
+    if (correctIndex.present) {
+      map['correct_index'] = Variable<int>(correctIndex.value);
+    }
+    if (rowid.present) {
+      map['rowid'] = Variable<int>(rowid.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('CachedGeneralQuestionsCompanion(')
+          ..write('id: $id, ')
+          ..write('number: $number, ')
+          ..write('prompt: $prompt, ')
+          ..write('optionsJson: $optionsJson, ')
+          ..write('correctIndex: $correctIndex, ')
+          ..write('rowid: $rowid')
+          ..write(')'))
+        .toString();
+  }
+}
+
+class $LocalGeneralAttemptsTable extends LocalGeneralAttempts
+    with TableInfo<$LocalGeneralAttemptsTable, LocalGeneralAttemptRow> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $LocalGeneralAttemptsTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<int> id = GeneratedColumn<int>(
+      'id', aliasedName, false,
+      hasAutoIncrement: true,
+      type: DriftSqlType.int,
+      requiredDuringInsert: false,
+      defaultConstraints:
+          GeneratedColumn.constraintIsAlways('PRIMARY KEY AUTOINCREMENT'));
+  static const VerificationMeta _userIdMeta = const VerificationMeta('userId');
+  @override
+  late final GeneratedColumn<String> userId = GeneratedColumn<String>(
+      'user_id', aliasedName, false,
+      type: DriftSqlType.string,
+      requiredDuringInsert: false,
+      defaultValue: const Constant(''));
+  static const VerificationMeta _clientIdMeta =
+      const VerificationMeta('clientId');
+  @override
+  late final GeneratedColumn<String> clientId = GeneratedColumn<String>(
+      'client_id', aliasedName, false,
+      type: DriftSqlType.string,
+      requiredDuringInsert: true,
+      defaultConstraints: GeneratedColumn.constraintIsAlways('UNIQUE'));
+  static const VerificationMeta _testTypeMeta =
+      const VerificationMeta('testType');
+  @override
+  late final GeneratedColumn<String> testType = GeneratedColumn<String>(
+      'test_type', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _correctCountMeta =
+      const VerificationMeta('correctCount');
+  @override
+  late final GeneratedColumn<int> correctCount = GeneratedColumn<int>(
+      'correct_count', aliasedName, false,
+      type: DriftSqlType.int, requiredDuringInsert: true);
+  static const VerificationMeta _totalCountMeta =
+      const VerificationMeta('totalCount');
+  @override
+  late final GeneratedColumn<int> totalCount = GeneratedColumn<int>(
+      'total_count', aliasedName, false,
+      type: DriftSqlType.int, requiredDuringInsert: true);
+  static const VerificationMeta _scorePercentMeta =
+      const VerificationMeta('scorePercent');
+  @override
+  late final GeneratedColumn<int> scorePercent = GeneratedColumn<int>(
+      'score_percent', aliasedName, false,
+      type: DriftSqlType.int, requiredDuringInsert: true);
+  static const VerificationMeta _answersJsonMeta =
+      const VerificationMeta('answersJson');
+  @override
+  late final GeneratedColumn<String> answersJson = GeneratedColumn<String>(
+      'answers_json', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _takenAtMeta =
+      const VerificationMeta('takenAt');
+  @override
+  late final GeneratedColumn<DateTime> takenAt = GeneratedColumn<DateTime>(
+      'taken_at', aliasedName, false,
+      type: DriftSqlType.dateTime, requiredDuringInsert: true);
+  static const VerificationMeta _syncedMeta = const VerificationMeta('synced');
+  @override
+  late final GeneratedColumn<bool> synced = GeneratedColumn<bool>(
+      'synced', aliasedName, false,
+      type: DriftSqlType.bool,
+      requiredDuringInsert: false,
+      defaultConstraints:
+          GeneratedColumn.constraintIsAlways('CHECK ("synced" IN (0, 1))'),
+      defaultValue: const Constant(false));
+  static const VerificationMeta _serverValidMeta =
+      const VerificationMeta('serverValid');
+  @override
+  late final GeneratedColumn<bool> serverValid = GeneratedColumn<bool>(
+      'server_valid', aliasedName, true,
+      type: DriftSqlType.bool,
+      requiredDuringInsert: false,
+      defaultConstraints: GeneratedColumn.constraintIsAlways(
+          'CHECK ("server_valid" IN (0, 1))'));
+  static const VerificationMeta _invalidReasonMeta =
+      const VerificationMeta('invalidReason');
+  @override
+  late final GeneratedColumn<String> invalidReason = GeneratedColumn<String>(
+      'invalid_reason', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  @override
+  List<GeneratedColumn> get $columns => [
+        id,
+        userId,
+        clientId,
+        testType,
+        correctCount,
+        totalCount,
+        scorePercent,
+        answersJson,
+        takenAt,
+        synced,
+        serverValid,
+        invalidReason
+      ];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'local_general_attempts';
+  @override
+  VerificationContext validateIntegrity(
+      Insertable<LocalGeneralAttemptRow> instance,
+      {bool isInserting = false}) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    }
+    if (data.containsKey('user_id')) {
+      context.handle(_userIdMeta,
+          userId.isAcceptableOrUnknown(data['user_id']!, _userIdMeta));
+    }
+    if (data.containsKey('client_id')) {
+      context.handle(_clientIdMeta,
+          clientId.isAcceptableOrUnknown(data['client_id']!, _clientIdMeta));
+    } else if (isInserting) {
+      context.missing(_clientIdMeta);
+    }
+    if (data.containsKey('test_type')) {
+      context.handle(_testTypeMeta,
+          testType.isAcceptableOrUnknown(data['test_type']!, _testTypeMeta));
+    } else if (isInserting) {
+      context.missing(_testTypeMeta);
+    }
+    if (data.containsKey('correct_count')) {
+      context.handle(
+          _correctCountMeta,
+          correctCount.isAcceptableOrUnknown(
+              data['correct_count']!, _correctCountMeta));
+    } else if (isInserting) {
+      context.missing(_correctCountMeta);
+    }
+    if (data.containsKey('total_count')) {
+      context.handle(
+          _totalCountMeta,
+          totalCount.isAcceptableOrUnknown(
+              data['total_count']!, _totalCountMeta));
+    } else if (isInserting) {
+      context.missing(_totalCountMeta);
+    }
+    if (data.containsKey('score_percent')) {
+      context.handle(
+          _scorePercentMeta,
+          scorePercent.isAcceptableOrUnknown(
+              data['score_percent']!, _scorePercentMeta));
+    } else if (isInserting) {
+      context.missing(_scorePercentMeta);
+    }
+    if (data.containsKey('answers_json')) {
+      context.handle(
+          _answersJsonMeta,
+          answersJson.isAcceptableOrUnknown(
+              data['answers_json']!, _answersJsonMeta));
+    } else if (isInserting) {
+      context.missing(_answersJsonMeta);
+    }
+    if (data.containsKey('taken_at')) {
+      context.handle(_takenAtMeta,
+          takenAt.isAcceptableOrUnknown(data['taken_at']!, _takenAtMeta));
+    } else if (isInserting) {
+      context.missing(_takenAtMeta);
+    }
+    if (data.containsKey('synced')) {
+      context.handle(_syncedMeta,
+          synced.isAcceptableOrUnknown(data['synced']!, _syncedMeta));
+    }
+    if (data.containsKey('server_valid')) {
+      context.handle(
+          _serverValidMeta,
+          serverValid.isAcceptableOrUnknown(
+              data['server_valid']!, _serverValidMeta));
+    }
+    if (data.containsKey('invalid_reason')) {
+      context.handle(
+          _invalidReasonMeta,
+          invalidReason.isAcceptableOrUnknown(
+              data['invalid_reason']!, _invalidReasonMeta));
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  LocalGeneralAttemptRow map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return LocalGeneralAttemptRow(
+      id: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}id'])!,
+      userId: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}user_id'])!,
+      clientId: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}client_id'])!,
+      testType: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}test_type'])!,
+      correctCount: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}correct_count'])!,
+      totalCount: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}total_count'])!,
+      scorePercent: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}score_percent'])!,
+      answersJson: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}answers_json'])!,
+      takenAt: attachedDatabase.typeMapping
+          .read(DriftSqlType.dateTime, data['${effectivePrefix}taken_at'])!,
+      synced: attachedDatabase.typeMapping
+          .read(DriftSqlType.bool, data['${effectivePrefix}synced'])!,
+      serverValid: attachedDatabase.typeMapping
+          .read(DriftSqlType.bool, data['${effectivePrefix}server_valid']),
+      invalidReason: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}invalid_reason']),
+    );
+  }
+
+  @override
+  $LocalGeneralAttemptsTable createAlias(String alias) {
+    return $LocalGeneralAttemptsTable(attachedDatabase, alias);
+  }
+}
+
+class LocalGeneralAttemptRow extends DataClass
+    implements Insertable<LocalGeneralAttemptRow> {
+  final int id;
+  final String userId;
+  final String clientId;
+  final String testType;
+  final int correctCount;
+  final int totalCount;
+  final int scorePercent;
+  final String answersJson;
+  final DateTime takenAt;
+  final bool synced;
+  final bool? serverValid;
+  final String? invalidReason;
+  const LocalGeneralAttemptRow(
+      {required this.id,
+      required this.userId,
+      required this.clientId,
+      required this.testType,
+      required this.correctCount,
+      required this.totalCount,
+      required this.scorePercent,
+      required this.answersJson,
+      required this.takenAt,
+      required this.synced,
+      this.serverValid,
+      this.invalidReason});
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id'] = Variable<int>(id);
+    map['user_id'] = Variable<String>(userId);
+    map['client_id'] = Variable<String>(clientId);
+    map['test_type'] = Variable<String>(testType);
+    map['correct_count'] = Variable<int>(correctCount);
+    map['total_count'] = Variable<int>(totalCount);
+    map['score_percent'] = Variable<int>(scorePercent);
+    map['answers_json'] = Variable<String>(answersJson);
+    map['taken_at'] = Variable<DateTime>(takenAt);
+    map['synced'] = Variable<bool>(synced);
+    if (!nullToAbsent || serverValid != null) {
+      map['server_valid'] = Variable<bool>(serverValid);
+    }
+    if (!nullToAbsent || invalidReason != null) {
+      map['invalid_reason'] = Variable<String>(invalidReason);
+    }
+    return map;
+  }
+
+  LocalGeneralAttemptsCompanion toCompanion(bool nullToAbsent) {
+    return LocalGeneralAttemptsCompanion(
+      id: Value(id),
+      userId: Value(userId),
+      clientId: Value(clientId),
+      testType: Value(testType),
+      correctCount: Value(correctCount),
+      totalCount: Value(totalCount),
+      scorePercent: Value(scorePercent),
+      answersJson: Value(answersJson),
+      takenAt: Value(takenAt),
+      synced: Value(synced),
+      serverValid: serverValid == null && nullToAbsent
+          ? const Value.absent()
+          : Value(serverValid),
+      invalidReason: invalidReason == null && nullToAbsent
+          ? const Value.absent()
+          : Value(invalidReason),
+    );
+  }
+
+  factory LocalGeneralAttemptRow.fromJson(Map<String, dynamic> json,
+      {ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return LocalGeneralAttemptRow(
+      id: serializer.fromJson<int>(json['id']),
+      userId: serializer.fromJson<String>(json['userId']),
+      clientId: serializer.fromJson<String>(json['clientId']),
+      testType: serializer.fromJson<String>(json['testType']),
+      correctCount: serializer.fromJson<int>(json['correctCount']),
+      totalCount: serializer.fromJson<int>(json['totalCount']),
+      scorePercent: serializer.fromJson<int>(json['scorePercent']),
+      answersJson: serializer.fromJson<String>(json['answersJson']),
+      takenAt: serializer.fromJson<DateTime>(json['takenAt']),
+      synced: serializer.fromJson<bool>(json['synced']),
+      serverValid: serializer.fromJson<bool?>(json['serverValid']),
+      invalidReason: serializer.fromJson<String?>(json['invalidReason']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<int>(id),
+      'userId': serializer.toJson<String>(userId),
+      'clientId': serializer.toJson<String>(clientId),
+      'testType': serializer.toJson<String>(testType),
+      'correctCount': serializer.toJson<int>(correctCount),
+      'totalCount': serializer.toJson<int>(totalCount),
+      'scorePercent': serializer.toJson<int>(scorePercent),
+      'answersJson': serializer.toJson<String>(answersJson),
+      'takenAt': serializer.toJson<DateTime>(takenAt),
+      'synced': serializer.toJson<bool>(synced),
+      'serverValid': serializer.toJson<bool?>(serverValid),
+      'invalidReason': serializer.toJson<String?>(invalidReason),
+    };
+  }
+
+  LocalGeneralAttemptRow copyWith(
+          {int? id,
+          String? userId,
+          String? clientId,
+          String? testType,
+          int? correctCount,
+          int? totalCount,
+          int? scorePercent,
+          String? answersJson,
+          DateTime? takenAt,
+          bool? synced,
+          Value<bool?> serverValid = const Value.absent(),
+          Value<String?> invalidReason = const Value.absent()}) =>
+      LocalGeneralAttemptRow(
+        id: id ?? this.id,
+        userId: userId ?? this.userId,
+        clientId: clientId ?? this.clientId,
+        testType: testType ?? this.testType,
+        correctCount: correctCount ?? this.correctCount,
+        totalCount: totalCount ?? this.totalCount,
+        scorePercent: scorePercent ?? this.scorePercent,
+        answersJson: answersJson ?? this.answersJson,
+        takenAt: takenAt ?? this.takenAt,
+        synced: synced ?? this.synced,
+        serverValid: serverValid.present ? serverValid.value : this.serverValid,
+        invalidReason:
+            invalidReason.present ? invalidReason.value : this.invalidReason,
+      );
+  LocalGeneralAttemptRow copyWithCompanion(LocalGeneralAttemptsCompanion data) {
+    return LocalGeneralAttemptRow(
+      id: data.id.present ? data.id.value : this.id,
+      userId: data.userId.present ? data.userId.value : this.userId,
+      clientId: data.clientId.present ? data.clientId.value : this.clientId,
+      testType: data.testType.present ? data.testType.value : this.testType,
+      correctCount: data.correctCount.present
+          ? data.correctCount.value
+          : this.correctCount,
+      totalCount:
+          data.totalCount.present ? data.totalCount.value : this.totalCount,
+      scorePercent: data.scorePercent.present
+          ? data.scorePercent.value
+          : this.scorePercent,
+      answersJson:
+          data.answersJson.present ? data.answersJson.value : this.answersJson,
+      takenAt: data.takenAt.present ? data.takenAt.value : this.takenAt,
+      synced: data.synced.present ? data.synced.value : this.synced,
+      serverValid:
+          data.serverValid.present ? data.serverValid.value : this.serverValid,
+      invalidReason: data.invalidReason.present
+          ? data.invalidReason.value
+          : this.invalidReason,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('LocalGeneralAttemptRow(')
+          ..write('id: $id, ')
+          ..write('userId: $userId, ')
+          ..write('clientId: $clientId, ')
+          ..write('testType: $testType, ')
+          ..write('correctCount: $correctCount, ')
+          ..write('totalCount: $totalCount, ')
+          ..write('scorePercent: $scorePercent, ')
+          ..write('answersJson: $answersJson, ')
+          ..write('takenAt: $takenAt, ')
+          ..write('synced: $synced, ')
+          ..write('serverValid: $serverValid, ')
+          ..write('invalidReason: $invalidReason')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(
+      id,
+      userId,
+      clientId,
+      testType,
+      correctCount,
+      totalCount,
+      scorePercent,
+      answersJson,
+      takenAt,
+      synced,
+      serverValid,
+      invalidReason);
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is LocalGeneralAttemptRow &&
+          other.id == this.id &&
+          other.userId == this.userId &&
+          other.clientId == this.clientId &&
+          other.testType == this.testType &&
+          other.correctCount == this.correctCount &&
+          other.totalCount == this.totalCount &&
+          other.scorePercent == this.scorePercent &&
+          other.answersJson == this.answersJson &&
+          other.takenAt == this.takenAt &&
+          other.synced == this.synced &&
+          other.serverValid == this.serverValid &&
+          other.invalidReason == this.invalidReason);
+}
+
+class LocalGeneralAttemptsCompanion
+    extends UpdateCompanion<LocalGeneralAttemptRow> {
+  final Value<int> id;
+  final Value<String> userId;
+  final Value<String> clientId;
+  final Value<String> testType;
+  final Value<int> correctCount;
+  final Value<int> totalCount;
+  final Value<int> scorePercent;
+  final Value<String> answersJson;
+  final Value<DateTime> takenAt;
+  final Value<bool> synced;
+  final Value<bool?> serverValid;
+  final Value<String?> invalidReason;
+  const LocalGeneralAttemptsCompanion({
+    this.id = const Value.absent(),
+    this.userId = const Value.absent(),
+    this.clientId = const Value.absent(),
+    this.testType = const Value.absent(),
+    this.correctCount = const Value.absent(),
+    this.totalCount = const Value.absent(),
+    this.scorePercent = const Value.absent(),
+    this.answersJson = const Value.absent(),
+    this.takenAt = const Value.absent(),
+    this.synced = const Value.absent(),
+    this.serverValid = const Value.absent(),
+    this.invalidReason = const Value.absent(),
+  });
+  LocalGeneralAttemptsCompanion.insert({
+    this.id = const Value.absent(),
+    this.userId = const Value.absent(),
+    required String clientId,
+    required String testType,
+    required int correctCount,
+    required int totalCount,
+    required int scorePercent,
+    required String answersJson,
+    required DateTime takenAt,
+    this.synced = const Value.absent(),
+    this.serverValid = const Value.absent(),
+    this.invalidReason = const Value.absent(),
+  })  : clientId = Value(clientId),
+        testType = Value(testType),
+        correctCount = Value(correctCount),
+        totalCount = Value(totalCount),
+        scorePercent = Value(scorePercent),
+        answersJson = Value(answersJson),
+        takenAt = Value(takenAt);
+  static Insertable<LocalGeneralAttemptRow> custom({
+    Expression<int>? id,
+    Expression<String>? userId,
+    Expression<String>? clientId,
+    Expression<String>? testType,
+    Expression<int>? correctCount,
+    Expression<int>? totalCount,
+    Expression<int>? scorePercent,
+    Expression<String>? answersJson,
+    Expression<DateTime>? takenAt,
+    Expression<bool>? synced,
+    Expression<bool>? serverValid,
+    Expression<String>? invalidReason,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (userId != null) 'user_id': userId,
+      if (clientId != null) 'client_id': clientId,
+      if (testType != null) 'test_type': testType,
+      if (correctCount != null) 'correct_count': correctCount,
+      if (totalCount != null) 'total_count': totalCount,
+      if (scorePercent != null) 'score_percent': scorePercent,
+      if (answersJson != null) 'answers_json': answersJson,
+      if (takenAt != null) 'taken_at': takenAt,
+      if (synced != null) 'synced': synced,
+      if (serverValid != null) 'server_valid': serverValid,
+      if (invalidReason != null) 'invalid_reason': invalidReason,
+    });
+  }
+
+  LocalGeneralAttemptsCompanion copyWith(
+      {Value<int>? id,
+      Value<String>? userId,
+      Value<String>? clientId,
+      Value<String>? testType,
+      Value<int>? correctCount,
+      Value<int>? totalCount,
+      Value<int>? scorePercent,
+      Value<String>? answersJson,
+      Value<DateTime>? takenAt,
+      Value<bool>? synced,
+      Value<bool?>? serverValid,
+      Value<String?>? invalidReason}) {
+    return LocalGeneralAttemptsCompanion(
+      id: id ?? this.id,
+      userId: userId ?? this.userId,
+      clientId: clientId ?? this.clientId,
+      testType: testType ?? this.testType,
+      correctCount: correctCount ?? this.correctCount,
+      totalCount: totalCount ?? this.totalCount,
+      scorePercent: scorePercent ?? this.scorePercent,
+      answersJson: answersJson ?? this.answersJson,
+      takenAt: takenAt ?? this.takenAt,
+      synced: synced ?? this.synced,
+      serverValid: serverValid ?? this.serverValid,
+      invalidReason: invalidReason ?? this.invalidReason,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<int>(id.value);
+    }
+    if (userId.present) {
+      map['user_id'] = Variable<String>(userId.value);
+    }
+    if (clientId.present) {
+      map['client_id'] = Variable<String>(clientId.value);
+    }
+    if (testType.present) {
+      map['test_type'] = Variable<String>(testType.value);
+    }
+    if (correctCount.present) {
+      map['correct_count'] = Variable<int>(correctCount.value);
+    }
+    if (totalCount.present) {
+      map['total_count'] = Variable<int>(totalCount.value);
+    }
+    if (scorePercent.present) {
+      map['score_percent'] = Variable<int>(scorePercent.value);
+    }
+    if (answersJson.present) {
+      map['answers_json'] = Variable<String>(answersJson.value);
+    }
+    if (takenAt.present) {
+      map['taken_at'] = Variable<DateTime>(takenAt.value);
+    }
+    if (synced.present) {
+      map['synced'] = Variable<bool>(synced.value);
+    }
+    if (serverValid.present) {
+      map['server_valid'] = Variable<bool>(serverValid.value);
+    }
+    if (invalidReason.present) {
+      map['invalid_reason'] = Variable<String>(invalidReason.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('LocalGeneralAttemptsCompanion(')
+          ..write('id: $id, ')
+          ..write('userId: $userId, ')
+          ..write('clientId: $clientId, ')
+          ..write('testType: $testType, ')
+          ..write('correctCount: $correctCount, ')
+          ..write('totalCount: $totalCount, ')
+          ..write('scorePercent: $scorePercent, ')
+          ..write('answersJson: $answersJson, ')
+          ..write('takenAt: $takenAt, ')
+          ..write('synced: $synced, ')
+          ..write('serverValid: $serverValid, ')
+          ..write('invalidReason: $invalidReason')
+          ..write(')'))
+        .toString();
+  }
+}
+
 abstract class _$LocalDatabase extends GeneratedDatabase {
   _$LocalDatabase(QueryExecutor e) : super(e);
   $LocalDatabaseManager get managers => $LocalDatabaseManager(this);
@@ -6416,6 +7392,10 @@ abstract class _$LocalDatabase extends GeneratedDatabase {
       $LocalQuizAttemptsTable(this);
   late final $CachedSectionTranslationsTable cachedSectionTranslations =
       $CachedSectionTranslationsTable(this);
+  late final $CachedGeneralQuestionsTable cachedGeneralQuestions =
+      $CachedGeneralQuestionsTable(this);
+  late final $LocalGeneralAttemptsTable localGeneralAttempts =
+      $LocalGeneralAttemptsTable(this);
   @override
   Iterable<TableInfo<Table, Object?>> get allTables =>
       allSchemaEntities.whereType<TableInfo<Table, Object?>>();
@@ -6435,7 +7415,9 @@ abstract class _$LocalDatabase extends GeneratedDatabase {
         contentChunks,
         cachedQuizQuestions,
         localQuizAttempts,
-        cachedSectionTranslations
+        cachedSectionTranslations,
+        cachedGeneralQuestions,
+        localGeneralAttempts
       ];
 }
 
@@ -7616,6 +8598,7 @@ typedef $$LocalProgressTableCreateCompanionBuilder = LocalProgressCompanion
   Value<DateTime?> completedAt,
   Value<DateTime?> readingCompletedAt,
   Value<bool> synced,
+  Value<int> secondsSpent,
   Value<String> userId,
 });
 typedef $$LocalProgressTableUpdateCompanionBuilder = LocalProgressCompanion
@@ -7629,6 +8612,7 @@ typedef $$LocalProgressTableUpdateCompanionBuilder = LocalProgressCompanion
   Value<DateTime?> completedAt,
   Value<DateTime?> readingCompletedAt,
   Value<bool> synced,
+  Value<int> secondsSpent,
   Value<String> userId,
 });
 
@@ -7669,6 +8653,9 @@ class $$LocalProgressTableFilterComposer
 
   ColumnFilters<bool> get synced => $composableBuilder(
       column: $table.synced, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<int> get secondsSpent => $composableBuilder(
+      column: $table.secondsSpent, builder: (column) => ColumnFilters(column));
 
   ColumnFilters<String> get userId => $composableBuilder(
       column: $table.userId, builder: (column) => ColumnFilters(column));
@@ -7713,6 +8700,10 @@ class $$LocalProgressTableOrderingComposer
   ColumnOrderings<bool> get synced => $composableBuilder(
       column: $table.synced, builder: (column) => ColumnOrderings(column));
 
+  ColumnOrderings<int> get secondsSpent => $composableBuilder(
+      column: $table.secondsSpent,
+      builder: (column) => ColumnOrderings(column));
+
   ColumnOrderings<String> get userId => $composableBuilder(
       column: $table.userId, builder: (column) => ColumnOrderings(column));
 }
@@ -7752,6 +8743,9 @@ class $$LocalProgressTableAnnotationComposer
 
   GeneratedColumn<bool> get synced =>
       $composableBuilder(column: $table.synced, builder: (column) => column);
+
+  GeneratedColumn<int> get secondsSpent => $composableBuilder(
+      column: $table.secondsSpent, builder: (column) => column);
 
   GeneratedColumn<String> get userId =>
       $composableBuilder(column: $table.userId, builder: (column) => column);
@@ -7793,6 +8787,7 @@ class $$LocalProgressTableTableManager extends RootTableManager<
             Value<DateTime?> completedAt = const Value.absent(),
             Value<DateTime?> readingCompletedAt = const Value.absent(),
             Value<bool> synced = const Value.absent(),
+            Value<int> secondsSpent = const Value.absent(),
             Value<String> userId = const Value.absent(),
           }) =>
               LocalProgressCompanion(
@@ -7805,6 +8800,7 @@ class $$LocalProgressTableTableManager extends RootTableManager<
             completedAt: completedAt,
             readingCompletedAt: readingCompletedAt,
             synced: synced,
+            secondsSpent: secondsSpent,
             userId: userId,
           ),
           createCompanionCallback: ({
@@ -7817,6 +8813,7 @@ class $$LocalProgressTableTableManager extends RootTableManager<
             Value<DateTime?> completedAt = const Value.absent(),
             Value<DateTime?> readingCompletedAt = const Value.absent(),
             Value<bool> synced = const Value.absent(),
+            Value<int> secondsSpent = const Value.absent(),
             Value<String> userId = const Value.absent(),
           }) =>
               LocalProgressCompanion.insert(
@@ -7829,6 +8826,7 @@ class $$LocalProgressTableTableManager extends RootTableManager<
             completedAt: completedAt,
             readingCompletedAt: readingCompletedAt,
             synced: synced,
+            secondsSpent: secondsSpent,
             userId: userId,
           ),
           withReferenceMapper: (p0) => p0
@@ -9668,6 +10666,468 @@ typedef $$CachedSectionTranslationsTableProcessedTableManager
         ),
         CachedSectionTranslationRow,
         PrefetchHooks Function()>;
+typedef $$CachedGeneralQuestionsTableCreateCompanionBuilder
+    = CachedGeneralQuestionsCompanion Function({
+  required String id,
+  required int number,
+  required String prompt,
+  required String optionsJson,
+  Value<int?> correctIndex,
+  Value<int> rowid,
+});
+typedef $$CachedGeneralQuestionsTableUpdateCompanionBuilder
+    = CachedGeneralQuestionsCompanion Function({
+  Value<String> id,
+  Value<int> number,
+  Value<String> prompt,
+  Value<String> optionsJson,
+  Value<int?> correctIndex,
+  Value<int> rowid,
+});
+
+class $$CachedGeneralQuestionsTableFilterComposer
+    extends Composer<_$LocalDatabase, $CachedGeneralQuestionsTable> {
+  $$CachedGeneralQuestionsTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<String> get id => $composableBuilder(
+      column: $table.id, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<int> get number => $composableBuilder(
+      column: $table.number, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get prompt => $composableBuilder(
+      column: $table.prompt, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get optionsJson => $composableBuilder(
+      column: $table.optionsJson, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<int> get correctIndex => $composableBuilder(
+      column: $table.correctIndex, builder: (column) => ColumnFilters(column));
+}
+
+class $$CachedGeneralQuestionsTableOrderingComposer
+    extends Composer<_$LocalDatabase, $CachedGeneralQuestionsTable> {
+  $$CachedGeneralQuestionsTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<String> get id => $composableBuilder(
+      column: $table.id, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<int> get number => $composableBuilder(
+      column: $table.number, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get prompt => $composableBuilder(
+      column: $table.prompt, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get optionsJson => $composableBuilder(
+      column: $table.optionsJson, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<int> get correctIndex => $composableBuilder(
+      column: $table.correctIndex,
+      builder: (column) => ColumnOrderings(column));
+}
+
+class $$CachedGeneralQuestionsTableAnnotationComposer
+    extends Composer<_$LocalDatabase, $CachedGeneralQuestionsTable> {
+  $$CachedGeneralQuestionsTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<String> get id =>
+      $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<int> get number =>
+      $composableBuilder(column: $table.number, builder: (column) => column);
+
+  GeneratedColumn<String> get prompt =>
+      $composableBuilder(column: $table.prompt, builder: (column) => column);
+
+  GeneratedColumn<String> get optionsJson => $composableBuilder(
+      column: $table.optionsJson, builder: (column) => column);
+
+  GeneratedColumn<int> get correctIndex => $composableBuilder(
+      column: $table.correctIndex, builder: (column) => column);
+}
+
+class $$CachedGeneralQuestionsTableTableManager extends RootTableManager<
+    _$LocalDatabase,
+    $CachedGeneralQuestionsTable,
+    CachedGeneralQuestionRow,
+    $$CachedGeneralQuestionsTableFilterComposer,
+    $$CachedGeneralQuestionsTableOrderingComposer,
+    $$CachedGeneralQuestionsTableAnnotationComposer,
+    $$CachedGeneralQuestionsTableCreateCompanionBuilder,
+    $$CachedGeneralQuestionsTableUpdateCompanionBuilder,
+    (
+      CachedGeneralQuestionRow,
+      BaseReferences<_$LocalDatabase, $CachedGeneralQuestionsTable,
+          CachedGeneralQuestionRow>
+    ),
+    CachedGeneralQuestionRow,
+    PrefetchHooks Function()> {
+  $$CachedGeneralQuestionsTableTableManager(
+      _$LocalDatabase db, $CachedGeneralQuestionsTable table)
+      : super(TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$CachedGeneralQuestionsTableFilterComposer(
+                  $db: db, $table: table),
+          createOrderingComposer: () =>
+              $$CachedGeneralQuestionsTableOrderingComposer(
+                  $db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$CachedGeneralQuestionsTableAnnotationComposer(
+                  $db: db, $table: table),
+          updateCompanionCallback: ({
+            Value<String> id = const Value.absent(),
+            Value<int> number = const Value.absent(),
+            Value<String> prompt = const Value.absent(),
+            Value<String> optionsJson = const Value.absent(),
+            Value<int?> correctIndex = const Value.absent(),
+            Value<int> rowid = const Value.absent(),
+          }) =>
+              CachedGeneralQuestionsCompanion(
+            id: id,
+            number: number,
+            prompt: prompt,
+            optionsJson: optionsJson,
+            correctIndex: correctIndex,
+            rowid: rowid,
+          ),
+          createCompanionCallback: ({
+            required String id,
+            required int number,
+            required String prompt,
+            required String optionsJson,
+            Value<int?> correctIndex = const Value.absent(),
+            Value<int> rowid = const Value.absent(),
+          }) =>
+              CachedGeneralQuestionsCompanion.insert(
+            id: id,
+            number: number,
+            prompt: prompt,
+            optionsJson: optionsJson,
+            correctIndex: correctIndex,
+            rowid: rowid,
+          ),
+          withReferenceMapper: (p0) => p0
+              .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
+              .toList(),
+          prefetchHooksCallback: null,
+        ));
+}
+
+typedef $$CachedGeneralQuestionsTableProcessedTableManager
+    = ProcessedTableManager<
+        _$LocalDatabase,
+        $CachedGeneralQuestionsTable,
+        CachedGeneralQuestionRow,
+        $$CachedGeneralQuestionsTableFilterComposer,
+        $$CachedGeneralQuestionsTableOrderingComposer,
+        $$CachedGeneralQuestionsTableAnnotationComposer,
+        $$CachedGeneralQuestionsTableCreateCompanionBuilder,
+        $$CachedGeneralQuestionsTableUpdateCompanionBuilder,
+        (
+          CachedGeneralQuestionRow,
+          BaseReferences<_$LocalDatabase, $CachedGeneralQuestionsTable,
+              CachedGeneralQuestionRow>
+        ),
+        CachedGeneralQuestionRow,
+        PrefetchHooks Function()>;
+typedef $$LocalGeneralAttemptsTableCreateCompanionBuilder
+    = LocalGeneralAttemptsCompanion Function({
+  Value<int> id,
+  Value<String> userId,
+  required String clientId,
+  required String testType,
+  required int correctCount,
+  required int totalCount,
+  required int scorePercent,
+  required String answersJson,
+  required DateTime takenAt,
+  Value<bool> synced,
+  Value<bool?> serverValid,
+  Value<String?> invalidReason,
+});
+typedef $$LocalGeneralAttemptsTableUpdateCompanionBuilder
+    = LocalGeneralAttemptsCompanion Function({
+  Value<int> id,
+  Value<String> userId,
+  Value<String> clientId,
+  Value<String> testType,
+  Value<int> correctCount,
+  Value<int> totalCount,
+  Value<int> scorePercent,
+  Value<String> answersJson,
+  Value<DateTime> takenAt,
+  Value<bool> synced,
+  Value<bool?> serverValid,
+  Value<String?> invalidReason,
+});
+
+class $$LocalGeneralAttemptsTableFilterComposer
+    extends Composer<_$LocalDatabase, $LocalGeneralAttemptsTable> {
+  $$LocalGeneralAttemptsTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<int> get id => $composableBuilder(
+      column: $table.id, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get userId => $composableBuilder(
+      column: $table.userId, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get clientId => $composableBuilder(
+      column: $table.clientId, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get testType => $composableBuilder(
+      column: $table.testType, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<int> get correctCount => $composableBuilder(
+      column: $table.correctCount, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<int> get totalCount => $composableBuilder(
+      column: $table.totalCount, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<int> get scorePercent => $composableBuilder(
+      column: $table.scorePercent, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get answersJson => $composableBuilder(
+      column: $table.answersJson, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<DateTime> get takenAt => $composableBuilder(
+      column: $table.takenAt, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<bool> get synced => $composableBuilder(
+      column: $table.synced, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<bool> get serverValid => $composableBuilder(
+      column: $table.serverValid, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get invalidReason => $composableBuilder(
+      column: $table.invalidReason, builder: (column) => ColumnFilters(column));
+}
+
+class $$LocalGeneralAttemptsTableOrderingComposer
+    extends Composer<_$LocalDatabase, $LocalGeneralAttemptsTable> {
+  $$LocalGeneralAttemptsTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<int> get id => $composableBuilder(
+      column: $table.id, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get userId => $composableBuilder(
+      column: $table.userId, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get clientId => $composableBuilder(
+      column: $table.clientId, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get testType => $composableBuilder(
+      column: $table.testType, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<int> get correctCount => $composableBuilder(
+      column: $table.correctCount,
+      builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<int> get totalCount => $composableBuilder(
+      column: $table.totalCount, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<int> get scorePercent => $composableBuilder(
+      column: $table.scorePercent,
+      builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get answersJson => $composableBuilder(
+      column: $table.answersJson, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<DateTime> get takenAt => $composableBuilder(
+      column: $table.takenAt, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<bool> get synced => $composableBuilder(
+      column: $table.synced, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<bool> get serverValid => $composableBuilder(
+      column: $table.serverValid, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get invalidReason => $composableBuilder(
+      column: $table.invalidReason,
+      builder: (column) => ColumnOrderings(column));
+}
+
+class $$LocalGeneralAttemptsTableAnnotationComposer
+    extends Composer<_$LocalDatabase, $LocalGeneralAttemptsTable> {
+  $$LocalGeneralAttemptsTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<int> get id =>
+      $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<String> get userId =>
+      $composableBuilder(column: $table.userId, builder: (column) => column);
+
+  GeneratedColumn<String> get clientId =>
+      $composableBuilder(column: $table.clientId, builder: (column) => column);
+
+  GeneratedColumn<String> get testType =>
+      $composableBuilder(column: $table.testType, builder: (column) => column);
+
+  GeneratedColumn<int> get correctCount => $composableBuilder(
+      column: $table.correctCount, builder: (column) => column);
+
+  GeneratedColumn<int> get totalCount => $composableBuilder(
+      column: $table.totalCount, builder: (column) => column);
+
+  GeneratedColumn<int> get scorePercent => $composableBuilder(
+      column: $table.scorePercent, builder: (column) => column);
+
+  GeneratedColumn<String> get answersJson => $composableBuilder(
+      column: $table.answersJson, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get takenAt =>
+      $composableBuilder(column: $table.takenAt, builder: (column) => column);
+
+  GeneratedColumn<bool> get synced =>
+      $composableBuilder(column: $table.synced, builder: (column) => column);
+
+  GeneratedColumn<bool> get serverValid => $composableBuilder(
+      column: $table.serverValid, builder: (column) => column);
+
+  GeneratedColumn<String> get invalidReason => $composableBuilder(
+      column: $table.invalidReason, builder: (column) => column);
+}
+
+class $$LocalGeneralAttemptsTableTableManager extends RootTableManager<
+    _$LocalDatabase,
+    $LocalGeneralAttemptsTable,
+    LocalGeneralAttemptRow,
+    $$LocalGeneralAttemptsTableFilterComposer,
+    $$LocalGeneralAttemptsTableOrderingComposer,
+    $$LocalGeneralAttemptsTableAnnotationComposer,
+    $$LocalGeneralAttemptsTableCreateCompanionBuilder,
+    $$LocalGeneralAttemptsTableUpdateCompanionBuilder,
+    (
+      LocalGeneralAttemptRow,
+      BaseReferences<_$LocalDatabase, $LocalGeneralAttemptsTable,
+          LocalGeneralAttemptRow>
+    ),
+    LocalGeneralAttemptRow,
+    PrefetchHooks Function()> {
+  $$LocalGeneralAttemptsTableTableManager(
+      _$LocalDatabase db, $LocalGeneralAttemptsTable table)
+      : super(TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$LocalGeneralAttemptsTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$LocalGeneralAttemptsTableOrderingComposer(
+                  $db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$LocalGeneralAttemptsTableAnnotationComposer(
+                  $db: db, $table: table),
+          updateCompanionCallback: ({
+            Value<int> id = const Value.absent(),
+            Value<String> userId = const Value.absent(),
+            Value<String> clientId = const Value.absent(),
+            Value<String> testType = const Value.absent(),
+            Value<int> correctCount = const Value.absent(),
+            Value<int> totalCount = const Value.absent(),
+            Value<int> scorePercent = const Value.absent(),
+            Value<String> answersJson = const Value.absent(),
+            Value<DateTime> takenAt = const Value.absent(),
+            Value<bool> synced = const Value.absent(),
+            Value<bool?> serverValid = const Value.absent(),
+            Value<String?> invalidReason = const Value.absent(),
+          }) =>
+              LocalGeneralAttemptsCompanion(
+            id: id,
+            userId: userId,
+            clientId: clientId,
+            testType: testType,
+            correctCount: correctCount,
+            totalCount: totalCount,
+            scorePercent: scorePercent,
+            answersJson: answersJson,
+            takenAt: takenAt,
+            synced: synced,
+            serverValid: serverValid,
+            invalidReason: invalidReason,
+          ),
+          createCompanionCallback: ({
+            Value<int> id = const Value.absent(),
+            Value<String> userId = const Value.absent(),
+            required String clientId,
+            required String testType,
+            required int correctCount,
+            required int totalCount,
+            required int scorePercent,
+            required String answersJson,
+            required DateTime takenAt,
+            Value<bool> synced = const Value.absent(),
+            Value<bool?> serverValid = const Value.absent(),
+            Value<String?> invalidReason = const Value.absent(),
+          }) =>
+              LocalGeneralAttemptsCompanion.insert(
+            id: id,
+            userId: userId,
+            clientId: clientId,
+            testType: testType,
+            correctCount: correctCount,
+            totalCount: totalCount,
+            scorePercent: scorePercent,
+            answersJson: answersJson,
+            takenAt: takenAt,
+            synced: synced,
+            serverValid: serverValid,
+            invalidReason: invalidReason,
+          ),
+          withReferenceMapper: (p0) => p0
+              .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
+              .toList(),
+          prefetchHooksCallback: null,
+        ));
+}
+
+typedef $$LocalGeneralAttemptsTableProcessedTableManager
+    = ProcessedTableManager<
+        _$LocalDatabase,
+        $LocalGeneralAttemptsTable,
+        LocalGeneralAttemptRow,
+        $$LocalGeneralAttemptsTableFilterComposer,
+        $$LocalGeneralAttemptsTableOrderingComposer,
+        $$LocalGeneralAttemptsTableAnnotationComposer,
+        $$LocalGeneralAttemptsTableCreateCompanionBuilder,
+        $$LocalGeneralAttemptsTableUpdateCompanionBuilder,
+        (
+          LocalGeneralAttemptRow,
+          BaseReferences<_$LocalDatabase, $LocalGeneralAttemptsTable,
+              LocalGeneralAttemptRow>
+        ),
+        LocalGeneralAttemptRow,
+        PrefetchHooks Function()>;
 
 class $LocalDatabaseManager {
   final _$LocalDatabase _db;
@@ -9703,4 +11163,9 @@ class $LocalDatabaseManager {
   $$CachedSectionTranslationsTableTableManager get cachedSectionTranslations =>
       $$CachedSectionTranslationsTableTableManager(
           _db, _db.cachedSectionTranslations);
+  $$CachedGeneralQuestionsTableTableManager get cachedGeneralQuestions =>
+      $$CachedGeneralQuestionsTableTableManager(
+          _db, _db.cachedGeneralQuestions);
+  $$LocalGeneralAttemptsTableTableManager get localGeneralAttempts =>
+      $$LocalGeneralAttemptsTableTableManager(_db, _db.localGeneralAttempts);
 }

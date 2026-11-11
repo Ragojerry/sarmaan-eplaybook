@@ -43,6 +43,11 @@ def flatten(content_type, content):
         for r, row in enumerate(c.get("rows") or []):
             for col, cell in enumerate(row):
                 out.append((f"rows.{r}.{col}", str(cell)))
+    elif content_type == ContentType.TRUE_FALSE:
+        # the answer itself is not text: translators change the statement and explanation only
+        for k in ("statement", "explanation"):
+            if isinstance(c.get(k), str) and c[k].strip():
+                out.append((k, c[k]))
     elif content_type == ContentType.IMAGE:
         # alt is what screen readers announce (the phone's Image.semanticLabel)
         for k in ("caption", "alt"):

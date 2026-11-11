@@ -13,10 +13,11 @@ from app.database import get_db
 from app.auth.dependencies import get_current_user, require_roles
 from app.content import translation_io
 from app.content.governance import advance, reject
+from app.content.true_false import clean_true_false
 from app.learning.access import is_learner, module_visible_to, visible_modules
 from app.models import User, Module, ModuleTranslation, ContentSection, Language
 from app.models.audit_log import AuditLog
-from app.models.enums import ModuleAudience, RoleName, AuditAction
+from app.models.enums import ContentType, ModuleAudience, RoleName, AuditAction
 from app.schemas.content import (
     ModuleCreate,
     ModuleUpdate,
@@ -312,6 +313,16 @@ def reject_translation(
 
 # ---------- Content sections ----------
 
+def _checked_content(content_type: ContentType, content: dict) -> dict:
+    """Typed checks for the section kinds that carry rules (the inline True/False quiz)."""
+    if content_type == ContentType.TRUE_FALSE:
+        try:
+            return clean_true_false(content)
+        except ValueError as exc:
+            raise HTTPException(status_code=status.HTTP_422_UNPROCESSABLE_ENTITY, detail=str(exc))
+    return content
+
+
 @router.get("/{module_id}/sections", response_model=list[ContentSectionResponse])
 def list_sections(module_id: uuid.UUID, db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
     _get_module_or_404(db, module_id, current_user)
@@ -328,7 +339,9 @@ def create_section(
     current_user: User = Depends(require_roles(*CONTENT_EDITORS)),
 ):
     _get_module_or_404(db, module_id)
-    section = ContentSection(module_id=module_id, **payload.model_dump())
+    fields = payload.model_dump()
+    fields["content"] = _checked_content(fields["content_type"], fields["content"])
+    section = ContentSection(module_id=module_id, **fields)
     db.add(section)
     db.add(
         AuditLog(
@@ -353,7 +366,11 @@ def update_section(
     section = db.get(ContentSection, section_id)
     if section is None:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Section not found")
-    for field, value in payload.model_dump(exclude_unset=True).items():
+    changes = payload.model_dump(exclude_unset=True)
+    if "content" in changes or "content_type" in changes:
+        changes["content"] = _checked_content(changes.get("content_type") or section.content_type,
+                                              changes.get("content", section.content))
+    for field, value in changes.items():
         setattr(section, field, value)
     db.add(
         AuditLog(

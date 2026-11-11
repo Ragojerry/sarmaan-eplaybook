@@ -1,6 +1,10 @@
 """
-Quiz authoring (CONTENT_ADMIN edits; any staff role reads) and a small
-per-module summary. Questions ship to phones inside the next published release.
+The per-module pre/post test questions (any staff role reads) and a small per-module
+summary. These tests were retired in 2026-11 and the questions archived (migration
+e7b2c4d91a35): they are kept for history and old attempts, never served to phones.
+So new questions cannot be added, and an archived question cannot be re-activated or
+deleted here. The inline module quizzes are TRUE_FALSE content sections instead, and
+the General test has its own page (app/routers/general_test.py).
 """
 import uuid
 
@@ -13,12 +17,21 @@ from app.database import get_db
 from app.models import MediaAsset, Module, QuizAttempt, QuizQuestion, User, UserModuleProgress
 from app.models.audit_log import AuditLog
 from app.models.enums import AuditAction, QuestionType, QuestionUsage, RoleName, TestType
-from app.learning.state import test_question_counts
 from app.quiz.grading import PASS_MARK, InvalidQuestion, validate_content
 from app.schemas.quiz import QuestionCreate, QuestionResponse, QuestionUpdate, QuizSummary
 
 router = APIRouter()
 EDITORS = (RoleName.CONTENT_ADMIN,)
+RETIRED = ("Per-module pre/post tests were retired in 2026-11. Add inline True/False quiz sections "
+           "in the module editor, or edit the General test.")
+
+
+def test_question_counts(db: Session, module_id: uuid.UUID) -> tuple[int, int]:
+    """(pre-test, post-test) question counts of the retired tests, for the summary."""
+    usages = [u for (u,) in db.query(QuizQuestion.usage).filter_by(module_id=module_id, is_active=True)]
+    pre = sum(1 for u in usages if u in (QuestionUsage.BOTH, QuestionUsage.PRE)) or len(usages)
+    post = sum(1 for u in usages if u in (QuestionUsage.BOTH, QuestionUsage.POST)) or len(usages)
+    return pre, post
 
 
 def _require_staff(user: User = Depends(get_current_user)) -> User:
@@ -95,6 +108,7 @@ def create_question(
     db: Session = Depends(get_db),
     user: User = Depends(require_roles(*EDITORS)),
 ):
+    raise HTTPException(status_code=status.HTTP_410_GONE, detail=RETIRED)
     _module(db, module_id)
     content = _clean(db, payload.question_type, payload.content)
     order = payload.sort_order
@@ -125,6 +139,8 @@ def update_question(
     if q is None:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Question not found")
     changes = payload.model_dump(exclude_unset=True)
+    if q.archived_at is not None and changes.get("is_active"):
+        raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail=RETIRED)
     if "content" in changes:
         q.content = _clean(db, q.question_type, changes.pop("content"))
     if "prompt" in changes:
@@ -145,6 +161,9 @@ def delete_question(question_id: uuid.UUID, db: Session = Depends(get_db), user:
     q = db.get(QuizQuestion, question_id)
     if q is None:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Question not found")
+    if q.archived_at is not None:
+        raise HTTPException(status_code=status.HTTP_409_CONFLICT,
+                            detail="Archived questions are kept for history and old attempts; they are not deleted here.")
     db.add(AuditLog(user_id=user.id, action=AuditAction.CONTENT_EDIT, entity_type="quiz_question", entity_id=q.id,
                     details={"module_id": str(q.module_id), "deleted": True}))
     db.delete(q)

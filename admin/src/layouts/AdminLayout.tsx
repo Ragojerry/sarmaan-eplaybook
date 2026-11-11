@@ -8,6 +8,7 @@ const navItems: { to: string; label: string; roles?: string[] }[] = [
   { to: "/content", label: "Content" },
   { to: "/videos", label: "Videos" },
   { to: "/learning", label: "Roles & tests", roles: ["CONTENT_ADMIN", "PROGRAM_REVIEWER", "LOCALISATION_REVIEWER", "TECHNICAL_REVIEWER", "SUPERVISOR", "READ_ONLY"] },
+  { to: "/general-test", label: "General test", roles: ["CONTENT_ADMIN", "PROGRAM_REVIEWER", "LOCALISATION_REVIEWER", "TECHNICAL_REVIEWER", "SUPERVISOR", "READ_ONLY"] },
   { to: "/answers", label: "Curated answers", roles: ["CONTENT_ADMIN", "PROGRAM_REVIEWER", "LOCALISATION_REVIEWER", "TECHNICAL_REVIEWER"] },
   { to: "/references", label: "Reference library", roles: ["CONTENT_ADMIN", "PROGRAM_REVIEWER", "LOCALISATION_REVIEWER", "TECHNICAL_REVIEWER"] },
   { to: "/releases", label: "Releases" },

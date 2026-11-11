@@ -119,8 +119,8 @@ void main() {
         ),
         GoRoute(path: '/reader/:moduleId', builder: (context, state) => ReaderScreen(moduleId: state.pathParameters['moduleId']!)),
         GoRoute(
-          path: '/quiz/:moduleId',
-          builder: (context, state) => QuizScreen(moduleId: state.pathParameters['moduleId']!, testType: 'POST'),
+          path: '/general-test/:type',
+          builder: (context, state) => GeneralTestScreen(testType: state.pathParameters['type'] == 'post' ? 'POST' : 'PRE'),
         ),
       ]);
       return ProviderScope(overrides: [localDatabaseProvider.overrideWithValue(db)], child: MaterialApp.router(routerConfig: router));
@@ -133,7 +133,7 @@ void main() {
       }
     }
 
-    for (final target in ['/reader/m1', '/quiz/m1']) {
+    for (final target in ['/reader/m1', '/general-test/post']) {
       testWidgets('archived module M1 ($target): a message, no freeze, back works', (tester) async {
         await tester.runAsync(() async {
           await installer.install(publish(server, 'R-LEGACY', legacyModules));
@@ -150,7 +150,7 @@ void main() {
         expect(tester.takeException(), isNull);
         expect(find.textContaining('Lesson of M1'), findsNothing, reason: 'archived content is gone');
         expect(find.textContaining(RegExp(r'not (part of|available)')), findsWidgets);
-        // every tap opened a screen (the reader's back goes straight to the list; the quiz pops one at a time)
+        // every tap opened a screen (the back buttons go straight to the list)
         for (var i = 0; i < 6 && find.text('Open').evaluate().isEmpty; i++) {
           await tester.tap(find.byType(BackButton).first);
           await settle(tester);

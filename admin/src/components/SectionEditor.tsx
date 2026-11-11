@@ -6,6 +6,53 @@ import SectionMediaField from "./SectionMediaField";
 
 const str = (v: unknown) => (typeof v === "string" ? v : "");
 
+/** The fields of an inline True/False quiz statement (content type TRUE_FALSE). Learners
+ * answer it in the reader; with three statements all must be right to pass (90% rule). */
+export function TrueFalseFields({
+  statement,
+  answer,
+  explanation,
+  audience,
+  onChange,
+}: {
+  statement: string;
+  answer: boolean;
+  explanation: string;
+  audience: string;
+  onChange: (v: Partial<{ statement: string; answer: boolean; explanation: string; audience: string }>) => void;
+}) {
+  const field = "w-full border rounded px-2 py-1 text-sm";
+  return (
+    <div className="space-y-2">
+      <textarea className={field} rows={2} placeholder="Statement" value={statement}
+        onChange={(e) => onChange({ statement: e.target.value })} />
+      <div className="flex flex-wrap gap-3 items-center text-sm">
+        <label className="flex items-center gap-1">
+          Correct answer
+          <select className="border rounded px-2 py-1" value={answer ? "true" : "false"}
+            onChange={(e) => onChange({ answer: e.target.value === "true" })}>
+            <option value="true">True</option>
+            <option value="false">False</option>
+          </select>
+        </label>
+        <label className="flex items-center gap-1">
+          Audience
+          <select className="border rounded px-2 py-1" value={audience} onChange={(e) => onChange({ audience: e.target.value })}>
+            <option value="HFW">HFW &amp; others</option>
+            <option value="CDD">CDD</option>
+          </select>
+        </label>
+      </div>
+      <input className={field} placeholder="Short explanation shown after answering (optional)" value={explanation}
+        onChange={(e) => onChange({ explanation: e.target.value })} />
+      <p className="text-xs text-gray-500">
+        Who sees it is decided by the module&apos;s audience; the audience tag here labels it for reports. Place it right
+        after the section that teaches the point (Move up / Move down).
+      </p>
+    </div>
+  );
+}
+
 /** Inline editor for the English text of one section. Structure (type, order,
  * pictures) is not changed here; only wording, and the file of an AUDIO/VIDEO section. */
 export default function SectionEditor({
@@ -28,6 +75,10 @@ export default function SectionEditor({
   const [rows, setRows] = useState<string[][]>(
     Array.isArray(c.rows) ? c.rows.map((r: unknown[]) => r.map(String)) : [],
   );
+  const [statement, setStatement] = useState(str(c.statement));
+  const [answer, setAnswer] = useState<boolean>(c.answer === true);
+  const [explanation, setExplanation] = useState(str(c.explanation));
+  const [audience, setAudience] = useState(str(c.audience) || "HFW");
   const [error, setError] = useState<string | null>(null);
   const [fileChanged, setFileChanged] = useState(false);
 
@@ -47,6 +98,12 @@ export default function SectionEditor({
       if (type === "IMAGE") {
         content.caption = caption;
         content.alt = alt;
+      }
+      if (type === "TRUE_FALSE") {
+        content.statement = statement;
+        content.answer = answer;
+        content.explanation = explanation.trim() || null;
+        content.audience = audience;
       }
       return (await api.patch(`/modules/sections/${section.id}`, { title: title.trim() || null, content })).data;
     },
@@ -72,6 +129,20 @@ export default function SectionEditor({
           <textarea className={field} rows={7} value={itemsText} onChange={(e) => setItemsText(e.target.value)} />
           <p className="text-xs text-gray-500">One list item per line.</p>
         </>
+      )}
+      {type === "TRUE_FALSE" && (
+        <TrueFalseFields
+          statement={statement}
+          answer={answer}
+          explanation={explanation}
+          audience={audience}
+          onChange={(v) => {
+            if (v.statement !== undefined) setStatement(v.statement);
+            if (v.answer !== undefined) setAnswer(v.answer);
+            if (v.explanation !== undefined) setExplanation(v.explanation);
+            if (v.audience !== undefined) setAudience(v.audience);
+          }}
+        />
       )}
       {type === "IMAGE" && (
         <>
