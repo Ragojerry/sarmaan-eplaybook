@@ -61,6 +61,14 @@
       "rowHeightDp": 54,
       "showPartnershipLine": true
     },
+    "tabHeader": {
+      "logos": [
+        "ihs"
+      ],
+      "rowHeightDp": 54,
+      "showPartnershipLine": false,
+      "_note": "IHS alone at the top of the Home, Modules, Videos, Ask and About tabs, at its 95 dp minimum width"
+    },
     "adminHeader": {
       "logos": "order",
       "rowHeightDp": 54,

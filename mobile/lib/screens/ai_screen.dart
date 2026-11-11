@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../qa/qa_engine.dart';
 import '../qa/question_answer_service.dart';
 import '../theme/app_theme.dart';
+import '../widgets/partner_logo_row.dart';
 import '../widgets/app_bottom_nav.dart';
 
 class _Message {
@@ -68,7 +69,7 @@ class _AiScreenState extends ConsumerState<AiScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Ask')),
+      appBar: BrandTopBar(appBar: AppBar(title: const Text('Ask'))),
       body: Column(
         children: [
           Expanded(

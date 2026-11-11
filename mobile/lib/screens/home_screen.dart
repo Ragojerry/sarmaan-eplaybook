@@ -12,6 +12,7 @@ import '../services/auth_service.dart';
 import '../sync/release_installer.dart' show ReleaseInfo;
 import '../sync/sync_engine.dart';
 import '../theme/app_theme.dart';
+import '../widgets/partner_logo_row.dart';
 import '../widgets/app_bottom_nav.dart';
 import 'modules_screen.dart' show GeneralTestCard;
 
@@ -205,6 +206,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     final searching = _query.trim().isNotEmpty;
 
     return Scaffold(
+      appBar: const BrandTopBar(),
       backgroundColor: AppColors.background,
       floatingActionButton: FloatingActionButton(
         onPressed: () => context.go('/ai'),

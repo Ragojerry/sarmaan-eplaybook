@@ -49,7 +49,7 @@ class AboutScreen extends ConsumerWidget {
     final packageInfoAsync = ref.watch(packageInfoProvider);
 
     return Scaffold(
-      appBar: AppBar(title: const Text('About')),
+      appBar: BrandTopBar(appBar: AppBar(title: const Text('About'))),
       body: ListView(
         padding: const EdgeInsets.symmetric(vertical: 16),
         children: [

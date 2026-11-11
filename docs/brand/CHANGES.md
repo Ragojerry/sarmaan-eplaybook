@@ -83,3 +83,6 @@ The branch starts from commit `8ddaf9a` (the go-live code as deployed on 2026-11
 | `mobile/lib/screens/home_screen.dart` | Locked modules no longer appear under "Continue reading", and their cards show no progress bar |
 | `mobile/lib/screens/login_screen.dart` | Title "SARMAAN II e-Playbook"; eyebrow "Sign in" (was "Admin & CDD sign in") |
 | `mobile/lib/screens/home_screen.dart` | Header greets the user by first and last name (was role and team); title "Welcome to SARMAAN II Training Session" (was "Ready for today's round") |
+| `brand/logos.json` (and its synced copies) | New `tabHeader` placement: IHS alone, row height 54 dp |
+| `mobile/lib/widgets/partner_logo_row.dart` | `BrandTopBar`: the `tabHeader` logo in a white band under the status bar (dark status icons), above the screen's own title bar; fixed while the page scrolls |
+| `mobile/lib/screens/home_screen.dart`, `modules_screen.dart`, `video_library_screen.dart`, `ai_screen.dart`, `about_screen.dart` | IHS logo at the top of each tab (`BrandTopBar`) |

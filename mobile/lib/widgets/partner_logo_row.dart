@@ -74,6 +74,45 @@ class SarmaanLogoMark extends StatelessWidget {
   }
 }
 
+/// The top of each tab screen (Home, Modules, Videos, Ask, About): the `tabHeader`
+/// placement of logos.json (IHS alone) in a white band under the status bar, then the
+/// screen's own [appBar] if it has one. Used as `Scaffold.appBar`, so it stays put while
+/// the page scrolls.
+class BrandTopBar extends StatelessWidget implements PreferredSizeWidget {
+  const BrandTopBar({super.key, this.appBar});
+
+  final PreferredSizeWidget? appBar;
+
+  /// The white band: tabHeader's 54 dp row plus the IHS clear space above and below
+  /// (0.165 × 95 dp ≈ 15.7 dp each). Raise it if rowHeightDp grows in logos.json.
+  static const double bandHeight = 86;
+
+  @override
+  Size get preferredSize => Size.fromHeight(bandHeight + (appBar?.preferredSize.height ?? 0));
+
+  @override
+  Widget build(BuildContext context) {
+    final top = MediaQuery.paddingOf(context).top;
+    return AnnotatedRegion<SystemUiOverlayStyle>(
+      value: SystemUiOverlayStyle.dark,
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Container(
+            color: AppColors.white,
+            height: top + bandHeight,
+            padding: EdgeInsets.only(top: top),
+            alignment: Alignment.center,
+            child: const PartnerLogoRow(placement: 'tabHeader'),
+          ),
+          if (appBar != null)
+            MediaQuery.removePadding(context: context, removeTop: true, child: appBar!),
+        ],
+      ),
+    );
+  }
+}
+
 class _LogoRow extends StatelessWidget {
   const _LogoRow({required this.config, required this.placement});
 

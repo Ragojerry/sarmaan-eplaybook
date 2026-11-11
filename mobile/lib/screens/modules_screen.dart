@@ -7,6 +7,7 @@ import '../db/local_database.dart';
 import '../learning/learning_rules.dart';
 import '../learning/learning_service.dart';
 import '../theme/app_theme.dart';
+import '../widgets/partner_logo_row.dart';
 import '../widgets/app_bottom_nav.dart';
 
 /// Reads from the local cache (same provider Home uses) — real offline
@@ -37,7 +38,7 @@ class _ModulesScreenState extends ConsumerState<ModulesScreen> {
     final learning = ref.watch(learningProvider).valueOrNull;
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Modules')),
+      appBar: BrandTopBar(appBar: AppBar(title: const Text('Modules'))),
       body: Column(
         children: [
           Padding(
