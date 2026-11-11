@@ -76,3 +76,10 @@ The branch starts from commit `8ddaf9a` (the go-live code as deployed on 2026-11
 | `mobile/android/app/src/main/res/mipmap-*/ic_launcher.png` | SARMAAN-II launcher icon (48–192 px) |
 | `admin/tailwind.config.js` | Original system font stack |
 | `docs/brand/screenshots/revision2/*` | New screenshots |
+
+## Follow-ups 2026-11-11
+| File | Change |
+|---|---|
+| `mobile/lib/screens/home_screen.dart` | Locked modules no longer appear under "Continue reading", and their cards show no progress bar |
+| `mobile/lib/screens/login_screen.dart` | Title "SARMAAN II e-Playbook"; eyebrow "Sign in" (was "Admin & CDD sign in") |
+| `mobile/lib/screens/home_screen.dart` | Header greets the user by first and last name (was role and team); title "Welcome to SARMAAN II Training Session" (was "Ready for today's round") |
