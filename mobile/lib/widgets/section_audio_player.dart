@@ -133,7 +133,7 @@ class _SectionAudioPlayerState extends ConsumerState<SectionAudioPlayer> {
                     Text(widget.title,
                         style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w700, color: AppColors.textStrong)),
                     Text(status,
-                        style: const TextStyle(fontSize: 9.5, color: AppColors.textMuted)),
+                        style: const TextStyle(fontFamily: AppFonts.mono, fontSize: 9.5, color: AppColors.textMuted)),
                   ],
                 ),
               ),

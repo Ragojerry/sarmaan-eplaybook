@@ -198,6 +198,7 @@ class _LanguageScreenState extends ConsumerState<LanguageScreen> {
                       child: const Text(
                         'BETA',
                         style: TextStyle(
+                          fontFamily: AppFonts.mono,
                           fontSize: 9.5,
                           fontWeight: FontWeight.w700,
                           color: AppColors.primary,

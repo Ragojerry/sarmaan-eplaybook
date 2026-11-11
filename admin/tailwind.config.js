@@ -70,9 +70,7 @@ export default {
   theme: {
     colors: { ...base, ...palette, brand },
     textColor: { ...base, ...textPalette, brand },
-    fontFamily: {
-      sans: [`"${tokens.font.family}"`, ...tokens.font.fallback.filter((f) => f !== "Roboto" && f !== "Noto Sans")],
-    },
+    // Font: the portal's original Tailwind system font stack (decision 2026-11-11).
     extend: {
       borderRadius: Object.fromEntries(Object.entries(tokens.radius).map(([k, v]) => [`brand-${k}`, `${v}px`])),
     },

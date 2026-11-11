@@ -101,7 +101,7 @@ class AboutScreen extends ConsumerWidget {
                   decoration: BoxDecoration(color: AppColors.onPrimary.withValues(alpha: 0.12), borderRadius: BorderRadius.circular(6)),
                   child: const Text(
                     'concerns@malariaconsortium.org',
-                    style: TextStyle(fontSize: 10.5, color: AppColors.onPrimary),
+                    style: TextStyle(fontFamily: AppFonts.mono, fontSize: 10.5, color: AppColors.onPrimary),
                   ),
                 ),
               ],
@@ -190,7 +190,7 @@ class AboutScreen extends ConsumerWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text('OFFLINE STORAGE', style: TextStyle(fontSize: 10, fontWeight: FontWeight.w700, color: AppColors.textMuted, letterSpacing: 0.5)),
+          const Text('OFFLINE STORAGE', style: TextStyle(fontFamily: AppFonts.mono, fontSize: 10, fontWeight: FontWeight.w700, color: AppColors.textMuted, letterSpacing: 0.5)),
           const SizedBox(height: 10),
           usageAsync.when(
             data: (usage) {
@@ -224,7 +224,7 @@ class AboutScreen extends ConsumerWidget {
           Text(label, style: TextStyle(fontSize: 12, fontWeight: bold ? FontWeight.w800 : FontWeight.w500, color: AppColors.textStrong)),
           Text(
             _formatBytes(bytes),
-            style: TextStyle(fontSize: 11.5, fontWeight: bold ? FontWeight.w800 : FontWeight.w500, color: AppColors.textMuted),
+            style: TextStyle(fontFamily: AppFonts.mono, fontSize: 11.5, fontWeight: bold ? FontWeight.w800 : FontWeight.w500, color: AppColors.textMuted),
           ),
         ],
       ),
@@ -261,7 +261,7 @@ class _AboutItem extends StatelessWidget {
           Text(label, style: const TextStyle(fontSize: 12.8, fontWeight: FontWeight.w600, color: AppColors.textStrong)),
           Text(
             value,
-            style: const TextStyle(fontSize: 11, color: AppColors.textMuted),
+            style: const TextStyle(fontFamily: AppFonts.mono, fontSize: 11, color: AppColors.textMuted),
           ),
         ],
       ),

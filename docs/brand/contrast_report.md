@@ -5,45 +5,49 @@ Text 4.5:1, large text and controls 3:1; decor has no threshold.
 
 | Foreground | Background | Ratio | Needs | Result | Used for |
 |---|---|---|---|---|---|
-| text `#494546` | background `#FFFFFF` | 9.45:1 | 4.5:1 (text) | pass | Body text (app reader, admin tables) |
-| textStrong `#002D14` | background `#FFFFFF` | 15.16:1 | 4.5:1 (text) | pass | Headings, screen titles, admin headings |
-| textMuted `#6D6A6B` | background `#FFFFFF` | 5.35:1 | 4.5:1 (text) | pass | Secondary text, captions, timestamps |
+| text `#494546` | background `#F6F6F5` | 8.74:1 | 4.5:1 (text) | pass | Body text on the Light Grey 20% page |
+| text `#494546` | surface `#FFFFFF` | 9.45:1 | 4.5:1 (text) | pass | Body text on white cards |
+| textStrong `#002D14` | background `#F6F6F5` | 14.02:1 | 4.5:1 (text) | pass | Headings, screen titles on the page |
+| textStrong `#002D14` | surface `#FFFFFF` | 15.16:1 | 4.5:1 (text) | pass | Headings and labels on white cards |
+| textMuted `#6D6A6B` | background `#F6F6F5` | 4.95:1 | 4.5:1 (text) | pass | Secondary text on the page |
+| textMuted `#6D6A6B` | surface `#FFFFFF` | 5.35:1 | 4.5:1 (text) | pass | Secondary text on white cards |
 | textMuted `#6D6A6B` | surfaceMuted `#F6F6F5` | 4.95:1 | 4.5:1 (text) | pass | Secondary text on grey panels |
 | text `#494546` | surfaceMuted `#F6F6F5` | 8.74:1 | 4.5:1 (text) | pass | Body text on grey panels / cards |
 | textStrong `#002D14` | surfaceSelected `#E6EAE8` | 12.49:1 | 4.5:1 (text) | pass | Selected nav item, selected option |
 | textOnPrimary `#FFFFFF` | primary `#002D14` | 15.16:1 | 4.5:1 (text) | pass | Primary buttons, app bars, splash, admin header |
-| primary `#002D14` | background `#FFFFFF` | 15.16:1 | 4.5:1 (text) | pass | Outlined buttons, links, icons |
-| controlBorder `#6D6A6B` | background `#FFFFFF` | 5.35:1 | 3.0:1 (control) | pass | Text field and checkbox borders |
-| primary `#002D14` | background `#FFFFFF` | 15.16:1 | 3.0:1 (control) | pass | Focused field border, radio/checkbox selected |
-| successText `#008732` | background `#FFFFFF` | 4.65:1 | 4.5:1 (text) | pass | Success text ('Passed', 'Completed') |
+| primary `#002D14` | background `#F6F6F5` | 14.02:1 | 4.5:1 (text) | pass | Outlined buttons, links, icons |
+| controlBorder `#6D6A6B` | surface `#FFFFFF` | 5.35:1 | 3.0:1 (control) | pass | Text field and checkbox borders (fields are white) |
+| primary `#002D14` | background `#F6F6F5` | 14.02:1 | 3.0:1 (control) | pass | Focused field border, radio/checkbox selected |
+| successText `#008732` | surface `#FFFFFF` | 4.65:1 | 4.5:1 (text) | pass | Success text ('Correct.') - white cards only |
 | textStrong `#002D14` | successSurface `#E6F3EA` | 13.26:1 | 4.5:1 (text) | pass | Text in success callouts |
-| success `#008732` | background `#FFFFFF` | 4.65:1 | 3.0:1 (control) | pass | Success icons, progress fill |
+| success `#008732` | background `#F6F6F5` | 4.30:1 | 3.0:1 (control) | pass | Success icons on the page, progress fill |
 | textOnPrimary `#FFFFFF` | success `#008732` | 4.65:1 | 4.5:1 (text) | pass | White text on a Grass Green badge |
 | warningText `#002D14` | warningSurface `#FDEBDE` | 13.07:1 | 4.5:1 (text) | pass | Text in warning callouts |
 | textStrong `#002D14` | warningSurface `#FDEBDE` | 13.07:1 | 3.0:1 (control) | pass | Warning icon (Forest Green on the Orange 15% callout) |
-| warning `#F47B22` | background `#FFFFFF` | 2.73:1 | - (decor) | pass | Orange left bar of warning callouts (decorative: icon and text carry the meaning) |
+| warning `#F47B22` | background `#F6F6F5` | 2.52:1 | - (decor) | pass | Orange left bar of warning callouts (decorative: icon and text carry the meaning) |
 | warningText `#002D14` | warning `#F47B22` | 5.56:1 | 4.5:1 (text) | pass | Forest text on an Orange chip |
 | errorText `#002D14` | errorSurface `#FEEDEC` | 13.38:1 | 4.5:1 (text) | pass | Text in error and 'Do not' callouts |
-| error `#F04E43` | background `#FFFFFF` | 3.57:1 | 3.0:1 (control) | pass | Error icon / border, 'Do not' marker |
+| error `#F04E43` | background `#F6F6F5` | 3.30:1 | 3.0:1 (control) | pass | Error icon / border, 'Do not' marker (on the page) |
 | errorText `#002D14` | error `#F04E43` | 4.24:1 | 3.0:1 (large) | pass | Forest text on a Red fill (avoid; large only) |
 | infoText `#002D14` | infoSurface `#E6F3FA` | 13.40:1 | 4.5:1 (text) | pass | Text in information callouts |
-| info `#0888CA` | background `#FFFFFF` | 3.90:1 | 3.0:1 (control) | pass | Information icon / border |
+| info `#0888CA` | background `#F6F6F5` | 3.61:1 | 3.0:1 (control) | pass | Information icon / border (on the page) |
 | textStrong `#002D14` | highlightSurface `#69D1C4` | 8.31:1 | 4.5:1 (text) | pass | Text on a Teal 60% highlight |
 | progressFill `#008732` | progressTrack `#D0D0CE` | 3.01:1 | 3.0:1 (control) | pass | Progress bar fill on its track |
-| textDisabled `#A7A8AA` | background `#FFFFFF` | 2.38:1 | - (decor) | pass | Disabled text (exempt from WCAG) |
-| divider `#D0D0CE` | background `#FFFFFF` | 1.54:1 | - (decor) | pass | Dividers, card outlines |
+| textDisabled `#A7A8AA` | background `#F6F6F5` | 2.20:1 | - (decor) | pass | Disabled text (exempt from WCAG) |
+| divider `#D0D0CE` | background `#F6F6F5` | 1.43:1 | - (decor) | pass | Dividers, card outlines |
 
 ## Pairs not used (fail for normal text, so the colour is a fill, icon or border instead)
 
 | Foreground | Background | Ratio | Instead |
 |---|---|---|---|
-| error `#F04E43` | background `#FFFFFF` | 3.57:1 | Red as text on white: not used for text |
-| warning `#F47B22` | background `#FFFFFF` | 2.73:1 | Orange as text on white: not used for text |
-| highlight `#05B39C` | background `#FFFFFF` | 2.65:1 | Teal as text on white: not used for text |
-| info `#0888CA` | background `#FFFFFF` | 3.90:1 | Blue as text on white: not used for text |
+| error `#F04E43` | background `#F6F6F5` | 3.30:1 | Red as text on white: not used for text |
+| warning `#F47B22` | background `#F6F6F5` | 2.52:1 | Orange as text on white: not used for text |
+| highlight `#05B39C` | background `#F6F6F5` | 2.45:1 | Teal as text on white: not used for text |
+| info `#0888CA` | background `#F6F6F5` | 3.61:1 | Blue as text on white: not used for text |
 | textOnPrimary `#FFFFFF` | error `#F04E43` | 3.57:1 | White text on Red: not used for text |
 | textOnPrimary `#FFFFFF` | warning `#F47B22` | 2.73:1 | White text on Orange: not used for text |
 | textOnPrimary `#FFFFFF` | info `#0888CA` | 3.90:1 | White text on Blue: not used for text |
-| textDisabled `#A7A8AA` | background `#FFFFFF` | 2.38:1 | Mid Grey as text on white: not used for text |
-| warning `#F47B22` | background `#FFFFFF` | 2.73:1 | Orange as a standalone icon or border on white (below 3:1): not used for text |
-| highlight `#05B39C` | background `#FFFFFF` | 2.65:1 | Teal as a standalone icon or border on white (below 3:1): not used for text |
+| textDisabled `#A7A8AA` | background `#F6F6F5` | 2.20:1 | Mid Grey as text: not used for text |
+| successText `#008732` | background `#F6F6F5` | 4.30:1 | Grass Green text directly on the grey page (4.30) - kept to white cards: not used for text |
+| warning `#F47B22` | background `#F6F6F5` | 2.52:1 | Orange as a standalone icon or border on white (below 3:1): not used for text |
+| highlight `#05B39C` | background `#F6F6F5` | 2.45:1 | Teal as a standalone icon or border on white (below 3:1): not used for text |

@@ -65,22 +65,9 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
               crossAxisAlignment: CrossAxisAlignment.stretch,
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                Align(
-                  alignment: Alignment.centerLeft,
-                  child: Container(
-                    width: 64,
-                    height: 64,
-                    decoration: BoxDecoration(
-                      color: AppColors.primary,
-                      borderRadius: BorderRadius.circular(AppRadius.small),
-                    ),
-                    alignment: Alignment.center,
-                    child: const Text(
-                      'S',
-                      style: TextStyle(fontWeight: FontWeight.w700, fontSize: 26, color: AppColors.onPrimary),
-                    ),
-                  ),
-                ),
+                // The SARMAAN-II logo replaces the old "S" mark. Shown unmodified on white, and
+                // never larger than the supplied file's own pixels (it is only 118 x 50 px).
+                const Align(alignment: Alignment.centerLeft, child: SarmaanLogoMark()),
                 const SizedBox(height: 16),
                 Text('SARMAAN e-Playbook', style: Theme.of(context).textTheme.headlineSmall),
                 const SizedBox(height: 4),

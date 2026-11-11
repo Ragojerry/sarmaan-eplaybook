@@ -34,7 +34,7 @@ class BrandColors {
   BrandColors._();
   static const primary = BrandPalette.forestGreen;
   static const onPrimary = BrandPalette.white;
-  static const background = BrandPalette.white;
+  static const background = BrandPalette.lightGrey20;
   static const surface = BrandPalette.white;
   static const surfaceMuted = BrandPalette.lightGrey20;
   static const surfaceSelected = BrandPalette.forestGreen10;
@@ -65,20 +65,22 @@ class BrandColors {
 
 class BrandFont {
   BrandFont._();
-  static const family = 'Helvetica Neue';
-  static const fallback = <String>['Helvetica', 'Arial', 'Roboto', 'Noto Sans'];
+  static const body = 'Manrope';
+  static const heading = 'Fraunces';
+  static const mono = 'JetBrainsMono';
+  static const fallback = <String>['Roboto', 'Noto Sans'];
 }
 
 class BrandTypeScale {
   BrandTypeScale._();
-  static const display = TextStyle(fontFamily: BrandFont.family, fontFamilyFallback: BrandFont.fallback, fontSize: 26, fontWeight: FontWeight.w700, height: 1.2);
-  static const headline = TextStyle(fontFamily: BrandFont.family, fontFamilyFallback: BrandFont.fallback, fontSize: 22, fontWeight: FontWeight.w700, height: 1.25);
-  static const title = TextStyle(fontFamily: BrandFont.family, fontFamilyFallback: BrandFont.fallback, fontSize: 20, fontWeight: FontWeight.w700, height: 1.25);
-  static const titleSmall = TextStyle(fontFamily: BrandFont.family, fontFamilyFallback: BrandFont.fallback, fontSize: 16, fontWeight: FontWeight.w700, height: 1.3);
-  static const body = TextStyle(fontFamily: BrandFont.family, fontFamilyFallback: BrandFont.fallback, fontSize: 13, fontWeight: FontWeight.w400, height: 1.55);
-  static const bodySmall = TextStyle(fontFamily: BrandFont.family, fontFamilyFallback: BrandFont.fallback, fontSize: 11.5, fontWeight: FontWeight.w400, height: 1.5);
-  static const label = TextStyle(fontFamily: BrandFont.family, fontFamilyFallback: BrandFont.fallback, fontSize: 10.5, fontWeight: FontWeight.w700, height: 1.3, letterSpacing: 1.2);
-  static const button = TextStyle(fontFamily: BrandFont.family, fontFamilyFallback: BrandFont.fallback, fontSize: 14.5, fontWeight: FontWeight.w700, height: 1.2);
+  static const display = TextStyle(fontFamily: BrandFont.heading, fontFamilyFallback: BrandFont.fallback, fontSize: 26, fontWeight: FontWeight.w700, height: 1.2);
+  static const headline = TextStyle(fontFamily: BrandFont.heading, fontFamilyFallback: BrandFont.fallback, fontSize: 22, fontWeight: FontWeight.w600, height: 1.25);
+  static const title = TextStyle(fontFamily: BrandFont.heading, fontFamilyFallback: BrandFont.fallback, fontSize: 20, fontWeight: FontWeight.w600, height: 1.25);
+  static const titleSmall = TextStyle(fontFamily: BrandFont.heading, fontFamilyFallback: BrandFont.fallback, fontSize: 16, fontWeight: FontWeight.w600, height: 1.3);
+  static const body = TextStyle(fontFamily: BrandFont.body, fontFamilyFallback: BrandFont.fallback, fontSize: 13, fontWeight: FontWeight.w400, height: 1.55);
+  static const bodySmall = TextStyle(fontFamily: BrandFont.body, fontFamilyFallback: BrandFont.fallback, fontSize: 11.5, fontWeight: FontWeight.w400, height: 1.5);
+  static const label = TextStyle(fontFamily: BrandFont.mono, fontFamilyFallback: BrandFont.fallback, fontSize: 10.5, fontWeight: FontWeight.w700, height: 1.3, letterSpacing: 1.2);
+  static const button = TextStyle(fontFamily: BrandFont.body, fontFamilyFallback: BrandFont.fallback, fontSize: 14.5, fontWeight: FontWeight.w800, height: 1.2);
 }
 
 class BrandSpacing {

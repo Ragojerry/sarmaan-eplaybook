@@ -207,7 +207,7 @@ class _VideoScreenState extends ConsumerState<VideoScreen> {
                 ),
               ),
               const SizedBox(height: 6),
-              Text('${(_progress * 100).toStringAsFixed(0)}%', style: const TextStyle(fontSize: 10.5, color: AppColors.textMuted)),
+              Text('${(_progress * 100).toStringAsFixed(0)}%', style: const TextStyle(fontFamily: AppFonts.mono, fontSize: 10.5, color: AppColors.textMuted)),
             ] else
               FilledButton.icon(
                 onPressed: _startDownload,

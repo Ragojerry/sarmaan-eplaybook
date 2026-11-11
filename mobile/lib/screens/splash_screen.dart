@@ -98,6 +98,7 @@ class _SplashScreenState extends ConsumerState<SplashScreen> {
           child: const Text(
             'S',
             style: TextStyle(
+              fontFamily: AppFonts.serif,
               fontWeight: FontWeight.w700,
               fontSize: 34,
               color: AppColors.onPrimary,
@@ -108,6 +109,7 @@ class _SplashScreenState extends ConsumerState<SplashScreen> {
         const Text(
           'SARMAAN e-Playbook',
           style: TextStyle(
+            fontFamily: AppFonts.serif,
             fontSize: 26,
             fontWeight: FontWeight.w600,
             color: AppColors.onPrimary,
@@ -117,6 +119,7 @@ class _SplashScreenState extends ConsumerState<SplashScreen> {
         Text(
           'AZM TRAINING',
           style: TextStyle(
+            fontFamily: AppFonts.mono,
             fontSize: 11,
             letterSpacing: 1.5,
             color: AppColors.onPrimary.withValues(alpha: 0.75),

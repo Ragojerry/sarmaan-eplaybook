@@ -2,7 +2,7 @@
 
 These need a decision from the programme. Nothing below was decided in the code: each one is either left as it was, or set to a clearly marked placeholder in `brand/logos.json`.
 
-## 1. Logo order and lead brand
+## 1. Logo order and lead brand. DECIDED 2026-11-11: IHS first
 `brand/logos.json` → `order` currently lists the logos in the order the files were supplied: Malaria Consortium, SARMAAN-II Project, GF, IHS Towers. This is a placeholder (`status: UNCONFIRMED`).
 
 **Decide:** which logo leads, and in what order. To apply it, change `order` (or a placement's own `logos` list) and run `python scripts/brand_sync.py`. No code changes are needed.
@@ -30,7 +30,7 @@ Only IHS supplied guidelines. For Malaria Consortium, SARMAAN-II and GF we appli
 ## 6. Permission to appear in the app
 **Needed:** written permission from each partner (Malaria Consortium, SARMAAN-II, GF and IHS Towers) to show its logo in the app and the admin portal.
 
-## 7. Helvetica Neue licence
+## 7. Helvetica Neue licence. Not needed now: the app keeps its original fonts (decision 2026-11-11)
 Helvetica Neue is not bundled. The app asks for "Helvetica Neue" and falls back to Helvetica, then Arial, then the system sans:
 - iOS has Helvetica Neue.
 - Android has none of the three and uses Roboto.
@@ -38,7 +38,7 @@ Helvetica Neue is not bundled. The app asks for "Helvetica Neue" and falls back 
 
 **Decide:** whether to license Helvetica Neue for app embedding. Only then can Android show it.
 
-## 8. Launcher icon
+## 8. Launcher icon. DECIDED 2026-11-11: SARMAAN-II logo (needs a vector or 512 px file to fill the icon; the current one is built from the 118 × 50 px PNG)
 Not changed. The launcher icon was not altered, and no logo was cropped or changed to make one. **Decide:** whether a new launcher icon is wanted, and who designs it (it must not be made by altering a partner logo).
 
 ## 9. Dark mode
@@ -53,7 +53,7 @@ Not used. The guide describes it (seven white wave lines, 0.3 pt, 80% opacity), 
 ## 12. iOS
 There is no iOS build or Mac here, so nothing was checked on iOS, including the Hausa letters in Helvetica Neue. **Needed:** a check on an iPhone before an iOS release.
 
-## 13. Old font files
+## 13. Old font files. RESOLVED: in use again (decision 2026-11-11)
 Fraunces, Manrope and JetBrains Mono are no longer registered, so they are not in the APK. The files are still in `mobile/assets/fonts/`, because nothing is deleted without asking.
 
 **Decide:** whether to remove them.

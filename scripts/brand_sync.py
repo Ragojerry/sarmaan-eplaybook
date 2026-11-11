@@ -54,12 +54,15 @@ def dart_source(tokens: dict) -> str:
     out += ["}", "", "/// What each colour is for. Use these in widgets, never the palette directly.", "class BrandColors {",
             "  BrandColors._();"]
     out += [f"  static const {k} = BrandPalette.{v};" for k, v in tokens["semantic"].items()]
+    font = tokens["font"]
     out += ["}", "", "class BrandFont {", "  BrandFont._();",
-            f"  static const family = '{tokens['font']['family']}';",
-            "  static const fallback = <String>[" + ", ".join(f"'{f}'" for f in tokens["font"]["fallback"] if f != "sans-serif") + "];",
+            f"  static const body = '{font['body']}';",
+            f"  static const heading = '{font['heading']}';",
+            f"  static const mono = '{font['mono']}';",
+            "  static const fallback = <String>[" + ", ".join(f"'{f}'" for f in font["fallback"] if f != "sans-serif") + "];",
             "}", "", "class BrandTypeScale {", "  BrandTypeScale._();"]
     for name, t in tokens["typeScale"].items():
-        out.append(f"  static const {name} = TextStyle(fontFamily: BrandFont.family, fontFamilyFallback: BrandFont.fallback, "
+        out.append(f"  static const {name} = TextStyle(fontFamily: BrandFont.{t.get('family', 'body')}, fontFamilyFallback: BrandFont.fallback, "
                    f"fontSize: {t['size']}, fontWeight: FontWeight.w{t['weight']}, height: {t['lineHeight']}"
                    + (f", letterSpacing: {t['letterSpacing']}" if "letterSpacing" in t else "") + ");")
     out += ["}", "", "class BrandSpacing {", "  BrandSpacing._();"]

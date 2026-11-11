@@ -578,7 +578,7 @@ class _ReaderScreenState extends ConsumerState<ReaderScreen> with WidgetsBinding
           padding: const EdgeInsets.only(top: 20, bottom: 8),
           child: Text(
             section.content['text'] as String? ?? '',
-            style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600, color: AppColors.primary),
+            style: const TextStyle(fontFamily: AppFonts.serif, fontSize: 16, fontWeight: FontWeight.w600, color: AppColors.primary),
           ),
         );
 
@@ -844,7 +844,7 @@ class _AudioBar extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text('Read aloud', style: TextStyle(fontSize: 11, fontWeight: FontWeight.w700, color: AppColors.textStrong)),
-                Text('ON-DEVICE AUDIO', style: TextStyle(fontSize: 9.5, color: AppColors.textMuted)),
+                Text('ON-DEVICE AUDIO', style: TextStyle(fontFamily: AppFonts.mono, fontSize: 9.5, color: AppColors.textMuted)),
               ],
             ),
           ),

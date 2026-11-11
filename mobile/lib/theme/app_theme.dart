@@ -55,14 +55,16 @@ class AppRadius {
   static const pill = BrandRadius.pill;
 }
 
-/// The brand font is Helvetica Neue. It is licensed, so it is not bundled: the theme
-/// asks for it and falls back to Helvetica, Arial, then the system sans (Roboto on
-/// Android, which has the Hausa letters ɓ ɗ ƙ ƴ). Text styles in widgets do not set a
-/// family; they inherit this one from the theme.
+/// The app's own bundled fonts (assets/fonts, SIL OFL 1.1), kept by decision on
+/// 2026-11-11 instead of the guide's Helvetica Neue: Fraunces for headings, Manrope
+/// for body and UI, JetBrains Mono for labels. They lack the Hausa letters
+/// (ɓ ɗ ƙ ƴ); Flutter draws those from [fallback] (Roboto / Noto Sans on Android).
 class AppFonts {
   AppFonts._();
 
-  static const family = BrandFont.family;
+  static const serif = BrandFont.heading;
+  static const sans = BrandFont.body;
+  static const mono = BrandFont.mono;
   static const fallback = BrandFont.fallback;
 }
 
@@ -91,7 +93,7 @@ class AppTheme {
       useMaterial3: true,
       colorScheme: colorScheme,
       scaffoldBackgroundColor: AppColors.background,
-      fontFamily: AppFonts.family,
+      fontFamily: AppFonts.sans,
       fontFamilyFallback: AppFonts.fallback,
 
       textTheme: TextTheme(

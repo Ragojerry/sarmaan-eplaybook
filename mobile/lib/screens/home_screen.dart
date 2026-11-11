@@ -320,7 +320,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
           Text(
             hits.isEmpty ? 'NO MATCHES' : 'RESULTS',
             style: const TextStyle(
-              fontSize: 11, fontWeight: FontWeight.w800, letterSpacing: 0.9, color: AppColors.textMuted,
+              fontFamily: AppFonts.sans, fontSize: 11, fontWeight: FontWeight.w800, letterSpacing: 0.9, color: AppColors.textMuted,
             ),
           ),
           const SizedBox(height: 10),
@@ -399,7 +399,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
             SizedBox(width: 4),
             Text(
               'New content',
-              style: TextStyle(fontSize: 10.5, fontWeight: FontWeight.w700, color: AppColors.primary),
+              style: TextStyle(fontFamily: AppFonts.mono, fontSize: 10.5, fontWeight: FontWeight.w700, color: AppColors.primary),
             ),
           ],
         ),
@@ -428,6 +428,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                     style: TextStyle(
+                      fontFamily: AppFonts.mono,
                       fontSize: 11.5,
                       letterSpacing: 0.5,
                       color: AppColors.onPrimary.withValues(alpha: 0.75),
@@ -452,7 +453,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                         const SizedBox(width: 5),
                         Text(
                           online ? 'Online' : 'Offline',
-                          style: const TextStyle(fontSize: 10.5, color: AppColors.onPrimary),
+                          style: const TextStyle(fontFamily: AppFonts.mono, fontSize: 10.5, color: AppColors.onPrimary),
                         ),
                       ],
                     ),
@@ -463,7 +464,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
             const SizedBox(height: 6),
             const Text(
               "Ready for today's round",
-              style: TextStyle(fontSize: 24, fontWeight: FontWeight.w600, color: AppColors.onPrimary),
+              style: TextStyle(fontFamily: AppFonts.serif, fontSize: 24, fontWeight: FontWeight.w600, color: AppColors.onPrimary),
             ),
             const SizedBox(height: 16),
             TextField(
@@ -519,6 +520,7 @@ class _SectionLabel extends StatelessWidget {
         child: Text(
           text,
           style: const TextStyle(
+            fontFamily: AppFonts.sans,
             fontSize: 11,
             fontWeight: FontWeight.w800,
             letterSpacing: 0.9,
@@ -538,7 +540,7 @@ class _CodeBadge extends StatelessWidget {
         decoration: BoxDecoration(color: AppColors.surfaceSelected, borderRadius: BorderRadius.circular(5)),
         child: Text(
           code,
-          style: const TextStyle(fontSize: 9.5, fontWeight: FontWeight.w700, color: AppColors.textStrong),
+          style: const TextStyle(fontFamily: AppFonts.mono, fontSize: 9.5, fontWeight: FontWeight.w700, color: AppColors.textStrong),
         ),
       );
 }
@@ -661,7 +663,7 @@ class _UpdateBanner extends StatelessWidget {
                       '${release.releaseCode}$mb',
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
-                      style: const TextStyle(fontSize: 10.5, color: AppColors.primary),
+                      style: const TextStyle(fontFamily: AppFonts.mono, fontSize: 10.5, color: AppColors.primary),
                     ),
                   ],
                 ),
@@ -702,7 +704,7 @@ class _ContinueCard extends StatelessWidget {
               decoration: BoxDecoration(color: AppColors.surfaceSelected, borderRadius: BorderRadius.circular(12)),
               child: Text(
                 module.moduleCode,
-                style: const TextStyle(fontWeight: FontWeight.w700, color: AppColors.primary),
+                style: const TextStyle(fontFamily: AppFonts.mono, fontWeight: FontWeight.w700, color: AppColors.primary),
               ),
             ),
             const SizedBox(width: 14),

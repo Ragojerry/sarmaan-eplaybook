@@ -88,3 +88,25 @@ To change the logo order or the lead brand, edit `order` in `brand/logos.json` (
 | Before: 0.1.12 as published (SHA-256 `aa558c20…04fbe1`) | 62,722,600 |
 | After: rebrand branch | 62,489,561 |
 | Difference | −233,039 (≈ −228 KB: three bundled font families removed, about 223 KB of logos added) |
+
+## Revision 2026-11-11 (programme decisions)
+
+| Decision | Applied |
+|---|---|
+| Base: Forest Green with Light Grey 20% | The page background is Light Grey 20% (`#F6F6F5`); cards, dialogs, fields and logo rows stay white; Forest Green for headers, primary buttons and navigation (`tokens.json` → `semantic.background`) |
+| Fonts: back to the old fonts | App: Fraunces (headings), Manrope (body), JetBrains Mono (labels), bundled again (SIL OFL 1.1). Admin: its original Tailwind system font stack. This departs from the guide's Helvetica Neue by decision. Hausa letters ɓ ɗ ƙ ƴ are not in these fonts and come from the system fallback (Roboto/Noto on Android), as before the rebrand. |
+| IHS first | `logos.json` → `order`: IHS, Malaria Consortium, SARMAAN-II, GF |
+| Launcher icon = SARMAAN-II | `mipmap-*/ic_launcher.png` rebuilt: the SARMAAN-II logo unmodified, centred on white, scaled down only (never up); the Android 12+ system splash shows it on Forest Green |
+| Login mark = SARMAAN-II logo | Replaces the "S"; shown on white at no more than its own pixels |
+
+**Screenshots:** `screenshots/revision2/`:
+- app login;
+- Android launch screen with the new icon;
+- admin login, dashboard and General test.
+
+The other screens were not re-captured, because the emulator stopped accepting input. `screenshots/after/` shows the first rebrand pass (white background, system font).
+
+**APK size (release):**
+- 0.1.12 as published: 62,722,600 bytes.
+- First rebrand pass: 62,489,561 bytes.
+- This revision: 63,071,615 bytes. That is 349,015 bytes more than 0.1.12, because the fonts are back and the logos and icons were added.

@@ -177,7 +177,7 @@ class _ModuleRow extends StatelessWidget {
               alignment: Alignment.center,
               child: Text(
                 module.moduleNumber.toString(),
-                style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 12, color: AppColors.primary),
+                style: const TextStyle(fontFamily: AppFonts.mono, fontWeight: FontWeight.w700, fontSize: 12, color: AppColors.primary),
               ),
             ),
             const SizedBox(width: 12),

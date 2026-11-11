@@ -151,13 +151,13 @@ class _GeneralTestScreenState extends ConsumerState<GeneralTestScreen> {
                 ),
               Text(
                 'QUESTION ${_index + 1} OF ${qs.length} · CHOOSE ONE',
-                style: const TextStyle(fontSize: 10.5, letterSpacing: 0.6, color: AppColors.textMuted),
+                style: const TextStyle(fontFamily: AppFonts.mono, fontSize: 10.5, letterSpacing: 0.6, color: AppColors.textMuted),
               ),
               const SizedBox(height: 10),
               Text(
                 q.prompt,
                 style: const TextStyle(
-                    fontSize: 19, fontWeight: FontWeight.w600, height: 1.3, color: AppColors.primary),
+                    fontFamily: AppFonts.serif, fontSize: 19, fontWeight: FontWeight.w600, height: 1.3, color: AppColors.primary),
               ),
               const SizedBox(height: 16),
               for (var i = 0; i < q.options.length; i++)
@@ -217,7 +217,7 @@ class _GeneralTestScreenState extends ConsumerState<GeneralTestScreen> {
       padding: const EdgeInsets.fromLTRB(22, 28, 22, 28),
       children: [
         Text(_isPre ? 'Your starting point' : 'Your result',
-            style: const TextStyle(fontSize: 21, fontWeight: FontWeight.w600, color: AppColors.primary)),
+            style: const TextStyle(fontFamily: AppFonts.serif, fontSize: 21, fontWeight: FontWeight.w600, color: AppColors.primary)),
         const SizedBox(height: 12),
         Text('${o.correct} of ${o.total} (${o.percent}%)',
             style: const TextStyle(fontSize: 28, fontWeight: FontWeight.w800, color: AppColors.textStrong)),

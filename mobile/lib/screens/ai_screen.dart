@@ -221,7 +221,7 @@ class _AnswerCard extends StatelessWidget {
               ],
             ),
             const SizedBox(height: 12),
-            const Text('SOURCE', style: TextStyle(fontSize: 9.5, fontWeight: FontWeight.w700, letterSpacing: 0.6, color: AppColors.textMuted)),
+            const Text('SOURCE', style: TextStyle(fontFamily: AppFonts.mono, fontSize: 9.5, fontWeight: FontWeight.w700, letterSpacing: 0.6, color: AppColors.textMuted)),
             const SizedBox(height: 4),
             for (final s in result.sources)
               Padding(
@@ -262,7 +262,7 @@ class _Pill extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
       decoration: BoxDecoration(color: color, borderRadius: BorderRadius.circular(6)),
-      child: Text(text, style: TextStyle(fontSize: 9.5, fontWeight: FontWeight.w700, color: textColor)),
+      child: Text(text, style: TextStyle(fontFamily: AppFonts.mono, fontSize: 9.5, fontWeight: FontWeight.w700, color: textColor)),
     );
   }
 }

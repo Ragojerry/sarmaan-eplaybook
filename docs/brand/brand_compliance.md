@@ -89,3 +89,14 @@ Command (from the repository root):
 grep -rniE "0B5D51|08322C|E4EEEA|E8A93C|B5792A|F4EFDF|E9DFC0|B5652F|F3E2D3|B23B3B|16241F|5B6B62|7C8A83|334039|5B3A1F|0D3F37|1E3D37|123F38|7FE0B0|B7C0BA|0F7A4C|93c5fd|Fraunces|Manrope|JetBrains|AppColors\.(teal|gold|sand|clay|ink|danger)" mobile/lib mobile/android/app/src/main/res admin/src admin/index.html admin/tailwind.config.js content
 ```
 Result: no matches (see the change list for the run).
+
+## Revision 2026-11-11
+
+| Check | Result |
+|---|---|
+| Base | ✅ Forest Green with Light Grey 20% page background (decision) |
+| Fonts | ⚠️ By decision the app uses its original fonts (Fraunces / Manrope / JetBrains Mono) and the admin its original system stack, not the guide's Helvetica Neue. Hausa letters fall back to the system font (Manrope 8/20, Fraunces 12/20 coverage) |
+| Contrast on the grey page | ✅ All pairs pass (`contrast_report.md`). Grass Green text is 4.30 on the grey page, so it is used only on white cards (the one use is "Correct." in the quiz card) |
+| Logo order | ✅ IHS first (decision) |
+| Launcher icon | ⚠️ SARMAAN-II logo, unmodified, centred on white, downscaled only. From the 118 × 50 px file it is small in the icon and its "PROJECT" line is unreadable at launcher size; a vector file is needed for a full-size icon |
+| Login mark | ⚠️ SARMAAN-II logo at its own pixel size (≈ 45 × 19 dp on a 2.6× phone) |

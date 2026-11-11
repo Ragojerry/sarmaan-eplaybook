@@ -61,3 +61,18 @@ The branch starts from commit `8ddaf9a` (the go-live code as deployed on 2026-11
 | Old-palette search | No matches (command in brand_compliance.md §7) |
 | Raw colour literals | 0 in Dart outside the generated token file; 0 hex values in admin source outside `src/brand/` |
 | Release APK | 62,722,600 → 62,489,561 bytes |
+
+## Revision 2026-11-11
+| File | Change |
+|---|---|
+| `brand/tokens.json` | Page background → Light Grey 20%; font section → Manrope / Fraunces / JetBrains Mono with Roboto and Noto Sans fallback; each type style names its family |
+| `brand/logos.json` | Order: IHS, Malaria Consortium, SARMAAN-II, GF |
+| `scripts/brand_sync.py` | Generates the three font families |
+| `scripts/brand_contrast.py` | Pairs for the grey page and white cards |
+| `mobile/pubspec.yaml` | Fonts registered again |
+| `mobile/lib/theme/app_theme.dart` | `AppFonts.serif/sans/mono` restored; base family Manrope |
+| `mobile/lib/screens/*.dart`, `widgets/section_audio_player.dart` | The per-screen Fraunces and JetBrains Mono styles restored exactly as in 8ddaf9a (3-way merge, 26 of 27; login's "S" is now the logo) |
+| `mobile/lib/screens/login_screen.dart`, `widgets/partner_logo_row.dart` | `SarmaanLogoMark` replaces the "S" |
+| `mobile/android/app/src/main/res/mipmap-*/ic_launcher.png` | SARMAAN-II launcher icon (48–192 px) |
+| `admin/tailwind.config.js` | Original system font stack |
+| `docs/brand/screenshots/revision2/*` | New screenshots |
