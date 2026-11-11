@@ -85,26 +85,8 @@ class _SplashScreenState extends ConsumerState<SplashScreen> {
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: [
-        Container(
-          width: 84,
-          height: 84,
-          decoration: BoxDecoration(
-            color: AppColors.onPrimary.withValues(alpha: 0.08),
-            borderRadius: BorderRadius.circular(AppRadius.large),
-            border:
-                Border.all(color: AppColors.onPrimary.withValues(alpha: 0.25)),
-          ),
-          alignment: Alignment.center,
-          child: const Text(
-            'S',
-            style: TextStyle(
-              fontFamily: AppFonts.serif,
-              fontWeight: FontWeight.w700,
-              fontSize: 34,
-              color: AppColors.onPrimary,
-            ),
-          ),
-        ),
+        // The SARMAAN-II logo on its own white card, as on the login screen.
+        const SarmaanLogoMark(),
         const SizedBox(height: 22),
         const Text(
           'SARMAAN II e-Playbook',
