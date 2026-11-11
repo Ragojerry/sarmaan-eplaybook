@@ -69,10 +69,10 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                 // never larger than the supplied file's own pixels (it is only 118 x 50 px).
                 const Align(alignment: Alignment.centerLeft, child: SarmaanLogoMark()),
                 const SizedBox(height: 16),
-                Text('SARMAAN e-Playbook', style: Theme.of(context).textTheme.headlineSmall),
+                Text('SARMAAN II e-Playbook', style: Theme.of(context).textTheme.headlineSmall),
                 const SizedBox(height: 4),
                 Text(
-                  'ADMIN & CDD SIGN IN',
+                  'SIGN IN',
                   style: Theme.of(context).textTheme.labelSmall?.copyWith(color: AppColors.textMuted),
                 ),
                 const SizedBox(height: 28),

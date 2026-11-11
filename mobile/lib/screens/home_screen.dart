@@ -379,14 +379,11 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
 
   /// Matches the prototype's `.home-top`: teal gradient, mono greeting,
   /// serif title, online pill and a search field.
-  /// "CDD TEAM 0041" (the learner role, e.g. "HEALTH WORKER TEAM 0041") when
-  /// the account has a team code, otherwise the first name.
+  /// The signed-in user's first and last name.
   String? _who(UserProfile? user) {
     if (user == null) return null;
-    final team = user.teamCode?.trim();
-    final role = kLearnerRoleLabels[user.learnerRole]?.toUpperCase();
-    if (team != null && team.isNotEmpty) return '${role != null ? '$role ' : ''}TEAM $team';
-    return role != null ? '${user.firstName} · $role' : user.firstName;
+    final name = '${user.firstName} ${user.lastName}'.trim();
+    return name.isEmpty ? null : name;
   }
 
   /// Header pill in the same style as the Online pill, shown only while a
@@ -469,7 +466,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
             ),
             const SizedBox(height: 6),
             const Text(
-              "Ready for today's round",
+              'Welcome to SARMAAN II Training Session',
               style: TextStyle(fontFamily: AppFonts.serif, fontSize: 24, fontWeight: FontWeight.w600, color: AppColors.onPrimary),
             ),
             const SizedBox(height: 16),
