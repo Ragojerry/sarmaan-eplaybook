@@ -65,9 +65,10 @@
       "logos": [
         "ihs"
       ],
-      "rowHeightDp": 54,
+      "rowHeightDp": 36,
       "showPartnershipLine": false,
-      "_note": "IHS alone at the top of the Home, Modules, Videos, Ask and About tabs, at its 95 dp minimum width"
+      "_note": "IHS alone at the top of the Home, Modules, Videos, Ask and About tabs. Smaller than the IHS 95 dp minimum by decision (2026-11-11): 36 dp high, 63 dp wide; minWidthDp 0 lifts the minimum for this placement only. Clear space stays the width of the 'I' at this size.",
+      "minWidthDp": 0
     },
     "adminHeader": {
       "logos": "order",

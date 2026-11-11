@@ -83,9 +83,9 @@ class BrandTopBar extends StatelessWidget implements PreferredSizeWidget {
 
   final PreferredSizeWidget? appBar;
 
-  /// The white band: tabHeader's 54 dp row plus the IHS clear space above and below
-  /// (0.165 × 95 dp ≈ 15.7 dp each). Raise it if rowHeightDp grows in logos.json.
-  static const double bandHeight = 86;
+  /// The white band: tabHeader's 36 dp row plus the IHS clear space above and below
+  /// (0.165 × 63 dp ≈ 10.4 dp each). Raise it if rowHeightDp grows in logos.json.
+  static const double bandHeight = 58;
 
   @override
   Size get preferredSize => Size.fromHeight(bandHeight + (appBar?.preferredSize.height ?? 0));
@@ -148,7 +148,8 @@ class _LogoRow extends StatelessWidget {
       final hPx = (logo['heightPx'] as num).toDouble();
       final maxH = hPx / dpr; // never upscale the file
       var h = math.min(rowHeight, maxH);
-      final minW = (logo['minWidthDp'] as num?)?.toDouble();
+      // A placement's own minWidthDp (e.g. 0 for the compact tab header) overrides the logo's.
+      final minW = ((place['minWidthDp'] ?? logo['minWidthDp']) as num?)?.toDouble();
       if (minW != null) h = math.min(math.max(h, minW * hPx / wPx), maxH);
       images.add(Image.asset(
         'assets/brand/${logo['file']}',

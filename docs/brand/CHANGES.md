@@ -86,3 +86,4 @@ The branch starts from commit `8ddaf9a` (the go-live code as deployed on 2026-11
 | `brand/logos.json` (and its synced copies) | New `tabHeader` placement: IHS alone, row height 54 dp |
 | `mobile/lib/widgets/partner_logo_row.dart` | `BrandTopBar`: the `tabHeader` logo in a white band under the status bar (dark status icons), above the screen's own title bar; fixed while the page scrolls |
 | `mobile/lib/screens/home_screen.dart`, `modules_screen.dart`, `video_library_screen.dart`, `ai_screen.dart`, `about_screen.dart` | IHS logo at the top of each tab (`BrandTopBar`) |
+| `brand/logos.json`, `partner_logo_row.dart` | Tab header made smaller by decision: logo 36 dp high (63 dp wide, below the IHS 95 dp minimum), band 86 → 58 dp; a placement's `minWidthDp` now overrides the logo's |
