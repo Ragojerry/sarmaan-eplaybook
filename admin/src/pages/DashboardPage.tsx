@@ -2,6 +2,7 @@ import { useQuery } from "@tanstack/react-query";
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid } from "recharts";
 import { api } from "../services/api";
 import { Dashboard } from "../types/api";
+import { chartSeries } from "../brand/tokens";
 
 /**
  * Every number here comes from GET /analytics/dashboard, which queries real
@@ -59,8 +60,8 @@ export default function DashboardPage() {
               <XAxis dataKey="module_code" />
               <YAxis allowDecimals={false} />
               <Tooltip />
-              <Bar dataKey="opens" fill="#0F7A4C" name="Opens" />
-              <Bar dataKey="completions" fill="#93c5fd" name="Completions" />
+              <Bar dataKey="opens" fill={chartSeries[0]} name="Opens" />
+              <Bar dataKey="completions" fill={chartSeries[1]} name="Completions" />
             </BarChart>
           </ResponsiveContainer>
         )}
@@ -79,7 +80,7 @@ export default function DashboardPage() {
               <XAxis dataKey="language_code" />
               <YAxis allowDecimals={false} />
               <Tooltip />
-              <Bar dataKey="count" fill="#0F7A4C" />
+              <Bar dataKey="count" fill={chartSeries[0]} />
             </BarChart>
           </ResponsiveContainer>
         )}

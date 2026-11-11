@@ -136,7 +136,7 @@ class _LanguageScreenState extends ConsumerState<LanguageScreen> {
                 children: [
                   Row(
                     children: [
-                      Container(width: 16, height: 2, color: AppColors.gold),
+                      Container(width: 16, height: 2, color: AppColors.primary),
                       const SizedBox(width: 8),
                       Text('STEP 1 OF 2', style: Theme.of(context).textTheme.labelSmall),
                     ],
@@ -177,9 +177,9 @@ class _LanguageScreenState extends ConsumerState<LanguageScreen> {
         margin: const EdgeInsets.only(bottom: 10),
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 15),
         decoration: BoxDecoration(
-          color: selected ? AppColors.tealSoft : AppColors.white,
+          color: selected ? AppColors.surfaceSelected : AppColors.white,
           borderRadius: BorderRadius.circular(AppRadius.standard),
-          border: Border.all(color: selected ? AppColors.teal : AppColors.line, width: 1.5),
+          border: Border.all(color: selected ? AppColors.primary : AppColors.divider, width: 1.5),
         ),
         child: Row(
           children: [
@@ -188,20 +188,19 @@ class _LanguageScreenState extends ConsumerState<LanguageScreen> {
                 children: [
                   Text(
                     lang.name,
-                    style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 14.5, color: AppColors.ink),
+                    style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 14.5, color: AppColors.textStrong),
                   ),
                   if (lang.status == 'BETA')
                     Container(
                       margin: const EdgeInsets.only(left: 8),
                       padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-                      decoration: BoxDecoration(color: AppColors.gold, borderRadius: BorderRadius.circular(5)),
+                      decoration: BoxDecoration(color: AppColors.infoSurface, border: Border.all(color: AppColors.info), borderRadius: BorderRadius.circular(5)),
                       child: const Text(
                         'BETA',
                         style: TextStyle(
-                          fontFamily: AppFonts.mono,
                           fontSize: 9.5,
                           fontWeight: FontWeight.w700,
-                          color: AppColors.tealDeep,
+                          color: AppColors.primary,
                         ),
                       ),
                     ),
@@ -213,12 +212,12 @@ class _LanguageScreenState extends ConsumerState<LanguageScreen> {
               height: 20,
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
-                color: selected ? AppColors.teal : Colors.transparent,
-                border: Border.all(color: selected ? AppColors.teal : AppColors.line, width: 2),
+                color: selected ? AppColors.primary : Colors.transparent,
+                border: Border.all(color: selected ? AppColors.primary : AppColors.divider, width: 2),
               ),
               alignment: Alignment.center,
               child: selected
-                  ? const Icon(Icons.check, size: 12, color: Colors.white)
+                  ? const Icon(Icons.check, size: 12, color: AppColors.onPrimary)
                   : null,
             ),
           ],

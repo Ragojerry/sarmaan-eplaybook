@@ -93,7 +93,7 @@ class _GeneralTestScreenState extends ConsumerState<GeneralTestScreen> {
   Widget build(BuildContext context) {
     final qs = _qs;
     return Scaffold(
-      backgroundColor: AppColors.sand,
+      backgroundColor: AppColors.background,
       appBar: AppBar(title: Text(_title), leading: BackButton(onPressed: () => context.go('/modules'))),
       body: _outcome != null
           ? _result(_outcome!)
@@ -113,7 +113,7 @@ class _GeneralTestScreenState extends ConsumerState<GeneralTestScreen> {
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              Text(text, textAlign: TextAlign.center, style: const TextStyle(fontSize: 14, height: 1.45, color: AppColors.ink)),
+              Text(text, textAlign: TextAlign.center, style: const TextStyle(fontSize: 14, height: 1.45, color: AppColors.textStrong)),
               const SizedBox(height: 16),
               OutlinedButton(onPressed: () => context.go('/modules'), child: const Text('Back to modules')),
             ],
@@ -130,8 +130,8 @@ class _GeneralTestScreenState extends ConsumerState<GeneralTestScreen> {
         LinearProgressIndicator(
           value: (_index + 1) / qs.length,
           minHeight: 4,
-          backgroundColor: AppColors.sandDeep,
-          valueColor: const AlwaysStoppedAnimation(AppColors.teal),
+          backgroundColor: AppColors.progressTrack,
+          valueColor: const AlwaysStoppedAnimation(AppColors.primary),
         ),
         Expanded(
           child: ListView(
@@ -146,18 +146,18 @@ class _GeneralTestScreenState extends ConsumerState<GeneralTestScreen> {
                             'and you take it once. Your modules open after you submit.'
                         : 'The same questions as your pre-test, now that you have completed your modules. '
                             'You take it once.',
-                    style: const TextStyle(fontSize: 12.5, height: 1.45, color: AppColors.textSecondary),
+                    style: const TextStyle(fontSize: 12.5, height: 1.45, color: AppColors.textMuted),
                   ),
                 ),
               Text(
                 'QUESTION ${_index + 1} OF ${qs.length} · CHOOSE ONE',
-                style: const TextStyle(fontFamily: AppFonts.mono, fontSize: 10.5, letterSpacing: 0.6, color: AppColors.textSecondary),
+                style: const TextStyle(fontSize: 10.5, letterSpacing: 0.6, color: AppColors.textMuted),
               ),
               const SizedBox(height: 10),
               Text(
                 q.prompt,
                 style: const TextStyle(
-                    fontFamily: AppFonts.serif, fontSize: 19, fontWeight: FontWeight.w600, height: 1.3, color: AppColors.tealDeep),
+                    fontSize: 19, fontWeight: FontWeight.w600, height: 1.3, color: AppColors.primary),
               ),
               const SizedBox(height: 16),
               for (var i = 0; i < q.options.length; i++)
@@ -169,16 +169,16 @@ class _GeneralTestScreenState extends ConsumerState<GeneralTestScreen> {
                     child: Container(
                       padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
                       decoration: BoxDecoration(
-                        color: chosen == i ? AppColors.tealSoft : AppColors.white,
+                        color: chosen == i ? AppColors.surfaceSelected : AppColors.white,
                         borderRadius: BorderRadius.circular(AppRadius.standard),
-                        border: Border.all(color: chosen == i ? AppColors.teal : AppColors.line, width: chosen == i ? 1.5 : 1),
+                        border: Border.all(color: chosen == i ? AppColors.primary : AppColors.divider, width: chosen == i ? 1.5 : 1),
                       ),
                       child: Row(
                         children: [
                           Icon(chosen == i ? Icons.radio_button_checked : Icons.radio_button_unchecked,
-                              size: 18, color: chosen == i ? AppColors.teal : AppColors.textMuted),
+                              size: 18, color: chosen == i ? AppColors.primary : AppColors.textMuted),
                           const SizedBox(width: 10),
-                          Expanded(child: Text(q.options[i], style: const TextStyle(fontSize: 13.5, color: AppColors.ink))),
+                          Expanded(child: Text(q.options[i], style: const TextStyle(fontSize: 13.5, color: AppColors.textStrong))),
                         ],
                       ),
                     ),
@@ -200,7 +200,7 @@ class _GeneralTestScreenState extends ConsumerState<GeneralTestScreen> {
                 const Spacer(),
                 FilledButton(
                   onPressed: chosen == null || _submitting ? null : () => last ? _submit() : setState(() => _index++),
-                  style: FilledButton.styleFrom(backgroundColor: AppColors.tealDeep, foregroundColor: AppColors.sand),
+                  style: FilledButton.styleFrom(backgroundColor: AppColors.primary, foregroundColor: AppColors.onPrimary),
                   child: Text(last ? (_submitting ? 'Submitting…' : 'Submit') : 'Next'),
                 ),
               ],
@@ -217,10 +217,10 @@ class _GeneralTestScreenState extends ConsumerState<GeneralTestScreen> {
       padding: const EdgeInsets.fromLTRB(22, 28, 22, 28),
       children: [
         Text(_isPre ? 'Your starting point' : 'Your result',
-            style: const TextStyle(fontFamily: AppFonts.serif, fontSize: 21, fontWeight: FontWeight.w600, color: AppColors.tealDeep)),
+            style: const TextStyle(fontSize: 21, fontWeight: FontWeight.w600, color: AppColors.primary)),
         const SizedBox(height: 12),
         Text('${o.correct} of ${o.total} (${o.percent}%)',
-            style: const TextStyle(fontSize: 28, fontWeight: FontWeight.w800, color: AppColors.ink)),
+            style: const TextStyle(fontSize: 28, fontWeight: FontWeight.w800, color: AppColors.textStrong)),
         const SizedBox(height: 10),
         Text(
           _isPre
@@ -228,12 +228,12 @@ class _GeneralTestScreenState extends ConsumerState<GeneralTestScreen> {
               : pre == null
                   ? 'Well done for completing the training.'
                   : 'Your pre-test was ${pre.correct} of ${pre.total} (${pre.percent}%). Well done for completing the training.',
-          style: const TextStyle(fontSize: 13.5, height: 1.5, color: AppColors.textSecondary),
+          style: const TextStyle(fontSize: 13.5, height: 1.5, color: AppColors.textMuted),
         ),
         const SizedBox(height: 22),
         FilledButton(
           onPressed: () => context.go('/modules'),
-          style: FilledButton.styleFrom(backgroundColor: AppColors.tealDeep, foregroundColor: AppColors.sand),
+          style: FilledButton.styleFrom(backgroundColor: AppColors.primary, foregroundColor: AppColors.onPrimary),
           child: Text(_isPre ? 'Go to my modules' : 'Back to modules'),
         ),
       ],

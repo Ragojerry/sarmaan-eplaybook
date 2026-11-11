@@ -1,62 +1,69 @@
 import 'package:flutter/material.dart';
 
-/// Exact color tokens transcribed from the prototype's `:root` CSS variables
-/// (sarmaan-eplaybook-prototype_1.html, lines ~9-24). Every hex value here
-/// matches the prototype 1:1 — this is a real design system, not an
-/// approximation of one.
+import 'brand_tokens.g.dart';
+
+/// What each colour is for. Every value comes from the one token file,
+/// brand/tokens.json (IHS Towers Brand Manual 2021), via brand_tokens.g.dart.
+/// Widgets use these names, never a hex value.
+///
+/// Red, Orange, Blue and Teal are below 4.5:1 as text on white, so they are only
+/// fills, icons and borders; the text beside them uses the matching *Text colour
+/// (docs/brand/contrast_report.md).
 class AppColors {
   AppColors._();
 
-  static const ink = Color(0xFF16241F);
-  static const teal = Color(0xFF0B5D51);
-  static const tealDeep = Color(0xFF08322C);
-  static const tealSoft = Color(0xFFE4EEEA);
-  static const gold = Color(0xFFE8A93C);
-  static const goldDeep = Color(0xFFB5792A);
-  static const sand = Color(0xFFF4EFDF);
-  static const sandDeep = Color(0xFFE9DFC0);
-  static const clay = Color(0xFFB5652F);
-  static const claySoft = Color(0xFFF3E2D3);
-  static const white = Color(0xFFFFFFFF);
-  static const line = Color(0x2416241F); // rgba(22,36,31,0.14)
-  static const danger = Color(0xFFB23B3B);
+  static const primary = BrandColors.primary;
+  static const onPrimary = BrandColors.onPrimary;
+  static const background = BrandColors.background;
+  static const surface = BrandColors.surface;
+  static const surfaceMuted = BrandColors.surfaceMuted;
+  static const surfaceSelected = BrandColors.surfaceSelected;
+  static const divider = BrandColors.divider;
+  static const controlBorder = BrandColors.controlBorder;
 
-  // Body text greys used throughout the prototype's copy (not CSS custom
-  // properties there, but consistently reused literals — e.g. `#5b6b62` for
-  // secondary text, `#334039` for reader body copy).
-  static const textSecondary = Color(0xFF5B6B62);
-  static const textMuted = Color(0xFF7C8A83);
-  static const readerBody = Color(0xFF334039);
-  static const calloutWarningText = Color(0xFF5B3A1F);
-  static const calloutGoodText = Color(0xFF0D3F37);
+  static const text = BrandColors.text;
+  static const textStrong = BrandColors.textStrong;
+  static const textMuted = BrandColors.textMuted;
+  static const textDisabled = BrandColors.textDisabled;
+
+  static const success = BrandColors.success;
+  static const successText = BrandColors.successText;
+  static const successSurface = BrandColors.successSurface;
+  static const warning = BrandColors.warning;
+  static const warningText = BrandColors.warningText;
+  static const warningSurface = BrandColors.warningSurface;
+  static const error = BrandColors.error;
+  static const errorText = BrandColors.errorText;
+  static const errorSurface = BrandColors.errorSurface;
+  static const info = BrandColors.info;
+  static const infoText = BrandColors.infoText;
+  static const infoSurface = BrandColors.infoSurface;
+
+  static const progressTrack = BrandColors.progressTrack;
+  static const progressFill = BrandColors.progressFill;
+  static const white = BrandPalette.white;
 }
 
-/// Radii match the prototype's actual scale: 20px large cards/splash marks,
-/// 14-16px standard cards/buttons, 9-12px small chips/icons, 999px pills.
+/// Radii from brand/tokens.json.
 class AppRadius {
   AppRadius._();
 
-  static const large = 20.0;
-  static const medium = 16.0;
-  static const standard = 14.0;
-  static const small = 10.0;
-  static const pill = 999.0;
+  static const large = BrandRadius.large;
+  static const medium = BrandRadius.medium;
+  static const standard = BrandRadius.standard;
+  static const small = BrandRadius.small;
+  static const pill = BrandRadius.pill;
 }
 
-/// The prototype's actual typefaces, bundled under assets/fonts (registered in
-/// pubspec.yaml; SIL OFL 1.1): Fraunces serif for headings, Manrope for body
-/// and UI, JetBrains Mono for labels/eyebrows/badges.
-///
-/// Glyph coverage note: these three fonts do not include the extra letters used
-/// in Hausa, Fulfulde and Kanuri (ɓ ɗ ƙ ƴ ɲ ǝ). Flutter draws those from the
-/// device's fallback font, which is fine on any phone with Noto/Roboto but looks
-/// slightly different. If that matters, bundle Noto Sans as a fallback family.
+/// The brand font is Helvetica Neue. It is licensed, so it is not bundled: the theme
+/// asks for it and falls back to Helvetica, Arial, then the system sans (Roboto on
+/// Android, which has the Hausa letters ɓ ɗ ƙ ƴ). Text styles in widgets do not set a
+/// family; they inherit this one from the theme.
 class AppFonts {
   AppFonts._();
 
-  static const serif = 'Fraunces';
-  static const sans = 'Manrope';
-  static const mono = 'JetBrainsMono';
+  static const family = BrandFont.family;
+  static const fallback = BrandFont.fallback;
 }
 
 class AppTheme {
@@ -64,147 +71,168 @@ class AppTheme {
 
   static ThemeData light() {
     final colorScheme = ColorScheme.fromSeed(
-      seedColor: AppColors.teal,
+      seedColor: AppColors.primary,
       brightness: Brightness.light,
-      primary: AppColors.tealDeep,
-      secondary: AppColors.gold,
-      surface: AppColors.white,
-      error: AppColors.danger,
+      primary: AppColors.primary,
+      onPrimary: AppColors.onPrimary,
+      secondary: AppColors.primary,
+      onSecondary: AppColors.onPrimary,
+      surface: AppColors.surface,
+      onSurface: AppColors.text,
+      error: AppColors.error,
+      onError: AppColors.textStrong,
+      outline: AppColors.controlBorder,
+      outlineVariant: AppColors.divider,
     );
+
+    TextStyle scale(TextStyle s, Color color) => s.copyWith(color: color);
 
     return ThemeData(
       useMaterial3: true,
       colorScheme: colorScheme,
-      scaffoldBackgroundColor: AppColors.sand,
-      fontFamily: AppFonts.sans,
+      scaffoldBackgroundColor: AppColors.background,
+      fontFamily: AppFonts.family,
+      fontFamilyFallback: AppFonts.fallback,
 
-      textTheme: const TextTheme(
-        // Screen titles ("Choose your language", "Sign in", etc.) — the
-        // prototype's h2.screen-title: Fraunces serif, 22px, weight 600.
-        headlineSmall: TextStyle(
-          fontFamily: AppFonts.serif,
-          fontSize: 22,
-          fontWeight: FontWeight.w600,
-          color: AppColors.ink,
-        ),
-        // Reader section headings (h3): Fraunces serif, 16px, teal-deep.
-        titleMedium: TextStyle(
-          fontFamily: AppFonts.serif,
-          fontSize: 16,
-          fontWeight: FontWeight.w600,
-          color: AppColors.tealDeep,
-        ),
-        // Body copy: Manrope, matches .reader-body p (12.8px/1.65 line
-        // height) and .screen-desc (13px) closely enough to share one style.
-        bodyMedium: TextStyle(
-          fontFamily: AppFonts.sans,
-          fontSize: 13,
-          height: 1.55,
-          color: AppColors.readerBody,
-        ),
-        bodySmall: TextStyle(
-          fontFamily: AppFonts.sans,
-          fontSize: 11.5,
-          color: AppColors.textSecondary,
-          height: 1.5,
-        ),
-        // "Eyebrow" mono labels (uppercase, letter-spaced) used above every
-        // screen title in the prototype.
-        labelSmall: TextStyle(
-          fontFamily: AppFonts.mono,
-          fontSize: 10.5,
-          fontWeight: FontWeight.w700,
-          letterSpacing: 1.5,
-          color: AppColors.tealDeep,
-        ),
+      textTheme: TextTheme(
+        // Screen titles ("Choose your language", "Sign in", ...).
+        headlineSmall: scale(BrandTypeScale.headline, AppColors.textStrong),
+        // Reader section headings.
+        titleMedium: scale(BrandTypeScale.titleSmall, AppColors.textStrong),
+        bodyMedium: scale(BrandTypeScale.body, AppColors.text),
+        bodySmall: scale(BrandTypeScale.bodySmall, AppColors.textMuted),
+        // Uppercase, letter-spaced labels above screen titles.
+        labelSmall: scale(BrandTypeScale.label, AppColors.textStrong),
       ),
 
-      appBarTheme: const AppBarTheme(
-        backgroundColor: AppColors.sand,
-        foregroundColor: AppColors.ink,
+      appBarTheme: AppBarTheme(
+        backgroundColor: AppColors.background,
+        foregroundColor: AppColors.textStrong,
+        surfaceTintColor: Colors.transparent,
         elevation: 0,
         centerTitle: false,
-        titleTextStyle: TextStyle(
-          fontFamily: AppFonts.serif,
-          fontSize: 20,
-          fontWeight: FontWeight.w600,
-          color: AppColors.ink,
-        ),
+        titleTextStyle: scale(BrandTypeScale.title, AppColors.textStrong),
       ),
 
       cardTheme: CardThemeData(
-        color: AppColors.white,
+        color: AppColors.surface,
         elevation: 0,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(AppRadius.standard),
-          side: const BorderSide(color: AppColors.line, width: 1),
+          side: const BorderSide(color: AppColors.divider, width: 1),
         ),
         margin: EdgeInsets.zero,
       ),
 
       filledButtonTheme: FilledButtonThemeData(
         style: FilledButton.styleFrom(
-          backgroundColor: AppColors.tealDeep,
-          foregroundColor: AppColors.sand,
-          padding: const EdgeInsets.symmetric(vertical: 15),
+          backgroundColor: AppColors.primary,
+          foregroundColor: AppColors.onPrimary,
+          disabledBackgroundColor: AppColors.surfaceMuted,
+          disabledForegroundColor: AppColors.textMuted,
+          padding: const EdgeInsets.symmetric(vertical: 15, horizontal: 20),
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(AppRadius.standard)),
-          textStyle: const TextStyle(fontFamily: AppFonts.sans, fontWeight: FontWeight.w800, fontSize: 14.5),
+          textStyle: BrandTypeScale.button,
         ),
       ),
 
       outlinedButtonTheme: OutlinedButtonThemeData(
         style: OutlinedButton.styleFrom(
-          foregroundColor: AppColors.tealDeep,
-          side: const BorderSide(color: AppColors.line, width: 1.5),
-          padding: const EdgeInsets.symmetric(vertical: 13),
+          foregroundColor: AppColors.primary,
+          side: const BorderSide(color: AppColors.controlBorder, width: 1.5),
+          padding: const EdgeInsets.symmetric(vertical: 13, horizontal: 18),
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(AppRadius.standard)),
-          textStyle: const TextStyle(fontFamily: AppFonts.sans, fontWeight: FontWeight.w700, fontSize: 13.5),
+          textStyle: BrandTypeScale.button.copyWith(fontSize: 13.5),
         ),
+      ),
+
+      textButtonTheme: TextButtonThemeData(
+        style: TextButton.styleFrom(foregroundColor: AppColors.primary),
       ),
 
       inputDecorationTheme: InputDecorationTheme(
         filled: true,
-        fillColor: AppColors.white,
+        fillColor: AppColors.surface,
         contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+        labelStyle: const TextStyle(color: AppColors.textMuted),
+        floatingLabelStyle: const TextStyle(color: AppColors.textStrong),
+        hintStyle: const TextStyle(color: AppColors.textMuted),
+        // Red borders mark the field; the message itself is Forest Green (Red fails as text).
+        errorStyle: const TextStyle(color: AppColors.errorText, fontWeight: FontWeight.w600),
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(AppRadius.standard),
-          borderSide: const BorderSide(color: AppColors.line, width: 1.5),
+          borderSide: const BorderSide(color: AppColors.controlBorder, width: 1),
         ),
         enabledBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(AppRadius.standard),
-          borderSide: const BorderSide(color: AppColors.line, width: 1.5),
+          borderSide: const BorderSide(color: AppColors.controlBorder, width: 1),
         ),
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(AppRadius.standard),
-          borderSide: const BorderSide(color: AppColors.teal, width: 1.5),
+          borderSide: const BorderSide(color: AppColors.primary, width: 2),
+        ),
+        errorBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(AppRadius.standard),
+          borderSide: const BorderSide(color: AppColors.error, width: 1.5),
+        ),
+        focusedErrorBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(AppRadius.standard),
+          borderSide: const BorderSide(color: AppColors.error, width: 2),
         ),
       ),
 
       radioTheme: RadioThemeData(
         fillColor: WidgetStateProperty.resolveWith(
-          (states) => states.contains(WidgetState.selected) ? AppColors.teal : AppColors.line,
+          (states) => states.contains(WidgetState.selected) ? AppColors.primary : AppColors.controlBorder,
         ),
       ),
 
+      checkboxTheme: CheckboxThemeData(
+        fillColor: WidgetStateProperty.resolveWith(
+          (states) => states.contains(WidgetState.selected) ? AppColors.primary : Colors.transparent,
+        ),
+        checkColor: const WidgetStatePropertyAll(AppColors.onPrimary),
+        side: const BorderSide(color: AppColors.controlBorder, width: 1.5),
+      ),
+
+      progressIndicatorTheme: const ProgressIndicatorThemeData(
+        color: AppColors.progressFill,
+        linearTrackColor: AppColors.progressTrack,
+      ),
+
+      // White dialogs and sheets (Material 3 would tint them with the seed colour).
+      dialogTheme: DialogThemeData(
+        backgroundColor: AppColors.surface,
+        surfaceTintColor: Colors.transparent,
+        titleTextStyle: BrandTypeScale.title.copyWith(color: AppColors.textStrong),
+        contentTextStyle: BrandTypeScale.body.copyWith(color: AppColors.text, fontSize: 14),
+      ),
+      bottomSheetTheme: const BottomSheetThemeData(backgroundColor: AppColors.surface, surfaceTintColor: Colors.transparent),
+
+      snackBarTheme: SnackBarThemeData(
+        backgroundColor: AppColors.primary,
+        contentTextStyle: BrandTypeScale.body.copyWith(color: AppColors.onPrimary),
+      ),
+
       navigationBarTheme: NavigationBarThemeData(
-        backgroundColor: AppColors.white,
-        indicatorColor: AppColors.tealSoft,
+        backgroundColor: AppColors.surface,
+        surfaceTintColor: Colors.transparent,
+        indicatorColor: AppColors.surfaceSelected,
         labelTextStyle: WidgetStateProperty.resolveWith(
           (states) => TextStyle(
-            fontFamily: AppFonts.sans,
             fontWeight: FontWeight.w700,
             fontSize: 9.5,
-            color: states.contains(WidgetState.selected) ? AppColors.tealDeep : AppColors.textMuted,
+            color: states.contains(WidgetState.selected) ? AppColors.textStrong : AppColors.textMuted,
           ),
         ),
         iconTheme: WidgetStateProperty.resolveWith(
           (states) => IconThemeData(
-            color: states.contains(WidgetState.selected) ? AppColors.tealDeep : AppColors.textMuted,
+            color: states.contains(WidgetState.selected) ? AppColors.primary : AppColors.textMuted,
           ),
         ),
       ),
 
-      dividerTheme: const DividerThemeData(color: AppColors.line, thickness: 1),
+      dividerTheme: const DividerThemeData(color: AppColors.divider, thickness: 1),
     );
   }
 }

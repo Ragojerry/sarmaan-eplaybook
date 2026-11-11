@@ -53,10 +53,10 @@ class _UpdatesScreenState extends ConsumerState<UpdatesScreen> {
 
   static Color _color(SyncStatus s) => switch (s) {
         SyncStatus.offline => AppColors.textMuted,
-        SyncStatus.online || SyncStatus.upToDate => AppColors.teal,
-        SyncStatus.syncing => AppColors.goldDeep,
-        SyncStatus.syncError => AppColors.danger,
-        SyncStatus.updateAvailable => AppColors.clay,
+        SyncStatus.online || SyncStatus.upToDate => AppColors.primary,
+        SyncStatus.syncing => AppColors.info,
+        SyncStatus.syncError => AppColors.error,
+        SyncStatus.updateAvailable => AppColors.warning,
       };
 
   static String _ago(DateTime? t) {
@@ -87,7 +87,7 @@ class _UpdatesScreenState extends ConsumerState<UpdatesScreen> {
     final color = _color(snap.status);
 
     return Scaffold(
-      backgroundColor: AppColors.sand,
+      backgroundColor: AppColors.background,
       appBar: AppBar(
         title: const Text('Sync & updates'),
         leading: BackButton(onPressed: () => context.go('/home')),
@@ -99,7 +99,7 @@ class _UpdatesScreenState extends ConsumerState<UpdatesScreen> {
             padding: const EdgeInsets.all(14),
             decoration: BoxDecoration(
               color: AppColors.white,
-              border: Border.all(color: AppColors.line),
+              border: Border.all(color: AppColors.divider),
               borderRadius: BorderRadius.circular(AppRadius.standard),
             ),
             child: Row(
@@ -116,7 +116,7 @@ class _UpdatesScreenState extends ConsumerState<UpdatesScreen> {
                     children: [
                       Text(_label(snap.status), style: TextStyle(fontSize: 14, fontWeight: FontWeight.w700, color: color)),
                       const SizedBox(height: 4),
-                      Text(_detail(snap), style: const TextStyle(fontSize: 11.5, height: 1.5, color: AppColors.textSecondary)),
+                      Text(_detail(snap), style: const TextStyle(fontSize: 11.5, height: 1.5, color: AppColors.textMuted)),
                     ],
                   ),
                 ),
@@ -135,7 +135,7 @@ class _UpdatesScreenState extends ConsumerState<UpdatesScreen> {
             Container(
               padding: const EdgeInsets.all(14),
               decoration: BoxDecoration(
-                color: AppColors.claySoft,
+                color: AppColors.warningSurface,
                 borderRadius: BorderRadius.circular(AppRadius.standard),
               ),
               child: Column(
@@ -144,11 +144,11 @@ class _UpdatesScreenState extends ConsumerState<UpdatesScreen> {
                   Text(
                     'Version ${snap.availableRelease!.version}'
                     '${snap.availableRelease!.packageSize != null ? ' · ${_mb(snap.availableRelease!.packageSize)}' : ''}',
-                    style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w700, color: AppColors.ink),
+                    style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w700, color: AppColors.textStrong),
                   ),
                   if (snap.availableRelease!.description != null) ...[
                     const SizedBox(height: 4),
-                    Text(snap.availableRelease!.description!, style: const TextStyle(fontSize: 11.5, height: 1.5, color: AppColors.textSecondary)),
+                    Text(snap.availableRelease!.description!, style: const TextStyle(fontSize: 11.5, height: 1.5, color: AppColors.textMuted)),
                   ],
                   const SizedBox(height: 10),
                   FilledButton(
@@ -161,7 +161,7 @@ class _UpdatesScreenState extends ConsumerState<UpdatesScreen> {
           ],
           if (snap.installing) ...[
             const SizedBox(height: 14),
-            Text(_stage(snap.installStage), style: const TextStyle(fontSize: 11.5, color: AppColors.textSecondary)),
+            Text(_stage(snap.installStage), style: const TextStyle(fontSize: 11.5, color: AppColors.textMuted)),
             const SizedBox(height: 6),
             LinearProgressIndicator(value: snap.installFraction <= 0 ? null : snap.installFraction),
             const SizedBox(height: 4),
@@ -181,7 +181,7 @@ class _UpdatesScreenState extends ConsumerState<UpdatesScreen> {
             padding: const EdgeInsets.fromLTRB(14, 6, 6, 6),
             decoration: BoxDecoration(
               color: AppColors.white,
-              border: Border.all(color: AppColors.line),
+              border: Border.all(color: AppColors.divider),
               borderRadius: BorderRadius.circular(AppRadius.standard),
             ),
             child: Row(
@@ -189,7 +189,7 @@ class _UpdatesScreenState extends ConsumerState<UpdatesScreen> {
                 const Expanded(
                   child: Text(
                     'Share anonymous usage statistics\nWhich modules and videos are used, and app errors. Never your answers or questions.',
-                    style: TextStyle(fontSize: 11.5, height: 1.5, color: AppColors.textSecondary),
+                    style: TextStyle(fontSize: 11.5, height: 1.5, color: AppColors.textMuted),
                   ),
                 ),
                 Switch(
@@ -215,12 +215,12 @@ class _UpdatesScreenState extends ConsumerState<UpdatesScreen> {
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            Text(label, style: const TextStyle(fontSize: 12, color: AppColors.textSecondary)),
+            Text(label, style: const TextStyle(fontSize: 12, color: AppColors.textMuted)),
             Flexible(
               child: Text(
                 value,
                 textAlign: TextAlign.right,
-                style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: AppColors.ink),
+                style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: AppColors.textStrong),
               ),
             ),
           ],

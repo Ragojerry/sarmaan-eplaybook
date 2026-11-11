@@ -5,12 +5,12 @@ import 'package:go_router/go_router.dart';
 
 import '../services/auth_service.dart';
 import '../theme/app_theme.dart';
+import '../widgets/partner_logo_row.dart';
 
 /// New in Phase 7 — the prototype had no login at all (docs/prototype-analysis.md
 /// §1), so there's no prototype CSS to match here. Styled to sit consistently
-/// alongside the prototype-matched screens instead: same teal/gold/sand
-/// palette, serif title, rounded card-style inputs (inherited from the
-/// global theme — see theme/app_theme.dart).
+/// alongside the other screens: brand colours and font from the global theme
+/// (theme/app_theme.dart), and the partner logos at the bottom (logos.json).
 class LoginScreen extends ConsumerStatefulWidget {
   const LoginScreen({super.key});
 
@@ -54,6 +54,8 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      // The logos sit on white at the bottom, full width so the row fits on one line.
+      bottomNavigationBar: const SafeArea(top: false, child: PartnerLogoRow(placement: 'login')),
       body: SafeArea(
         child: Padding(
           padding: const EdgeInsets.all(24),
@@ -63,24 +65,20 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
               crossAxisAlignment: CrossAxisAlignment.stretch,
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                Container(
-                  width: 64,
-                  height: 64,
-                  decoration: BoxDecoration(
-                    gradient: const LinearGradient(
-                      begin: Alignment.topLeft,
-                      end: Alignment.bottomRight,
-                      colors: [AppColors.teal, AppColors.tealDeep],
+                Align(
+                  alignment: Alignment.centerLeft,
+                  child: Container(
+                    width: 64,
+                    height: 64,
+                    decoration: BoxDecoration(
+                      color: AppColors.primary,
+                      borderRadius: BorderRadius.circular(AppRadius.small),
                     ),
-                    borderRadius: BorderRadius.circular(AppRadius.small),
-                    boxShadow: [
-                      BoxShadow(color: AppColors.teal.withValues(alpha: 0.25), blurRadius: 10, offset: const Offset(0, 4)),
-                    ],
-                  ),
-                  alignment: Alignment.center,
-                  child: const Text(
-                    'S',
-                    style: TextStyle(fontFamily: AppFonts.serif, fontWeight: FontWeight.w700, fontSize: 26, color: AppColors.gold),
+                    alignment: Alignment.center,
+                    child: const Text(
+                      'S',
+                      style: TextStyle(fontWeight: FontWeight.w700, fontSize: 26, color: AppColors.onPrimary),
+                    ),
                   ),
                 ),
                 const SizedBox(height: 16),
@@ -95,11 +93,11 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                   Container(
                     padding: const EdgeInsets.all(12),
                     decoration: BoxDecoration(
-                      color: AppColors.claySoft,
+                      color: AppColors.errorSurface,
                       borderRadius: BorderRadius.circular(AppRadius.small),
-                      border: const Border(left: BorderSide(color: AppColors.clay, width: 3)),
+                      border: const Border(left: BorderSide(color: AppColors.error, width: 3)),
                     ),
-                    child: Text(_error!, style: const TextStyle(color: AppColors.calloutWarningText, fontSize: 12)),
+                    child: Text(_error!, style: const TextStyle(color: AppColors.errorText, fontSize: 12)),
                   ),
                   const SizedBox(height: 16),
                 ],
@@ -131,7 +129,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                       ? const SizedBox(
                           height: 20,
                           width: 20,
-                          child: CircularProgressIndicator(strokeWidth: 2, valueColor: AlwaysStoppedAnimation(Colors.white)),
+                          child: CircularProgressIndicator(strokeWidth: 2, valueColor: AlwaysStoppedAnimation(AppColors.onPrimary)),
                         )
                       : const Text('Sign in'),
                 ),

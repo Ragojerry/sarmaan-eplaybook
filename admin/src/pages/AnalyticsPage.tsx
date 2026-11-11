@@ -5,6 +5,7 @@ import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGri
 import { api } from "../services/api";
 import { useAuth } from "../services/auth";
 import { QuestionsReport, UsageReport } from "../types/api";
+import { chartSeries } from "../brand/tokens";
 
 const PERIODS = [7, 30, 90];
 
@@ -91,8 +92,8 @@ export default function AnalyticsPage() {
               <XAxis dataKey="date" tickFormatter={(d: string) => d.slice(5)} />
               <YAxis allowDecimals={false} />
               <Tooltip />
-              <Bar dataKey="events" fill="#0F7A4C" name="Events" />
-              <Bar dataKey="devices" fill="#93c5fd" name="Devices" />
+              <Bar dataKey="events" fill={chartSeries[0]} name="Events" />
+              <Bar dataKey="devices" fill={chartSeries[1]} name="Devices" />
             </BarChart>
           </ResponsiveContainer>
         )}

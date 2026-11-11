@@ -71,7 +71,7 @@ class _ConsentScreenState extends ConsumerState<ConsentScreen> {
             children: [
               Row(
                 children: [
-                  Container(width: 16, height: 2, color: AppColors.gold),
+                  Container(width: 16, height: 2, color: AppColors.primary),
                   const SizedBox(width: 8),
                   Text('STEP 2 OF 2', style: Theme.of(context).textTheme.labelSmall),
                 ],
@@ -85,14 +85,14 @@ class _ConsentScreenState extends ConsumerState<ConsentScreen> {
                 child: Container(
                   decoration: BoxDecoration(
                     color: AppColors.white,
-                    border: Border.all(color: AppColors.line),
+                    border: Border.all(color: AppColors.divider),
                     borderRadius: BorderRadius.circular(AppRadius.standard),
                   ),
                   child: SingleChildScrollView(
                     padding: const EdgeInsets.all(14),
                     child: Text(
                       _text.body,
-                      style: const TextStyle(fontSize: 11.5, height: 1.6, color: AppColors.textSecondary),
+                      style: const TextStyle(fontSize: 11.5, height: 1.6, color: AppColors.textMuted),
                     ),
                   ),
                 ),
@@ -105,7 +105,7 @@ class _ConsentScreenState extends ConsumerState<ConsentScreen> {
                 controlAffinity: ListTileControlAffinity.leading,
                 title: Text(
                   _text.usageLabel,
-                  style: const TextStyle(fontSize: 11.5, color: AppColors.textSecondary),
+                  style: const TextStyle(fontSize: 11.5, color: AppColors.textMuted),
                 ),
               ),
               const Spacer(),

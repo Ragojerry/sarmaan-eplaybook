@@ -5,6 +5,7 @@ import 'package:go_router/go_router.dart';
 import '../services/auth_service.dart';
 import '../services/settings_service.dart';
 import '../theme/app_theme.dart';
+import '../widgets/partner_logo_row.dart';
 
 /// Real routing logic: first launch -> language picker; returning user with
 /// a valid session (checked via /auth/me, including the client's built-in
@@ -56,77 +57,84 @@ class _SplashScreenState extends ConsumerState<SplashScreen> {
 
   @override
   Widget build(BuildContext context) {
-    // Matches the prototype's .splash: teal-deep -> teal gradient, gold
-    // "splash-mark" square with the app's initial, serif title, and a
-    // pill-shaped loading bar in place of the CircularProgressIndicator.
+    // Brand splash: the app name on Forest Green, and the partner logos on a white
+    // band below (the supplied logo files are only approved on white/light
+    // backgrounds; order and size come from assets/brand/logos.json).
     return Scaffold(
-      body: Container(
-        decoration: const BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-            colors: [AppColors.tealDeep, AppColors.teal],
+      backgroundColor: AppColors.white,
+      body: Column(
+        children: [
+          Expanded(
+            child: Container(
+              width: double.infinity,
+              color: AppColors.primary,
+              child: SafeArea(
+                bottom: false,
+                child: Center(child: _title()),
+              ),
+            ),
           ),
-        ),
-        child: Center(
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Container(
-                width: 84,
-                height: 84,
-                decoration: BoxDecoration(
-                  color: Colors.white.withValues(alpha: 0.08),
-                  borderRadius: BorderRadius.circular(AppRadius.large),
-                  border: Border.all(color: Colors.white.withValues(alpha: 0.25)),
-                ),
-                alignment: Alignment.center,
-                child: const Text(
-                  'S',
-                  style: TextStyle(
-                    fontFamily: AppFonts.serif,
-                    fontWeight: FontWeight.w700,
-                    fontSize: 34,
-                    color: AppColors.gold,
-                  ),
-                ),
-              ),
-              const SizedBox(height: 22),
-              const Text(
-                'SARMAAN e-Playbook',
-                style: TextStyle(
-                  fontFamily: AppFonts.serif,
-                  fontSize: 26,
-                  fontWeight: FontWeight.w600,
-                  color: AppColors.sand,
-                ),
-              ),
-              const SizedBox(height: 6),
-              Text(
-                'AZM TRAINING',
-                style: TextStyle(
-                  fontFamily: AppFonts.mono,
-                  fontSize: 11,
-                  letterSpacing: 1.5,
-                  color: AppColors.sand.withValues(alpha: 0.75),
-                ),
-              ),
-              const SizedBox(height: 34),
-              SizedBox(
-                width: 140,
-                height: 3,
-                child: ClipRRect(
-                  borderRadius: BorderRadius.circular(AppRadius.pill),
-                  child: LinearProgressIndicator(
-                    backgroundColor: Colors.white.withValues(alpha: 0.2),
-                    valueColor: const AlwaysStoppedAnimation(AppColors.gold),
-                  ),
-                ),
-              ),
-            ],
-          ),
-        ),
+          const SafeArea(
+              top: false, child: PartnerLogoRow(placement: 'splash')),
+        ],
       ),
+    );
+  }
+
+  Widget _title() {
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Container(
+          width: 84,
+          height: 84,
+          decoration: BoxDecoration(
+            color: AppColors.onPrimary.withValues(alpha: 0.08),
+            borderRadius: BorderRadius.circular(AppRadius.large),
+            border:
+                Border.all(color: AppColors.onPrimary.withValues(alpha: 0.25)),
+          ),
+          alignment: Alignment.center,
+          child: const Text(
+            'S',
+            style: TextStyle(
+              fontWeight: FontWeight.w700,
+              fontSize: 34,
+              color: AppColors.onPrimary,
+            ),
+          ),
+        ),
+        const SizedBox(height: 22),
+        const Text(
+          'SARMAAN e-Playbook',
+          style: TextStyle(
+            fontSize: 26,
+            fontWeight: FontWeight.w600,
+            color: AppColors.onPrimary,
+          ),
+        ),
+        const SizedBox(height: 6),
+        Text(
+          'AZM TRAINING',
+          style: TextStyle(
+            fontSize: 11,
+            letterSpacing: 1.5,
+            color: AppColors.onPrimary.withValues(alpha: 0.75),
+          ),
+        ),
+        const SizedBox(height: 34),
+        SizedBox(
+          width: 140,
+          height: 3,
+          child: ClipRRect(
+            borderRadius: BorderRadius.circular(AppRadius.pill),
+            child: LinearProgressIndicator(
+              backgroundColor: AppColors.onPrimary.withValues(alpha: 0.2),
+              valueColor: const AlwaysStoppedAnimation(AppColors.onPrimary),
+            ),
+          ),
+        ),
+      ],
     );
   }
 }

@@ -311,22 +311,22 @@ class _ReaderScreenState extends ConsumerState<ReaderScreen> with WidgetsBinding
       decoration: BoxDecoration(
         color: AppColors.white,
         borderRadius: BorderRadius.circular(AppRadius.medium),
-        border: Border.all(color: good ? AppColors.teal : AppColors.line),
+        border: Border.all(color: good ? AppColors.success : AppColors.divider, width: good ? 1.5 : 1),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
             children: [
-              Icon(icon, size: 20, color: AppColors.teal),
+              Icon(icon, size: 20, color: good ? AppColors.success : AppColors.primary),
               const SizedBox(width: 8),
               Expanded(
-                child: Text(title, style: const TextStyle(fontWeight: FontWeight.w800, fontSize: 15, color: AppColors.tealDeep)),
+                child: Text(title, style: const TextStyle(fontWeight: FontWeight.w800, fontSize: 15, color: AppColors.primary)),
               ),
             ],
           ),
           const SizedBox(height: 6),
-          Text(body, style: const TextStyle(fontSize: 12.5, height: 1.45, color: AppColors.textSecondary)),
+          Text(body, style: const TextStyle(fontSize: 12.5, height: 1.45, color: AppColors.textMuted)),
           if (action != null) ...[const SizedBox(height: 12), SizedBox(width: double.infinity, child: action)],
         ],
       ),
@@ -335,7 +335,7 @@ class _ReaderScreenState extends ConsumerState<ReaderScreen> with WidgetsBinding
 
   Widget _primary(String label, VoidCallback? onPressed) => FilledButton(
         onPressed: onPressed,
-        style: FilledButton.styleFrom(backgroundColor: AppColors.tealDeep, foregroundColor: AppColors.sand),
+        style: FilledButton.styleFrom(backgroundColor: AppColors.primary, foregroundColor: AppColors.onPrimary),
         child: Text(label),
       );
 
@@ -379,15 +379,15 @@ class _ReaderScreenState extends ConsumerState<ReaderScreen> with WidgetsBinding
     return Container(
       margin: const EdgeInsets.only(bottom: 14),
       padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 9),
-      decoration: BoxDecoration(color: AppColors.tealSoft, borderRadius: BorderRadius.circular(10)),
+      decoration: BoxDecoration(color: AppColors.surfaceSelected, borderRadius: BorderRadius.circular(10)),
       child: Row(
         children: [
-          Icon(done ? Icons.check_circle_outline : Icons.timer_outlined, size: 16, color: AppColors.tealDeep),
+          Icon(done ? Icons.check_circle_outline : Icons.timer_outlined, size: 16, color: AppColors.primary),
           const SizedBox(width: 8),
           Expanded(
             child: Text(
               'Time in this module: ${formatDuration(done ? state.minSeconds : secs)} / ${formatDuration(state.minSeconds)}',
-              style: const TextStyle(fontSize: 12, color: AppColors.calloutGoodText),
+              style: const TextStyle(fontSize: 12, color: AppColors.textStrong),
             ),
           ),
         ],
@@ -443,8 +443,10 @@ class _ReaderScreenState extends ConsumerState<ReaderScreen> with WidgetsBinding
         child: OutlinedButton(
           onPressed: review || answered ? null : () => _answer(section.id, value, statements),
           style: OutlinedButton.styleFrom(
-            backgroundColor: chosen ? (right ? AppColors.tealSoft : AppColors.claySoft) : null,
-            side: BorderSide(color: chosen ? (right ? AppColors.teal : AppColors.clay) : AppColors.line),
+            backgroundColor: chosen ? (right ? AppColors.successSurface : AppColors.errorSurface) : null,
+            // Once answered the buttons are disabled; the chosen one keeps full-contrast text.
+            disabledForegroundColor: chosen ? AppColors.textStrong : AppColors.textMuted,
+            side: BorderSide(color: chosen ? (right ? AppColors.success : AppColors.error) : AppColors.divider, width: chosen ? 2 : 1),
           ),
           child: Text(value ? 'True' : 'False'),
         ),
@@ -457,19 +459,19 @@ class _ReaderScreenState extends ConsumerState<ReaderScreen> with WidgetsBinding
       decoration: BoxDecoration(
         color: AppColors.white,
         borderRadius: BorderRadius.circular(10),
-        border: Border.all(color: AppColors.teal),
+        border: Border.all(color: AppColors.primary),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           const Text('QUICK CHECK · TRUE OR FALSE?',
-              style: TextStyle(fontWeight: FontWeight.w700, fontSize: 10.5, letterSpacing: 0.5, color: AppColors.tealDeep)),
+              style: TextStyle(fontWeight: FontWeight.w700, fontSize: 10.5, letterSpacing: 0.5, color: AppColors.primary)),
           const SizedBox(height: 6),
-          Text(statement, style: const TextStyle(fontSize: 13, height: 1.5, color: AppColors.readerBody)),
+          Text(statement, style: const TextStyle(fontSize: 13, height: 1.5, color: AppColors.text)),
           const SizedBox(height: 10),
           if (review)
             Text('Answer: ${correctAnswer == true ? 'True' : 'False'}',
-                style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w700, color: AppColors.tealDeep))
+                style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w700, color: AppColors.primary))
           else
             Row(children: [choice(true), const SizedBox(width: 10), choice(false)]),
           if (!review && answered)
@@ -477,27 +479,27 @@ class _ReaderScreenState extends ConsumerState<ReaderScreen> with WidgetsBinding
               padding: const EdgeInsets.only(top: 8),
               child: Text(
                 right ? 'Correct.' : 'Not quite. The answer is ${correctAnswer == true ? 'True' : 'False'}.',
-                style: TextStyle(fontSize: 12, fontWeight: FontWeight.w700, color: right ? AppColors.tealDeep : AppColors.clay),
+                style: TextStyle(fontSize: 12, fontWeight: FontWeight.w700, color: right ? AppColors.successText : AppColors.errorText),
               ),
             ),
           if ((review || answered) && explanation != null && explanation.isNotEmpty)
             Padding(
               padding: const EdgeInsets.only(top: 4),
-              child: Text(explanation, style: const TextStyle(fontSize: 11.5, height: 1.4, color: AppColors.textSecondary)),
+              child: Text(explanation, style: const TextStyle(fontSize: 11.5, height: 1.4, color: AppColors.textMuted)),
             ),
           if (graded && section.id == _lastStatementId)
             Padding(
               padding: const EdgeInsets.only(top: 12),
               child: _quizResult!.passed
                   ? const Text('Quiz passed. Well done!',
-                      style: TextStyle(fontSize: 12.5, fontWeight: FontWeight.w800, color: AppColors.tealDeep))
+                      style: TextStyle(fontSize: 12.5, fontWeight: FontWeight.w800, color: AppColors.primary))
                   : Column(
                       crossAxisAlignment: CrossAxisAlignment.stretch,
                       children: [
                         Text(
                           'You got ${_quizResult!.correct} of ${_quizResult!.total}. All need to be right to pass. '
                           'Try again: you answer all ${_quizResult!.total} statements again.',
-                          style: const TextStyle(fontSize: 12, color: AppColors.calloutWarningText),
+                          style: const TextStyle(fontSize: 12, color: AppColors.warningText),
                         ),
                         const SizedBox(height: 8),
                         _primary('Try again', _retryQuiz),
@@ -576,7 +578,7 @@ class _ReaderScreenState extends ConsumerState<ReaderScreen> with WidgetsBinding
           padding: const EdgeInsets.only(top: 20, bottom: 8),
           child: Text(
             section.content['text'] as String? ?? '',
-            style: const TextStyle(fontFamily: AppFonts.serif, fontSize: 16, fontWeight: FontWeight.w600, color: AppColors.tealDeep),
+            style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600, color: AppColors.primary),
           ),
         );
 
@@ -585,7 +587,7 @@ class _ReaderScreenState extends ConsumerState<ReaderScreen> with WidgetsBinding
           padding: const EdgeInsets.only(bottom: 10),
           child: Text(
             section.content['text'] as String? ?? '',
-            style: const TextStyle(fontSize: 12.8, height: 1.65, color: AppColors.readerBody),
+            style: const TextStyle(fontSize: 12.8, height: 1.65, color: AppColors.text),
           ),
         );
 
@@ -602,9 +604,9 @@ class _ReaderScreenState extends ConsumerState<ReaderScreen> with WidgetsBinding
                   child: Row(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      const Text('•  ', style: TextStyle(color: AppColors.readerBody)),
+                      const Text('•  ', style: TextStyle(color: AppColors.text)),
                       Expanded(
-                        child: Text(item, style: const TextStyle(fontSize: 12.5, height: 1.6, color: AppColors.readerBody)),
+                        child: Text(item, style: const TextStyle(fontSize: 12.5, height: 1.6, color: AppColors.text)),
                       ),
                     ],
                   ),
@@ -621,7 +623,7 @@ class _ReaderScreenState extends ConsumerState<ReaderScreen> with WidgetsBinding
           decoration: BoxDecoration(
             color: AppColors.white,
             borderRadius: BorderRadius.circular(AppRadius.standard),
-            border: Border.all(color: AppColors.line),
+            border: Border.all(color: AppColors.divider),
           ),
           clipBehavior: Clip.antiAlias,
           child: Column(
@@ -633,7 +635,7 @@ class _ReaderScreenState extends ConsumerState<ReaderScreen> with WidgetsBinding
                   padding: const EdgeInsets.symmetric(horizontal: 11, vertical: 8),
                   child: Text(
                     section.content['caption'] as String,
-                    style: const TextStyle(fontSize: 10.8, color: AppColors.textSecondary, height: 1.5),
+                    style: const TextStyle(fontSize: 10.8, color: AppColors.textMuted, height: 1.5),
                   ),
                 ),
             ],
@@ -645,10 +647,13 @@ class _ReaderScreenState extends ConsumerState<ReaderScreen> with WidgetsBinding
       case 'JOB_AID':
         final isWarning = section.contentType == 'WARNING';
         final isJobAid = section.contentType == 'JOB_AID';
-        final accent = (isWarning || isJobAid) ? AppColors.clay : AppColors.teal;
-        final bg = (isWarning || isJobAid) ? AppColors.claySoft : AppColors.tealSoft;
-        final labelColor = (isWarning || isJobAid) ? AppColors.clay : AppColors.tealDeep;
-        final bodyColor = (isWarning || isJobAid) ? AppColors.calloutWarningText : AppColors.calloutGoodText;
+        // Brand semantics: warnings ("Do not ...") are Red, job aids are information (Blue),
+        // a plain callout is Forest Green. The colour is the bar and the tint behind the text;
+        // the text itself stays Forest Green, because Red and Blue fail 4.5:1 as text.
+        final accent = isWarning ? AppColors.error : (isJobAid ? AppColors.info : AppColors.primary);
+        final bg = isWarning ? AppColors.errorSurface : (isJobAid ? AppColors.infoSurface : AppColors.surfaceSelected);
+        const labelColor = AppColors.textStrong;
+        const bodyColor = AppColors.textStrong;
         return Container(
           margin: const EdgeInsets.only(bottom: 14),
           padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
@@ -663,14 +668,14 @@ class _ReaderScreenState extends ConsumerState<ReaderScreen> with WidgetsBinding
               if (section.content['heading'] is String)
                 Text(
                   (section.content['heading'] as String).toUpperCase(),
-                  style: TextStyle(fontWeight: FontWeight.w700, fontSize: 11, letterSpacing: 0.5, color: labelColor),
+                  style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 11, letterSpacing: 0.5, color: labelColor),
                 ),
               if (section.content['text'] is String)
                 Padding(
                   padding: const EdgeInsets.only(top: 4),
                   child: Text(
                     section.content['text'] as String,
-                    style: TextStyle(fontSize: 12, height: 1.55, color: bodyColor),
+                    style: const TextStyle(fontSize: 12, height: 1.55, color: bodyColor),
                   ),
                 ),
             ],
@@ -692,20 +697,20 @@ class _ReaderScreenState extends ConsumerState<ReaderScreen> with WidgetsBinding
         final hasHeaders = headers.any((h) => h.trim().isNotEmpty);
         return Container(
           margin: const EdgeInsets.only(bottom: 16),
-          decoration: BoxDecoration(border: Border.all(color: AppColors.line), borderRadius: BorderRadius.circular(10)),
+          decoration: BoxDecoration(border: Border.all(color: AppColors.divider), borderRadius: BorderRadius.circular(10)),
           clipBehavior: Clip.antiAlias,
           child: SingleChildScrollView(
             scrollDirection: Axis.horizontal,
             child: DataTable(
               headingRowHeight: hasHeaders ? null : 0,
-              headingRowColor: WidgetStateProperty.all(AppColors.tealSoft),
+              headingRowColor: WidgetStateProperty.all(AppColors.surfaceSelected),
               headingTextStyle: const TextStyle(
                 fontWeight: FontWeight.w700,
                 fontSize: 10.5,
-                color: AppColors.tealDeep,
+                color: AppColors.primary,
                 letterSpacing: 0.3,
               ),
-              dataTextStyle: const TextStyle(fontSize: 11.5, color: AppColors.readerBody),
+              dataTextStyle: const TextStyle(fontSize: 11.5, color: AppColors.text),
               columns: [
                 for (var i = 0; i < width; i++)
                   DataColumn(label: Text(i < headers.length ? headers[i].toUpperCase() : '')),
@@ -727,11 +732,7 @@ class _ReaderScreenState extends ConsumerState<ReaderScreen> with WidgetsBinding
           margin: const EdgeInsets.only(bottom: 16),
           padding: const EdgeInsets.all(11),
           decoration: BoxDecoration(
-            gradient: const LinearGradient(
-              begin: Alignment.topLeft,
-              end: Alignment.bottomRight,
-              colors: [Color(0xFF123F38), AppColors.teal],
-            ),
+            color: AppColors.primary,
             borderRadius: BorderRadius.circular(AppRadius.standard),
           ),
           child: InkWell(
@@ -743,11 +744,11 @@ class _ReaderScreenState extends ConsumerState<ReaderScreen> with WidgetsBinding
                   height: 38,
                   decoration: BoxDecoration(
                     shape: BoxShape.circle,
-                    color: Colors.white.withValues(alpha: 0.18),
-                    border: Border.all(color: Colors.white.withValues(alpha: 0.4)),
+                    color: AppColors.onPrimary.withValues(alpha: 0.18),
+                    border: Border.all(color: AppColors.onPrimary.withValues(alpha: 0.4)),
                   ),
                   alignment: Alignment.center,
-                  child: const Icon(Icons.play_arrow_rounded, color: Colors.white, size: 18),
+                  child: const Icon(Icons.play_arrow_rounded, color: AppColors.onPrimary, size: 18),
                 ),
                 const SizedBox(width: 11),
                 Expanded(
@@ -756,20 +757,20 @@ class _ReaderScreenState extends ConsumerState<ReaderScreen> with WidgetsBinding
                     children: [
                       Text(
                         section.content['title'] as String? ?? 'Watch video',
-                        style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w700, color: Colors.white),
+                        style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w700, color: AppColors.onPrimary),
                       ),
                       if (section.content['duration'] is String)
                         Padding(
                           padding: const EdgeInsets.only(top: 2),
                           child: Text(
                             section.content['duration'] as String,
-                            style: TextStyle(fontSize: 10, color: Colors.white.withValues(alpha: 0.75)),
+                            style: TextStyle(fontSize: 10, color: AppColors.onPrimary.withValues(alpha: 0.75)),
                           ),
                         ),
                     ],
                   ),
                 ),
-                Icon(Icons.chevron_right, color: Colors.white.withValues(alpha: 0.6)),
+                Icon(Icons.chevron_right, color: AppColors.onPrimary.withValues(alpha: 0.6)),
               ],
             ),
           ),
@@ -789,7 +790,7 @@ class _ReaderScreenState extends ConsumerState<ReaderScreen> with WidgetsBinding
             if (description is String && description.trim().isNotEmpty)
               Padding(
                 padding: const EdgeInsets.only(bottom: 14),
-                child: Text(description, style: const TextStyle(fontSize: 13, color: AppColors.ink)),
+                child: Text(description, style: const TextStyle(fontSize: 13, color: AppColors.textStrong)),
               ),
           ],
         );
@@ -815,7 +816,7 @@ class _AudioBar extends StatelessWidget {
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 9),
       decoration: BoxDecoration(
         color: AppColors.white,
-        border: Border.all(color: AppColors.line, width: 1.5),
+        border: Border.all(color: AppColors.divider, width: 1.5),
         borderRadius: BorderRadius.circular(AppRadius.standard),
       ),
       child: Row(
@@ -827,13 +828,13 @@ class _AudioBar extends StatelessWidget {
               height: speaking ? 28 : 34,
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
-                color: speaking ? AppColors.claySoft : AppColors.tealDeep,
+                color: speaking ? AppColors.surfaceSelected : AppColors.primary,
               ),
               alignment: Alignment.center,
               child: Icon(
                 speaking ? Icons.stop_rounded : Icons.play_arrow_rounded,
                 size: speaking ? 14 : 16,
-                color: speaking ? AppColors.clay : Colors.white,
+                color: speaking ? AppColors.primary : AppColors.onPrimary,
               ),
             ),
           ),
@@ -842,8 +843,8 @@ class _AudioBar extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text('Read aloud', style: TextStyle(fontSize: 11, fontWeight: FontWeight.w700, color: AppColors.ink)),
-                Text('ON-DEVICE AUDIO', style: TextStyle(fontFamily: AppFonts.mono, fontSize: 9.5, color: AppColors.textMuted)),
+                Text('Read aloud', style: TextStyle(fontSize: 11, fontWeight: FontWeight.w700, color: AppColors.textStrong)),
+                Text('ON-DEVICE AUDIO', style: TextStyle(fontSize: 9.5, color: AppColors.textMuted)),
               ],
             ),
           ),
@@ -851,7 +852,7 @@ class _AudioBar extends StatelessWidget {
             const SizedBox(
               width: 16,
               height: 16,
-              child: CircularProgressIndicator(strokeWidth: 2, valueColor: AlwaysStoppedAnimation(AppColors.teal)),
+              child: CircularProgressIndicator(strokeWidth: 2, valueColor: AlwaysStoppedAnimation(AppColors.primary)),
             ),
         ],
       ),

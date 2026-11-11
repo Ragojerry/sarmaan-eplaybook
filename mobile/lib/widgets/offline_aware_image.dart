@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../offline/content_sync_service.dart';
+import '../theme/app_theme.dart';
 import 'authenticated_image.dart';
 
 /// Real offline-first image loading: checks the local Drift cache
@@ -46,7 +47,7 @@ class _OfflineAwareImageState extends ConsumerState<OfflineAwareImage> {
       future: _localPathFuture,
       builder: (context, snapshot) {
         if (snapshot.connectionState != ConnectionState.done) {
-          return Container(width: widget.width, height: 160, color: Colors.grey.shade200);
+          return Container(width: widget.width, height: 160, color: AppColors.surfaceMuted);
         }
         final localPath = snapshot.data;
         if (localPath != null && File(localPath).existsSync()) {

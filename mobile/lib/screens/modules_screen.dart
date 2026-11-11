@@ -63,7 +63,7 @@ class _ModulesScreenState extends ConsumerState<ModulesScreen> {
                   return Center(
                     child: Text(
                       _query.isEmpty ? 'No modules downloaded yet.' : 'No matches for "$_query".',
-                      style: const TextStyle(color: AppColors.textSecondary),
+                      style: const TextStyle(color: AppColors.textMuted),
                     ),
                   );
                 }
@@ -76,7 +76,7 @@ class _ModulesScreenState extends ConsumerState<ModulesScreen> {
                 );
               },
               loading: () => const Center(child: CircularProgressIndicator()),
-              error: (e, _) => Center(child: Text('Could not load modules: $e', style: const TextStyle(color: AppColors.danger))),
+              error: (e, _) => Center(child: Text('Could not load modules: $e', style: const TextStyle(color: AppColors.errorText))),
             ),
           ),
         ],
@@ -126,21 +126,21 @@ class GeneralTestCard extends StatelessWidget {
       margin: const EdgeInsets.fromLTRB(22, 0, 22, 12),
       padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
-        color: route != null ? AppColors.tealSoft : AppColors.white,
+        color: route != null ? AppColors.surfaceSelected : AppColors.white,
         borderRadius: BorderRadius.circular(AppRadius.standard),
-        border: Border.all(color: route != null ? AppColors.teal : AppColors.line),
+        border: Border.all(color: route != null ? AppColors.primary : AppColors.divider),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          Text(title, style: const TextStyle(fontSize: 13.5, fontWeight: FontWeight.w800, color: AppColors.tealDeep)),
+          Text(title, style: const TextStyle(fontSize: 13.5, fontWeight: FontWeight.w800, color: AppColors.primary)),
           const SizedBox(height: 4),
-          Text(body, style: const TextStyle(fontSize: 12, height: 1.45, color: AppColors.textSecondary)),
+          Text(body, style: const TextStyle(fontSize: 12, height: 1.45, color: AppColors.textMuted)),
           if (route != null) ...[
             const SizedBox(height: 10),
             FilledButton(
               onPressed: () => context.go(route!),
-              style: FilledButton.styleFrom(backgroundColor: AppColors.tealDeep, foregroundColor: AppColors.sand),
+              style: FilledButton.styleFrom(backgroundColor: AppColors.primary, foregroundColor: AppColors.onPrimary),
               child: Text(action!),
             ),
           ],
@@ -166,18 +166,18 @@ class _ModuleRow extends StatelessWidget {
         decoration: BoxDecoration(
           color: AppColors.white,
           borderRadius: BorderRadius.circular(AppRadius.standard),
-          border: Border.all(color: AppColors.line),
+          border: Border.all(color: AppColors.divider),
         ),
         child: Row(
           children: [
             Container(
               width: 30,
               height: 30,
-              decoration: BoxDecoration(color: AppColors.tealSoft, borderRadius: BorderRadius.circular(9)),
+              decoration: BoxDecoration(color: AppColors.surfaceSelected, borderRadius: BorderRadius.circular(9)),
               alignment: Alignment.center,
               child: Text(
                 module.moduleNumber.toString(),
-                style: const TextStyle(fontFamily: AppFonts.mono, fontWeight: FontWeight.w700, fontSize: 12, color: AppColors.tealDeep),
+                style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 12, color: AppColors.primary),
               ),
             ),
             const SizedBox(width: 12),
@@ -185,7 +185,7 @@ class _ModuleRow extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(module.title, style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w700, color: AppColors.ink)),
+                  Text(module.title, style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w700, color: AppColors.textStrong)),
                   const SizedBox(height: 2),
                   Text(
                     state == null ? module.moduleCode : '${module.moduleCode} · ${stageLabel(state!.stage)}',
@@ -200,7 +200,7 @@ class _ModuleRow extends StatelessWidget {
                   : state?.completed == true
                       ? Icons.check_circle
                       : Icons.chevron_right,
-              color: state?.completed == true ? AppColors.teal : const Color(0xFFB7C0BA),
+              color: state?.completed == true ? AppColors.success : AppColors.textDisabled,
             ),
           ],
         ),

@@ -1,5 +1,6 @@
 import { NavLink, Outlet } from "react-router-dom";
 import { useAuth } from "../services/auth";
+import PartnerLogos from "../components/PartnerLogos";
 
 // `roles` mirrors the backend (the server is what actually enforces access;
 // hiding a link is only a courtesy). SUPER_ADMIN always sees everything.
@@ -27,7 +28,8 @@ export default function AdminLayout() {
 
   return (
     <div className="min-h-screen flex bg-gray-50">
-      <aside className="w-56 bg-gray-900 text-gray-100 p-4 flex flex-col">
+      {/* Brand: Forest Green navigation with white text (15:1). */}
+      <aside className="w-56 bg-brand-forest text-white p-4 flex flex-col">
         <div className="text-lg font-semibold mb-6">SARMAAN e-Playbook</div>
         <nav className="space-y-1 flex-1">
           {navItems
@@ -39,7 +41,7 @@ export default function AdminLayout() {
               end={item.to === "/"}
               className={({ isActive }) =>
                 `block rounded px-3 py-2 text-sm ${
-                  isActive ? "bg-gray-700 text-white" : "text-gray-300 hover:bg-gray-800"
+                  isActive ? "bg-white text-brand-text-strong font-semibold" : "text-gray-300 hover:bg-brand-forest-hover hover:text-white"
                 }`
               }
             >
@@ -48,19 +50,28 @@ export default function AdminLayout() {
           ))}
         </nav>
         {user && (
-          <div className="border-t border-gray-800 pt-3 mt-3">
-            <p className="text-sm text-gray-200">
+          <div className="border-t border-brand-forest-hover pt-3 mt-3">
+            <p className="text-sm text-white">
               {user.first_name} {user.last_name}
             </p>
-            <p className="text-xs text-gray-400 mb-2">{user.role.replace("_", " ")}</p>
-            <button onClick={() => logout()} className="text-xs text-gray-400 hover:text-white underline">
+            <p className="text-xs text-gray-300 mb-2">{user.role.replace("_", " ")}</p>
+            <button onClick={() => logout()} className="text-xs text-gray-300 hover:text-white underline">
               Sign out
             </button>
           </div>
         )}
       </aside>
-      <main className="flex-1">
-        <Outlet />
+      <main className="flex-1 flex flex-col min-w-0">
+        {/* Partner logos on white: order and positions from src/brand/logos.json. */}
+        <header className="border-b border-gray-200">
+          <PartnerLogos placement="adminHeader" />
+        </header>
+        <div className="flex-1">
+          <Outlet />
+        </div>
+        <footer className="border-t border-gray-200">
+          <PartnerLogos placement="adminFooter" />
+        </footer>
       </main>
     </div>
   );

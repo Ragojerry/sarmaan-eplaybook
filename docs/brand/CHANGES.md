@@ -1,0 +1,63 @@
+# Rebrand: files touched (branch `rebrand`)
+
+The branch starts from commit `8ddaf9a` (the go-live code as deployed on 2026-11-11). Nothing was merged, pushed or deployed, and no production or learner data was touched.
+
+## New
+| File | Purpose |
+|---|---|
+| `brand/tokens.json` | The one design-token file (colours, tints, semantic roles, font stack, type scale, spacing, radius) |
+| `brand/logos.json` | Logo order, placements, row heights, partnership line (order and wording marked UNCONFIRMED) |
+| `brand/logos/malaria_consortium.jpg`, `sarmaan_ii_project.png`, `gf.png`, `ihs_towers_primary.png` | The supplied logo files, byte-identical |
+| `scripts/brand_sync.py` | Generates or copies the tokens and logos into the app and admin; `--check` for CI |
+| `scripts/brand_contrast.py` | WCAG contrast for every pair; writes `docs/brand/contrast_report.md` |
+| `mobile/lib/theme/brand_tokens.g.dart` | Generated Dart tokens |
+| `mobile/lib/widgets/partner_logo_row.dart` | Config-driven logo row (no upscaling, IHS minimum width, "I" clear space, white background) |
+| `mobile/assets/brand/*` | Bundled copies of the logos and `logos.json` |
+| `mobile/android/app/src/main/res/values/brand_colors.xml` | Generated Forest Green and white for the native launch screen |
+| `mobile/android/app/src/main/res/values-v31/styles.xml` | Android 12+ system splash background (Forest Green) |
+| `admin/src/brand/tokens.json`, `admin/src/brand/logos.json` | Copies for the admin (synced) |
+| `admin/src/brand/tokens.ts` | Token colours for chart fills |
+| `admin/src/components/PartnerLogos.tsx` | Config-driven logo row for the admin |
+| `admin/public/brand/*` | The logos served by the admin portal |
+| `docs/brand/README.md`, `brand_compliance.md`, `contrast_report.md`, `open_questions.md`, `CHANGES.md` | Documentation |
+| `docs/brand/screenshots/before/*`, `docs/brand/screenshots/after/*` | 45 screenshots |
+
+## Changed: mobile
+| File | Change |
+|---|---|
+| `mobile/pubspec.yaml` | Fraunces, Manrope and JetBrains Mono unregistered; `assets/brand/` added |
+| `mobile/lib/theme/app_theme.dart` | Rewritten on the tokens: semantic `AppColors`; Helvetica Neue stack; white dialogs and sheets; button padding; input, checkbox, progress and snackbar themes; error text in Forest Green |
+| `mobile/lib/screens/splash_screen.dart` | Forest Green title area plus a white logo band (`PartnerLogoRow('splash')`); gradient removed |
+| `mobile/lib/screens/login_screen.dart` | Logo row and partnership line at the bottom; mark kept square (it was stretched full width); error box Red bar with Forest text; gradient and shadow removed |
+| `mobile/lib/screens/about_screen.dart` | Logo row and partnership line; restart and sign-out buttons re-coloured (Red border, Forest text) |
+| `mobile/lib/screens/home_screen.dart` | Header gradient → Forest Green; badges, update banner and "update" pill → information Blue tint; completed tick → Grass Green; FAB → Forest Green |
+| `mobile/lib/screens/reader_screen.dart` | Callouts: warning = Red, job aid = Blue, callout = Forest; True/False answers: correct = Grass Green, wrong = Red, chosen text keeps full contrast; completed card → Grass Green; audio button gradient → Forest Green |
+| `mobile/lib/screens/modules_screen.dart`, `quiz_screen.dart`, `language_screen.dart`, `consent_screen.dart`, `ai_screen.dart`, `updates_screen.dart`, `update_required_screen.dart`, `video_screen.dart`, `video_library_screen.dart` | Old palette → semantic tokens; fonts inherited from the theme; gradients → Forest Green; BETA badge → information Blue |
+| `mobile/lib/widgets/authenticated_image.dart`, `offline_aware_image.dart`, `section_audio_player.dart` | Grey placeholders and white icons → tokens |
+| `mobile/android/app/src/main/res/drawable*/launch_background.xml`, `values/styles.xml`, `values-night/styles.xml` | Native launch screen Forest Green (was black); window background white. The launcher icon is unchanged. |
+
+## Changed: admin
+| File | Change |
+|---|---|
+| `admin/tailwind.config.js` | Palette replaced by the tokens (existing class names now resolve to brand colours; text shades accessible); brand font stack; `brand-*` semantic names |
+| `admin/src/layouts/AdminLayout.tsx` | Forest Green sidebar, white active item; logo header and footer |
+| `admin/src/pages/LoginPage.tsx` | Logo footer with partnership line |
+| `admin/src/pages/DashboardPage.tsx`, `AnalyticsPage.tsx` | Chart fills from tokens (Forest Green, Grass Green 50%) |
+
+## Not changed
+- **Content and behaviour:** lesson text, translations, clinical content, backend, data, and app behaviour.
+- **Launcher icon.**
+- **Font files:** `mobile/assets/fonts/*.ttf` (no longer registered, so not in the APK; left on disk, see open_questions.md §13).
+- **`mobile/android/gradle/wrapper/gradle-wrapper.properties`:** local change, kept out of the commit as before.
+
+## Checks run
+| Check | Result |
+|---|---|
+| `flutter analyze` | No errors (2 older infos, not from this change) |
+| `flutter test` | 182/182 passed |
+| `npx tsc -b && npx vite build` (admin) | Pass |
+| `python scripts/brand_contrast.py` | All pairs pass |
+| `python scripts/brand_sync.py --check` | Up to date |
+| Old-palette search | No matches (command in brand_compliance.md §7) |
+| Raw colour literals | 0 in Dart outside the generated token file; 0 hex values in admin source outside `src/brand/` |
+| Release APK | 62,722,600 → 62,489,561 bytes |

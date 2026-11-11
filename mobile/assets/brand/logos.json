@@ -1,0 +1,47 @@
+{
+  "_about": "Every logo position and its order, for the app and the admin portal. Change the order or the lead brand here, then run: python scripts/brand_sync.py. The logo files are used exactly as supplied (never recoloured, cropped, stretched or redrawn).",
+  "status": "UNCONFIRMED: the order below follows the order the files were supplied in; the lead logo and order are still to be decided (open_questions.md).",
+  "partnershipLine": {
+    "text": "In partnership with",
+    "status": "UNCONFIRMED wording (open_questions.md)"
+  },
+  "logos": {
+    "malaria_consortium": {
+      "file": "malaria_consortium.jpg",
+      "label": "Malaria Consortium",
+      "widthPx": 1432, "heightPx": 677,
+      "guidelines": "none supplied"
+    },
+    "sarmaan_ii": {
+      "file": "sarmaan_ii_project.png",
+      "label": "SARMAAN-II Project",
+      "widthPx": 118, "heightPx": 50,
+      "guidelines": "none supplied",
+      "note": "Very small file: shown at most at its own pixel size, so it can be shorter than the others in a row until a vector file is supplied."
+    },
+    "gf": {
+      "file": "gf.png",
+      "label": "GF",
+      "widthPx": 228, "heightPx": 158,
+      "guidelines": "none supplied"
+    },
+    "ihs": {
+      "file": "ihs_towers_primary.png",
+      "label": "IHS Towers",
+      "widthPx": 1668, "heightPx": 948,
+      "guidelines": "IHS Towers Brand Manual 2021",
+      "minWidthDp": 95,
+      "clearSpaceRatio": 0.165,
+      "_clearSpaceRatio": "width of the 'I' (275 px) / logo width (1668 px); clear space on every side"
+    }
+  },
+  "order": ["malaria_consortium", "sarmaan_ii", "gf", "ihs"],
+  "placements": {
+    "splash":      {"logos": "order", "rowHeightDp": 54, "showPartnershipLine": false},
+    "login":       {"logos": "order", "rowHeightDp": 54, "showPartnershipLine": true},
+    "about":       {"logos": "order", "rowHeightDp": 54, "showPartnershipLine": true},
+    "adminHeader": {"logos": "order", "rowHeightDp": 54, "showPartnershipLine": false},
+    "adminFooter": {"logos": "order", "rowHeightDp": 54, "showPartnershipLine": true}
+  },
+  "_placements_note": "rowHeight is the target height for every logo in the row. A logo is never shown larger than its own pixels, and the IHS logo never narrower than 95 dp; rowHeightDp 54+ keeps IHS at 95 dp wide. The clear space between and around logos is the IHS rule (width of the 'I') at the row height. At 54 dp the four logos need about 380 dp; on narrower screens the row wraps onto a second line instead of shrinking a logo below its minimum."
+}

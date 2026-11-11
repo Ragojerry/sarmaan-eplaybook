@@ -205,11 +205,11 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     final searching = _query.trim().isNotEmpty;
 
     return Scaffold(
-      backgroundColor: AppColors.sand,
+      backgroundColor: AppColors.background,
       floatingActionButton: FloatingActionButton(
         onPressed: () => context.go('/ai'),
-        backgroundColor: AppColors.gold,
-        foregroundColor: AppColors.tealDeep,
+        backgroundColor: AppColors.primary,
+        foregroundColor: AppColors.onPrimary,
         tooltip: 'Ask a question',
         child: const Icon(Icons.auto_awesome),
       ),
@@ -226,14 +226,14 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                   children: [
                     SizedBox(height: 14, width: 14, child: CircularProgressIndicator(strokeWidth: 2)),
                     SizedBox(width: 10),
-                    Text('Downloading content for offline use…', style: TextStyle(fontSize: 12, color: AppColors.textSecondary)),
+                    Text('Downloading content for offline use…', style: TextStyle(fontSize: 12, color: AppColors.textMuted)),
                   ],
                 ),
               ),
             if (_syncError != null)
               Padding(
                 padding: const EdgeInsets.fromLTRB(22, 16, 22, 0),
-                child: Text(_syncError!, style: const TextStyle(color: AppColors.danger, fontSize: 12)),
+                child: Text(_syncError!, style: const TextStyle(color: AppColors.errorText, fontSize: 12)),
               ),
             if (searching)
               _buildSearchResults(modules)
@@ -248,7 +248,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                 data: (modules) => modules.isEmpty
                     ? const Padding(
                         padding: EdgeInsets.symmetric(horizontal: 22),
-                        child: Text('No modules downloaded yet. Pull down to sync.', style: TextStyle(color: AppColors.textSecondary)),
+                        child: Text('No modules downloaded yet. Pull down to sync.', style: TextStyle(color: AppColors.textMuted)),
                       )
                     : Padding(
                         padding: const EdgeInsets.symmetric(horizontal: 22),
@@ -277,7 +277,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                 ),
                 error: (e, _) => Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 22),
-                  child: Text('Could not load modules: $e', style: const TextStyle(color: AppColors.danger)),
+                  child: Text('Could not load modules: $e', style: const TextStyle(color: AppColors.errorText)),
                 ),
               ),
             ],
@@ -320,14 +320,14 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
           Text(
             hits.isEmpty ? 'NO MATCHES' : 'RESULTS',
             style: const TextStyle(
-              fontFamily: AppFonts.sans, fontSize: 11, fontWeight: FontWeight.w800, letterSpacing: 0.9, color: AppColors.textSecondary,
+              fontSize: 11, fontWeight: FontWeight.w800, letterSpacing: 0.9, color: AppColors.textMuted,
             ),
           ),
           const SizedBox(height: 10),
           if (hits.isEmpty)
             const Text(
               'Nothing in your downloaded modules matches that. Try one word, or use the Ask button.',
-              style: TextStyle(color: AppColors.textSecondary, fontSize: 13),
+              style: TextStyle(color: AppColors.textMuted, fontSize: 13),
             ),
           for (final h in hits)
             GestureDetector(
@@ -339,7 +339,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                 decoration: BoxDecoration(
                   color: AppColors.white,
                   borderRadius: BorderRadius.circular(AppRadius.medium),
-                  border: Border.all(color: AppColors.line),
+                  border: Border.all(color: AppColors.divider),
                 ),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -353,14 +353,14 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                             h.title,
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis,
-                            style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w700, color: AppColors.ink),
+                            style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w700, color: AppColors.textStrong),
                           ),
                         ),
                       ],
                     ),
                     if (h.snippet.isNotEmpty) ...[
                       const SizedBox(height: 6),
-                      Text(h.snippet, style: const TextStyle(fontSize: 12, height: 1.45, color: AppColors.textSecondary)),
+                      Text(h.snippet, style: const TextStyle(fontSize: 12, height: 1.45, color: AppColors.textMuted)),
                     ],
                   ],
                 ),
@@ -391,15 +391,15 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
       child: Container(
         margin: const EdgeInsets.only(right: 6),
         padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 4),
-        decoration: BoxDecoration(color: AppColors.gold, borderRadius: BorderRadius.circular(20)),
+        decoration: BoxDecoration(color: AppColors.infoSurface, borderRadius: BorderRadius.circular(20)),
         child: const Row(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(Icons.download_rounded, size: 11, color: AppColors.tealDeep),
+            Icon(Icons.download_rounded, size: 11, color: AppColors.infoText),
             SizedBox(width: 4),
             Text(
               'New content',
-              style: TextStyle(fontFamily: AppFonts.mono, fontSize: 10.5, fontWeight: FontWeight.w700, color: AppColors.tealDeep),
+              style: TextStyle(fontSize: 10.5, fontWeight: FontWeight.w700, color: AppColors.primary),
             ),
           ],
         ),
@@ -412,11 +412,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
       width: double.infinity,
       padding: const EdgeInsets.fromLTRB(22, 20, 22, 22),
       decoration: const BoxDecoration(
-        gradient: LinearGradient(
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-          colors: [AppColors.tealDeep, AppColors.teal],
-        ),
+        color: AppColors.primary,
         borderRadius: BorderRadius.only(bottomLeft: Radius.circular(26), bottomRight: Radius.circular(26)),
       ),
       child: SafeArea(
@@ -432,10 +428,9 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                     style: TextStyle(
-                      fontFamily: AppFonts.mono,
                       fontSize: 11.5,
                       letterSpacing: 0.5,
-                      color: AppColors.sand.withValues(alpha: 0.75),
+                      color: AppColors.onPrimary.withValues(alpha: 0.75),
                     ),
                   ),
                 ),
@@ -447,17 +442,17 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                   child: Container(
                     padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 4),
                     decoration: BoxDecoration(
-                      color: AppColors.sand.withValues(alpha: 0.16),
+                      color: AppColors.onPrimary.withValues(alpha: 0.16),
                       borderRadius: BorderRadius.circular(20),
                     ),
                     child: Row(
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        Icon(Icons.circle, size: 7, color: online ? const Color(0xFF7FE0B0) : AppColors.textMuted),
+                        Icon(Icons.circle, size: 7, color: online ? AppColors.success : AppColors.textDisabled),
                         const SizedBox(width: 5),
                         Text(
                           online ? 'Online' : 'Offline',
-                          style: const TextStyle(fontFamily: AppFonts.mono, fontSize: 10.5, color: AppColors.sand),
+                          style: const TextStyle(fontSize: 10.5, color: AppColors.onPrimary),
                         ),
                       ],
                     ),
@@ -468,42 +463,42 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
             const SizedBox(height: 6),
             const Text(
               "Ready for today's round",
-              style: TextStyle(fontFamily: AppFonts.serif, fontSize: 24, fontWeight: FontWeight.w600, color: AppColors.sand),
+              style: TextStyle(fontSize: 24, fontWeight: FontWeight.w600, color: AppColors.onPrimary),
             ),
             const SizedBox(height: 16),
             TextField(
               controller: _searchController,
               onChanged: (v) => setState(() => _query = v),
               textInputAction: TextInputAction.search,
-              style: const TextStyle(color: AppColors.sand, fontSize: 13.5),
-              cursorColor: AppColors.gold,
+              style: const TextStyle(color: AppColors.onPrimary, fontSize: 13.5),
+              cursorColor: AppColors.onPrimary,
               decoration: InputDecoration(
                 hintText: 'Search modules, e.g. "MUAC", "referral"…',
-                hintStyle: TextStyle(color: AppColors.sand.withValues(alpha: 0.6), fontSize: 13.5),
-                prefixIcon: Icon(Icons.search, color: AppColors.sand.withValues(alpha: 0.8)),
+                hintStyle: TextStyle(color: AppColors.onPrimary.withValues(alpha: 0.6), fontSize: 13.5),
+                prefixIcon: Icon(Icons.search, color: AppColors.onPrimary.withValues(alpha: 0.8)),
                 suffixIcon: _query.isEmpty
                     ? null
                     : IconButton(
-                        icon: const Icon(Icons.close, size: 18, color: AppColors.sand),
+                        icon: const Icon(Icons.close, size: 18, color: AppColors.onPrimary),
                         onPressed: () {
                           _searchController.clear();
                           setState(() => _query = '');
                         },
                       ),
                 filled: true,
-                fillColor: AppColors.sand.withValues(alpha: 0.14),
+                fillColor: AppColors.onPrimary.withValues(alpha: 0.14),
                 contentPadding: const EdgeInsets.symmetric(vertical: 12),
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(14),
-                  borderSide: BorderSide(color: AppColors.sand.withValues(alpha: 0.25)),
+                  borderSide: BorderSide(color: AppColors.onPrimary.withValues(alpha: 0.25)),
                 ),
                 enabledBorder: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(14),
-                  borderSide: BorderSide(color: AppColors.sand.withValues(alpha: 0.25)),
+                  borderSide: BorderSide(color: AppColors.onPrimary.withValues(alpha: 0.25)),
                 ),
                 focusedBorder: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(14),
-                  borderSide: const BorderSide(color: AppColors.gold),
+                  borderSide: const BorderSide(color: AppColors.onPrimary),
                 ),
               ),
             ),
@@ -524,11 +519,10 @@ class _SectionLabel extends StatelessWidget {
         child: Text(
           text,
           style: const TextStyle(
-            fontFamily: AppFonts.sans,
             fontSize: 11,
             fontWeight: FontWeight.w800,
             letterSpacing: 0.9,
-            color: AppColors.textSecondary,
+            color: AppColors.textMuted,
           ),
         ),
       );
@@ -541,10 +535,10 @@ class _CodeBadge extends StatelessWidget {
   @override
   Widget build(BuildContext context) => Container(
         padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-        decoration: BoxDecoration(color: AppColors.claySoft, borderRadius: BorderRadius.circular(5)),
+        decoration: BoxDecoration(color: AppColors.surfaceSelected, borderRadius: BorderRadius.circular(5)),
         child: Text(
           code,
-          style: const TextStyle(fontFamily: AppFonts.mono, fontSize: 9.5, fontWeight: FontWeight.w700, color: AppColors.goldDeep),
+          style: const TextStyle(fontSize: 9.5, fontWeight: FontWeight.w700, color: AppColors.textStrong),
         ),
       );
 }
@@ -586,7 +580,7 @@ class _SyncCard extends StatelessWidget {
         decoration: BoxDecoration(
           color: AppColors.white,
           borderRadius: BorderRadius.circular(AppRadius.medium),
-          border: Border.all(color: AppColors.line),
+          border: Border.all(color: AppColors.divider),
         ),
         child: Row(
           children: [
@@ -595,7 +589,7 @@ class _SyncCard extends StatelessWidget {
               height: 22,
               child: busy
                   ? const Padding(padding: EdgeInsets.all(3), child: CircularProgressIndicator(strokeWidth: 2))
-                  : const Icon(Icons.sync, size: 22, color: AppColors.teal),
+                  : const Icon(Icons.sync, size: 22, color: AppColors.primary),
             ),
             const SizedBox(width: 12),
             Expanded(
@@ -604,14 +598,14 @@ class _SyncCard extends StatelessWidget {
                 children: [
                   const Text(
                     'Sync & update',
-                    style: TextStyle(fontSize: 13.5, fontWeight: FontWeight.w700, color: AppColors.ink),
+                    style: TextStyle(fontSize: 13.5, fontWeight: FontWeight.w700, color: AppColors.textStrong),
                   ),
                   const SizedBox(height: 2),
                   Text(
                     detail,
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
-                    style: const TextStyle(fontSize: 11, color: AppColors.textSecondary),
+                    style: const TextStyle(fontSize: 11, color: AppColors.textMuted),
                   ),
                 ],
               ),
@@ -620,8 +614,8 @@ class _SyncCard extends StatelessWidget {
             FilledButton(
               onPressed: busy ? null : onSync,
               style: FilledButton.styleFrom(
-                backgroundColor: AppColors.tealDeep,
-                foregroundColor: AppColors.sand,
+                backgroundColor: AppColors.primary,
+                foregroundColor: AppColors.onPrimary,
                 padding: const EdgeInsets.symmetric(horizontal: 16),
                 visualDensity: VisualDensity.compact,
               ),
@@ -649,10 +643,10 @@ class _UpdateBanner extends StatelessWidget {
         onTap: () => context.go('/updates'),
         child: Container(
           padding: const EdgeInsets.all(14),
-          decoration: BoxDecoration(color: AppColors.gold, borderRadius: BorderRadius.circular(AppRadius.medium)),
+          decoration: BoxDecoration(color: AppColors.infoSurface, border: Border.all(color: AppColors.info), borderRadius: BorderRadius.circular(AppRadius.medium)),
           child: Row(
             children: [
-              const Icon(Icons.circle, size: 9, color: AppColors.clay),
+              const Icon(Icons.info_outline, size: 16, color: AppColors.info),
               const SizedBox(width: 12),
               Expanded(
                 child: Column(
@@ -660,19 +654,19 @@ class _UpdateBanner extends StatelessWidget {
                   children: [
                     const Text(
                       'Content update available',
-                      style: TextStyle(fontSize: 13.5, fontWeight: FontWeight.w700, color: AppColors.ink),
+                      style: TextStyle(fontSize: 13.5, fontWeight: FontWeight.w700, color: AppColors.textStrong),
                     ),
                     const SizedBox(height: 2),
                     Text(
                       '${release.releaseCode}$mb',
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
-                      style: const TextStyle(fontFamily: AppFonts.mono, fontSize: 10.5, color: AppColors.tealDeep),
+                      style: const TextStyle(fontSize: 10.5, color: AppColors.primary),
                     ),
                   ],
                 ),
               ),
-              const Icon(Icons.chevron_right, color: AppColors.ink),
+              const Icon(Icons.chevron_right, color: AppColors.textStrong),
             ],
           ),
         ),
@@ -697,7 +691,7 @@ class _ContinueCard extends StatelessWidget {
         decoration: BoxDecoration(
           color: AppColors.white,
           borderRadius: BorderRadius.circular(AppRadius.medium),
-          border: Border.all(color: AppColors.line),
+          border: Border.all(color: AppColors.divider),
         ),
         child: Row(
           children: [
@@ -705,10 +699,10 @@ class _ContinueCard extends StatelessWidget {
               width: 52,
               height: 52,
               alignment: Alignment.center,
-              decoration: BoxDecoration(color: AppColors.tealSoft, borderRadius: BorderRadius.circular(12)),
+              decoration: BoxDecoration(color: AppColors.surfaceSelected, borderRadius: BorderRadius.circular(12)),
               child: Text(
                 module.moduleCode,
-                style: const TextStyle(fontFamily: AppFonts.mono, fontWeight: FontWeight.w700, color: AppColors.tealDeep),
+                style: const TextStyle(fontWeight: FontWeight.w700, color: AppColors.primary),
               ),
             ),
             const SizedBox(width: 14),
@@ -720,14 +714,14 @@ class _ContinueCard extends StatelessWidget {
                     module.title,
                     maxLines: 2,
                     overflow: TextOverflow.ellipsis,
-                    style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w700, height: 1.3, color: AppColors.ink),
+                    style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w700, height: 1.3, color: AppColors.textStrong),
                   ),
                   const SizedBox(height: 3),
                   Text(
                     '${progress.progressPercent}% complete${where != null && where.isNotEmpty ? ' · $where' : ''}',
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
-                    style: const TextStyle(fontSize: 11.5, color: AppColors.textSecondary),
+                    style: const TextStyle(fontSize: 11.5, color: AppColors.textMuted),
                   ),
                   const SizedBox(height: 8),
                   ClipRRect(
@@ -735,8 +729,8 @@ class _ContinueCard extends StatelessWidget {
                     child: LinearProgressIndicator(
                       value: progress.progressPercent / 100,
                       minHeight: 6,
-                      backgroundColor: AppColors.sandDeep,
-                      valueColor: const AlwaysStoppedAnimation(AppColors.teal),
+                      backgroundColor: AppColors.surfaceMuted,
+                      valueColor: const AlwaysStoppedAnimation(AppColors.primary),
                     ),
                   ),
                 ],
@@ -768,9 +762,9 @@ class _ModuleCard extends StatelessWidget {
       child: Container(
         padding: const EdgeInsets.all(13),
         decoration: BoxDecoration(
-          color: locked ? AppColors.sandDeep : AppColors.white,
+          color: locked ? AppColors.surfaceMuted : AppColors.surface,
           borderRadius: BorderRadius.circular(AppRadius.medium),
-          border: Border.all(color: AppColors.line),
+          border: Border.all(color: AppColors.divider),
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -779,7 +773,7 @@ class _ModuleCard extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 _CodeBadge(module.moduleCode),
-                if (completed) const Icon(Icons.check, size: 16, color: AppColors.teal),
+                if (completed) const Icon(Icons.check, size: 16, color: AppColors.success),
                 if (locked) const Icon(Icons.lock_outline, size: 16, color: AppColors.textMuted),
               ],
             ),
@@ -789,7 +783,7 @@ class _ModuleCard extends StatelessWidget {
                 module.title,
                 maxLines: 4,
                 overflow: TextOverflow.ellipsis,
-                style: const TextStyle(fontSize: 12.5, fontWeight: FontWeight.w700, height: 1.35, color: AppColors.ink),
+                style: const TextStyle(fontSize: 12.5, fontWeight: FontWeight.w700, height: 1.35, color: AppColors.textStrong),
               ),
             ),
             const SizedBox(height: 6),
@@ -803,7 +797,7 @@ class _ModuleCard extends StatelessWidget {
                     '${stage != null && stage != ModuleStage.reading && !completed ? stageLabel(stage!) : !completed && percent > 0 ? '$percent% read' : 'offline'}',
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
-                    style: const TextStyle(fontSize: 10.5, color: AppColors.textSecondary),
+                    style: const TextStyle(fontSize: 10.5, color: AppColors.textMuted),
                   ),
                 ),
               ],
@@ -815,8 +809,8 @@ class _ModuleCard extends StatelessWidget {
                 child: LinearProgressIndicator(
                   value: percent / 100,
                   minHeight: 4,
-                  backgroundColor: AppColors.sandDeep,
-                  valueColor: const AlwaysStoppedAnimation(AppColors.teal),
+                  backgroundColor: AppColors.surfaceMuted,
+                  valueColor: const AlwaysStoppedAnimation(AppColors.primary),
                 ),
               ),
             ],

@@ -101,7 +101,7 @@ class _AiScreenState extends ConsumerState<AiScreen> {
         const Text(
           'Answers come only from the training content downloaded on this phone — so this works without internet. '
           'Every answer shows where it came from.',
-          style: TextStyle(fontSize: 12, height: 1.55, color: AppColors.textSecondary),
+          style: TextStyle(fontSize: 12, height: 1.55, color: AppColors.textMuted),
         ),
         const SizedBox(height: 18),
         for (final s in kSuggestions) _SuggestionChip(text: s, onTap: () => _ask(s)),
@@ -112,7 +112,7 @@ class _AiScreenState extends ConsumerState<AiScreen> {
   Widget _buildInputBar() {
     return Container(
       padding: const EdgeInsets.fromLTRB(16, 8, 16, 10),
-      decoration: const BoxDecoration(color: AppColors.sand, border: Border(top: BorderSide(color: AppColors.line))),
+      decoration: const BoxDecoration(color: AppColors.background, border: Border(top: BorderSide(color: AppColors.divider))),
       child: Row(
         children: [
           Expanded(
@@ -127,8 +127,8 @@ class _AiScreenState extends ConsumerState<AiScreen> {
           const SizedBox(width: 8),
           IconButton.filled(
             onPressed: _asking ? null : () => _ask(_controller.text),
-            style: IconButton.styleFrom(backgroundColor: AppColors.tealDeep),
-            icon: const Icon(Icons.arrow_upward_rounded, color: Colors.white),
+            style: IconButton.styleFrom(backgroundColor: AppColors.primary),
+            icon: const Icon(Icons.arrow_upward_rounded, color: AppColors.onPrimary),
           ),
         ],
       ),
@@ -151,12 +151,12 @@ class _SuggestionChip extends StatelessWidget {
         padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
         decoration: BoxDecoration(
           color: AppColors.white,
-          border: Border.all(color: AppColors.line),
+          border: Border.all(color: AppColors.divider),
           borderRadius: BorderRadius.circular(AppRadius.standard),
         ),
         child: Row(
           children: [
-            Expanded(child: Text(text, style: const TextStyle(fontSize: 12.5, fontWeight: FontWeight.w600, color: AppColors.ink))),
+            Expanded(child: Text(text, style: const TextStyle(fontSize: 12.5, fontWeight: FontWeight.w600, color: AppColors.textStrong))),
             const Icon(Icons.north_east_rounded, size: 15, color: AppColors.textMuted),
           ],
         ),
@@ -177,8 +177,8 @@ class _UserBubble extends StatelessWidget {
       child: Container(
         margin: const EdgeInsets.only(bottom: 12, left: 48),
         padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
-        decoration: BoxDecoration(color: AppColors.tealDeep, borderRadius: BorderRadius.circular(AppRadius.standard)),
-        child: Text(text, style: const TextStyle(fontSize: 12.8, color: AppColors.sand, height: 1.45)),
+        decoration: BoxDecoration(color: AppColors.primary, borderRadius: BorderRadius.circular(AppRadius.standard)),
+        child: Text(text, style: const TextStyle(fontSize: 12.8, color: AppColors.onPrimary, height: 1.45)),
       ),
     );
   }
@@ -199,16 +199,16 @@ class _AnswerCard extends StatelessWidget {
       margin: const EdgeInsets.only(bottom: 16, right: 24),
       padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
-        color: matched ? AppColors.white : AppColors.claySoft,
+        color: matched ? AppColors.white : AppColors.warningSurface,
         borderRadius: BorderRadius.circular(AppRadius.standard),
-        border: matched ? Border.all(color: AppColors.line) : const Border(left: BorderSide(color: AppColors.clay, width: 3)),
+        border: matched ? Border.all(color: AppColors.divider) : const Border(left: BorderSide(color: AppColors.warning, width: 3)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
             matched ? _sentenceCase(result.answer) : result.answer,
-            style: TextStyle(fontSize: 13, height: 1.55, color: matched ? AppColors.ink : AppColors.calloutWarningText, fontWeight: matched ? FontWeight.w600 : FontWeight.w500),
+            style: TextStyle(fontSize: 13, height: 1.55, color: matched ? AppColors.textStrong : AppColors.warningText, fontWeight: matched ? FontWeight.w600 : FontWeight.w500),
           ),
           if (matched) ...[
             const SizedBox(height: 10),
@@ -216,19 +216,19 @@ class _AnswerCard extends StatelessWidget {
               spacing: 6,
               runSpacing: 6,
               children: [
-                _Pill(text: 'Match ${(result.confidence * 100).round()}%', color: AppColors.tealSoft, textColor: AppColors.tealDeep),
-                if (result.offline) const _Pill(text: 'ANSWERED OFFLINE', color: AppColors.sandDeep, textColor: AppColors.textSecondary),
+                _Pill(text: 'Match ${(result.confidence * 100).round()}%', color: AppColors.surfaceSelected, textColor: AppColors.primary),
+                if (result.offline) const _Pill(text: 'ANSWERED OFFLINE', color: AppColors.surfaceMuted, textColor: AppColors.textStrong),
               ],
             ),
             const SizedBox(height: 12),
-            const Text('SOURCE', style: TextStyle(fontFamily: AppFonts.mono, fontSize: 9.5, fontWeight: FontWeight.w700, letterSpacing: 0.6, color: AppColors.textMuted)),
+            const Text('SOURCE', style: TextStyle(fontSize: 9.5, fontWeight: FontWeight.w700, letterSpacing: 0.6, color: AppColors.textMuted)),
             const SizedBox(height: 4),
             for (final s in result.sources)
               Padding(
                 padding: const EdgeInsets.only(bottom: 4),
                 child: Text(
                   '${s.isReference ? 'Reference' : s.moduleCode} · ${s.moduleTitle}${s.sectionTitle != null ? ' — ${s.sectionTitle}' : ''}',
-                  style: const TextStyle(fontSize: 11, color: AppColors.textSecondary, height: 1.4),
+                  style: const TextStyle(fontSize: 11, color: AppColors.textMuted, height: 1.4),
                 ),
               ),
             const SizedBox(height: 6),
@@ -240,7 +240,7 @@ class _AnswerCard extends StatelessWidget {
             ),
           ] else if (result.suggestions.isNotEmpty) ...[
             const SizedBox(height: 12),
-            const Text('Try asking about:', style: TextStyle(fontSize: 11.5, fontWeight: FontWeight.w700, color: AppColors.calloutWarningText)),
+            const Text('Try asking about:', style: TextStyle(fontSize: 11.5, fontWeight: FontWeight.w700, color: AppColors.warningText)),
             const SizedBox(height: 6),
             for (final s in result.suggestions) _SuggestionChip(text: s, onTap: () => onAsk(s)),
           ],
@@ -262,7 +262,7 @@ class _Pill extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
       decoration: BoxDecoration(color: color, borderRadius: BorderRadius.circular(6)),
-      child: Text(text, style: TextStyle(fontFamily: AppFonts.mono, fontSize: 9.5, fontWeight: FontWeight.w700, color: textColor)),
+      child: Text(text, style: TextStyle(fontSize: 9.5, fontWeight: FontWeight.w700, color: textColor)),
     );
   }
 }

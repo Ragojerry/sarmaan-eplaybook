@@ -8,6 +8,7 @@ import '../services/auth_service.dart';
 import '../services/settings_service.dart';
 import '../sync/sync_engine.dart';
 import '../theme/app_theme.dart';
+import '../widgets/partner_logo_row.dart';
 import '../video/video_manager.dart';
 import '../widgets/app_bottom_nav.dart';
 
@@ -81,26 +82,26 @@ class AboutScreen extends ConsumerWidget {
           Container(
             margin: const EdgeInsets.symmetric(horizontal: 22),
             padding: const EdgeInsets.all(15),
-            decoration: BoxDecoration(color: AppColors.tealDeep, borderRadius: BorderRadius.circular(AppRadius.standard)),
+            decoration: BoxDecoration(color: AppColors.primary, borderRadius: BorderRadius.circular(AppRadius.standard)),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 const Text(
                   'Report a safeguarding concern',
-                  style: TextStyle(fontSize: 12.5, fontWeight: FontWeight.w700, color: AppColors.sand),
+                  style: TextStyle(fontSize: 12.5, fontWeight: FontWeight.w700, color: AppColors.onPrimary),
                 ),
                 const SizedBox(height: 6),
                 Text(
                   'If you notice anything unsafe or improper during a household visit, contact your supervisor or reach out directly.',
-                  style: TextStyle(fontSize: 11, height: 1.6, color: AppColors.sand.withValues(alpha: 0.9)),
+                  style: TextStyle(fontSize: 11, height: 1.6, color: AppColors.onPrimary.withValues(alpha: 0.9)),
                 ),
                 const SizedBox(height: 8),
                 Container(
                   padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
-                  decoration: BoxDecoration(color: Colors.white.withValues(alpha: 0.12), borderRadius: BorderRadius.circular(6)),
+                  decoration: BoxDecoration(color: AppColors.onPrimary.withValues(alpha: 0.12), borderRadius: BorderRadius.circular(6)),
                   child: const Text(
                     'concerns@malariaconsortium.org',
-                    style: TextStyle(fontFamily: AppFonts.mono, fontSize: 10.5, color: AppColors.sand),
+                    style: TextStyle(fontSize: 10.5, color: AppColors.onPrimary),
                   ),
                 ),
               ],
@@ -130,9 +131,12 @@ class AboutScreen extends ConsumerWidget {
               },
               icon: const Icon(Icons.logout, size: 16),
               label: const Text('Sign out'),
-              style: OutlinedButton.styleFrom(foregroundColor: AppColors.danger, side: const BorderSide(color: AppColors.danger)),
+              style: OutlinedButton.styleFrom(foregroundColor: AppColors.errorText, side: const BorderSide(color: AppColors.error, width: 1.5)),
             ),
           ),
+          const SizedBox(height: 20),
+          // Partner logos, full width on white (order and wording: assets/brand/logos.json).
+          const PartnerLogoRow(placement: 'about'),
         ],
       ),
       bottomNavigationBar: const AppBottomNav(currentRoute: '/about'),
@@ -153,7 +157,9 @@ class AboutScreen extends ConsumerWidget {
         actions: [
           TextButton(onPressed: () => Navigator.pop(ctx, false), child: const Text('Cancel')),
           FilledButton(
-            style: FilledButton.styleFrom(backgroundColor: AppColors.danger),
+            // Red fails 4.5:1 behind white or Forest text, so the confirm button keeps the primary
+            // fill and is marked by a red border (contrast report).
+            style: FilledButton.styleFrom(side: const BorderSide(color: AppColors.error, width: 2)),
             onPressed: () => Navigator.pop(ctx, true),
             child: const Text('Start over'),
           ),
@@ -178,13 +184,13 @@ class AboutScreen extends ConsumerWidget {
       padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
         color: AppColors.white,
-        border: Border.all(color: AppColors.line),
+        border: Border.all(color: AppColors.divider),
         borderRadius: BorderRadius.circular(AppRadius.standard),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text('OFFLINE STORAGE', style: TextStyle(fontFamily: AppFonts.mono, fontSize: 10, fontWeight: FontWeight.w700, color: AppColors.textMuted, letterSpacing: 0.5)),
+          const Text('OFFLINE STORAGE', style: TextStyle(fontSize: 10, fontWeight: FontWeight.w700, color: AppColors.textMuted, letterSpacing: 0.5)),
           const SizedBox(height: 10),
           usageAsync.when(
             data: (usage) {
@@ -215,10 +221,10 @@ class AboutScreen extends ConsumerWidget {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          Text(label, style: TextStyle(fontSize: 12, fontWeight: bold ? FontWeight.w800 : FontWeight.w500, color: AppColors.ink)),
+          Text(label, style: TextStyle(fontSize: 12, fontWeight: bold ? FontWeight.w800 : FontWeight.w500, color: AppColors.textStrong)),
           Text(
             _formatBytes(bytes),
-            style: TextStyle(fontFamily: AppFonts.mono, fontSize: 11.5, fontWeight: bold ? FontWeight.w800 : FontWeight.w500, color: AppColors.textSecondary),
+            style: TextStyle(fontSize: 11.5, fontWeight: bold ? FontWeight.w800 : FontWeight.w500, color: AppColors.textMuted),
           ),
         ],
       ),
@@ -246,16 +252,16 @@ class _AboutItem extends StatelessWidget {
       padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 13),
       decoration: BoxDecoration(
         color: AppColors.white,
-        border: Border.all(color: AppColors.line),
+        border: Border.all(color: AppColors.divider),
         borderRadius: BorderRadius.circular(AppRadius.standard),
       ),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          Text(label, style: const TextStyle(fontSize: 12.8, fontWeight: FontWeight.w600, color: AppColors.ink)),
+          Text(label, style: const TextStyle(fontSize: 12.8, fontWeight: FontWeight.w600, color: AppColors.textStrong)),
           Text(
             value,
-            style: const TextStyle(fontFamily: AppFonts.mono, fontSize: 11, color: AppColors.textMuted),
+            style: const TextStyle(fontSize: 11, color: AppColors.textMuted),
           ),
         ],
       ),

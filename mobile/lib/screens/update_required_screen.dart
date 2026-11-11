@@ -41,7 +41,7 @@ class _UpdateRequiredScreenState extends ConsumerState<UpdateRequiredScreen> {
 
   @override
   Widget build(BuildContext context) => Scaffold(
-        backgroundColor: AppColors.sand,
+        backgroundColor: AppColors.background,
         body: SafeArea(
           child: Padding(
             padding: const EdgeInsets.all(28),
@@ -49,7 +49,7 @@ class _UpdateRequiredScreenState extends ConsumerState<UpdateRequiredScreen> {
               mainAxisAlignment: MainAxisAlignment.center,
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                const Icon(Icons.system_update, size: 56, color: AppColors.teal),
+                const Icon(Icons.system_update, size: 56, color: AppColors.primary),
                 const SizedBox(height: 18),
                 Text(inLanguage(updateRequiredText, _language),
                     textAlign: TextAlign.center, style: const TextStyle(fontSize: 20, fontWeight: FontWeight.w700)),

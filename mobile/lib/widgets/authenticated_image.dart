@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../services/auth_service.dart';
+import '../theme/app_theme.dart';
 
 /// `Image.network` can't attach the Authorization header GET /media/{id}/file
 /// requires (media is deliberately not public). Fetches the bytes through
@@ -56,7 +57,7 @@ class _AuthenticatedImageState extends ConsumerState<AuthenticatedImage> {
           return Container(
             width: widget.width,
             height: 160,
-            color: Colors.grey.shade200,
+            color: AppColors.surfaceMuted,
             child: const Center(child: CircularProgressIndicator()),
           );
         }
@@ -64,7 +65,7 @@ class _AuthenticatedImageState extends ConsumerState<AuthenticatedImage> {
           return Container(
             width: widget.width,
             height: 80,
-            color: Colors.grey.shade100,
+            color: AppColors.surfaceMuted,
             child: const Center(child: Text('Image failed to load', style: TextStyle(fontSize: 12))),
           );
         }

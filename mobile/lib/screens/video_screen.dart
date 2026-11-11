@@ -129,7 +129,7 @@ class _VideoScreenState extends ConsumerState<VideoScreen> {
           error: (e, _) => _buildBody(video, null),
         ),
         loading: () => const Center(child: CircularProgressIndicator()),
-        error: (e, _) => Center(child: Text('Could not load video: $e', style: const TextStyle(color: AppColors.danger))),
+        error: (e, _) => Center(child: Text('Could not load video: $e', style: const TextStyle(color: AppColors.errorText))),
       ),
     );
   }
@@ -154,11 +154,7 @@ class _VideoScreenState extends ConsumerState<VideoScreen> {
                     onTap: playablePath == null ? null : () => _play(playablePath),
                     child: Container(
                       decoration: BoxDecoration(
-                        gradient: const LinearGradient(
-                          begin: Alignment.topLeft,
-                          end: Alignment.bottomRight,
-                          colors: [Color(0xFF1E3D37), AppColors.teal],
-                        ),
+                        color: AppColors.primary,
                         borderRadius: BorderRadius.circular(AppRadius.medium),
                       ),
                       child: Center(
@@ -167,12 +163,12 @@ class _VideoScreenState extends ConsumerState<VideoScreen> {
                           height: 56,
                           decoration: BoxDecoration(
                             shape: BoxShape.circle,
-                            color: Colors.white.withValues(alpha: 0.15),
-                            border: Border.all(color: Colors.white.withValues(alpha: 0.5), width: 1.5),
+                            color: AppColors.onPrimary.withValues(alpha: 0.15),
+                            border: Border.all(color: AppColors.onPrimary.withValues(alpha: 0.5), width: 1.5),
                           ),
                           child: Icon(
                             downloaded ? Icons.play_arrow_rounded : Icons.download_rounded,
-                            color: Colors.white,
+                            color: AppColors.onPrimary,
                             size: 28,
                           ),
                         ),
@@ -184,7 +180,7 @@ class _VideoScreenState extends ConsumerState<VideoScreen> {
           Text(video.title, style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 14)),
           const SizedBox(height: 6),
           if (video.description != null)
-            Text(video.description!, style: const TextStyle(fontSize: 11.5, color: AppColors.textSecondary, height: 1.5)),
+            Text(video.description!, style: const TextStyle(fontSize: 11.5, color: AppColors.textMuted, height: 1.5)),
           const SizedBox(height: 16),
 
           if (!video.hasFile)
@@ -194,9 +190,9 @@ class _VideoScreenState extends ConsumerState<VideoScreen> {
           else if (downloaded) ...[
             const Row(
               children: [
-                Icon(Icons.check_circle, size: 16, color: AppColors.teal),
+                Icon(Icons.check_circle, size: 16, color: AppColors.success),
                 SizedBox(width: 6),
-                Text('Downloaded for offline playback', style: TextStyle(fontSize: 11.5, color: AppColors.teal, fontWeight: FontWeight.w700)),
+                Text('Downloaded for offline playback', style: TextStyle(fontSize: 11.5, color: AppColors.primary, fontWeight: FontWeight.w700)),
               ],
             ),
           ] else ...[
@@ -206,12 +202,12 @@ class _VideoScreenState extends ConsumerState<VideoScreen> {
                 child: LinearProgressIndicator(
                   value: _progress,
                   minHeight: 7,
-                  backgroundColor: AppColors.sandDeep,
-                  valueColor: const AlwaysStoppedAnimation(AppColors.teal),
+                  backgroundColor: AppColors.progressTrack,
+                  valueColor: const AlwaysStoppedAnimation(AppColors.primary),
                 ),
               ),
               const SizedBox(height: 6),
-              Text('${(_progress * 100).toStringAsFixed(0)}%', style: const TextStyle(fontFamily: AppFonts.mono, fontSize: 10.5, color: AppColors.textMuted)),
+              Text('${(_progress * 100).toStringAsFixed(0)}%', style: const TextStyle(fontSize: 10.5, color: AppColors.textMuted)),
             ] else
               FilledButton.icon(
                 onPressed: _startDownload,
@@ -231,13 +227,13 @@ class _VideoScreenState extends ConsumerState<VideoScreen> {
   Widget _notice(String text) {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
-      decoration: BoxDecoration(color: AppColors.claySoft, borderRadius: BorderRadius.circular(12)),
+      decoration: BoxDecoration(color: AppColors.warningSurface, borderRadius: BorderRadius.circular(12)),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Icon(Icons.info_outline, size: 16, color: AppColors.clay),
+          const Icon(Icons.info_outline, size: 16, color: AppColors.info),
           const SizedBox(width: 9),
-          Expanded(child: Text(text, style: const TextStyle(fontSize: 11.5, color: AppColors.calloutWarningText, height: 1.5))),
+          Expanded(child: Text(text, style: const TextStyle(fontSize: 11.5, color: AppColors.warningText, height: 1.5))),
         ],
       ),
     );

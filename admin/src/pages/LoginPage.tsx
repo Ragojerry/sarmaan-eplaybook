@@ -1,6 +1,7 @@
 import { useState, FormEvent } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { useAuth } from "../services/auth";
+import PartnerLogos from "../components/PartnerLogos";
 
 export default function LoginPage() {
   const { login } = useAuth();
@@ -28,7 +29,8 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50">
+    <div className="min-h-screen flex flex-col bg-gray-50">
+      <div className="flex-1 flex items-center justify-center">
       <form onSubmit={handleSubmit} className="w-full max-w-sm bg-white p-8 rounded-lg shadow">
         <h1 className="text-xl font-semibold mb-1">SARMAAN e-Playbook</h1>
         <p className="text-sm text-gray-500 mb-6">Admin Portal</p>
@@ -72,6 +74,10 @@ export default function LoginPage() {
           {submitting ? "Signing in…" : "Sign in"}
         </button>
       </form>
+      </div>
+      <footer className="border-t border-gray-200">
+        <PartnerLogos placement="adminFooter" />
+      </footer>
     </div>
   );
 }

@@ -59,33 +59,9 @@ dev_dependencies:
 
 flutter:
   uses-material-design: true
-  # Bundled typefaces (all SIL Open Font License 1.1 — licence texts sit next to the files).
-  # Static instances cut from the official variable fonts, one file per weight the app uses.
-  fonts:
-    - family: Fraunces
-      fonts:
-        - asset: assets/fonts/Fraunces-Regular.ttf
-        - asset: assets/fonts/Fraunces-SemiBold.ttf
-          weight: 600
-        - asset: assets/fonts/Fraunces-Bold.ttf
-          weight: 700
-    - family: Manrope
-      fonts:
-        - asset: assets/fonts/Manrope-Regular.ttf
-        - asset: assets/fonts/Manrope-Medium.ttf
-          weight: 500
-        - asset: assets/fonts/Manrope-SemiBold.ttf
-          weight: 600
-        - asset: assets/fonts/Manrope-Bold.ttf
-          weight: 700
-        - asset: assets/fonts/Manrope-ExtraBold.ttf
-          weight: 800
-    - family: JetBrainsMono
-      fonts:
-        - asset: assets/fonts/JetBrainsMono-Regular.ttf
-        - asset: assets/fonts/JetBrainsMono-Medium.ttf
-          weight: 500
-        - asset: assets/fonts/JetBrainsMono-Bold.ttf
-          weight: 700
-        - asset: assets/fonts/JetBrainsMono-ExtraBold.ttf
-          weight: 800
+  # Brand (brand/ at the repository root, copied here by scripts/brand_sync.py): the partner
+  # logos, used unmodified, and logos.json, which sets their order and positions.
+  # Fonts: the brand font Helvetica Neue is licensed and not bundled; the theme asks for it and
+  # falls back to the system sans (brand/tokens.json -> font).
+  assets:
+    - assets/brand/

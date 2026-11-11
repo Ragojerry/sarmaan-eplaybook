@@ -38,7 +38,7 @@ class VideoLibraryScreen extends ConsumerWidget {
                 children: [for (final v in videos) _VideoListItem(video: v)],
               ),
         loading: () => const Center(child: CircularProgressIndicator()),
-        error: (e, _) => Center(child: Text('Could not load videos: $e', style: const TextStyle(color: AppColors.danger))),
+        error: (e, _) => Center(child: Text('Could not load videos: $e', style: const TextStyle(color: AppColors.errorText))),
       ),
       bottomNavigationBar: const AppBottomNav(currentRoute: '/videos'),
     );
@@ -75,22 +75,18 @@ class _VideoListItem extends ConsumerWidget {
               width: 64,
               height: 42,
               decoration: BoxDecoration(
-                gradient: const LinearGradient(
-                  begin: Alignment.topLeft,
-                  end: Alignment.bottomRight,
-                  colors: [Color(0xFF1E3D37), AppColors.teal],
-                ),
+                color: AppColors.primary,
                 borderRadius: BorderRadius.circular(8),
               ),
               alignment: Alignment.center,
-              child: Icon(icon, color: Colors.white.withValues(alpha: video.hasFile ? 1 : 0.6), size: 18),
+              child: Icon(icon, color: AppColors.onPrimary.withValues(alpha: video.hasFile ? 1 : 0.6), size: 18),
             ),
             const SizedBox(width: 11),
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(video.title, style: const TextStyle(fontSize: 11.8, fontWeight: FontWeight.w700, color: AppColors.ink)),
+                  Text(video.title, style: const TextStyle(fontSize: 11.8, fontWeight: FontWeight.w700, color: AppColors.textStrong)),
                   const SizedBox(height: 2),
                   Text(
                     !video.hasFile

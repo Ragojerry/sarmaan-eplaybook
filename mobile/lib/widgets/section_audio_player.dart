@@ -91,7 +91,7 @@ class _SectionAudioPlayerState extends ConsumerState<SectionAudioPlayer> {
       padding: const EdgeInsets.fromLTRB(12, 9, 12, 4),
       decoration: BoxDecoration(
         color: AppColors.white,
-        border: Border.all(color: AppColors.line, width: 1.5),
+        border: Border.all(color: AppColors.divider, width: 1.5),
         borderRadius: BorderRadius.circular(AppRadius.standard),
       ),
       child: Column(
@@ -118,10 +118,10 @@ class _SectionAudioPlayerState extends ConsumerState<SectionAudioPlayer> {
                     height: 34,
                     decoration: BoxDecoration(
                       shape: BoxShape.circle,
-                      color: c == null ? AppColors.line : AppColors.tealDeep,
+                      color: c == null ? AppColors.divider : AppColors.primary,
                     ),
                     alignment: Alignment.center,
-                    child: Icon(playing ? Icons.pause_rounded : Icons.play_arrow_rounded, size: 18, color: Colors.white),
+                    child: Icon(playing ? Icons.pause_rounded : Icons.play_arrow_rounded, size: 18, color: AppColors.onPrimary),
                   ),
                 ),
               ),
@@ -131,9 +131,9 @@ class _SectionAudioPlayerState extends ConsumerState<SectionAudioPlayer> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(widget.title,
-                        style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w700, color: AppColors.ink)),
+                        style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w700, color: AppColors.textStrong)),
                     Text(status,
-                        style: const TextStyle(fontFamily: AppFonts.mono, fontSize: 9.5, color: AppColors.textMuted)),
+                        style: const TextStyle(fontSize: 9.5, color: AppColors.textMuted)),
                   ],
                 ),
               ),
@@ -143,7 +143,7 @@ class _SectionAudioPlayerState extends ConsumerState<SectionAudioPlayer> {
             Slider(
               value: pos.inMilliseconds.clamp(0, total.inMilliseconds).toDouble(),
               max: total.inMilliseconds > 0 ? total.inMilliseconds.toDouble() : 1,
-              activeColor: AppColors.teal,
+              activeColor: AppColors.primary,
               onChanged: (v) => c.seekTo(Duration(milliseconds: v.round())),
             ),
         ],
