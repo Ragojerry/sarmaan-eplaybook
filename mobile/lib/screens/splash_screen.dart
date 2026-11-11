@@ -107,7 +107,7 @@ class _SplashScreenState extends ConsumerState<SplashScreen> {
         ),
         const SizedBox(height: 22),
         const Text(
-          'SARMAAN e-Playbook',
+          'SARMAAN II e-Playbook',
           style: TextStyle(
             fontFamily: AppFonts.serif,
             fontSize: 26,

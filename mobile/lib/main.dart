@@ -25,7 +25,7 @@ class SarmaanEPlaybookApp extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final router = ref.watch(appRouterProvider);
     return MaterialApp.router(
-      title: 'SARMAAN e-Playbook',
+      title: 'SARMAAN II e-Playbook',
       debugShowCheckedModeBanner: false,
       theme: AppTheme.light(),
       routerConfig: router,
