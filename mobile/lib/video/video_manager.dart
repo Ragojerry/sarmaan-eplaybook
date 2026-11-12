@@ -13,6 +13,7 @@ import '../offline/content_sync_service.dart';
 import '../services/api_client.dart';
 import '../services/auth_service.dart';
 import '../sync/analytics_recorder.dart';
+import '../l10n/l10n.dart';
 
 final videoManagerProvider = Provider<VideoManager>(
   (ref) => VideoManager(ref.read(apiClientProvider), ref.read(localDatabaseProvider)),
@@ -76,10 +77,10 @@ class VideoManager {
     final meta = TrainingVideo.fromJson(metaResp.data);
 
     if (!meta.hasFile) {
-      throw VideoDownloadException('No video file has been uploaded for "${meta.title}" yet.');
+      throw VideoDownloadException(L10n.t('video.noFile', {'title': meta.title}));
     }
     if (meta.fileSize == null || meta.checksum == null) {
-      throw VideoDownloadException('Video metadata is missing size/checksum information.');
+      throw VideoDownloadException(L10n.t('video.metadataMissing'));
     }
 
     final dir = await _videoDir();
@@ -122,7 +123,7 @@ class VideoManager {
 
       final chunk = response.data;
       if (chunk == null) {
-        throw VideoDownloadException('Empty response while downloading video.');
+        throw VideoDownloadException(L10n.t('video.emptyDownload'));
       }
       sink.add(chunk);
       await sink.flush();
@@ -137,7 +138,7 @@ class VideoManager {
       // broken video to video_player.
       await file.delete();
       throw VideoDownloadException(
-        'Downloaded file failed checksum verification for "${meta.title}" — please retry.',
+        L10n.t('video.checksumFailed', {'title': meta.title}),
       );
     }
 

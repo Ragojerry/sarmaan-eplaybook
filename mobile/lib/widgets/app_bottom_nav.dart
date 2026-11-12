@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import '../l10n/l10n.dart';
 
 /// Phase 7 scope: Home/Modules/Videos/About. The prototype's 5th tab
 /// ("Ask", the AI assistant) is deliberately omitted here — that screen
@@ -12,22 +13,22 @@ class AppBottomNav extends StatelessWidget {
 
   const AppBottomNav({super.key, required this.currentRoute});
 
-  static const _items = [
-    ('/home', Icons.home_outlined, 'Home'),
-    ('/modules', Icons.menu_book_outlined, 'Modules'),
-    ('/videos', Icons.play_circle_outline, 'Videos'),
-    ('/ai', Icons.chat_bubble_outline, 'Ask'),
-    ('/about', Icons.info_outline, 'About'),
-  ];
-
   @override
   Widget build(BuildContext context) {
-    final index = _items.indexWhere((i) => i.$1 == currentRoute).clamp(0, _items.length - 1);
+    final items = [
+      ('/home', Icons.home_outlined, context.t('nav.home')),
+      ('/modules', Icons.menu_book_outlined, context.t('nav.modules')),
+      ('/videos', Icons.play_circle_outline, context.t('nav.videos')),
+      ('/ai', Icons.chat_bubble_outline, context.t('nav.ask')),
+      ('/about', Icons.info_outline, context.t('nav.about')),
+    ];
+    final index = items.indexWhere((i) => i.$1 == currentRoute).clamp(0, items.length - 1);
     return NavigationBar(
       selectedIndex: index,
-      onDestinationSelected: (i) => context.go(_items[i].$1),
+      onDestinationSelected: (i) => context.go(items[i].$1),
       destinations: [
-        for (final item in _items) NavigationDestination(icon: Icon(item.$2), label: item.$3),
+        // Long translations shrink to fit the tab instead of being cut off.
+        for (final item in items) NavigationDestination(icon: Icon(item.$2), label: item.$3),
       ],
     );
   }

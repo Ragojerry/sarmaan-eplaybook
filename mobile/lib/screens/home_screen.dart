@@ -14,6 +14,7 @@ import '../sync/sync_engine.dart';
 import '../theme/app_theme.dart';
 import '../widgets/partner_logo_row.dart';
 import '../widgets/app_bottom_nav.dart';
+import '../l10n/l10n.dart';
 import 'modules_screen.dart' show GeneralTestCard;
 
 /// Reads from the LOCAL cache (Phase 8), never directly from the network —
@@ -96,7 +97,7 @@ List<_SearchHit> _search(String query, List<CachedModuleRow> modules, List<Conte
 
 String _greeting() {
   final h = DateTime.now().hour;
-  return h < 12 ? 'GOOD MORNING' : (h < 17 ? 'GOOD AFTERNOON' : 'GOOD EVENING');
+  return h < 12 ? L10n.t('home.goodMorning') : (h < 17 ? L10n.t('home.goodAfternoon') : L10n.t('home.goodEvening'));
 }
 
 class HomeScreen extends ConsumerStatefulWidget {
@@ -159,9 +160,9 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     if (!mounted) return;
     final snap = ref.read(syncEngineProvider);
     final text = switch (snap.status) {
-      SyncStatus.offline => 'You are offline. Your progress will upload when you are back online.',
-      SyncStatus.syncError => snap.message ?? 'Could not sync. Check your connection and try again.',
-      _ => installed ? 'Update installed. You have the latest content.' : 'Synced. You have the latest content.',
+      SyncStatus.offline => L10n.t('sync.offlineWillUpload'),
+      SyncStatus.syncError => snap.message ?? L10n.t('sync.failed'),
+      _ => installed ? L10n.t('sync.updateInstalled') : L10n.t('sync.done'),
     };
     ScaffoldMessenger.of(context)
       ..hideCurrentSnackBar()
@@ -179,12 +180,10 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
       final hasContent = await ref.read(localDatabaseProvider).hasCachedContent();
       if (!hasContent && mounted) {
         final offline = ref.read(syncEngineProvider).status == SyncStatus.offline;
-        setState(() => _syncError = offline
-            ? 'You are offline. Connect once to download your training content.'
-            : 'Could not download content. Check your connection and try again.');
+        setState(() => _syncError = offline ? L10n.t('home.offlineFirstDownload') : L10n.t('home.downloadFailed'));
       }
     } catch (e) {
-      if (mounted) setState(() => _syncError = 'Could not download content. Check your connection and try again.');
+      if (mounted) setState(() => _syncError = L10n.t('home.downloadFailed'));
     } finally {
       if (mounted) setState(() => _syncing = false);
     }
@@ -212,7 +211,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
         onPressed: () => context.go('/ai'),
         backgroundColor: AppColors.primary,
         foregroundColor: AppColors.onPrimary,
-        tooltip: 'Ask a question',
+        tooltip: context.t('home.askTooltip'),
         child: const Icon(Icons.auto_awesome),
       ),
       body: RefreshIndicator(
@@ -222,13 +221,15 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
           children: [
             _buildHeader(_who(user), snap.status != SyncStatus.offline, snap.availableRelease != null),
             if (_syncing)
-              const Padding(
-                padding: EdgeInsets.fromLTRB(22, 16, 22, 0),
+              Padding(
+                padding: const EdgeInsets.fromLTRB(22, 16, 22, 0),
                 child: Row(
                   children: [
-                    SizedBox(height: 14, width: 14, child: CircularProgressIndicator(strokeWidth: 2)),
-                    SizedBox(width: 10),
-                    Text('Downloading content for offline use…', style: TextStyle(fontSize: 12, color: AppColors.textMuted)),
+                    const SizedBox(height: 14, width: 14, child: CircularProgressIndicator(strokeWidth: 2)),
+                    const SizedBox(width: 10),
+                    Expanded(
+                      child: Text(context.t('home.downloading'), style: const TextStyle(fontSize: 12, color: AppColors.textMuted)),
+                    ),
                   ],
                 ),
               ),
@@ -245,12 +246,12 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
               ..._buildContinueReading(modules, extras),
               // The General pre-test opens the modules; the post-test follows them.
               if (extras != null) GeneralTestCard(general: extras.learning.general),
-              const _SectionLabel('SARMAAN-II · AZM MDA MODULES'),
+              _SectionLabel(context.t('home.modulesHeading')),
               modulesAsync.when(
                 data: (modules) => modules.isEmpty
-                    ? const Padding(
-                        padding: EdgeInsets.symmetric(horizontal: 22),
-                        child: Text('No modules downloaded yet. Pull down to sync.', style: TextStyle(color: AppColors.textMuted)),
+                    ? Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 22),
+                        child: Text(context.t('home.noModules'), style: const TextStyle(color: AppColors.textMuted)),
                       )
                     : Padding(
                         padding: const EdgeInsets.symmetric(horizontal: 22),
@@ -279,7 +280,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                 ),
                 error: (e, _) => Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 22),
-                  child: Text('Could not load modules: $e', style: const TextStyle(color: AppColors.errorText)),
+                  child: Text(context.t('home.loadFailed', {'error': e}), style: const TextStyle(color: AppColors.errorText)),
                 ),
               ),
             ],
@@ -308,7 +309,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     ]..sort((a, b) => (b.lastOpenedAt ?? DateTime(0)).compareTo(a.lastOpenedAt ?? DateTime(0)));
     if (started.isEmpty) return const [];
     return [
-      const _SectionLabel('CONTINUE READING'),
+      _SectionLabel(context.t('home.continueReading')),
       for (var i = 0; i < started.length; i++)
         Padding(
           padding: EdgeInsets.fromLTRB(22, i == 0 ? 0 : 10, 22, 0),
@@ -326,16 +327,16 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            hits.isEmpty ? 'NO MATCHES' : 'RESULTS',
+            hits.isEmpty ? context.t('search.noMatches') : context.t('search.results'),
             style: const TextStyle(
               fontFamily: AppFonts.sans, fontSize: 11, fontWeight: FontWeight.w800, letterSpacing: 0.9, color: AppColors.textMuted,
             ),
           ),
           const SizedBox(height: 10),
           if (hits.isEmpty)
-            const Text(
-              'Nothing in your downloaded modules matches that. Try one word, or use the Ask button.',
-              style: TextStyle(color: AppColors.textMuted, fontSize: 13),
+            Text(
+              context.t('search.nothingFound'),
+              style: const TextStyle(color: AppColors.textMuted, fontSize: 13),
             ),
           for (final h in hits)
             GestureDetector(
@@ -397,14 +398,14 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
         margin: const EdgeInsets.only(right: 6),
         padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 4),
         decoration: BoxDecoration(color: AppColors.infoSurface, borderRadius: BorderRadius.circular(20)),
-        child: const Row(
+        child: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(Icons.download_rounded, size: 11, color: AppColors.infoText),
-            SizedBox(width: 4),
+            const Icon(Icons.download_rounded, size: 11, color: AppColors.infoText),
+            const SizedBox(width: 4),
             Text(
-              'New content',
-              style: TextStyle(fontFamily: AppFonts.mono, fontSize: 10.5, fontWeight: FontWeight.w700, color: AppColors.primary),
+              context.t('home.newContent'),
+              style: const TextStyle(fontFamily: AppFonts.mono, fontSize: 10.5, fontWeight: FontWeight.w700, color: AppColors.primary),
             ),
           ],
         ),
@@ -443,7 +444,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                 if (updateAvailable) _updatePill(),
                 // Connection status only; syncing lives in the Sync & update card.
                 Semantics(
-                  label: online ? 'Online' : 'Offline',
+                  label: online ? context.t('common.online') : context.t('common.offline'),
                   excludeSemantics: true,
                   child: Container(
                     padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 4),
@@ -457,7 +458,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                         Icon(Icons.circle, size: 7, color: online ? AppColors.success : AppColors.textDisabled),
                         const SizedBox(width: 5),
                         Text(
-                          online ? 'Online' : 'Offline',
+                          online ? context.t('common.online') : context.t('common.offline'),
                           style: const TextStyle(fontFamily: AppFonts.mono, fontSize: 10.5, color: AppColors.onPrimary),
                         ),
                       ],
@@ -467,9 +468,9 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
               ],
             ),
             const SizedBox(height: 6),
-            const Text(
-              'Welcome to SARMAAN II Training Session',
-              style: TextStyle(fontFamily: AppFonts.serif, fontSize: 24, fontWeight: FontWeight.w600, color: AppColors.onPrimary),
+            Text(
+              context.t('home.title'),
+              style: const TextStyle(fontFamily: AppFonts.serif, fontSize: 24, fontWeight: FontWeight.w600, color: AppColors.onPrimary),
             ),
             const SizedBox(height: 16),
             TextField(
@@ -479,7 +480,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
               style: const TextStyle(color: AppColors.onPrimary, fontSize: 13.5),
               cursorColor: AppColors.onPrimary,
               decoration: InputDecoration(
-                hintText: 'Search modules, e.g. "MUAC", "referral"…',
+                hintText: context.t('search.hint'),
                 hintStyle: TextStyle(color: AppColors.onPrimary.withValues(alpha: 0.6), fontSize: 13.5),
                 prefixIcon: Icon(Icons.search, color: AppColors.onPrimary.withValues(alpha: 0.8)),
                 suffixIcon: _query.isEmpty
@@ -551,12 +552,12 @@ class _CodeBadge extends StatelessWidget {
 }
 
 String _syncedAgo(DateTime? t) {
-  if (t == null) return 'Not synced yet';
+  if (t == null) return L10n.t('sync.notYet');
   final d = DateTime.now().difference(t);
-  if (d.inMinutes < 1) return 'Synced just now';
-  if (d.inHours < 1) return 'Synced ${d.inMinutes} min ago';
-  if (d.inDays < 1) return 'Synced ${d.inHours} h ago';
-  return 'Synced ${d.inDays} d ago';
+  if (d.inMinutes < 1) return L10n.t('sync.justNow');
+  if (d.inHours < 1) return L10n.n('sync.minutesAgo', d.inMinutes);
+  if (d.inDays < 1) return L10n.n('sync.hoursAgo', d.inHours);
+  return L10n.n('sync.daysAgo', d.inDays);
 }
 
 /// "Sync & update" card: last sync time, changes waiting to upload, and a
@@ -573,12 +574,14 @@ class _SyncCard extends StatelessWidget {
     final String detail;
     if (snap.installing) {
       final pct = (snap.installFraction * 100).round();
-      detail = 'Installing update${pct > 0 ? ' · $pct%' : '…'}';
+      detail = pct > 0 ? context.t('sync.installingPercent', {'percent': pct}) : context.t('sync.installing');
     } else if (busy) {
-      detail = 'Syncing…';
+      detail = context.t('sync.syncing');
     } else {
-      detail = '${_syncedAgo(snap.lastSyncedAt)}'
-          '${waiting > 0 ? ' · $waiting waiting to upload' : ''}';
+      detail = [
+        _syncedAgo(snap.lastSyncedAt),
+        if (waiting > 0) context.tn('sync.waitingToUpload', waiting),
+      ].join(' · ');
     }
     return Padding(
       padding: const EdgeInsets.fromLTRB(22, 16, 22, 0),
@@ -603,9 +606,9 @@ class _SyncCard extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Text(
-                    'Sync & update',
-                    style: TextStyle(fontSize: 13.5, fontWeight: FontWeight.w700, color: AppColors.textStrong),
+                  Text(
+                    context.t('sync.cardTitle'),
+                    style: const TextStyle(fontSize: 13.5, fontWeight: FontWeight.w700, color: AppColors.textStrong),
                   ),
                   const SizedBox(height: 2),
                   Text(
@@ -626,7 +629,7 @@ class _SyncCard extends StatelessWidget {
                 padding: const EdgeInsets.symmetric(horizontal: 16),
                 visualDensity: VisualDensity.compact,
               ),
-              child: const Text('Sync'),
+              child: Text(context.t('sync.button')),
             ),
           ],
         ),
@@ -659,9 +662,9 @@ class _UpdateBanner extends StatelessWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const Text(
-                      'Content update available',
-                      style: TextStyle(fontSize: 13.5, fontWeight: FontWeight.w700, color: AppColors.textStrong),
+                    Text(
+                      context.t('updates.available'),
+                      style: const TextStyle(fontSize: 13.5, fontWeight: FontWeight.w700, color: AppColors.textStrong),
                     ),
                     const SizedBox(height: 2),
                     Text(
@@ -725,7 +728,10 @@ class _ContinueCard extends StatelessWidget {
                   ),
                   const SizedBox(height: 3),
                   Text(
-                    '${progress.progressPercent}% complete${where != null && where.isNotEmpty ? ' · $where' : ''}',
+                    [
+                      context.t('home.percentComplete', {'percent': progress.progressPercent}),
+                      if (where != null && where.isNotEmpty) where,
+                    ].join(' · '),
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                     style: const TextStyle(fontSize: 11.5, color: AppColors.textMuted),
@@ -800,8 +806,14 @@ class _ModuleCard extends StatelessWidget {
                 const SizedBox(width: 4),
                 Expanded(
                   child: Text(
-                    '${sectionCount != null ? '$sectionCount sections · ' : ''}'
-                    '${stage != null && stage != ModuleStage.reading && !completed ? stageLabel(stage!) : !completed && percent > 0 ? '$percent% read' : 'offline'}',
+                    [
+                      if (sectionCount != null) context.tn('home.sectionCount', sectionCount!),
+                      stage != null && stage != ModuleStage.reading && !completed
+                          ? stageLabel(stage!)
+                          : !completed && percent > 0
+                              ? context.t('home.percentRead', {'percent': percent})
+                              : context.t('home.availableOffline'),
+                    ].join(' · '),
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                     style: const TextStyle(fontSize: 10.5, color: AppColors.textMuted),

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 
 import '../db/local_database.dart';
+import '../l10n/l10n.dart';
 
 /// Which curriculum the installed content is ("legacy" = the old M1-M6,
 /// "hfw-2026" = the HFW flipbook modules). Set by the release installer.
@@ -14,19 +15,6 @@ const kPendingTrainingNoticeKey = 'pending_training_notice';
 /// Lowest app version the server allows (GET /sync/learning: min_app_version).
 const kMinAppVersionKey = 'min_app_version';
 
-/// Message shown once after the changeover. The Hausa text is a DRAFT that a
-/// native speaker must review before release (content/hfw_flipbook/open_questions.md).
-const trainingNotice = {
-  'en': 'The training has been updated. Start the new modules.',
-  'ha': 'An sabunta horon. Fara sababbin darussa.',
-};
-
-const updateRequiredText = {
-  'en': 'Training updated, please update the app.',
-  'ha': 'An sabunta horo, da fatan za a sabunta manhajar.',
-};
-
-String inLanguage(Map<String, String> texts, String? code) => texts[code] ?? texts['en']!;
 
 /// Called by the release installer BEFORE it replaces the content, with the
 /// curriculum of the incoming package. A phone that had content but no record
@@ -57,7 +45,6 @@ bool _noticeOpen = false;
 /// learner's language, and clears it once dismissed. Returns whether it showed.
 Future<bool> showTrainingNoticeIfPending(BuildContext context, LocalDatabase db) async {
   if (_noticeOpen || !await hasPendingTrainingNotice(db)) return false;
-  final lang = await db.getSetting('selected_language_code');
   if (!context.mounted) return false;
   _noticeOpen = true;
   try {
@@ -66,10 +53,9 @@ Future<bool> showTrainingNoticeIfPending(BuildContext context, LocalDatabase db)
       barrierDismissible: false,
       builder: (ctx) => AlertDialog(
         title: const Icon(Icons.campaign_outlined, size: 36),
-        content: Text(inLanguage(trainingNotice, lang), textAlign: TextAlign.center),
+        content: Text(ctx.t('notice.trainingUpdated'), textAlign: TextAlign.center),
         actions: [
-          // "To" is the Hausa "OK" (draft, for native review).
-          FilledButton(onPressed: () => Navigator.of(ctx).pop(), child: Text(lang == 'ha' ? 'To' : 'OK')),
+          FilledButton(onPressed: () => Navigator.of(ctx).pop(), child: Text(ctx.t('common.ok'))),
         ],
       ),
     );

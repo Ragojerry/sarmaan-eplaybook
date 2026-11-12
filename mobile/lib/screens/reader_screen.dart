@@ -16,6 +16,7 @@ import '../quiz/quiz_grader.dart';
 import '../theme/app_theme.dart';
 import '../widgets/offline_aware_image.dart';
 import '../widgets/section_audio_player.dart';
+import '../l10n/l10n.dart';
 
 /// Phase 8: reads from the LOCAL cache — never the network — matching
 /// master prompt §18's offline-first requirement exactly ("module reading"
@@ -276,7 +277,7 @@ class _ReaderScreenState extends ConsumerState<ReaderScreen> with WidgetsBinding
     ref.invalidate(learningProvider);
     if (mounted) {
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-        content: Text(problem ?? 'Module completed. It will sync to your account when online.'),
+        content: Text(problem ?? context.t('reader.completedWillSync')),
       ));
     }
   }
@@ -345,27 +346,26 @@ class _ReaderScreenState extends ConsumerState<ReaderScreen> with WidgetsBinding
     if (state == null) {
       card = _card(
         icon: Icons.block,
-        title: 'Not available',
-        body: 'This module is not part of your current training. The training may have been updated, '
-            'or the module is for another role. Go back to Modules to continue.',
-        action: OutlinedButton(onPressed: () => context.go('/modules'), child: const Text('Back to modules')),
+        title: context.t('reader.notAvailableTitle'),
+        body: context.t('reader.notAvailableBody'),
+        action: OutlinedButton(onPressed: () => context.go('/modules'), child: Text(context.t('reader.backToModules'))),
       );
     } else if (state.lockedByGeneralTest) {
       card = _card(
         icon: Icons.quiz_outlined,
-        title: 'Start with the General pre-test',
-        body: 'Before the modules, answer ${learning.general.questions} questions to show what you already know. '
-            'It is not a pass or fail: it is your starting point, and you take it once.',
-        action: _primary('Start the General pre-test', () => context.go('/general-test/pre')),
+        title: context.t('general.preTitle'),
+        body: context.tn('reader.preTestGateBody', learning.general.questions),
+        action: _primary(context.t('reader.startPreTest'), () => context.go('/general-test/pre')),
       );
     } else {
       final blocker = learning.blockerOf(widget.moduleId);
       card = _card(
         icon: Icons.lock_outline,
-        title: 'Locked',
-        body: 'Complete ${blocker?.title ?? 'the previous module'} first. Modules open one after another, '
-            'when the previous one is completed.',
-        action: blocker == null ? null : _primary('Go to ${blocker.moduleCode}', () => context.go('/reader/${blocker.id}')),
+        title: context.t('stage.locked'),
+        body: blocker == null ? context.t('reader.lockedBodyPrevious') : context.t('reader.lockedBody', {'module': blocker.title}),
+        action: blocker == null
+            ? null
+            : _primary(context.t('reader.goTo', {'code': blocker.moduleCode}), () => context.go('/reader/${blocker.id}')),
       );
     }
     return ListView(padding: const EdgeInsets.fromLTRB(22, 22, 22, 28), children: [card]);
@@ -386,7 +386,10 @@ class _ReaderScreenState extends ConsumerState<ReaderScreen> with WidgetsBinding
           const SizedBox(width: 8),
           Expanded(
             child: Text(
-              'Time in this module: ${formatDuration(done ? state.minSeconds : secs)} / ${formatDuration(state.minSeconds)}',
+              context.t('reader.timeInModule', {
+                'spent': formatDuration(done ? state.minSeconds : secs),
+                'minimum': formatDuration(state.minSeconds),
+              }),
               style: const TextStyle(fontSize: 12, color: AppColors.textStrong),
             ),
           ),
@@ -401,8 +404,8 @@ class _ReaderScreenState extends ConsumerState<ReaderScreen> with WidgetsBinding
       return _card(
         icon: Icons.check_circle,
         good: true,
-        title: 'Module completed',
-        body: 'You can re-read it, play its audio and video and view its pictures; the result stays as it is.',
+        title: context.t('reader.completedTitle'),
+        body: context.t('reader.completedBody'),
       );
     }
     final secs = _secondsNow;
@@ -411,18 +414,17 @@ class _ReaderScreenState extends ConsumerState<ReaderScreen> with WidgetsBinding
     final lines = [
       if (state.hasQuiz)
         state.quizPassed
-            ? 'Module quiz: passed.'
-            : 'Module quiz: answer all $statements statements correctly ($kQuizPassMark% pass mark). '
-                'You can try again as often as you need.',
+            ? context.t('reader.quizPassedLine')
+            : context.tn('reader.quizTodoLine', statements, {'passMark': kQuizPassMark}),
       secs >= state.minSeconds
-          ? 'Time: ${formatDuration(state.minSeconds)} reached.'
-          : 'Time: ${formatDuration(secs)} of ${formatDuration(state.minSeconds)}. Please stay a little longer in this module.',
+          ? context.t('reader.timeReached', {'minimum': formatDuration(state.minSeconds)})
+          : context.t('reader.timeSoFar', {'spent': formatDuration(secs), 'minimum': formatDuration(state.minSeconds)}),
     ];
     return _card(
       icon: ready ? Icons.flag_outlined : Icons.hourglass_bottom,
-      title: 'Finish this module',
+      title: context.t('reader.finishTitle'),
       body: lines.join('\n'),
-      action: _primary('Complete module', _complete),
+      action: _primary(context.t('reader.completeModule'), _complete),
     );
   }
 
@@ -448,7 +450,7 @@ class _ReaderScreenState extends ConsumerState<ReaderScreen> with WidgetsBinding
             disabledForegroundColor: chosen ? AppColors.textStrong : AppColors.textMuted,
             side: BorderSide(color: chosen ? (right ? AppColors.success : AppColors.error) : AppColors.divider, width: chosen ? 2 : 1),
           ),
-          child: Text(value ? 'True' : 'False'),
+          child: Text(value ? context.t('quiz.true') : context.t('quiz.false')),
         ),
       );
     }
@@ -464,13 +466,13 @@ class _ReaderScreenState extends ConsumerState<ReaderScreen> with WidgetsBinding
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text('QUICK CHECK · TRUE OR FALSE?',
-              style: TextStyle(fontWeight: FontWeight.w700, fontSize: 10.5, letterSpacing: 0.5, color: AppColors.primary)),
+          Text(context.t('quiz.quickCheck'),
+              style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 10.5, letterSpacing: 0.5, color: AppColors.primary)),
           const SizedBox(height: 6),
           Text(statement, style: const TextStyle(fontSize: 13, height: 1.5, color: AppColors.text)),
           const SizedBox(height: 10),
           if (review)
-            Text('Answer: ${correctAnswer == true ? 'True' : 'False'}',
+            Text(correctAnswer == true ? context.t('quiz.answerTrue') : context.t('quiz.answerFalse'),
                 style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w700, color: AppColors.primary))
           else
             Row(children: [choice(true), const SizedBox(width: 10), choice(false)]),
@@ -478,7 +480,11 @@ class _ReaderScreenState extends ConsumerState<ReaderScreen> with WidgetsBinding
             Padding(
               padding: const EdgeInsets.only(top: 8),
               child: Text(
-                right ? 'Correct.' : 'Not quite. The answer is ${correctAnswer == true ? 'True' : 'False'}.',
+                right
+                    ? context.t('quiz.correct')
+                    : correctAnswer == true
+                        ? context.t('quiz.wrongAnswerTrue')
+                        : context.t('quiz.wrongAnswerFalse'),
                 style: TextStyle(fontSize: 12, fontWeight: FontWeight.w700, color: right ? AppColors.successText : AppColors.errorText),
               ),
             ),
@@ -491,18 +497,17 @@ class _ReaderScreenState extends ConsumerState<ReaderScreen> with WidgetsBinding
             Padding(
               padding: const EdgeInsets.only(top: 12),
               child: _quizResult!.passed
-                  ? const Text('Quiz passed. Well done!',
-                      style: TextStyle(fontSize: 12.5, fontWeight: FontWeight.w800, color: AppColors.primary))
+                  ? Text(context.t('quiz.passed'),
+                      style: const TextStyle(fontSize: 12.5, fontWeight: FontWeight.w800, color: AppColors.primary))
                   : Column(
                       crossAxisAlignment: CrossAxisAlignment.stretch,
                       children: [
                         Text(
-                          'You got ${_quizResult!.correct} of ${_quizResult!.total}. All need to be right to pass. '
-                          'Try again: you answer all ${_quizResult!.total} statements again.',
+                          context.tn('quiz.failedRetry', _quizResult!.total, {'correct': _quizResult!.correct}),
                           style: const TextStyle(fontSize: 12, color: AppColors.warningText),
                         ),
                         const SizedBox(height: 8),
-                        _primary('Try again', _retryQuiz),
+                        _primary(context.t('quiz.tryAgain'), _retryQuiz),
                       ],
                     ),
             ),
@@ -521,7 +526,8 @@ class _ReaderScreenState extends ConsumerState<ReaderScreen> with WidgetsBinding
 
     return Scaffold(
       appBar: AppBar(
-        title: translationAsync.maybeWhen(data: (t) => Text(t?.title ?? 'Module'), orElse: () => const Text('Module')),
+        title: translationAsync.maybeWhen(
+            data: (t) => Text(t?.title ?? context.t('reader.module')), orElse: () => Text(context.t('reader.module'))),
         leading: BackButton(onPressed: () => context.go('/modules')),
       ),
       body: sectionsAsync.when(
@@ -536,11 +542,11 @@ class _ReaderScreenState extends ConsumerState<ReaderScreen> with WidgetsBinding
           if (_loadedSections.isEmpty && sections.isNotEmpty) _checkShortModule();
           _loadedSections = sections;
           return sections.isEmpty
-            ? const Center(
+            ? Center(
                 child: Padding(
-                  padding: EdgeInsets.all(24),
+                  padding: const EdgeInsets.all(24),
                   child: Text(
-                    'No content downloaded for this module yet. Go to Home and pull down to sync.',
+                    context.t('reader.noContent'),
                     textAlign: TextAlign.center,
                   ),
                 ),
@@ -566,7 +572,7 @@ class _ReaderScreenState extends ConsumerState<ReaderScreen> with WidgetsBinding
               );
         },
         loading: () => const Center(child: CircularProgressIndicator()),
-        error: (e, _) => Center(child: Text('Could not load content: $e')),
+        error: (e, _) => Center(child: Text(context.t('reader.loadFailed', {'error': e}))),
       ),
     );
   }
@@ -756,7 +762,7 @@ class _ReaderScreenState extends ConsumerState<ReaderScreen> with WidgetsBinding
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        section.content['title'] as String? ?? 'Watch video',
+                        section.content['title'] as String? ?? context.t('reader.watchVideo'),
                         style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w700, color: AppColors.onPrimary),
                       ),
                       if (section.content['duration'] is String)
@@ -785,7 +791,7 @@ class _ReaderScreenState extends ConsumerState<ReaderScreen> with WidgetsBinding
           children: [
             SectionAudioPlayer(
               mediaAssetId: audioId,
-              title: section.title ?? section.content['title'] as String? ?? 'Listen',
+              title: section.title ?? section.content['title'] as String? ?? context.t('reader.listen'),
             ),
             if (description is String && description.trim().isNotEmpty)
               Padding(
@@ -839,12 +845,14 @@ class _AudioBar extends StatelessWidget {
             ),
           ),
           const SizedBox(width: 10),
-          const Expanded(
+          Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text('Read aloud', style: TextStyle(fontSize: 11, fontWeight: FontWeight.w700, color: AppColors.textStrong)),
-                Text('ON-DEVICE AUDIO', style: TextStyle(fontFamily: AppFonts.mono, fontSize: 9.5, color: AppColors.textMuted)),
+                Text(context.t('reader.readAloud'),
+                    style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w700, color: AppColors.textStrong)),
+                Text(context.t('reader.onDeviceAudio'),
+                    style: const TextStyle(fontFamily: AppFonts.mono, fontSize: 9.5, color: AppColors.textMuted)),
               ],
             ),
           ),

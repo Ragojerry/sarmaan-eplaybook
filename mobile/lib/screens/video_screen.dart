@@ -12,6 +12,7 @@ import '../services/auth_service.dart';
 import '../sync/analytics_recorder.dart';
 import '../theme/app_theme.dart';
 import '../video/video_manager.dart';
+import '../l10n/l10n.dart';
 
 final videoDetailProvider = FutureProvider.family<TrainingVideo, String>((ref, videoId) async {
   final api = ref.read(apiClientProvider);
@@ -95,7 +96,7 @@ class _VideoScreenState extends ConsumerState<VideoScreen> {
     } catch (e) {
       await controller.dispose();
       await recordAnalyticsEvent(db, 'VIDEO_PLAYBACK_FAILURE', videoId: widget.videoId, payload: {'reason': e.runtimeType.toString()});
-      if (mounted) setState(() => _downloadError = 'This video could not be played. Try deleting it and downloading it again.');
+      if (mounted) setState(() => _downloadError = L10n.t('video.playFailed'));
       return;
     }
     // One VIDEO_COMPLETE per viewing session, when playback reaches the end.
@@ -119,7 +120,7 @@ class _VideoScreenState extends ConsumerState<VideoScreen> {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Video'),
+        title: Text(context.t('video.title')),
         leading: BackButton(onPressed: () => context.go('/videos')),
       ),
       body: videoAsync.when(
@@ -129,7 +130,7 @@ class _VideoScreenState extends ConsumerState<VideoScreen> {
           error: (e, _) => _buildBody(video, null),
         ),
         loading: () => const Center(child: CircularProgressIndicator()),
-        error: (e, _) => Center(child: Text('Could not load video: $e', style: const TextStyle(color: AppColors.errorText))),
+        error: (e, _) => Center(child: Text(context.t('video.loadFailed', {'error': e}), style: const TextStyle(color: AppColors.errorText))),
       ),
     );
   }
@@ -184,15 +185,18 @@ class _VideoScreenState extends ConsumerState<VideoScreen> {
           const SizedBox(height: 16),
 
           if (!video.hasFile)
-            _notice(
-              'This video is not yet available. Real footage and offline download support are planned for a later phase.',
-            )
+            _notice(context.t('video.notAvailable'))
           else if (downloaded) ...[
-            const Row(
+            Row(
               children: [
-                Icon(Icons.check_circle, size: 16, color: AppColors.success),
-                SizedBox(width: 6),
-                Text('Downloaded for offline playback', style: TextStyle(fontSize: 11.5, color: AppColors.primary, fontWeight: FontWeight.w700)),
+                const Icon(Icons.check_circle, size: 16, color: AppColors.success),
+                const SizedBox(width: 6),
+                Expanded(
+                  child: Text(
+                    context.t('video.downloaded'),
+                    style: const TextStyle(fontSize: 11.5, color: AppColors.primary, fontWeight: FontWeight.w700),
+                  ),
+                ),
               ],
             ),
           ] else ...[
@@ -212,7 +216,9 @@ class _VideoScreenState extends ConsumerState<VideoScreen> {
               FilledButton.icon(
                 onPressed: _startDownload,
                 icon: const Icon(Icons.download_rounded, size: 18),
-                label: Text('Download${video.fileSize != null ? ' (${_formatBytes(video.fileSize!)})' : ''}'),
+                label: Text(video.fileSize != null
+                    ? context.t('video.downloadSize', {'size': _formatBytes(video.fileSize!)})
+                    : context.t('video.download')),
               ),
             if (_downloadError != null) ...[
               const SizedBox(height: 10),

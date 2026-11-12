@@ -1,0 +1,979 @@
+{
+  "_about": "English interface text of the mobile app. Edit here, then run python scripts/l10n_sync.py. Translations are entered in the admin portal (App interface text), never here.",
+  "strings": {
+    "nav.home": {
+      "en": "Home",
+      "note": "Bottom navigation tab: the home screen"
+    },
+    "nav.modules": {
+      "en": "Modules",
+      "note": "Bottom navigation tab: list of training modules"
+    },
+    "nav.videos": {
+      "en": "Videos",
+      "note": "Bottom navigation tab: training videos"
+    },
+    "nav.ask": {
+      "en": "Ask",
+      "note": "Bottom navigation tab: ask a question about the training materials"
+    },
+    "nav.about": {
+      "en": "About",
+      "note": "Bottom navigation tab: app information and settings"
+    },
+    "app.name": {
+      "en": "SARMAAN II e-Playbook",
+      "note": "App name shown on the splash and sign-in screens"
+    },
+    "login.failed": {
+      "en": "Login failed. Check your connection.",
+      "note": "Sign-in error when the server cannot be reached"
+    },
+    "common.somethingWrong": {
+      "en": "Something went wrong. Please try again.",
+      "note": "Generic error message after an unexpected failure"
+    },
+    "login.eyebrow": {
+      "en": "SIGN IN",
+      "note": "Small capital label above the sign-in form"
+    },
+    "login.username": {
+      "en": "Username",
+      "note": "Sign-in form: username field label"
+    },
+    "common.required": {
+      "en": "Required",
+      "note": "Form error under a field that was left empty"
+    },
+    "login.password": {
+      "en": "Password",
+      "note": "Sign-in form: password field label"
+    },
+    "login.hidePassword": {
+      "en": "Hide password",
+      "note": "Tooltip on the eye button that hides the typed password"
+    },
+    "login.showPassword": {
+      "en": "Show password",
+      "note": "Tooltip on the eye button that shows the typed password"
+    },
+    "login.signIn": {
+      "en": "Sign in",
+      "note": "Sign-in button"
+    },
+    "splash.subtitle": {
+      "en": "AZM TRAINING",
+      "note": "Small capital line under the app name on the opening screen"
+    },
+    "onboarding.step1": {
+      "en": "STEP 1 OF 2",
+      "note": "Small label on the first set-up screen (choose language)"
+    },
+    "language.title": {
+      "en": "Choose your language",
+      "note": "Title of the language picker (first run and from About)"
+    },
+    "language.subtitle": {
+      "en": "The app and its training content will be shown in this language where available.",
+      "note": "Language picker: explains what the choice changes; untranslated text stays in English"
+    },
+    "common.continue": {
+      "en": "Continue",
+      "note": "Button that moves to the next step"
+    },
+    "common.beta": {
+      "en": "BETA",
+      "note": "Small badge on a language or feature that is still being tested"
+    },
+    "onboarding.step2": {
+      "en": "STEP 2 OF 2",
+      "note": "Small label on the second set-up screen (consent); the consent text itself is translated on the Consent text page"
+    },
+    "home.goodMorning": {
+      "en": "GOOD MORNING",
+      "note": "Home header greeting before noon, followed by the learner's name"
+    },
+    "home.goodAfternoon": {
+      "en": "GOOD AFTERNOON",
+      "note": "Home header greeting from noon to 5 pm, followed by the learner's name"
+    },
+    "home.goodEvening": {
+      "en": "GOOD EVENING",
+      "note": "Home header greeting after 5 pm, followed by the learner's name"
+    },
+    "sync.offlineWillUpload": {
+      "en": "You are offline. Your progress will upload when you are back online.",
+      "note": "Message after tapping Sync with no internet"
+    },
+    "sync.failed": {
+      "en": "Could not sync. Check your connection and try again.",
+      "note": "Message when a sync fails"
+    },
+    "sync.updateInstalled": {
+      "en": "Update installed. You have the latest content.",
+      "note": "Message after a sync that installed new training content"
+    },
+    "sync.done": {
+      "en": "Synced. You have the latest content.",
+      "note": "Message after a successful sync"
+    },
+    "home.offlineFirstDownload": {
+      "en": "You are offline. Connect once to download your training content.",
+      "note": "Home: first use with no internet, nothing downloaded yet"
+    },
+    "home.downloadFailed": {
+      "en": "Could not download content. Check your connection and try again.",
+      "note": "Home: the training content download failed"
+    },
+    "home.askTooltip": {
+      "en": "Ask a question",
+      "note": "Tooltip on the round Ask button on the home screen"
+    },
+    "home.downloading": {
+      "en": "Downloading content for offline use…",
+      "note": "Home: shown while training content downloads"
+    },
+    "home.modulesHeading": {
+      "en": "SARMAAN-II · AZM MDA MODULES",
+      "note": "Home: capital heading above the grid of modules"
+    },
+    "home.noModules": {
+      "en": "No modules downloaded yet. Pull down to sync.",
+      "note": "Home: no modules on the phone yet"
+    },
+    "home.loadFailed": {
+      "en": "Could not load modules: {error}",
+      "note": "Home: the module list could not be read; {error} is a technical message"
+    },
+    "home.continueReading": {
+      "en": "CONTINUE READING",
+      "note": "Home: capital heading above modules the learner has started"
+    },
+    "search.noMatches": {
+      "en": "NO MATCHES",
+      "note": "Home search: capital heading when nothing matches"
+    },
+    "search.results": {
+      "en": "RESULTS",
+      "note": "Home search: capital heading above the matches"
+    },
+    "search.nothingFound": {
+      "en": "Nothing in your downloaded modules matches that. Try one word, or use the Ask button.",
+      "note": "Home search: nothing matched the typed words"
+    },
+    "home.newContent": {
+      "en": "New content",
+      "note": "Home header pill when a content update is waiting"
+    },
+    "common.online": {
+      "en": "Online",
+      "note": "Connection status: the phone has internet"
+    },
+    "common.offline": {
+      "en": "Offline",
+      "note": "Connection status: the phone has no internet"
+    },
+    "home.title": {
+      "en": "Welcome to SARMAAN II Training Session",
+      "note": "Home screen header title"
+    },
+    "search.hint": {
+      "en": "Search modules, e.g. \"MUAC\", \"referral\"…",
+      "note": "Home search box placeholder; the search looks in the English module text"
+    },
+    "sync.notYet": {
+      "en": "Not synced yet",
+      "note": "Sync card: the phone has never synced"
+    },
+    "sync.justNow": {
+      "en": "Synced just now",
+      "note": "Sync card: synced less than a minute ago"
+    },
+    "sync.minutesAgo": {
+      "en": "Synced {count} min ago",
+      "note": "Sync card: minutes since the last sync",
+      "en_one": "Synced {count} min ago"
+    },
+    "sync.hoursAgo": {
+      "en": "Synced {count} h ago",
+      "note": "Sync card: hours since the last sync",
+      "en_one": "Synced {count} h ago"
+    },
+    "sync.daysAgo": {
+      "en": "Synced {count} d ago",
+      "note": "Sync card: days since the last sync",
+      "en_one": "Synced {count} d ago"
+    },
+    "sync.installingPercent": {
+      "en": "Installing update · {percent}%",
+      "note": "Sync card: content update install progress"
+    },
+    "sync.installing": {
+      "en": "Installing update…",
+      "note": "Sync card: content update install starting"
+    },
+    "sync.syncing": {
+      "en": "Syncing…",
+      "note": "Sync card: a sync is running"
+    },
+    "sync.waitingToUpload": {
+      "en": "{count} waiting to upload",
+      "note": "Sync card: number of changes not yet uploaded",
+      "en_one": "{count} waiting to upload"
+    },
+    "sync.cardTitle": {
+      "en": "Sync & update",
+      "note": "Home: title of the sync card"
+    },
+    "sync.button": {
+      "en": "Sync",
+      "note": "Home: button that uploads progress and downloads new content"
+    },
+    "updates.available": {
+      "en": "Content update available",
+      "note": "Banner and Updates screen: a newer content release can be downloaded"
+    },
+    "home.percentComplete": {
+      "en": "{percent}% complete",
+      "note": "Continue reading card: how much of the module is read"
+    },
+    "home.sectionCount": {
+      "en": "{count} sections",
+      "note": "Module card: number of sections in the module",
+      "en_one": "{count} section"
+    },
+    "home.percentRead": {
+      "en": "{percent}% read",
+      "note": "Module card: how much of the module is read"
+    },
+    "home.availableOffline": {
+      "en": "offline",
+      "note": "Module card: the module is downloaded and works without internet"
+    },
+    "modules.title": {
+      "en": "Modules",
+      "note": "Title of the Modules screen"
+    },
+    "modules.searchHint": {
+      "en": "Search modules…",
+      "note": "Modules screen search box placeholder"
+    },
+    "modules.none": {
+      "en": "No modules downloaded yet.",
+      "note": "Modules screen: nothing downloaded yet"
+    },
+    "modules.noMatches": {
+      "en": "No matches for \"{query}\".",
+      "note": "Modules screen: no module title contains the typed {query}"
+    },
+    "general.preTitle": {
+      "en": "Start with the General pre-test",
+      "note": "Card at the top of the module list before the pre-test is taken"
+    },
+    "general.preBody": {
+      "en": "{count} questions about what you already know. Your modules open after you submit it. You take it once.",
+      "note": "Pre-test card text; {count} is the number of questions",
+      "en_one": "{count} question about what you already know. Your modules open after you submit it. You take it once."
+    },
+    "general.preAction": {
+      "en": "Start the pre-test",
+      "note": "Button that opens the General pre-test"
+    },
+    "general.postTitle": {
+      "en": "General post-test",
+      "note": "Card title when the post-test is open"
+    },
+    "general.postBody": {
+      "en": "You completed all your modules. Answer the same {count} questions again. You take it once.",
+      "note": "Post-test card text; {count} is the number of questions",
+      "en_one": "You completed all your modules. Answer the same {count} question again. You take it once."
+    },
+    "general.postAction": {
+      "en": "Start the post-test",
+      "note": "Button that opens the General post-test"
+    },
+    "general.title": {
+      "en": "General test",
+      "note": "Card title after the pre-test is taken"
+    },
+    "general.preScoreWaiting": {
+      "en": "Pre-test: {correct} of {total} ({percent}%). The post-test opens when you have completed all your modules ({done} of {modules}).",
+      "note": "Card text after the pre-test; {done} of {modules} modules are completed"
+    },
+    "general.bothScores": {
+      "en": "Pre-test: {preCorrect} of {preTotal} ({prePercent}%). Post-test: {postCorrect} of {postTotal} ({postPercent}%).",
+      "note": "Card text after both General tests are taken"
+    },
+    "learning.notAvailable": {
+      "en": "This module is not available.",
+      "note": "Shown when a module cannot be completed because it is not on the phone"
+    },
+    "learning.takePreTestFirst": {
+      "en": "Take the General pre-test first.",
+      "note": "Why a module is locked: the pre-test is not taken yet"
+    },
+    "learning.previousModuleFirst": {
+      "en": "Complete the previous module first.",
+      "note": "Why a module is locked: the module before it is not finished"
+    },
+    "learning.passQuizFirst": {
+      "en": "Answer the module quiz correctly to finish this module.",
+      "note": "Why a module cannot be completed yet: the quiz is not passed"
+    },
+    "learning.spendMoreTime": {
+      "en": "Please spend at least {minimum} in this module. {left} to go.",
+      "note": "Why a module cannot be completed yet; {minimum} and {left} are times like 5:00"
+    },
+    "stage.locked": {
+      "en": "Locked",
+      "note": "Module state: not open yet"
+    },
+    "stage.open": {
+      "en": "Open",
+      "note": "Module state: open for reading"
+    },
+    "stage.completed": {
+      "en": "Completed",
+      "note": "Module state: finished"
+    },
+    "notice.trainingUpdated": {
+      "en": "The training has been updated. Start the new modules.",
+      "note": "One-time message after the training curriculum changed"
+    },
+    "common.ok": {
+      "en": "OK",
+      "note": "Button that closes a message"
+    },
+    "update.required": {
+      "en": "Training updated, please update the app.",
+      "note": "Shown instead of the training when this app version is too old"
+    },
+    "update.askSupervisor": {
+      "en": "Ask your supervisor for the link to the new app. Your progress is saved and will be there after the update.",
+      "note": "Update-required screen: what to do"
+    },
+    "update.checking": {
+      "en": "Checking...",
+      "note": "Update-required screen: button text while checking"
+    },
+    "update.checkAgain": {
+      "en": "Check again",
+      "note": "Update-required screen: button that checks whether the app is still too old"
+    },
+    "videos.title": {
+      "en": "Videos",
+      "note": "Title of the Videos screen"
+    },
+    "videos.none": {
+      "en": "No videos yet.",
+      "note": "Videos screen: no videos published"
+    },
+    "videos.loadFailed": {
+      "en": "Could not load videos: {error}",
+      "note": "Videos screen: the list could not be loaded; {error} is a technical message"
+    },
+    "videos.notAvailable": {
+      "en": "Not yet available",
+      "note": "Video list: the video file is not uploaded yet"
+    },
+    "videos.downloadedTapToPlay": {
+      "en": "Downloaded — tap to play",
+      "note": "Video list: the video is on the phone"
+    },
+    "videos.tapToDownload": {
+      "en": "Tap to download",
+      "note": "Video list: the video can be downloaded"
+    },
+    "video.playFailed": {
+      "en": "This video could not be played. Try deleting it and downloading it again.",
+      "note": "Video screen: playback failed"
+    },
+    "video.title": {
+      "en": "Video",
+      "note": "Title of the video player screen"
+    },
+    "video.loadFailed": {
+      "en": "Could not load video: {error}",
+      "note": "Video screen: the video details could not be loaded; {error} is a technical message"
+    },
+    "video.notAvailable": {
+      "en": "This video is not yet available. Real footage and offline download support are planned for a later phase.",
+      "note": "Video screen: no video file uploaded yet"
+    },
+    "video.downloaded": {
+      "en": "Downloaded for offline playback",
+      "note": "Video screen: the video is stored on the phone"
+    },
+    "video.downloadSize": {
+      "en": "Download ({size})",
+      "note": "Video screen: download button; {size} is like 12.5 MB"
+    },
+    "video.download": {
+      "en": "Download",
+      "note": "Video screen: download button when the size is unknown"
+    },
+    "video.noFile": {
+      "en": "No video file has been uploaded for \"{title}\" yet.",
+      "note": "Video download error: the video {title} has no file yet"
+    },
+    "video.metadataMissing": {
+      "en": "Video metadata is missing size/checksum information.",
+      "note": "Video download error: technical details are missing on the server"
+    },
+    "video.emptyDownload": {
+      "en": "Empty response while downloading video.",
+      "note": "Video download error: the server sent nothing"
+    },
+    "video.checksumFailed": {
+      "en": "Downloaded file failed checksum verification for \"{title}\" — please retry.",
+      "note": "Video download error: the downloaded file of {title} is damaged"
+    },
+    "common.loading": {
+      "en": "Loading…",
+      "note": "Shown while something loads"
+    },
+    "audio.failed": {
+      "en": "This audio could not be played on this phone.",
+      "note": "Lesson audio player: playback failed"
+    },
+    "audio.afterSync": {
+      "en": "Audio will be available after the next sync.",
+      "note": "Lesson audio player: the audio file is not downloaded yet"
+    },
+    "audio.pause": {
+      "en": "Pause audio",
+      "note": "Screen-reader label of the lesson audio pause button"
+    },
+    "audio.play": {
+      "en": "Play audio",
+      "note": "Screen-reader label of the lesson audio play button"
+    },
+    "image.failed": {
+      "en": "Image failed to load",
+      "note": "Placeholder where a lesson image could not be shown"
+    },
+    "sync.installFailed": {
+      "en": "The update could not be installed ({detail}). Your current content is unchanged.",
+      "note": "Sync error: a content update failed; {detail} is a technical reason in English"
+    },
+    "sync.signInAgain": {
+      "en": "Please sign in again to sync.",
+      "note": "Sync error: the sign-in has expired"
+    },
+    "sync.serverUnreachable": {
+      "en": "Could not reach the server. Will retry automatically.",
+      "note": "Sync error: no connection to the server"
+    },
+    "sync.incomplete": {
+      "en": "Sync did not complete. Will retry automatically.",
+      "note": "Sync error: any other failure"
+    },
+    "reader.completedWillSync": {
+      "en": "Module completed. It will sync to your account when online.",
+      "note": "Message after completing a module"
+    },
+    "reader.notAvailableTitle": {
+      "en": "Not available",
+      "note": "Reader: the module is not part of this learner's training"
+    },
+    "reader.notAvailableBody": {
+      "en": "This module is not part of your current training. The training may have been updated, or the module is for another role. Go back to Modules to continue.",
+      "note": "Reader: why the module cannot be opened"
+    },
+    "reader.backToModules": {
+      "en": "Back to modules",
+      "note": "Reader: button back to the module list"
+    },
+    "reader.preTestGateBody": {
+      "en": "Before the modules, answer {count} questions to show what you already know. It is not a pass or fail: it is your starting point, and you take it once.",
+      "note": "Reader: shown on a module before the General pre-test is taken; {count} is the number of questions",
+      "en_one": "Before the modules, answer {count} question to show what you already know. It is not a pass or fail: it is your starting point, and you take it once."
+    },
+    "reader.startPreTest": {
+      "en": "Start the General pre-test",
+      "note": "Reader: button that opens the General pre-test"
+    },
+    "reader.lockedBody": {
+      "en": "Complete {module} first. Modules open one after another, when the previous one is completed.",
+      "note": "Reader: the module is locked; {module} is the title of the module to finish first"
+    },
+    "reader.lockedBodyPrevious": {
+      "en": "Complete the previous module first. Modules open one after another, when the previous one is completed.",
+      "note": "Reader: the module is locked and the earlier module is not on the phone"
+    },
+    "reader.goTo": {
+      "en": "Go to {code}",
+      "note": "Reader: button to the module to finish first; {code} is like M2"
+    },
+    "reader.timeInModule": {
+      "en": "Time in this module: {spent} / {minimum}",
+      "note": "Reader: time spent and minimum time, like 1:20 / 3:00"
+    },
+    "reader.completedTitle": {
+      "en": "Module completed",
+      "note": "Reader: card at the end of a completed module"
+    },
+    "reader.completedBody": {
+      "en": "You can re-read it, play its audio and video and view its pictures; the result stays as it is.",
+      "note": "Reader: what the learner can still do in a completed module"
+    },
+    "reader.quizPassedLine": {
+      "en": "Module quiz: passed.",
+      "note": "Reader: end-of-module checklist line when the quiz is passed"
+    },
+    "reader.quizTodoLine": {
+      "en": "Module quiz: answer all {count} statements correctly ({passMark}% pass mark). You can try again as often as you need.",
+      "note": "Reader: end-of-module checklist line when the quiz is not passed; {count} statements, {passMark} is a number",
+      "en_one": "Module quiz: answer the {count} statement correctly ({passMark}% pass mark). You can try again as often as you need."
+    },
+    "reader.timeReached": {
+      "en": "Time: {minimum} reached.",
+      "note": "Reader: end-of-module checklist line when the minimum time is met"
+    },
+    "reader.timeSoFar": {
+      "en": "Time: {spent} of {minimum}. Please stay a little longer in this module.",
+      "note": "Reader: end-of-module checklist line when more time is needed"
+    },
+    "reader.finishTitle": {
+      "en": "Finish this module",
+      "note": "Reader: title of the card at the end of the module"
+    },
+    "reader.completeModule": {
+      "en": "Complete module",
+      "note": "Reader: button that completes the module"
+    },
+    "quiz.true": {
+      "en": "True",
+      "note": "Quiz answer button"
+    },
+    "quiz.false": {
+      "en": "False",
+      "note": "Quiz answer button"
+    },
+    "quiz.quickCheck": {
+      "en": "QUICK CHECK · TRUE OR FALSE?",
+      "note": "Capital label above a True/False quiz statement in a lesson"
+    },
+    "quiz.answerTrue": {
+      "en": "Answer: True",
+      "note": "Quiz statement review: the correct answer is True"
+    },
+    "quiz.answerFalse": {
+      "en": "Answer: False",
+      "note": "Quiz statement review: the correct answer is False"
+    },
+    "quiz.correct": {
+      "en": "Correct.",
+      "note": "Quiz feedback after a right answer"
+    },
+    "quiz.wrongAnswerTrue": {
+      "en": "Not quite. The answer is True.",
+      "note": "Quiz feedback after a wrong answer when the correct answer is True"
+    },
+    "quiz.wrongAnswerFalse": {
+      "en": "Not quite. The answer is False.",
+      "note": "Quiz feedback after a wrong answer when the correct answer is False"
+    },
+    "quiz.passed": {
+      "en": "Quiz passed. Well done!",
+      "note": "Module quiz result when every statement is right"
+    },
+    "quiz.failedRetry": {
+      "en": "You got {correct} of {count}. All need to be right to pass. Try again: you answer all {count} statements again.",
+      "note": "Module quiz result when not all statements are right; {count} is the number of statements",
+      "en_one": "You got {correct} of {count}. All need to be right to pass. Try again: you answer the statement again."
+    },
+    "quiz.tryAgain": {
+      "en": "Try again",
+      "note": "Button that restarts the module quiz"
+    },
+    "reader.module": {
+      "en": "Module",
+      "note": "Reader title while the module name loads"
+    },
+    "reader.noContent": {
+      "en": "No content downloaded for this module yet. Go to Home and pull down to sync.",
+      "note": "Reader: the module has no downloaded sections"
+    },
+    "reader.loadFailed": {
+      "en": "Could not load content: {error}",
+      "note": "Reader: the lesson could not be read; {error} is a technical message"
+    },
+    "reader.watchVideo": {
+      "en": "Watch video",
+      "note": "Reader: video block label when the video has no title"
+    },
+    "reader.listen": {
+      "en": "Listen",
+      "note": "Reader: audio block label when the audio has no title"
+    },
+    "reader.readAloud": {
+      "en": "Read aloud",
+      "note": "Reader: button that reads the lesson aloud with the phone's voice"
+    },
+    "reader.onDeviceAudio": {
+      "en": "ON-DEVICE AUDIO",
+      "note": "Reader: small label under Read aloud (the voice works offline)"
+    },
+    "about.title": {
+      "en": "About",
+      "note": "Title of the About screen"
+    },
+    "about.appVersion": {
+      "en": "App version",
+      "note": "About: label of the app version number"
+    },
+    "common.unknown": {
+      "en": "Unknown",
+      "note": "Shown when a value cannot be read"
+    },
+    "about.signedInAs": {
+      "en": "Signed in as",
+      "note": "About: label before the learner's name"
+    },
+    "about.role": {
+      "en": "Role",
+      "note": "About: label before the account role"
+    },
+    "about.contentSource": {
+      "en": "Content source",
+      "note": "About: label before the name of the training flipbook"
+    },
+    "about.language": {
+      "en": "Language",
+      "note": "About: opens the language picker"
+    },
+    "about.syncUpdates": {
+      "en": "Sync & updates",
+      "note": "About: opens the sync and updates screen"
+    },
+    "about.syncUpdatesHint": {
+      "en": "Upload status, content updates",
+      "note": "About: small text under Sync & updates"
+    },
+    "about.safeguardingTitle": {
+      "en": "Report a safeguarding concern",
+      "note": "About: title of the safeguarding box"
+    },
+    "about.safeguardingBody": {
+      "en": "If you notice anything unsafe or improper during a household visit, contact your supervisor or reach out directly.",
+      "note": "About: safeguarding box text; the email address shown under it is not translated"
+    },
+    "about.restart": {
+      "en": "Start training over",
+      "note": "About: button that restarts all training"
+    },
+    "about.signOut": {
+      "en": "Sign out",
+      "note": "About: sign-out button"
+    },
+    "about.restartConfirmTitle": {
+      "en": "Start training over?",
+      "note": "Title of the confirmation before restarting training"
+    },
+    "about.restartConfirmBody": {
+      "en": "Your progress and quiz results for ALL modules will be cleared and replaced by your new attempt. This cannot be undone. Downloaded lessons and videos stay on your phone.",
+      "note": "Confirmation before restarting training: what will be lost"
+    },
+    "common.cancel": {
+      "en": "Cancel",
+      "note": "Button that closes a question without doing anything"
+    },
+    "about.startOver": {
+      "en": "Start over",
+      "note": "Confirmation button that restarts training"
+    },
+    "about.restarted": {
+      "en": "Training restarted. Your new attempt starts now.",
+      "note": "Message after training is restarted"
+    },
+    "about.offlineStorage": {
+      "en": "OFFLINE STORAGE",
+      "note": "About: capital heading of the storage card"
+    },
+    "about.storageVideos": {
+      "en": "Videos",
+      "note": "About storage card: space used by downloaded videos"
+    },
+    "about.storageTraining": {
+      "en": "Training",
+      "note": "About storage card: space used by training content"
+    },
+    "about.storageTotal": {
+      "en": "Total",
+      "note": "About storage card: total space used"
+    },
+    "about.storageFailed": {
+      "en": "Could not compute storage usage.",
+      "note": "About storage card: the sizes could not be measured"
+    },
+    "updates.connected": {
+      "en": "Connected",
+      "note": "Updates screen status: connected to the server"
+    },
+    "updates.problem": {
+      "en": "Sync problem",
+      "note": "Updates screen status: the last sync failed"
+    },
+    "updates.updateAvailable": {
+      "en": "Update available",
+      "note": "Updates screen status: new content can be installed"
+    },
+    "updates.upToDate": {
+      "en": "Up to date",
+      "note": "Updates screen status: the phone has the latest content"
+    },
+    "updates.offlineDetail": {
+      "en": "No connection to the server. Everything you have already downloaded still works, and your progress will upload when you are back online.",
+      "note": "Updates screen: explanation when offline"
+    },
+    "updates.connectedDetail": {
+      "en": "Connected to the server.",
+      "note": "Updates screen: explanation when connected"
+    },
+    "updates.working": {
+      "en": "Working…",
+      "note": "Updates screen: explanation while syncing"
+    },
+    "updates.problemDetail": {
+      "en": "Something went wrong. It will retry automatically.",
+      "note": "Updates screen: explanation after a failed sync"
+    },
+    "updates.readyToInstall": {
+      "en": "New training content is ready to install.",
+      "note": "Updates screen: explanation when an update is waiting"
+    },
+    "updates.latest": {
+      "en": "You have the latest training content.",
+      "note": "Updates screen: explanation when up to date"
+    },
+    "updates.notYet": {
+      "en": "Not yet",
+      "note": "Updates screen: the phone has never synced"
+    },
+    "updates.justNow": {
+      "en": "Just now",
+      "note": "Updates screen: synced less than a minute ago"
+    },
+    "updates.minutesAgo": {
+      "en": "{count} min ago",
+      "note": "Updates screen: minutes since the last sync",
+      "en_one": "{count} min ago"
+    },
+    "updates.hoursAgo": {
+      "en": "{count} h ago",
+      "note": "Updates screen: hours since the last sync",
+      "en_one": "{count} h ago"
+    },
+    "updates.daysAgo": {
+      "en": "{count} d ago",
+      "note": "Updates screen: days since the last sync",
+      "en_one": "{count} d ago"
+    },
+    "install.downloading": {
+      "en": "Downloading…",
+      "note": "Content update step: downloading"
+    },
+    "install.checking": {
+      "en": "Checking the download…",
+      "note": "Content update step: checking the downloaded file"
+    },
+    "install.images": {
+      "en": "Downloading images…",
+      "note": "Content update step: downloading lesson images"
+    },
+    "install.installing": {
+      "en": "Installing…",
+      "note": "Content update step: installing"
+    },
+    "install.verifying": {
+      "en": "Verifying…",
+      "note": "Content update step: checking the installed content"
+    },
+    "install.done": {
+      "en": "Done",
+      "note": "Content update step: finished"
+    },
+    "install.starting": {
+      "en": "Starting…",
+      "note": "Content update step: about to start"
+    },
+    "updates.waitingToUpload": {
+      "en": "Waiting to upload",
+      "note": "Updates screen: label of the number of changes not yet uploaded"
+    },
+    "updates.nothing": {
+      "en": "Nothing",
+      "note": "Updates screen: no changes waiting to upload"
+    },
+    "updates.items": {
+      "en": "{count} items",
+      "note": "Updates screen: number of changes waiting to upload",
+      "en_one": "{count} item"
+    },
+    "updates.lastSynced": {
+      "en": "Last synced",
+      "note": "Updates screen: label of the last sync time"
+    },
+    "updates.installedContent": {
+      "en": "Installed content",
+      "note": "Updates screen: label of the installed content release"
+    },
+    "updates.noneYet": {
+      "en": "None yet",
+      "note": "Updates screen: no content installed yet"
+    },
+    "updates.version": {
+      "en": "Version {version}",
+      "note": "Updates screen: the waiting content release; {version} is like 1.3"
+    },
+    "updates.install": {
+      "en": "Install update",
+      "note": "Updates screen: button that installs new content"
+    },
+    "updates.staysAvailable": {
+      "en": "Your current content stays available until the update is fully installed.",
+      "note": "Updates screen: shown while an update installs"
+    },
+    "updates.syncNow": {
+      "en": "Sync now",
+      "note": "Updates screen: button that syncs straight away"
+    },
+    "updates.shareUsage": {
+      "en": "Share anonymous usage statistics",
+      "note": "Updates screen: switch label for optional usage statistics"
+    },
+    "updates.shareUsageDetail": {
+      "en": "Which modules and videos are used, and app errors. Never your answers or questions.",
+      "note": "Updates screen: what the usage statistics contain"
+    },
+    "general.preTestTitle": {
+      "en": "General pre-test",
+      "note": "Title of the General pre-test screen"
+    },
+    "general.notOnPhoneSync": {
+      "en": "The General test is not available on this phone yet. Sync on Home when you are online.",
+      "note": "General test screen: the questions are not downloaded"
+    },
+    "general.preAlreadyTaken": {
+      "en": "You have already taken the General pre-test. It is taken once.",
+      "note": "General test screen: the pre-test was already taken"
+    },
+    "general.postAlreadyTaken": {
+      "en": "You have already taken the General post-test. It is taken once.",
+      "note": "General test screen: the post-test was already taken"
+    },
+    "general.postOpensLater": {
+      "en": "The General post-test opens when you have completed all your modules ({done} of {modules} so far).",
+      "note": "General test screen: the post-test is not open yet"
+    },
+    "general.noLongerOpen": {
+      "en": "This test is no longer open.",
+      "note": "General test screen: the test closed while the learner was answering"
+    },
+    "general.notOnPhone": {
+      "en": "The General test is not available on this phone yet.",
+      "note": "General test screen: no questions downloaded"
+    },
+    "general.preIntro": {
+      "en": "Answer what you already know. It is not a pass or fail: it is your starting point, and you take it once. Your modules open after you submit.",
+      "note": "General pre-test: text above the first question"
+    },
+    "general.postIntro": {
+      "en": "The same questions as your pre-test, now that you have completed your modules. You take it once.",
+      "note": "General post-test: text above the first question"
+    },
+    "general.questionOf": {
+      "en": "QUESTION {number} OF {total} · CHOOSE ONE",
+      "note": "General test: capital label above each question"
+    },
+    "common.back": {
+      "en": "Back",
+      "note": "Button that goes to the previous step"
+    },
+    "general.submitting": {
+      "en": "Submitting…",
+      "note": "General test: button text while the answers are saved"
+    },
+    "general.submit": {
+      "en": "Submit",
+      "note": "General test: button on the last question that saves the answers"
+    },
+    "common.next": {
+      "en": "Next",
+      "note": "Button that goes to the next step"
+    },
+    "general.startingPoint": {
+      "en": "Your starting point",
+      "note": "General pre-test result title"
+    },
+    "general.yourResult": {
+      "en": "Your result",
+      "note": "General post-test result title"
+    },
+    "general.score": {
+      "en": "{correct} of {total} ({percent}%)",
+      "note": "General test result score, like 18 of 25 (72%)"
+    },
+    "general.preDone": {
+      "en": "Thank you. Your modules are now open. At the end of the training you will answer the same questions again.",
+      "note": "General pre-test result text"
+    },
+    "general.postDone": {
+      "en": "Well done for completing the training.",
+      "note": "General post-test result text"
+    },
+    "general.postDoneWithPre": {
+      "en": "Your pre-test was {correct} of {total} ({percent}%). Well done for completing the training.",
+      "note": "General post-test result text with the pre-test score"
+    },
+    "general.goToModules": {
+      "en": "Go to my modules",
+      "note": "General pre-test result: button to the module list"
+    },
+    "ask.title": {
+      "en": "Ask",
+      "note": "Title of the Ask screen"
+    },
+    "ask.eyebrow": {
+      "en": "ASK THE TRAINING MATERIALS",
+      "note": "Ask screen: small capital label above the heading"
+    },
+    "ask.heading": {
+      "en": "Ask a question",
+      "note": "Ask screen heading"
+    },
+    "ask.intro": {
+      "en": "Answers come only from the training content downloaded on this phone — so this works without internet. Every answer shows where it came from.",
+      "note": "Ask screen: how answers are found. Note: questions and answers are in English only for now"
+    },
+    "ask.match": {
+      "en": "Match {percent}%",
+      "note": "Ask answer: how closely the answer matches the question"
+    },
+    "ask.answeredOffline": {
+      "en": "ANSWERED OFFLINE",
+      "note": "Ask answer: small badge when the answer came from the phone without internet"
+    },
+    "ask.source": {
+      "en": "SOURCE",
+      "note": "Ask answer: capital label above where the answer came from"
+    },
+    "ask.reference": {
+      "en": "Reference",
+      "note": "Ask answer source: the reference library (instead of a module code)"
+    },
+    "ask.copiedReference": {
+      "en": "Copied from the approved reference library. For doses, always follow your job aid and the DIGIT HCM app.",
+      "note": "Ask answer disclaimer when the answer is from the reference library"
+    },
+    "ask.copiedTraining": {
+      "en": "Copied from the training materials. For doses, always follow your job aid and the DIGIT HCM app.",
+      "note": "Ask answer disclaimer when the answer is from the training modules"
+    },
+    "ask.tryAsking": {
+      "en": "Try asking about:",
+      "note": "Ask: shown above suggested questions when nothing matched"
+    }
+  }
+}

@@ -40,10 +40,14 @@ _REJECTORS: dict[ContentReviewStatus, RoleName] = {
 }
 
 
-def advance(db: Session, translation: ModuleTranslation, actor: User) -> ModuleTranslation:
+def advance(db: Session, translation: ModuleTranslation, actor: User, *,
+            entity_type: str = "module_translation", commit: bool = True) -> ModuleTranslation:
     """Moves content to the next stage. Raises 403 if the actor's role isn't
     authorized for the current stage, 409 if there's no next stage (already
-    PUBLISHED or REJECTED)."""
+    PUBLISHED or REJECTED). Works on any record with status / reviewed_by /
+    reviewed_at (module translations, app-string translations); `entity_type`
+    names it in the audit log. With commit=False the caller commits, so several
+    records can move together or not at all."""
     current = translation.status
     if current not in _TRANSITIONS:
         raise HTTPException(
@@ -69,17 +73,19 @@ def advance(db: Session, translation: ModuleTranslation, actor: User) -> ModuleT
             action=AuditAction.CONTENT_APPROVE
             if next_status == ContentReviewStatus.PUBLISHED
             else AuditAction.CONTENT_REVIEW,
-            entity_type="module_translation",
+            entity_type=entity_type,
             entity_id=translation.id,
             details={"from": current.value, "to": next_status.value},
         )
     )
-    db.commit()
-    db.refresh(translation)
+    if commit:
+        db.commit()
+        db.refresh(translation)
     return translation
 
 
-def reject(db: Session, translation: ModuleTranslation, actor: User, reason: str | None = None) -> ModuleTranslation:
+def reject(db: Session, translation: ModuleTranslation, actor: User, reason: str | None = None, *,
+           entity_type: str = "module_translation", commit: bool = True) -> ModuleTranslation:
     current = translation.status
     if current not in _REJECTORS:
         raise HTTPException(
@@ -103,11 +109,12 @@ def reject(db: Session, translation: ModuleTranslation, actor: User, reason: str
         AuditLog(
             user_id=actor.id,
             action=AuditAction.CONTENT_REJECT,
-            entity_type="module_translation",
+            entity_type=entity_type,
             entity_id=translation.id,
             details={"from": current.value, "reason": reason},
         )
     )
-    db.commit()
-    db.refresh(translation)
+    if commit:
+        db.commit()
+        db.refresh(translation)
     return translation

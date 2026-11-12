@@ -6,6 +6,7 @@ import '../models/consent_text.dart';
 import '../services/auth_service.dart';
 import '../services/settings_service.dart';
 import '../theme/app_theme.dart';
+import '../l10n/l10n.dart';
 
 /// Consent copy in the language chosen on the previous screen (edited and
 /// translated in the admin portal; cached, with English and then the copy
@@ -73,7 +74,7 @@ class _ConsentScreenState extends ConsumerState<ConsentScreen> {
                 children: [
                   Container(width: 16, height: 2, color: AppColors.primary),
                   const SizedBox(width: 8),
-                  Text('STEP 2 OF 2', style: Theme.of(context).textTheme.labelSmall),
+                  Text(context.t('onboarding.step2'), style: Theme.of(context).textTheme.labelSmall),
                 ],
               ),
               const SizedBox(height: 8),

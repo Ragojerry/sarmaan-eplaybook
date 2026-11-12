@@ -445,3 +445,49 @@ export interface GeneralReportRow extends LearnerPerson {
   change_percent: number | null;
   attempts_not_counted: number;
 }
+
+/** One mobile-app interface string and its translation in the chosen language (GET /app-strings). */
+export interface AppStringItem {
+  key: string;
+  note: string;
+  placeholders: string[];
+  english: string;
+  english_one: string | null;
+  plural: boolean;
+  translation_id: string | null;
+  text: string | null;
+  text_one: string | null;
+  status: ContentReviewStatus | null;
+  needs_update: boolean;
+  published_text: string | null;
+  published_text_one: string | null;
+  published_at: string | null;
+  edited_by: string | null;
+  edited_by_id: string | null;
+  edited_at: string | null;
+}
+
+export interface AppStringList {
+  language: string;
+  total: number;
+  items: AppStringItem[];
+}
+
+export interface AppStringLanguageStats {
+  language: string;
+  name: string;
+  total: number;
+  translated: number;
+  published: number;
+  in_review: number;
+  needs_update: number;
+  translated_percent: number;
+  published_percent: number;
+}
+
+export interface AppStringProblem {
+  row?: number;
+  id?: string;
+  key: string | null;
+  problem: string;
+}

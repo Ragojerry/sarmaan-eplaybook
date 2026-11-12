@@ -9,12 +9,14 @@ import 'package:drift/drift.dart' show Value;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../db/local_database.dart';
+import '../l10n/app_strings_service.dart';
 import '../learning/curriculum_notice.dart';
 import '../offline/content_sync_service.dart';
 import '../services/api_client.dart';
 import '../services/auth_service.dart';
 import 'analytics_recorder.dart';
 import 'release_installer.dart';
+import '../l10n/l10n.dart';
 
 /// What the user sees (master prompt §55).
 enum SyncStatus { offline, online, syncing, syncError, updateAvailable, upToDate }
@@ -259,12 +261,13 @@ class SyncEngine extends StateNotifier<SyncSnapshot> {
   }
 
   String _friendly(Object e) {
-    if (e is InstallException) return '$e Your current content is unchanged.';
+    // The installer's technical detail stays in English (it is for support staff).
+    if (e is InstallException) return L10n.t('sync.installFailed', {'detail': e.message});
     if (e is DioException) {
-      if (e.response?.statusCode == 401) return 'Please sign in again to sync.';
-      return 'Could not reach the server. Will retry automatically.';
+      if (e.response?.statusCode == 401) return L10n.t('sync.signInAgain');
+      return L10n.t('sync.serverUnreachable');
     }
-    return 'Sync did not complete. Will retry automatically.';
+    return L10n.t('sync.incomplete');
   }
 
   /// Brings down the progress this ACCOUNT already has on the server (new
@@ -593,11 +596,14 @@ class SyncEngine extends StateNotifier<SyncSnapshot> {
     } finally {
       // Quizzes and the chosen language refresh on every sync, whether or not a
       // release update is pending, and after any install (which can rewrite
-      // module text). Both helpers swallow their own errors.
+      // module text). The helpers swallow their own errors.
       final content = _ref.read(contentSyncServiceProvider);
       await content.syncQuizzes();
       final code = await _db.getSetting('selected_language_code');
-      if (code != null && code != 'en') await content.syncTranslations(code);
+      if (code != null && code != 'en') {
+        await content.syncTranslations(code);
+        await _ref.read(appStringsServiceProvider).sync(code); // interface text: changes only
+      }
       state = state.copyWith(contentRevision: state.contentRevision + 1);
     }
   }

@@ -9,6 +9,7 @@ import '../learning/learning_service.dart';
 import '../theme/app_theme.dart';
 import '../widgets/partner_logo_row.dart';
 import '../widgets/app_bottom_nav.dart';
+import '../l10n/l10n.dart';
 
 /// Reads from the local cache (same provider Home uses) — real offline
 /// module listing, per master prompt §18. Includes a simple local search
@@ -38,16 +39,16 @@ class _ModulesScreenState extends ConsumerState<ModulesScreen> {
     final learning = ref.watch(learningProvider).valueOrNull;
 
     return Scaffold(
-      appBar: BrandTopBar(appBar: AppBar(title: const Text('Modules'))),
+      appBar: BrandTopBar(appBar: AppBar(title: Text(context.t('modules.title')))),
       body: Column(
         children: [
           Padding(
             padding: const EdgeInsets.fromLTRB(22, 12, 22, 6),
             child: TextField(
               controller: _searchController,
-              decoration: const InputDecoration(
-                hintText: 'Search modules…',
-                prefixIcon: Icon(Icons.search, size: 18, color: AppColors.textMuted),
+              decoration: InputDecoration(
+                hintText: context.t('modules.searchHint'),
+                prefixIcon: const Icon(Icons.search, size: 18, color: AppColors.textMuted),
                 isDense: true,
               ),
               style: const TextStyle(fontSize: 13),
@@ -63,7 +64,8 @@ class _ModulesScreenState extends ConsumerState<ModulesScreen> {
                 if (filtered.isEmpty) {
                   return Center(
                     child: Text(
-                      _query.isEmpty ? 'No modules downloaded yet.' : 'No matches for "$_query".',
+                      _query.isEmpty ? context.t('modules.none') : context.t('modules.noMatches', {'query': _query}),
+                      textAlign: TextAlign.center,
                       style: const TextStyle(color: AppColors.textMuted),
                     ),
                   );
@@ -77,7 +79,7 @@ class _ModulesScreenState extends ConsumerState<ModulesScreen> {
                 );
               },
               loading: () => const Center(child: CircularProgressIndicator()),
-              error: (e, _) => Center(child: Text('Could not load modules: $e', style: const TextStyle(color: AppColors.errorText))),
+              error: (e, _) => Center(child: Text(context.t('home.loadFailed', {'error': e}), style: const TextStyle(color: AppColors.errorText))),
             ),
           ),
         ],
@@ -104,24 +106,34 @@ class GeneralTestCard extends StatelessWidget {
     String? action;
     String? route;
     if (pre == null) {
-      title = 'Start with the General pre-test';
-      body = '${general.questions} questions about what you already know. Your modules open after you submit it. '
-          'You take it once.';
-      action = 'Start the pre-test';
+      title = context.t('general.preTitle');
+      body = context.tn('general.preBody', general.questions);
+      action = context.t('general.preAction');
       route = '/general-test/pre';
     } else if (post == null && general.canTakePost) {
-      title = 'General post-test';
-      body = 'You completed all your modules. Answer the same ${general.questions} questions again. You take it once.';
-      action = 'Start the post-test';
+      title = context.t('general.postTitle');
+      body = context.tn('general.postBody', general.questions);
+      action = context.t('general.postAction');
       route = '/general-test/post';
     } else if (post == null) {
-      title = 'General test';
-      body = 'Pre-test: ${pre.correct} of ${pre.total} (${pre.percent}%). The post-test opens when you have '
-          'completed all your modules (${general.modulesCompleted} of ${general.modulesTotal}).';
+      title = context.t('general.title');
+      body = context.t('general.preScoreWaiting', {
+        'correct': pre.correct,
+        'total': pre.total,
+        'percent': pre.percent,
+        'done': general.modulesCompleted,
+        'modules': general.modulesTotal,
+      });
     } else {
-      title = 'General test';
-      body = 'Pre-test: ${pre.correct} of ${pre.total} (${pre.percent}%). '
-          'Post-test: ${post.correct} of ${post.total} (${post.percent}%).';
+      title = context.t('general.title');
+      body = context.t('general.bothScores', {
+        'preCorrect': pre.correct,
+        'preTotal': pre.total,
+        'prePercent': pre.percent,
+        'postCorrect': post.correct,
+        'postTotal': post.total,
+        'postPercent': post.percent,
+      });
     }
     return Container(
       margin: const EdgeInsets.fromLTRB(22, 0, 22, 12),

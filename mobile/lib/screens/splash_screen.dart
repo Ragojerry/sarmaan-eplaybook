@@ -6,6 +6,7 @@ import '../services/auth_service.dart';
 import '../services/settings_service.dart';
 import '../theme/app_theme.dart';
 import '../widgets/partner_logo_row.dart';
+import '../l10n/l10n.dart';
 
 /// Real routing logic: first launch -> language picker; returning user with
 /// a valid session (checked via /auth/me, including the client's built-in
@@ -88,9 +89,10 @@ class _SplashScreenState extends ConsumerState<SplashScreen> {
         // The SARMAAN-II logo on its own white card, as on the login screen.
         const SarmaanLogoMark(),
         const SizedBox(height: 22),
-        const Text(
-          'SARMAAN II e-Playbook',
-          style: TextStyle(
+        Text(
+          context.t('app.name'),
+          textAlign: TextAlign.center,
+          style: const TextStyle(
             fontFamily: AppFonts.serif,
             fontSize: 26,
             fontWeight: FontWeight.w600,
@@ -99,7 +101,8 @@ class _SplashScreenState extends ConsumerState<SplashScreen> {
         ),
         const SizedBox(height: 6),
         Text(
-          'AZM TRAINING',
+          context.t('splash.subtitle'),
+          textAlign: TextAlign.center,
           style: TextStyle(
             fontFamily: AppFonts.mono,
             fontSize: 11,

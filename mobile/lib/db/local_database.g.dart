@@ -7368,6 +7368,241 @@ class LocalGeneralAttemptsCompanion
   }
 }
 
+class $CachedAppStringsTable extends CachedAppStrings
+    with TableInfo<$CachedAppStringsTable, CachedAppStringRow> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $CachedAppStringsTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _languageCodeMeta =
+      const VerificationMeta('languageCode');
+  @override
+  late final GeneratedColumn<String> languageCode = GeneratedColumn<String>(
+      'language_code', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _keyMeta = const VerificationMeta('key');
+  @override
+  late final GeneratedColumn<String> key = GeneratedColumn<String>(
+      'key', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _valueMeta = const VerificationMeta('value');
+  @override
+  late final GeneratedColumn<String> value = GeneratedColumn<String>(
+      'value', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  @override
+  List<GeneratedColumn> get $columns => [languageCode, key, value];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'cached_app_strings';
+  @override
+  VerificationContext validateIntegrity(Insertable<CachedAppStringRow> instance,
+      {bool isInserting = false}) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('language_code')) {
+      context.handle(
+          _languageCodeMeta,
+          languageCode.isAcceptableOrUnknown(
+              data['language_code']!, _languageCodeMeta));
+    } else if (isInserting) {
+      context.missing(_languageCodeMeta);
+    }
+    if (data.containsKey('key')) {
+      context.handle(
+          _keyMeta, key.isAcceptableOrUnknown(data['key']!, _keyMeta));
+    } else if (isInserting) {
+      context.missing(_keyMeta);
+    }
+    if (data.containsKey('value')) {
+      context.handle(
+          _valueMeta, value.isAcceptableOrUnknown(data['value']!, _valueMeta));
+    } else if (isInserting) {
+      context.missing(_valueMeta);
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {languageCode, key};
+  @override
+  CachedAppStringRow map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return CachedAppStringRow(
+      languageCode: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}language_code'])!,
+      key: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}key'])!,
+      value: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}value'])!,
+    );
+  }
+
+  @override
+  $CachedAppStringsTable createAlias(String alias) {
+    return $CachedAppStringsTable(attachedDatabase, alias);
+  }
+}
+
+class CachedAppStringRow extends DataClass
+    implements Insertable<CachedAppStringRow> {
+  final String languageCode;
+  final String key;
+  final String value;
+  const CachedAppStringRow(
+      {required this.languageCode, required this.key, required this.value});
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['language_code'] = Variable<String>(languageCode);
+    map['key'] = Variable<String>(key);
+    map['value'] = Variable<String>(value);
+    return map;
+  }
+
+  CachedAppStringsCompanion toCompanion(bool nullToAbsent) {
+    return CachedAppStringsCompanion(
+      languageCode: Value(languageCode),
+      key: Value(key),
+      value: Value(value),
+    );
+  }
+
+  factory CachedAppStringRow.fromJson(Map<String, dynamic> json,
+      {ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return CachedAppStringRow(
+      languageCode: serializer.fromJson<String>(json['languageCode']),
+      key: serializer.fromJson<String>(json['key']),
+      value: serializer.fromJson<String>(json['value']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'languageCode': serializer.toJson<String>(languageCode),
+      'key': serializer.toJson<String>(key),
+      'value': serializer.toJson<String>(value),
+    };
+  }
+
+  CachedAppStringRow copyWith(
+          {String? languageCode, String? key, String? value}) =>
+      CachedAppStringRow(
+        languageCode: languageCode ?? this.languageCode,
+        key: key ?? this.key,
+        value: value ?? this.value,
+      );
+  CachedAppStringRow copyWithCompanion(CachedAppStringsCompanion data) {
+    return CachedAppStringRow(
+      languageCode: data.languageCode.present
+          ? data.languageCode.value
+          : this.languageCode,
+      key: data.key.present ? data.key.value : this.key,
+      value: data.value.present ? data.value.value : this.value,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('CachedAppStringRow(')
+          ..write('languageCode: $languageCode, ')
+          ..write('key: $key, ')
+          ..write('value: $value')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(languageCode, key, value);
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is CachedAppStringRow &&
+          other.languageCode == this.languageCode &&
+          other.key == this.key &&
+          other.value == this.value);
+}
+
+class CachedAppStringsCompanion extends UpdateCompanion<CachedAppStringRow> {
+  final Value<String> languageCode;
+  final Value<String> key;
+  final Value<String> value;
+  final Value<int> rowid;
+  const CachedAppStringsCompanion({
+    this.languageCode = const Value.absent(),
+    this.key = const Value.absent(),
+    this.value = const Value.absent(),
+    this.rowid = const Value.absent(),
+  });
+  CachedAppStringsCompanion.insert({
+    required String languageCode,
+    required String key,
+    required String value,
+    this.rowid = const Value.absent(),
+  })  : languageCode = Value(languageCode),
+        key = Value(key),
+        value = Value(value);
+  static Insertable<CachedAppStringRow> custom({
+    Expression<String>? languageCode,
+    Expression<String>? key,
+    Expression<String>? value,
+    Expression<int>? rowid,
+  }) {
+    return RawValuesInsertable({
+      if (languageCode != null) 'language_code': languageCode,
+      if (key != null) 'key': key,
+      if (value != null) 'value': value,
+      if (rowid != null) 'rowid': rowid,
+    });
+  }
+
+  CachedAppStringsCompanion copyWith(
+      {Value<String>? languageCode,
+      Value<String>? key,
+      Value<String>? value,
+      Value<int>? rowid}) {
+    return CachedAppStringsCompanion(
+      languageCode: languageCode ?? this.languageCode,
+      key: key ?? this.key,
+      value: value ?? this.value,
+      rowid: rowid ?? this.rowid,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (languageCode.present) {
+      map['language_code'] = Variable<String>(languageCode.value);
+    }
+    if (key.present) {
+      map['key'] = Variable<String>(key.value);
+    }
+    if (value.present) {
+      map['value'] = Variable<String>(value.value);
+    }
+    if (rowid.present) {
+      map['rowid'] = Variable<int>(rowid.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('CachedAppStringsCompanion(')
+          ..write('languageCode: $languageCode, ')
+          ..write('key: $key, ')
+          ..write('value: $value, ')
+          ..write('rowid: $rowid')
+          ..write(')'))
+        .toString();
+  }
+}
+
 abstract class _$LocalDatabase extends GeneratedDatabase {
   _$LocalDatabase(QueryExecutor e) : super(e);
   $LocalDatabaseManager get managers => $LocalDatabaseManager(this);
@@ -7396,6 +7631,8 @@ abstract class _$LocalDatabase extends GeneratedDatabase {
       $CachedGeneralQuestionsTable(this);
   late final $LocalGeneralAttemptsTable localGeneralAttempts =
       $LocalGeneralAttemptsTable(this);
+  late final $CachedAppStringsTable cachedAppStrings =
+      $CachedAppStringsTable(this);
   @override
   Iterable<TableInfo<Table, Object?>> get allTables =>
       allSchemaEntities.whereType<TableInfo<Table, Object?>>();
@@ -7417,7 +7654,8 @@ abstract class _$LocalDatabase extends GeneratedDatabase {
         localQuizAttempts,
         cachedSectionTranslations,
         cachedGeneralQuestions,
-        localGeneralAttempts
+        localGeneralAttempts,
+        cachedAppStrings
       ];
 }
 
@@ -11128,6 +11366,153 @@ typedef $$LocalGeneralAttemptsTableProcessedTableManager
         ),
         LocalGeneralAttemptRow,
         PrefetchHooks Function()>;
+typedef $$CachedAppStringsTableCreateCompanionBuilder
+    = CachedAppStringsCompanion Function({
+  required String languageCode,
+  required String key,
+  required String value,
+  Value<int> rowid,
+});
+typedef $$CachedAppStringsTableUpdateCompanionBuilder
+    = CachedAppStringsCompanion Function({
+  Value<String> languageCode,
+  Value<String> key,
+  Value<String> value,
+  Value<int> rowid,
+});
+
+class $$CachedAppStringsTableFilterComposer
+    extends Composer<_$LocalDatabase, $CachedAppStringsTable> {
+  $$CachedAppStringsTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<String> get languageCode => $composableBuilder(
+      column: $table.languageCode, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get key => $composableBuilder(
+      column: $table.key, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get value => $composableBuilder(
+      column: $table.value, builder: (column) => ColumnFilters(column));
+}
+
+class $$CachedAppStringsTableOrderingComposer
+    extends Composer<_$LocalDatabase, $CachedAppStringsTable> {
+  $$CachedAppStringsTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<String> get languageCode => $composableBuilder(
+      column: $table.languageCode,
+      builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get key => $composableBuilder(
+      column: $table.key, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get value => $composableBuilder(
+      column: $table.value, builder: (column) => ColumnOrderings(column));
+}
+
+class $$CachedAppStringsTableAnnotationComposer
+    extends Composer<_$LocalDatabase, $CachedAppStringsTable> {
+  $$CachedAppStringsTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<String> get languageCode => $composableBuilder(
+      column: $table.languageCode, builder: (column) => column);
+
+  GeneratedColumn<String> get key =>
+      $composableBuilder(column: $table.key, builder: (column) => column);
+
+  GeneratedColumn<String> get value =>
+      $composableBuilder(column: $table.value, builder: (column) => column);
+}
+
+class $$CachedAppStringsTableTableManager extends RootTableManager<
+    _$LocalDatabase,
+    $CachedAppStringsTable,
+    CachedAppStringRow,
+    $$CachedAppStringsTableFilterComposer,
+    $$CachedAppStringsTableOrderingComposer,
+    $$CachedAppStringsTableAnnotationComposer,
+    $$CachedAppStringsTableCreateCompanionBuilder,
+    $$CachedAppStringsTableUpdateCompanionBuilder,
+    (
+      CachedAppStringRow,
+      BaseReferences<_$LocalDatabase, $CachedAppStringsTable,
+          CachedAppStringRow>
+    ),
+    CachedAppStringRow,
+    PrefetchHooks Function()> {
+  $$CachedAppStringsTableTableManager(
+      _$LocalDatabase db, $CachedAppStringsTable table)
+      : super(TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$CachedAppStringsTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$CachedAppStringsTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$CachedAppStringsTableAnnotationComposer($db: db, $table: table),
+          updateCompanionCallback: ({
+            Value<String> languageCode = const Value.absent(),
+            Value<String> key = const Value.absent(),
+            Value<String> value = const Value.absent(),
+            Value<int> rowid = const Value.absent(),
+          }) =>
+              CachedAppStringsCompanion(
+            languageCode: languageCode,
+            key: key,
+            value: value,
+            rowid: rowid,
+          ),
+          createCompanionCallback: ({
+            required String languageCode,
+            required String key,
+            required String value,
+            Value<int> rowid = const Value.absent(),
+          }) =>
+              CachedAppStringsCompanion.insert(
+            languageCode: languageCode,
+            key: key,
+            value: value,
+            rowid: rowid,
+          ),
+          withReferenceMapper: (p0) => p0
+              .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
+              .toList(),
+          prefetchHooksCallback: null,
+        ));
+}
+
+typedef $$CachedAppStringsTableProcessedTableManager = ProcessedTableManager<
+    _$LocalDatabase,
+    $CachedAppStringsTable,
+    CachedAppStringRow,
+    $$CachedAppStringsTableFilterComposer,
+    $$CachedAppStringsTableOrderingComposer,
+    $$CachedAppStringsTableAnnotationComposer,
+    $$CachedAppStringsTableCreateCompanionBuilder,
+    $$CachedAppStringsTableUpdateCompanionBuilder,
+    (
+      CachedAppStringRow,
+      BaseReferences<_$LocalDatabase, $CachedAppStringsTable,
+          CachedAppStringRow>
+    ),
+    CachedAppStringRow,
+    PrefetchHooks Function()>;
 
 class $LocalDatabaseManager {
   final _$LocalDatabase _db;
@@ -11168,4 +11553,6 @@ class $LocalDatabaseManager {
           _db, _db.cachedGeneralQuestions);
   $$LocalGeneralAttemptsTableTableManager get localGeneralAttempts =>
       $$LocalGeneralAttemptsTableTableManager(_db, _db.localGeneralAttempts);
+  $$CachedAppStringsTableTableManager get cachedAppStrings =>
+      $$CachedAppStringsTableTableManager(_db, _db.cachedAppStrings);
 }

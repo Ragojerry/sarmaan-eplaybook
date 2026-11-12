@@ -6,6 +6,7 @@ import '../qa/question_answer_service.dart';
 import '../theme/app_theme.dart';
 import '../widgets/partner_logo_row.dart';
 import '../widgets/app_bottom_nav.dart';
+import '../l10n/l10n.dart';
 
 class _Message {
   final String? question; // set for the user's turn
@@ -69,7 +70,7 @@ class _AiScreenState extends ConsumerState<AiScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: BrandTopBar(appBar: AppBar(title: const Text('Ask'))),
+      appBar: BrandTopBar(appBar: AppBar(title: Text(context.t('ask.title')))),
       body: Column(
         children: [
           Expanded(
@@ -95,14 +96,13 @@ class _AiScreenState extends ConsumerState<AiScreen> {
     return ListView(
       padding: const EdgeInsets.fromLTRB(22, 22, 22, 8),
       children: [
-        Text('ASK THE TRAINING MATERIALS', style: Theme.of(context).textTheme.labelSmall),
+        Text(context.t('ask.eyebrow'), style: Theme.of(context).textTheme.labelSmall),
         const SizedBox(height: 8),
-        Text('Ask a question', style: Theme.of(context).textTheme.headlineSmall),
+        Text(context.t('ask.heading'), style: Theme.of(context).textTheme.headlineSmall),
         const SizedBox(height: 6),
-        const Text(
-          'Answers come only from the training content downloaded on this phone — so this works without internet. '
-          'Every answer shows where it came from.',
-          style: TextStyle(fontSize: 12, height: 1.55, color: AppColors.textMuted),
+        Text(
+          context.t('ask.intro'),
+          style: const TextStyle(fontSize: 12, height: 1.55, color: AppColors.textMuted),
         ),
         const SizedBox(height: 18),
         for (final s in kSuggestions) _SuggestionChip(text: s, onTap: () => _ask(s)),
@@ -217,31 +217,37 @@ class _AnswerCard extends StatelessWidget {
               spacing: 6,
               runSpacing: 6,
               children: [
-                _Pill(text: 'Match ${(result.confidence * 100).round()}%', color: AppColors.surfaceSelected, textColor: AppColors.primary),
-                if (result.offline) const _Pill(text: 'ANSWERED OFFLINE', color: AppColors.surfaceMuted, textColor: AppColors.textStrong),
+                _Pill(
+                    text: context.t('ask.match', {'percent': (result.confidence * 100).round()}),
+                    color: AppColors.surfaceSelected,
+                    textColor: AppColors.primary),
+                if (result.offline)
+                  _Pill(text: context.t('ask.answeredOffline'), color: AppColors.surfaceMuted, textColor: AppColors.textStrong),
               ],
             ),
             const SizedBox(height: 12),
-            const Text('SOURCE', style: TextStyle(fontFamily: AppFonts.mono, fontSize: 9.5, fontWeight: FontWeight.w700, letterSpacing: 0.6, color: AppColors.textMuted)),
+            Text(context.t('ask.source'),
+                style: const TextStyle(fontFamily: AppFonts.mono, fontSize: 9.5, fontWeight: FontWeight.w700, letterSpacing: 0.6, color: AppColors.textMuted)),
             const SizedBox(height: 4),
             for (final s in result.sources)
               Padding(
                 padding: const EdgeInsets.only(bottom: 4),
                 child: Text(
-                  '${s.isReference ? 'Reference' : s.moduleCode} · ${s.moduleTitle}${s.sectionTitle != null ? ' — ${s.sectionTitle}' : ''}',
+                  '${s.isReference ? context.t('ask.reference') : s.moduleCode} · ${s.moduleTitle}${s.sectionTitle != null ? ' — ${s.sectionTitle}' : ''}',
                   style: const TextStyle(fontSize: 11, color: AppColors.textMuted, height: 1.4),
                 ),
               ),
             const SizedBox(height: 6),
             Text(
               result.sources.any((s) => s.isReference)
-                  ? 'Copied from the approved reference library. For doses, always follow your job aid and the DIGIT HCM app.'
-                  : 'Copied from the training materials. For doses, always follow your job aid and the DIGIT HCM app.',
+                  ? context.t('ask.copiedReference')
+                  : context.t('ask.copiedTraining'),
               style: const TextStyle(fontSize: 10.5, color: AppColors.textMuted, fontStyle: FontStyle.italic, height: 1.4),
             ),
           ] else if (result.suggestions.isNotEmpty) ...[
             const SizedBox(height: 12),
-            const Text('Try asking about:', style: TextStyle(fontSize: 11.5, fontWeight: FontWeight.w700, color: AppColors.warningText)),
+            Text(context.t('ask.tryAsking'),
+                style: const TextStyle(fontSize: 11.5, fontWeight: FontWeight.w700, color: AppColors.warningText)),
             const SizedBox(height: 6),
             for (final s in result.suggestions) _SuggestionChip(text: s, onTap: () => onAsk(s)),
           ],

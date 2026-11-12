@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:sarmaan_eplaybook/db/local_database.dart';
+import 'package:sarmaan_eplaybook/l10n/l10n.dart';
 import 'package:sarmaan_eplaybook/learning/curriculum_notice.dart';
 import 'package:sarmaan_eplaybook/offline/content_sync_service.dart';
 import 'package:sarmaan_eplaybook/screens/update_required_screen.dart';
@@ -59,11 +60,18 @@ void main() {
       expect(await hasPendingTrainingNotice(db), isFalse, reason: 'rollback to the old modules: no "start the new modules"');
     });
 
-    for (final (lang, text, button) in [
-      ('en', 'The training has been updated. Start the new modules.', 'OK'),
-      ('ha', 'An sabunta horon. Fara sababbin darussa.', 'To'),
+    // The text comes from the interface-text registry: English built in, other
+    // languages only once a translation is published (fake "[zz]" text here: this
+    // checks the plumbing, real text comes from translators).
+    for (final (lang, published, text, button) in [
+      ('en', const <String, String>{}, 'The training has been updated. Start the new modules.', 'OK'),
+      ('zz', const {'notice.trainingUpdated': '[zz] training updated', 'common.ok': '[zz] OK'}, '[zz] training updated', '[zz] OK'),
+      ('zz', const <String, String>{}, 'The training has been updated. Start the new modules.', 'OK'),
     ]) {
-      testWidgets('shows once, in the learner\'s language ($lang)', (tester) async {
+      testWidgets('shows once, in the learner\'s language ($lang, ${published.isEmpty ? 'English fallback' : 'published'})',
+          (tester) async {
+        L10n.instance.apply(lang, published);
+        addTearDown(() => L10n.instance.apply('en', const {}));
         await tester.runAsync(() async {
           await db.setSetting('selected_language_code', lang);
           await db.setSetting(kPendingTrainingNoticeKey, 'hfw-2026');

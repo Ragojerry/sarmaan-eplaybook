@@ -325,6 +325,19 @@ class LocalGeneralAttempts extends Table {
   TextColumn get invalidReason => text().nullable()();
 }
 
+/// Published interface text (buttons, labels, messages) per language (v9), from
+/// GET /sync/app-strings. Plural strings are two rows: `key` and `key#one`.
+/// English is compiled into the app and never stored here.
+@DataClassName('CachedAppStringRow')
+class CachedAppStrings extends Table {
+  TextColumn get languageCode => text()();
+  TextColumn get key => text()();
+  TextColumn get value => text()();
+
+  @override
+  Set<Column> get primaryKey => {languageCode, key};
+}
+
 @DriftDatabase(
   tables: [
     CachedModules,
@@ -344,6 +357,7 @@ class LocalGeneralAttempts extends Table {
     CachedSectionTranslations,
     CachedGeneralQuestions,
     LocalGeneralAttempts,
+    CachedAppStrings,
   ],
 )
 class LocalDatabase extends _$LocalDatabase {
@@ -363,8 +377,9 @@ class LocalDatabase extends _$LocalDatabase {
   // test type + server verdict on attempts, reading completion on progress.
   // v8: active time per module on progress, and the General test (questions
   // and attempts). The per-module pre/post tests were retired; their rows stay.
+  // v9: the app's interface text in the learner's language (a new table only).
   @override
-  int get schemaVersion => 8;
+  int get schemaVersion => 9;
 
   String? _activeUserId;
   String? _learnerRole;
@@ -437,6 +452,10 @@ class LocalDatabase extends _$LocalDatabase {
             await m.addColumn(localQuizAttempts, localQuizAttempts.invalidReason);
             // Attempts from the single end-of-module quiz are kept as history only.
             await customStatement("UPDATE local_quiz_attempts SET test_type = 'LEGACY'");
+          }
+          if (from < 9) {
+            // A new, empty table: nothing existing changes. Until it fills, English shows.
+            await m.createTable(cachedAppStrings);
           }
           if (from < 8) {
             // Every existing row keeps its data; time starts at 0.
@@ -1073,6 +1092,32 @@ class LocalDatabase extends _$LocalDatabase {
 
   Future<void> setSetting(String key, String value) async {
     await into(appSettings).insertOnConflictUpdate(AppSettingsCompanion.insert(key: key, value: value));
+  }
+
+  // ---------- Interface text ----------
+
+  /// Published interface text for [languageCode] (key or key#one -> text).
+  Future<Map<String, String>> getAppStrings(String languageCode) async {
+    final rows = await (select(cachedAppStrings)..where((s) => s.languageCode.equals(languageCode))).get();
+    return {for (final r in rows) r.key: r.value};
+  }
+
+  /// Applies one download from GET /sync/app-strings in a single transaction:
+  /// [replaceAll] (a full download) first clears the language; [removed] keys
+  /// (and their #one forms) are deleted. Safe to repeat.
+  Future<void> applyAppStrings(String languageCode, Map<String, String> strings, Iterable<String> removed,
+      {bool replaceAll = false}) async {
+    await batch((b) {
+      if (replaceAll) b.deleteWhere(cachedAppStrings, (s) => s.languageCode.equals(languageCode));
+      final gone = [for (final k in removed) ...[k, '$k#one']];
+      if (gone.isNotEmpty) {
+        b.deleteWhere(cachedAppStrings, (s) => s.languageCode.equals(languageCode) & s.key.isIn(gone));
+      }
+      b.insertAllOnConflictUpdate(cachedAppStrings, [
+        for (final e in strings.entries)
+          CachedAppStringsCompanion.insert(languageCode: languageCode, key: e.key, value: e.value),
+      ]);
+    });
   }
 
   // ---------- Installed releases ----------

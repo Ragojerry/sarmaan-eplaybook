@@ -6,6 +6,7 @@ import '../services/settings_service.dart';
 import '../sync/release_installer.dart';
 import '../sync/sync_engine.dart';
 import '../theme/app_theme.dart';
+import '../l10n/l10n.dart';
 
 /// Sync & updates (master prompt §55-56): real status from the sync engine,
 /// real pending counts, and a real install progress bar driven by the actual
@@ -31,23 +32,23 @@ class _UpdatesScreenState extends ConsumerState<UpdatesScreen> {
   }
 
   static String _label(SyncStatus s) => switch (s) {
-        SyncStatus.offline => 'Offline',
-        SyncStatus.online => 'Connected',
-        SyncStatus.syncing => 'Syncing…',
-        SyncStatus.syncError => 'Sync problem',
-        SyncStatus.updateAvailable => 'Update available',
-        SyncStatus.upToDate => 'Up to date',
+        SyncStatus.offline => L10n.t('common.offline'),
+        SyncStatus.online => L10n.t('updates.connected'),
+        SyncStatus.syncing => L10n.t('sync.syncing'),
+        SyncStatus.syncError => L10n.t('updates.problem'),
+        SyncStatus.updateAvailable => L10n.t('updates.updateAvailable'),
+        SyncStatus.upToDate => L10n.t('updates.upToDate'),
       };
 
   static String _detail(SyncSnapshot s) {
     if (s.message != null) return s.message!;
     return switch (s.status) {
-      SyncStatus.offline => 'No connection to the server. Everything you have already downloaded still works, and your progress will upload when you are back online.',
-      SyncStatus.online => 'Connected to the server.',
-      SyncStatus.syncing => 'Working…',
-      SyncStatus.syncError => 'Something went wrong. It will retry automatically.',
-      SyncStatus.updateAvailable => 'New training content is ready to install.',
-      SyncStatus.upToDate => 'You have the latest training content.',
+      SyncStatus.offline => L10n.t('updates.offlineDetail'),
+      SyncStatus.online => L10n.t('updates.connectedDetail'),
+      SyncStatus.syncing => L10n.t('updates.working'),
+      SyncStatus.syncError => L10n.t('updates.problemDetail'),
+      SyncStatus.updateAvailable => L10n.t('updates.readyToInstall'),
+      SyncStatus.upToDate => L10n.t('updates.latest'),
     };
   }
 
@@ -60,24 +61,24 @@ class _UpdatesScreenState extends ConsumerState<UpdatesScreen> {
       };
 
   static String _ago(DateTime? t) {
-    if (t == null) return 'Not yet';
+    if (t == null) return L10n.t('updates.notYet');
     final d = DateTime.now().difference(t);
-    if (d.inMinutes < 1) return 'Just now';
-    if (d.inHours < 1) return '${d.inMinutes} min ago';
-    if (d.inDays < 1) return '${d.inHours} h ago';
-    return '${d.inDays} d ago';
+    if (d.inMinutes < 1) return L10n.t('updates.justNow');
+    if (d.inHours < 1) return L10n.n('updates.minutesAgo', d.inMinutes);
+    if (d.inDays < 1) return L10n.n('updates.hoursAgo', d.inHours);
+    return L10n.n('updates.daysAgo', d.inDays);
   }
 
   static String _mb(int? bytes) => bytes == null ? '' : '${(bytes / 1024).toStringAsFixed(0)} KB';
 
   static String _stage(InstallStage? s) => switch (s) {
-        InstallStage.download => 'Downloading…',
-        InstallStage.validate => 'Checking the download…',
-        InstallStage.media => 'Downloading images…',
-        InstallStage.apply => 'Installing…',
-        InstallStage.verify => 'Verifying…',
-        InstallStage.done => 'Done',
-        null => 'Starting…',
+        InstallStage.download => L10n.t('install.downloading'),
+        InstallStage.validate => L10n.t('install.checking'),
+        InstallStage.media => L10n.t('install.images'),
+        InstallStage.apply => L10n.t('install.installing'),
+        InstallStage.verify => L10n.t('install.verifying'),
+        InstallStage.done => L10n.t('install.done'),
+        null => L10n.t('install.starting'),
       };
 
   @override
@@ -89,7 +90,7 @@ class _UpdatesScreenState extends ConsumerState<UpdatesScreen> {
     return Scaffold(
       backgroundColor: AppColors.background,
       appBar: AppBar(
-        title: const Text('Sync & updates'),
+        title: Text(context.t('about.syncUpdates')),
         leading: BackButton(onPressed: () => context.go('/home')),
       ),
       body: ListView(
@@ -124,11 +125,14 @@ class _UpdatesScreenState extends ConsumerState<UpdatesScreen> {
             ),
           ),
           const SizedBox(height: 14),
-          _row('Waiting to upload', snap.pendingCount == 0 ? 'Nothing' : '${snap.pendingCount} item${snap.pendingCount == 1 ? '' : 's'}'),
-          _row('Last synced', _ago(snap.lastSyncedAt)),
+          _row(context.t('updates.waitingToUpload'),
+              snap.pendingCount == 0 ? context.t('updates.nothing') : context.tn('updates.items', snap.pendingCount)),
+          _row(context.t('updates.lastSynced'), _ago(snap.lastSyncedAt)),
           _row(
-            'Installed content',
-            snap.installedReleaseCode == null ? 'None yet' : '${snap.installedReleaseCode} · v${snap.installedVersion ?? '?'}',
+            context.t('updates.installedContent'),
+            snap.installedReleaseCode == null
+                ? context.t('updates.noneYet')
+                : '${snap.installedReleaseCode} · v${snap.installedVersion ?? '?'}',
           ),
           if (snap.availableRelease != null) ...[
             const SizedBox(height: 10),
@@ -142,8 +146,10 @@ class _UpdatesScreenState extends ConsumerState<UpdatesScreen> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    'Version ${snap.availableRelease!.version}'
-                    '${snap.availableRelease!.packageSize != null ? ' · ${_mb(snap.availableRelease!.packageSize)}' : ''}',
+                    [
+                      context.t('updates.version', {'version': snap.availableRelease!.version}),
+                      if (snap.availableRelease!.packageSize != null) _mb(snap.availableRelease!.packageSize),
+                    ].join(' · '),
                     style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w700, color: AppColors.textStrong),
                   ),
                   if (snap.availableRelease!.description != null) ...[
@@ -153,7 +159,7 @@ class _UpdatesScreenState extends ConsumerState<UpdatesScreen> {
                   const SizedBox(height: 10),
                   FilledButton(
                     onPressed: busy ? null : () => ref.read(syncEngineProvider.notifier).installAvailableUpdate(),
-                    child: const Text('Install update'),
+                    child: Text(context.t('updates.install')),
                   ),
                 ],
               ),
@@ -165,16 +171,16 @@ class _UpdatesScreenState extends ConsumerState<UpdatesScreen> {
             const SizedBox(height: 6),
             LinearProgressIndicator(value: snap.installFraction <= 0 ? null : snap.installFraction),
             const SizedBox(height: 4),
-            const Text(
-              'Your current content stays available until the update is fully installed.',
-              style: TextStyle(fontSize: 10.5, color: AppColors.textMuted),
+            Text(
+              context.t('updates.staysAvailable'),
+              style: const TextStyle(fontSize: 10.5, color: AppColors.textMuted),
             ),
           ],
           const SizedBox(height: 16),
           OutlinedButton.icon(
             onPressed: busy ? null : () => ref.read(syncEngineProvider.notifier).syncNow(manual: true),
             icon: const Icon(Icons.sync, size: 16),
-            label: const Text('Sync now'),
+            label: Text(context.t('updates.syncNow')),
           ),
           const SizedBox(height: 22),
           Container(
@@ -186,10 +192,10 @@ class _UpdatesScreenState extends ConsumerState<UpdatesScreen> {
             ),
             child: Row(
               children: [
-                const Expanded(
+                Expanded(
                   child: Text(
-                    'Share anonymous usage statistics\nWhich modules and videos are used, and app errors. Never your answers or questions.',
-                    style: TextStyle(fontSize: 11.5, height: 1.5, color: AppColors.textMuted),
+                    '${context.t('updates.shareUsage')}\n${context.t('updates.shareUsageDetail')}',
+                    style: const TextStyle(fontSize: 11.5, height: 1.5, color: AppColors.textMuted),
                   ),
                 ),
                 Switch(

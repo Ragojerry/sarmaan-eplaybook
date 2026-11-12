@@ -7,6 +7,7 @@ import '../offline/content_sync_service.dart';
 import '../quiz/quiz_grader.dart';
 import '../sync/analytics_recorder.dart';
 import 'learning_rules.dart';
+import '../l10n/l10n.dart';
 
 /// The signed-in learner's modules (only those their learner role may see), each
 /// one's state, and the General test, read from the local database so it works
@@ -151,7 +152,7 @@ Future<QuizResult> recordModuleQuiz(LocalDatabase db, {required String moduleId,
 /// Returns null when completed, or the plain reason it is not allowed yet.
 Future<String?> completeModule(LocalDatabase db, String moduleId) async {
   final state = (await loadLearning(db)).of(moduleId);
-  if (state == null) return 'This module is not available.';
+  if (state == null) return L10n.t('learning.notAvailable');
   if (state.completed) return null;
   if (!state.canComplete) return completionMessage(state);
   await db.upsertProgress(moduleId: moduleId, progressPercent: 100, completed: true);
@@ -167,12 +168,11 @@ Future<String?> completeModule(LocalDatabase db, String moduleId) async {
 String? completionMessage(ModuleLearning s) {
   if (s.completed) return null;
   if (!s.unlocked) {
-    return s.lockedByGeneralTest ? 'Take the General pre-test first.' : 'Complete the previous module first.';
+    return s.lockedByGeneralTest ? L10n.t('learning.takePreTestFirst') : L10n.t('learning.previousModuleFirst');
   }
-  if (!s.quizPassed) return 'Answer the module quiz correctly to finish this module.';
+  if (!s.quizPassed) return L10n.t('learning.passQuizFirst');
   if (!s.timeMet) {
-    return 'Please spend at least ${formatDuration(s.minSeconds)} in this module. '
-        '${formatDuration(s.secondsLeft)} to go.';
+    return L10n.t('learning.spendMoreTime', {'minimum': formatDuration(s.minSeconds), 'left': formatDuration(s.secondsLeft)});
   }
   return null;
 }
@@ -218,7 +218,7 @@ String newClientId(String prefix) =>
 
 /// Plain-language state of a module, shown on cards and in the reader.
 String stageLabel(ModuleStage stage) => switch (stage) {
-      ModuleStage.locked => 'Locked',
-      ModuleStage.reading => 'Open',
-      ModuleStage.completed => 'Completed',
+      ModuleStage.locked => L10n.t('stage.locked'),
+      ModuleStage.reading => L10n.t('stage.open'),
+      ModuleStage.completed => L10n.t('stage.completed'),
     };

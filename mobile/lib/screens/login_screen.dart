@@ -6,6 +6,7 @@ import 'package:go_router/go_router.dart';
 import '../services/auth_service.dart';
 import '../theme/app_theme.dart';
 import '../widgets/partner_logo_row.dart';
+import '../l10n/l10n.dart';
 
 /// New in Phase 7 — the prototype had no login at all (docs/prototype-analysis.md
 /// §1), so there's no prototype CSS to match here. Styled to sit consistently
@@ -36,9 +37,9 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
       await ref.read(authProvider.notifier).login(_usernameController.text.trim(), _passwordController.text);
       if (mounted) context.go('/home');
     } on DioException catch (e) {
-      setState(() => _error = e.response?.data?['detail']?.toString() ?? 'Login failed. Check your connection.');
+      setState(() => _error = e.response?.data?['detail']?.toString() ?? L10n.t('login.failed'));
     } catch (_) {
-      setState(() => _error = 'Something went wrong. Please try again.');
+      setState(() => _error = L10n.t('common.somethingWrong'));
     } finally {
       if (mounted) setState(() => _submitting = false);
     }
@@ -69,10 +70,10 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                 // never larger than the supplied file's own pixels (it is only 118 x 50 px).
                 const Align(alignment: Alignment.centerLeft, child: SarmaanLogoMark()),
                 const SizedBox(height: 16),
-                Text('SARMAAN II e-Playbook', style: Theme.of(context).textTheme.headlineSmall),
+                Text(context.t('app.name'), style: Theme.of(context).textTheme.headlineSmall),
                 const SizedBox(height: 4),
                 Text(
-                  'SIGN IN',
+                  context.t('login.eyebrow'),
                   style: Theme.of(context).textTheme.labelSmall?.copyWith(color: AppColors.textMuted),
                 ),
                 const SizedBox(height: 28),
@@ -90,24 +91,24 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                 ],
                 TextFormField(
                   controller: _usernameController,
-                  decoration: const InputDecoration(labelText: 'Username'),
-                  validator: (v) => (v == null || v.isEmpty) ? 'Required' : null,
+                  decoration: InputDecoration(labelText: context.t('login.username')),
+                  validator: (v) => (v == null || v.isEmpty) ? context.t('common.required') : null,
                 ),
                 const SizedBox(height: 12),
                 TextFormField(
                   controller: _passwordController,
                   decoration: InputDecoration(
-                    labelText: 'Password',
+                    labelText: context.t('login.password'),
                     suffixIcon: IconButton(
                       icon: Icon(_showPassword ? Icons.visibility_off_outlined : Icons.visibility_outlined),
-                      tooltip: _showPassword ? 'Hide password' : 'Show password',
+                      tooltip: _showPassword ? context.t('login.hidePassword') : context.t('login.showPassword'),
                       onPressed: () => setState(() => _showPassword = !_showPassword),
                     ),
                   ),
                   obscureText: !_showPassword,
                   enableSuggestions: false,
                   autocorrect: false,
-                  validator: (v) => (v == null || v.isEmpty) ? 'Required' : null,
+                  validator: (v) => (v == null || v.isEmpty) ? context.t('common.required') : null,
                 ),
                 const SizedBox(height: 24),
                 FilledButton(
@@ -118,7 +119,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                           width: 20,
                           child: CircularProgressIndicator(strokeWidth: 2, valueColor: AlwaysStoppedAnimation(AppColors.onPrimary)),
                         )
-                      : const Text('Sign in'),
+                      : Text(context.t('login.signIn')),
                 ),
               ],
             ),

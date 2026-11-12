@@ -8,6 +8,7 @@ import '../services/auth_service.dart';
 import '../theme/app_theme.dart';
 import '../widgets/partner_logo_row.dart';
 import '../widgets/app_bottom_nav.dart';
+import '../l10n/l10n.dart';
 
 final videosProvider = FutureProvider<List<TrainingVideo>>((ref) async {
   final api = ref.read(apiClientProvider);
@@ -30,16 +31,16 @@ class VideoLibraryScreen extends ConsumerWidget {
     final videosAsync = ref.watch(videosProvider);
 
     return Scaffold(
-      appBar: BrandTopBar(appBar: AppBar(title: const Text('Videos'))),
+      appBar: BrandTopBar(appBar: AppBar(title: Text(context.t('videos.title')))),
       body: videosAsync.when(
         data: (videos) => videos.isEmpty
-            ? const Center(child: Text('No videos yet.'))
+            ? Center(child: Text(context.t('videos.none')))
             : ListView(
                 padding: const EdgeInsets.symmetric(vertical: 8),
                 children: [for (final v in videos) _VideoListItem(video: v)],
               ),
         loading: () => const Center(child: CircularProgressIndicator()),
-        error: (e, _) => Center(child: Text('Could not load videos: $e', style: const TextStyle(color: AppColors.errorText))),
+        error: (e, _) => Center(child: Text(context.t('videos.loadFailed', {'error': e}), style: const TextStyle(color: AppColors.errorText))),
       ),
       bottomNavigationBar: const AppBottomNav(currentRoute: '/videos'),
     );
@@ -91,10 +92,10 @@ class _VideoListItem extends ConsumerWidget {
                   const SizedBox(height: 2),
                   Text(
                     !video.hasFile
-                        ? 'Not yet available'
+                        ? context.t('videos.notAvailable')
                         : downloaded
-                            ? 'Downloaded — tap to play'
-                            : (video.description ?? 'Tap to download'),
+                            ? context.t('videos.downloadedTapToPlay')
+                            : (video.description ?? context.t('videos.tapToDownload')),
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                     style: const TextStyle(fontSize: 10, color: AppColors.textMuted),

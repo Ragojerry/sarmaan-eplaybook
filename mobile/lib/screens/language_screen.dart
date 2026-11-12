@@ -6,10 +6,12 @@ import 'package:go_router/go_router.dart';
 
 import '../models/api_models.dart';
 import '../models/consent_text.dart';
+import '../l10n/app_strings_service.dart';
 import '../services/auth_service.dart';
 import '../services/settings_service.dart';
 import '../sync/sync_engine.dart';
 import '../theme/app_theme.dart';
+import '../l10n/l10n.dart';
 
 /// Used only when nothing has ever been cached yet (a genuinely fresh
 /// install with zero prior network contact). "bundled-*" ids are
@@ -108,6 +110,10 @@ class _LanguageScreenState extends ConsumerState<LanguageScreen> {
   Future<void> _continue() async {
     if (_selectedCode == null) return;
     await ref.read(settingsServiceProvider).setSelectedLanguageCode(_selectedCode!);
+    // The interface switches at once (from what is cached), then any newer text downloads.
+    final strings = ref.read(appStringsServiceProvider);
+    await strings.show(_selectedCode!);
+    unawaited(strings.sync(_selectedCode!));
     if (widget.changing) {
       // Fetch that language's published translations now (it also runs on every sync).
       unawaited(ref.read(syncEngineProvider.notifier).syncNow(manual: true).catchError((_) {}));
@@ -138,14 +144,14 @@ class _LanguageScreenState extends ConsumerState<LanguageScreen> {
                     children: [
                       Container(width: 16, height: 2, color: AppColors.primary),
                       const SizedBox(width: 8),
-                      Text('STEP 1 OF 2', style: Theme.of(context).textTheme.labelSmall),
+                      Text(context.t('onboarding.step1'), style: Theme.of(context).textTheme.labelSmall),
                     ],
                   ),
                   const SizedBox(height: 8),
-                  Text('Choose your language', style: Theme.of(context).textTheme.headlineSmall),
+                  Text(context.t('language.title'), style: Theme.of(context).textTheme.headlineSmall),
                   const SizedBox(height: 4),
                   Text(
-                    'Training content will be shown in this language where available.',
+                    context.t('language.subtitle'),
                     style: Theme.of(context).textTheme.bodySmall,
                   ),
                 ],
@@ -161,7 +167,7 @@ class _LanguageScreenState extends ConsumerState<LanguageScreen> {
             ),
             Padding(
               padding: const EdgeInsets.fromLTRB(22, 0, 22, 22),
-              child: FilledButton(onPressed: _continue, child: const Text('Continue')),
+              child: FilledButton(onPressed: _continue, child: Text(context.t('common.continue'))),
             ),
           ],
         ),
@@ -186,18 +192,20 @@ class _LanguageScreenState extends ConsumerState<LanguageScreen> {
             Expanded(
               child: Row(
                 children: [
-                  Text(
-                    lang.name,
-                    style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 14.5, color: AppColors.textStrong),
+                  Flexible(
+                    child: Text(
+                      lang.name,
+                      style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 14.5, color: AppColors.textStrong),
+                    ),
                   ),
                   if (lang.status == 'BETA')
                     Container(
                       margin: const EdgeInsets.only(left: 8),
                       padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
                       decoration: BoxDecoration(color: AppColors.infoSurface, border: Border.all(color: AppColors.info), borderRadius: BorderRadius.circular(5)),
-                      child: const Text(
-                        'BETA',
-                        style: TextStyle(
+                      child: Text(
+                        context.t('common.beta'),
+                        style: const TextStyle(
                           fontFamily: AppFonts.mono,
                           fontSize: 9.5,
                           fontWeight: FontWeight.w700,

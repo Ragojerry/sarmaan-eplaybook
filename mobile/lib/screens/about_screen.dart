@@ -11,6 +11,7 @@ import '../theme/app_theme.dart';
 import '../widgets/partner_logo_row.dart';
 import '../video/video_manager.dart';
 import '../widgets/app_bottom_nav.dart';
+import '../l10n/l10n.dart';
 
 final packageInfoProvider = FutureProvider<PackageInfo>((ref) => PackageInfo.fromPlatform());
 
@@ -49,30 +50,30 @@ class AboutScreen extends ConsumerWidget {
     final packageInfoAsync = ref.watch(packageInfoProvider);
 
     return Scaffold(
-      appBar: BrandTopBar(appBar: AppBar(title: const Text('About'))),
+      appBar: BrandTopBar(appBar: AppBar(title: Text(context.t('about.title')))),
       body: ListView(
         padding: const EdgeInsets.symmetric(vertical: 16),
         children: [
           packageInfoAsync.when(
-            data: (info) => _AboutItem(label: 'App version', value: '${info.version} (${info.buildNumber})'),
-            loading: () => const _AboutItem(label: 'App version', value: '…'),
-            error: (_, __) => const _AboutItem(label: 'App version', value: 'Unknown'),
+            data: (info) => _AboutItem(label: context.t('about.appVersion'), value: '${info.version} (${info.buildNumber})'),
+            loading: () => _AboutItem(label: context.t('about.appVersion'), value: '…'),
+            error: (_, __) => _AboutItem(label: context.t('about.appVersion'), value: context.t('common.unknown')),
           ),
           if (user != null)
-            _AboutItem(label: 'Signed in as', value: '${user.firstName} ${user.lastName}'),
-          if (user != null) _AboutItem(label: 'Role', value: user.role),
-          const _AboutItem(label: 'Content source', value: 'AZM Training Flipbook'),
+            _AboutItem(label: context.t('about.signedInAs'), value: '${user.firstName} ${user.lastName}'),
+          if (user != null) _AboutItem(label: context.t('about.role'), value: user.role),
+          _AboutItem(label: context.t('about.contentSource'), value: 'AZM Training Flipbook'),
           ListTile(
             contentPadding: const EdgeInsets.symmetric(horizontal: 22),
-            title: const Text('Language', style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600)),
+            title: Text(context.t('about.language'), style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w600)),
             subtitle: Text(ref.watch(selectedLanguageLabelProvider).valueOrNull ?? 'English', style: const TextStyle(fontSize: 11)),
             trailing: const Icon(Icons.chevron_right),
             onTap: () => context.go('/language?change=1'),
           ),
           ListTile(
             contentPadding: const EdgeInsets.symmetric(horizontal: 22),
-            title: const Text('Sync & updates', style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600)),
-            subtitle: const Text('Upload status, content updates', style: TextStyle(fontSize: 11)),
+            title: Text(context.t('about.syncUpdates'), style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w600)),
+            subtitle: Text(context.t('about.syncUpdatesHint'), style: const TextStyle(fontSize: 11)),
             trailing: const Icon(Icons.chevron_right),
             onTap: () => context.go('/updates'),
           ),
@@ -86,13 +87,13 @@ class AboutScreen extends ConsumerWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Text(
-                  'Report a safeguarding concern',
-                  style: TextStyle(fontSize: 12.5, fontWeight: FontWeight.w700, color: AppColors.onPrimary),
+                Text(
+                  context.t('about.safeguardingTitle'),
+                  style: const TextStyle(fontSize: 12.5, fontWeight: FontWeight.w700, color: AppColors.onPrimary),
                 ),
                 const SizedBox(height: 6),
                 Text(
-                  'If you notice anything unsafe or improper during a household visit, contact your supervisor or reach out directly.',
+                  context.t('about.safeguardingBody'),
                   style: TextStyle(fontSize: 11, height: 1.6, color: AppColors.onPrimary.withValues(alpha: 0.9)),
                 ),
                 const SizedBox(height: 8),
@@ -113,7 +114,7 @@ class AboutScreen extends ConsumerWidget {
             child: OutlinedButton.icon(
               onPressed: () => _confirmRestart(context, ref),
               icon: const Icon(Icons.restart_alt, size: 16),
-              label: const Text('Start training over'),
+              label: Text(context.t('about.restart')),
             ),
           ),
           const SizedBox(height: 10),
@@ -130,7 +131,7 @@ class AboutScreen extends ConsumerWidget {
                 if (context.mounted) context.go('/login');
               },
               icon: const Icon(Icons.logout, size: 16),
-              label: const Text('Sign out'),
+              label: Text(context.t('about.signOut')),
               style: OutlinedButton.styleFrom(foregroundColor: AppColors.errorText, side: const BorderSide(color: AppColors.error, width: 1.5)),
             ),
           ),
@@ -149,19 +150,16 @@ class AboutScreen extends ConsumerWidget {
     final ok = await showDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(
-        title: const Text('Start training over?'),
-        content: const Text(
-          'Your progress and quiz results for ALL modules will be cleared and replaced by your new attempt. '
-          'This cannot be undone. Downloaded lessons and videos stay on your phone.',
-        ),
+        title: Text(ctx.t('about.restartConfirmTitle')),
+        content: Text(ctx.t('about.restartConfirmBody')),
         actions: [
-          TextButton(onPressed: () => Navigator.pop(ctx, false), child: const Text('Cancel')),
+          TextButton(onPressed: () => Navigator.pop(ctx, false), child: Text(ctx.t('common.cancel'))),
           FilledButton(
             // Red fails 4.5:1 behind white or Forest text, so the confirm button keeps the primary
             // fill and is marked by a red border (contrast report).
             style: FilledButton.styleFrom(side: const BorderSide(color: AppColors.error, width: 2)),
             onPressed: () => Navigator.pop(ctx, true),
-            child: const Text('Start over'),
+            child: Text(ctx.t('about.startOver')),
           ),
         ],
       ),
@@ -172,7 +170,7 @@ class AboutScreen extends ConsumerWidget {
     ref.read(syncEngineProvider.notifier).notifyContentChanged();
     ref.read(syncEngineProvider.notifier).syncNow(manual: true).catchError((_) {});
     if (context.mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Training restarted. Your new attempt starts now.')));
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(L10n.t('about.restarted'))));
       context.go('/home');
     }
   }
@@ -190,17 +188,18 @@ class AboutScreen extends ConsumerWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text('OFFLINE STORAGE', style: TextStyle(fontFamily: AppFonts.mono, fontSize: 10, fontWeight: FontWeight.w700, color: AppColors.textMuted, letterSpacing: 0.5)),
+          Text(L10n.t('about.offlineStorage'),
+              style: const TextStyle(fontFamily: AppFonts.mono, fontSize: 10, fontWeight: FontWeight.w700, color: AppColors.textMuted, letterSpacing: 0.5)),
           const SizedBox(height: 10),
           usageAsync.when(
             data: (usage) {
               final total = usage.videoBytes + usage.trainingBytes;
               return Column(
                 children: [
-                  _storageRow('Videos', usage.videoBytes),
-                  _storageRow('Training', usage.trainingBytes),
+                  _storageRow(L10n.t('about.storageVideos'), usage.videoBytes),
+                  _storageRow(L10n.t('about.storageTraining'), usage.trainingBytes),
                   const Divider(height: 18),
-                  _storageRow('Total', total, bold: true),
+                  _storageRow(L10n.t('about.storageTotal'), total, bold: true),
                 ],
               );
             },
@@ -208,7 +207,7 @@ class AboutScreen extends ConsumerWidget {
               padding: EdgeInsets.symmetric(vertical: 8),
               child: Center(child: SizedBox(height: 16, width: 16, child: CircularProgressIndicator(strokeWidth: 2))),
             ),
-            error: (_, __) => const Text('Could not compute storage usage.', style: TextStyle(fontSize: 11, color: AppColors.textMuted)),
+            error: (_, __) => Text(L10n.t('about.storageFailed'), style: const TextStyle(fontSize: 11, color: AppColors.textMuted)),
           ),
         ],
       ),

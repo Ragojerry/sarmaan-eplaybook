@@ -8,6 +8,7 @@ import '../db/local_database.dart';
 import '../learning/learning_service.dart';
 import '../offline/content_sync_service.dart';
 import '../theme/app_theme.dart';
+import '../l10n/l10n.dart';
 
 /// The General pre-/post-test (since 2026-11 it replaces the per-module tests):
 /// the same multiple-choice questions, one at a time with the options in the
@@ -43,7 +44,6 @@ class _GeneralTestScreenState extends ConsumerState<GeneralTestScreen> {
   GeneralOutcome? _outcome;
 
   bool get _isPre => widget.testType == 'PRE';
-  String get _title => _isPre ? 'General pre-test' : 'General post-test';
 
   @override
   void initState() {
@@ -57,14 +57,13 @@ class _GeneralTestScreenState extends ConsumerState<GeneralTestScreen> {
     final g = learning.general;
     String? blocked;
     if (!g.active || g.questions == 0) {
-      blocked = 'The General test is not available on this phone yet. Sync on Home when you are online.';
+      blocked = L10n.t('general.notOnPhoneSync');
     } else if (_isPre && !g.canTakePre) {
-      blocked = 'You have already taken the General pre-test. It is taken once.';
+      blocked = L10n.t('general.preAlreadyTaken');
     } else if (!_isPre && !g.canTakePost) {
       blocked = g.post != null
-          ? 'You have already taken the General post-test. It is taken once.'
-          : 'The General post-test opens when you have completed all your modules '
-              '(${g.modulesCompleted} of ${g.modulesTotal} so far).';
+          ? L10n.t('general.postAlreadyTaken')
+          : L10n.t('general.postOpensLater', {'done': g.modulesCompleted, 'modules': g.modulesTotal});
     }
     final rows = (await db.getGeneralQuestions()).where((q) => q.correctIndex != null).map(_Question.new).toList();
     if (mounted) {
@@ -83,7 +82,7 @@ class _GeneralTestScreenState extends ConsumerState<GeneralTestScreen> {
       ref.invalidate(learningProvider);
       if (mounted) setState(() => _outcome = outcome);
     } catch (_) {
-      if (mounted) setState(() => _blocked = 'This test is no longer open.');
+      if (mounted) setState(() => _blocked = L10n.t('general.noLongerOpen'));
     } finally {
       if (mounted) setState(() => _submitting = false);
     }
@@ -94,7 +93,9 @@ class _GeneralTestScreenState extends ConsumerState<GeneralTestScreen> {
     final qs = _qs;
     return Scaffold(
       backgroundColor: AppColors.background,
-      appBar: AppBar(title: Text(_title), leading: BackButton(onPressed: () => context.go('/modules'))),
+      appBar: AppBar(
+          title: Text(_isPre ? context.t('general.preTestTitle') : context.t('general.postTitle')),
+          leading: BackButton(onPressed: () => context.go('/modules'))),
       body: _outcome != null
           ? _result(_outcome!)
           : _blocked != null
@@ -102,7 +103,7 @@ class _GeneralTestScreenState extends ConsumerState<GeneralTestScreen> {
               : qs == null
                   ? const Center(child: CircularProgressIndicator())
                   : qs.isEmpty
-                      ? _message('The General test is not available on this phone yet.')
+                      ? _message(context.t('general.notOnPhone'))
                       : _question(qs),
     );
   }
@@ -115,7 +116,7 @@ class _GeneralTestScreenState extends ConsumerState<GeneralTestScreen> {
             children: [
               Text(text, textAlign: TextAlign.center, style: const TextStyle(fontSize: 14, height: 1.45, color: AppColors.textStrong)),
               const SizedBox(height: 16),
-              OutlinedButton(onPressed: () => context.go('/modules'), child: const Text('Back to modules')),
+              OutlinedButton(onPressed: () => context.go('/modules'), child: Text(context.t('reader.backToModules'))),
             ],
           ),
         ),
@@ -141,16 +142,12 @@ class _GeneralTestScreenState extends ConsumerState<GeneralTestScreen> {
                 Padding(
                   padding: const EdgeInsets.only(bottom: 14),
                   child: Text(
-                    _isPre
-                        ? 'Answer what you already know. It is not a pass or fail: it is your starting point, '
-                            'and you take it once. Your modules open after you submit.'
-                        : 'The same questions as your pre-test, now that you have completed your modules. '
-                            'You take it once.',
+                    _isPre ? context.t('general.preIntro') : context.t('general.postIntro'),
                     style: const TextStyle(fontSize: 12.5, height: 1.45, color: AppColors.textMuted),
                   ),
                 ),
               Text(
-                'QUESTION ${_index + 1} OF ${qs.length} · CHOOSE ONE',
+                context.t('general.questionOf', {'number': _index + 1, 'total': qs.length}),
                 style: const TextStyle(fontFamily: AppFonts.mono, fontSize: 10.5, letterSpacing: 0.6, color: AppColors.textMuted),
               ),
               const SizedBox(height: 10),
@@ -194,14 +191,16 @@ class _GeneralTestScreenState extends ConsumerState<GeneralTestScreen> {
             child: Row(
               children: [
                 if (_index > 0)
-                  OutlinedButton(onPressed: () => setState(() => _index--), child: const Text('Back'))
+                  OutlinedButton(onPressed: () => setState(() => _index--), child: Text(context.t('common.back')))
                 else
                   const SizedBox.shrink(),
                 const Spacer(),
                 FilledButton(
                   onPressed: chosen == null || _submitting ? null : () => last ? _submit() : setState(() => _index++),
                   style: FilledButton.styleFrom(backgroundColor: AppColors.primary, foregroundColor: AppColors.onPrimary),
-                  child: Text(last ? (_submitting ? 'Submitting…' : 'Submit') : 'Next'),
+                  child: Text(last
+                      ? (_submitting ? context.t('general.submitting') : context.t('general.submit'))
+                      : context.t('common.next')),
                 ),
               ],
             ),
@@ -216,25 +215,25 @@ class _GeneralTestScreenState extends ConsumerState<GeneralTestScreen> {
     return ListView(
       padding: const EdgeInsets.fromLTRB(22, 28, 22, 28),
       children: [
-        Text(_isPre ? 'Your starting point' : 'Your result',
+        Text(_isPre ? context.t('general.startingPoint') : context.t('general.yourResult'),
             style: const TextStyle(fontFamily: AppFonts.serif, fontSize: 21, fontWeight: FontWeight.w600, color: AppColors.primary)),
         const SizedBox(height: 12),
-        Text('${o.correct} of ${o.total} (${o.percent}%)',
+        Text(context.t('general.score', {'correct': o.correct, 'total': o.total, 'percent': o.percent}),
             style: const TextStyle(fontSize: 28, fontWeight: FontWeight.w800, color: AppColors.textStrong)),
         const SizedBox(height: 10),
         Text(
           _isPre
-              ? 'Thank you. Your modules are now open. At the end of the training you will answer the same questions again.'
+              ? context.t('general.preDone')
               : pre == null
-                  ? 'Well done for completing the training.'
-                  : 'Your pre-test was ${pre.correct} of ${pre.total} (${pre.percent}%). Well done for completing the training.',
+                  ? context.t('general.postDone')
+                  : context.t('general.postDoneWithPre', {'correct': pre.correct, 'total': pre.total, 'percent': pre.percent}),
           style: const TextStyle(fontSize: 13.5, height: 1.5, color: AppColors.textMuted),
         ),
         const SizedBox(height: 22),
         FilledButton(
           onPressed: () => context.go('/modules'),
           style: FilledButton.styleFrom(backgroundColor: AppColors.primary, foregroundColor: AppColors.onPrimary),
-          child: Text(_isPre ? 'Go to my modules' : 'Back to modules'),
+          child: Text(_isPre ? context.t('general.goToModules') : context.t('reader.backToModules')),
         ),
       ],
     );

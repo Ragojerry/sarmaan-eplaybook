@@ -5,7 +5,7 @@ from sqlalchemy.orm import Session
 
 from app.database import get_db
 from app.auth.dependencies import get_current_user, require_roles
-from app.models import ContentChunk, Language, ModuleTranslation, SectionTranslation, User
+from app.models import AppStringTranslation, ContentChunk, Language, ModuleTranslation, SectionTranslation, User
 from app.models.audit_log import AuditLog
 from app.models.enums import RoleName, AuditAction
 from app.schemas.language import LanguageCreate, LanguageUpdate, LanguageResponse
@@ -87,6 +87,7 @@ def delete_language(
     translations = (
         db.query(ModuleTranslation).filter_by(language_id=language.id).count()
         + db.query(SectionTranslation).filter_by(language_id=language.id).count()
+        + db.query(AppStringTranslation).filter_by(language_id=language.id).count()
     )
     if users or translations:
         raise HTTPException(

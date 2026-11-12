@@ -20,6 +20,7 @@ from app.models.content_chunk import ContentChunk
 from app.models.reference_document import ReferenceDocument, ReferencePassage
 from app.models.faq_entry import FaqEntry
 from app.models.consent_text import ConsentText
+from app.models.app_string import AppString, AppStringTranslation
 from app.models.audit_log import AuditLog
 from app.models.boundary import AdminBoundary
 from app.models.api_key import ApiKey
@@ -50,6 +51,8 @@ __all__ = [
     "ReferencePassage",
     "FaqEntry",
     "ConsentText",
+    "AppString",
+    "AppStringTranslation",
     "AuditLog",
     "AdminBoundary",
     "ApiKey",

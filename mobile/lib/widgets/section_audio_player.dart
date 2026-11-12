@@ -6,6 +6,7 @@ import 'package:video_player/video_player.dart';
 
 import '../offline/content_sync_service.dart';
 import '../theme/app_theme.dart';
+import '../l10n/l10n.dart';
 
 /// Plays an AUDIO section's file from the copy the release installer
 /// downloaded (offline, never streamed). video_player also plays audio-only
@@ -77,11 +78,11 @@ class _SectionAudioPlayerState extends ConsumerState<SectionAudioPlayer> {
     final pos = value?.position ?? Duration.zero;
     final String status;
     if (_loading) {
-      status = 'Loading…';
+      status = context.t('common.loading');
     } else if (_failed) {
-      status = 'This audio could not be played on this phone.';
+      status = context.t('audio.failed');
     } else if (c == null) {
-      status = 'Audio will be available after the next sync.';
+      status = context.t('audio.afterSync');
     } else {
       status = '${_time(pos)} / ${_time(total)}';
     }
@@ -101,7 +102,7 @@ class _SectionAudioPlayerState extends ConsumerState<SectionAudioPlayer> {
             children: [
               Semantics(
                 button: true,
-                label: playing ? 'Pause audio' : 'Play audio',
+                label: playing ? context.t('audio.pause') : context.t('audio.play'),
                 child: GestureDetector(
                   onTap: c == null
                       ? null
