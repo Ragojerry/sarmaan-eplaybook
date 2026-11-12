@@ -95,4 +95,4 @@ The branch starts from commit `8ddaf9a` (the go-live code as deployed on 2026-11
 |---|---|
 | `brand/logos.json` (and copies), `mobile/lib/widgets/partner_logo_row.dart`, `admin/src/components/PartnerLogos.tsx` | "In partnership with" removed: logo rows show the logos only |
 | `docs/brand/open_questions.md` | §2 partnership wording decided (none); §4 GF logo confirmed |
-| `brand/tokens.json`, `mobile/pubspec.yaml`, `mobile/assets/fonts/Arimo-*.ttf`, `OFL-Arimo.txt` | Arimo (SIL OFL 1.1, Arial-compatible) for all app text, replacing Fraunces, Manrope and JetBrains Mono; it covers every Hausa, Fulfulde and Kanuri letter. Arial itself cannot be bundled without a licence. The old font files stay on disk, unregistered. |
+| `mobile/pubspec.yaml`, `mobile/assets/fonts/Arimo-*.ttf`, `OFL-Arimo.txt` | App fonts unchanged (Fraunces, Manrope, JetBrains Mono): Arimo was tried for all text and reverted the same day by decision. Arimo (SIL OFL 1.1) is bundled only for the certificate PDF, so learners' names with ɓ ɗ ƙ ƴ print correctly. |

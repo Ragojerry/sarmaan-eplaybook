@@ -65,9 +65,9 @@ class BrandColors {
 
 class BrandFont {
   BrandFont._();
-  static const body = 'Arimo';
-  static const heading = 'Arimo';
-  static const mono = 'Arimo';
+  static const body = 'Manrope';
+  static const heading = 'Fraunces';
+  static const mono = 'JetBrainsMono';
   static const fallback = <String>['Roboto', 'Noto Sans'];
 }
 

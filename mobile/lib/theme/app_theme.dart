@@ -55,10 +55,10 @@ class AppRadius {
   static const pill = BrandRadius.pill;
 }
 
-/// The app's bundled font (assets/fonts, SIL OFL 1.1): Arimo, Arial-compatible, for
-/// headings, body and labels alike (decision 2026-11-12). It has every Hausa,
-/// Fulfulde and Kanuri letter (ɓ ɗ ƙ ƴ ŋ ɲ ǝ ʼ), so words never switch font midway.
-/// The three roles stay so a separate heading font can come back without touching screens.
+/// The app's own bundled fonts (assets/fonts, SIL OFL 1.1), kept by decision on
+/// 2026-11-11 instead of the guide's Helvetica Neue: Fraunces for headings, Manrope
+/// for body and UI, JetBrains Mono for labels. They lack the Hausa letters
+/// (ɓ ɗ ƙ ƴ); Flutter draws those from [fallback] (Roboto / Noto Sans on Android).
 class AppFonts {
   AppFonts._();
 
