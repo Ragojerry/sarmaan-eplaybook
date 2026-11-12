@@ -8,6 +8,8 @@ app and the admin portal use, computed from brand/tokens.json.
 Thresholds: text 4.5:1; large text (>= 18.66 px bold or 24 px regular) and
 controls/icons/borders that must be seen (WCAG 1.4.11) 3:1. "decor" pairs
 (dividers, card outlines) are listed for completeness and have no threshold.
+"accepted" pairs are below the threshold and kept by a recorded decision (the IHS
+Teal base, 2026-11-12, after the IHS report layout); they are reported, never hidden.
 """
 import argparse
 import json
@@ -17,7 +19,7 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 from brand_sync import BRAND, ROOT, resolved_colours  # noqa: E402
 
-THRESHOLD = {"text": 4.5, "large": 3.0, "control": 3.0, "decor": 0.0}
+THRESHOLD = {"text": 4.5, "large": 3.0, "control": 3.0, "decor": 0.0, "accepted": 0.0}
 
 # (foreground, background, where, kind) — semantic token names from tokens.json
 PAIRS = [
@@ -30,10 +32,14 @@ PAIRS = [
     ("textMuted", "surfaceMuted", "Secondary text on grey panels", "text"),
     ("text", "surfaceMuted", "Body text on grey panels / cards", "text"),
     ("textStrong", "surfaceSelected", "Selected nav item, selected option", "text"),
-    ("textOnPrimary", "primary", "Primary buttons, app bars, splash, admin header", "text"),
-    ("primary", "background", "Outlined buttons, links, icons", "text"),
+    ("textOnPrimary", "primary", "White bold text on IHS Teal: app bars, buttons, header title (decision 2026-11-12)", "accepted"),
+    ("primary", "background", "IHS Teal large titles and icons on the page (decision 2026-11-12)", "accepted"),
+    ("primaryText", "background", "Deep teal: small accent text, links, outlined buttons, headings", "text"),
+    ("primaryText", "surface", "Deep teal text on white cards", "text"),
+    ("textOnPrimary", "primaryText", "White text on deep teal: snack bars, safeguarding box, admin buttons and sidebar top", "text"),
+    ("textStrong", "surfaceSelected", "Text on the Teal 10% selected tint", "text"),
     ("controlBorder", "surface", "Text field and checkbox borders (fields are white)", "control"),
-    ("primary", "background", "Focused field border, radio/checkbox selected", "control"),
+    ("primary", "surface", "Focused field border, radio/checkbox selected (Teal)", "accepted"),
     ("successText", "surface", "Success text ('Correct.') - white cards only", "text"),
     ("textStrong", "successSurface", "Text in success callouts", "text"),
     ("success", "background", "Success icons on the page, progress fill", "control"),
@@ -98,7 +104,7 @@ def report() -> tuple[str, int]:
         ok = r >= need
         failures += not ok
         lines.append(f"| {fg} `{sem[fg]}` | {bg} `{sem[bg]}` | {r:.2f}:1 | {need or '-'}{':1' if need else ''} ({kind}) | "
-                     f"{'pass' if ok else '**FAIL**'} | {where} |")
+                     f"{'**accepted by decision** (below 3:1)' if kind == 'accepted' else 'pass' if ok else '**FAIL**'} | {where} |")
     lines += ["", "## Pairs not used (fail for normal text, so the colour is a fill, icon or border instead)", "",
               "| Foreground | Background | Ratio | Instead |", "|---|---|---|---|"]
     for fg, bg, what in REJECTED:

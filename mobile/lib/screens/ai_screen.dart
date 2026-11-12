@@ -178,7 +178,7 @@ class _UserBubble extends StatelessWidget {
       child: Container(
         margin: const EdgeInsets.only(bottom: 12, left: 48),
         padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
-        decoration: BoxDecoration(color: AppColors.primary, borderRadius: BorderRadius.circular(AppRadius.standard)),
+        decoration: BoxDecoration(color: AppColors.primaryText, borderRadius: BorderRadius.circular(AppRadius.standard), boxShadow: AppSheen.card),
         child: Text(text, style: const TextStyle(fontSize: 12.8, color: AppColors.onPrimary, height: 1.45)),
       ),
     );

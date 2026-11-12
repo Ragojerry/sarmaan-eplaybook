@@ -96,13 +96,14 @@ class _CertificateScreenState extends ConsumerState<CertificateScreen> {
                         color: AppColors.white,
                         borderRadius: BorderRadius.circular(AppRadius.standard),
                         border: Border.all(color: AppColors.primary, width: 1.5),
+                        boxShadow: AppSheen.glow,
                       ),
                       child: Column(
                         children: [
                           const PartnerLogoRow(placement: 'tabHeader'),
                           Text(context.t('cert.title'),
                               textAlign: TextAlign.center,
-                              style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w700, color: AppColors.primary)),
+                              style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w700, color: AppColors.primaryText)),
                           const SizedBox(height: 8),
                           Text(data.name,
                               textAlign: TextAlign.center,

@@ -26,6 +26,7 @@ const tint = (hex, percent) =>
 const p = Object.fromEntries(Object.entries(tokens.palette).map(([k, v]) => [k, v.toUpperCase()]));
 const c = { ...p };
 for (const [name, [base, percent]] of Object.entries(tokens.tints)) c[name] = tint(p[base], percent);
+for (const [name, blend] of Object.entries(tokens.blends ?? {})) if (!name.startsWith("_")) c[name] = blend.hex.toUpperCase();
 const sem = Object.fromEntries(Object.entries(tokens.semantic).map(([k, v]) => [k, c[v]]));
 // Derived tints for the admin's shade steps (same mixing rule as the guide's tints).
 const forest85 = tint(p.forestGreen, 85);
@@ -35,7 +36,8 @@ const red40 = tint(p.red, 40);
 const shades = (s) => ({ 50: s[0], 100: s[1], 200: s[2], 300: s[3], 400: s[4], 500: s[5], 600: s[6], 700: s[7], 800: s[8], 900: s[9], 950: s[9] });
 
 const palette = {
-  gray: shades([c.lightGrey20, lightGrey40, p.lightGrey, p.lightGrey, p.midGrey, c.darkGrey80, p.darkGrey, p.darkGrey, forest85, p.forestGreen]),
+  // 800-950 (the portal's dark buttons and chips) are the deep teal of the Teal base (white text 5.09:1).
+  gray: shades([c.lightGrey20, lightGrey40, p.lightGrey, p.lightGrey, p.midGrey, c.darkGrey80, p.darkGrey, p.darkGrey, c.tealDeep, c.tealDeep]),
   red: shades([c.red10, c.red10, red40, red40, p.red, p.red, p.red, p.red, p.red, p.red]),
   green: shades([c.grassGreen10, c.grassGreen10, c.grassGreen50, c.grassGreen50, p.grassGreen, p.grassGreen, p.grassGreen, p.grassGreen, p.forestGreen, p.forestGreen]),
   blue: shades([c.blue10, c.blue10, c.blue50, c.blue50, p.blue, p.blue, p.blue, p.blue, p.blue, p.blue]),

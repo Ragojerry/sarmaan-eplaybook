@@ -68,7 +68,7 @@ class _SplashScreenState extends ConsumerState<SplashScreen> {
           Expanded(
             child: Container(
               width: double.infinity,
-              color: AppColors.primary,
+              decoration: const BoxDecoration(gradient: AppSheen.hero),
               child: SafeArea(
                 bottom: false,
                 child: Center(child: _title()),

@@ -77,7 +77,7 @@ class _VideoListItem extends ConsumerWidget {
               width: 64,
               height: 42,
               decoration: BoxDecoration(
-                color: AppColors.primary,
+                gradient: AppSheen.button,
                 borderRadius: BorderRadius.circular(8),
               ),
               alignment: Alignment.center,

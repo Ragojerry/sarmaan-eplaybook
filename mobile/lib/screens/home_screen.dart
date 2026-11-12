@@ -361,6 +361,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                   color: AppColors.white,
                   borderRadius: BorderRadius.circular(AppRadius.medium),
                   border: Border.all(color: AppColors.divider),
+                  boxShadow: AppSheen.card,
                 ),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -417,7 +418,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
             const SizedBox(width: 4),
             Text(
               context.t('home.newContent'),
-              style: const TextStyle(fontFamily: AppFonts.mono, fontSize: 10.5, fontWeight: FontWeight.w700, color: AppColors.primary),
+              style: const TextStyle(fontFamily: AppFonts.mono, fontSize: 10.5, fontWeight: FontWeight.w700, color: AppColors.primaryText),
             ),
           ],
         ),
@@ -429,9 +430,11 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.fromLTRB(22, 20, 22, 22),
-      decoration: const BoxDecoration(
-        color: AppColors.primary,
-        borderRadius: BorderRadius.only(bottomLeft: Radius.circular(26), bottomRight: Radius.circular(26)),
+      // The sheen: deep teal behind the small greeting, IHS Teal under the title, a soft glow below.
+      decoration: BoxDecoration(
+        gradient: AppSheen.hero,
+        borderRadius: const BorderRadius.only(bottomLeft: Radius.circular(26), bottomRight: Radius.circular(26)),
+        boxShadow: AppSheen.glow,
       ),
       child: SafeArea(
         bottom: false,
@@ -603,6 +606,7 @@ class _SyncCard extends StatelessWidget {
           color: AppColors.white,
           borderRadius: BorderRadius.circular(AppRadius.medium),
           border: Border.all(color: AppColors.divider),
+          boxShadow: AppSheen.card,
         ),
         child: Row(
           children: [
@@ -683,7 +687,7 @@ class _UpdateBanner extends StatelessWidget {
                       '${release.releaseCode}$mb',
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
-                      style: const TextStyle(fontFamily: AppFonts.mono, fontSize: 10.5, color: AppColors.primary),
+                      style: const TextStyle(fontFamily: AppFonts.mono, fontSize: 10.5, color: AppColors.primaryText),
                     ),
                   ],
                 ),
@@ -714,6 +718,7 @@ class _ContinueCard extends StatelessWidget {
           color: AppColors.white,
           borderRadius: BorderRadius.circular(AppRadius.medium),
           border: Border.all(color: AppColors.divider),
+          boxShadow: AppSheen.card,
         ),
         child: Row(
           children: [
@@ -724,7 +729,7 @@ class _ContinueCard extends StatelessWidget {
               decoration: BoxDecoration(color: AppColors.surfaceSelected, borderRadius: BorderRadius.circular(12)),
               child: Text(
                 module.moduleCode,
-                style: const TextStyle(fontFamily: AppFonts.mono, fontWeight: FontWeight.w700, color: AppColors.primary),
+                style: const TextStyle(fontFamily: AppFonts.mono, fontWeight: FontWeight.w700, color: AppColors.primaryText),
               ),
             ),
             const SizedBox(width: 14),
@@ -794,9 +799,7 @@ class _ModuleCard extends StatelessWidget {
           color: locked ? AppColors.surfaceMuted : AppColors.surface,
           borderRadius: BorderRadius.circular(AppRadius.medium),
           border: active ? Border.all(color: AppColors.primary, width: 2.5) : Border.all(color: AppColors.divider),
-          boxShadow: active
-              ? [BoxShadow(color: AppColors.primary.withValues(alpha: 0.28), blurRadius: 14, offset: const Offset(0, 5))]
-              : null,
+          boxShadow: active ? AppSheen.glow : (locked ? null : AppSheen.card),
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,

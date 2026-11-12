@@ -315,6 +315,7 @@ class _ReaderScreenState extends ConsumerState<ReaderScreen> with WidgetsBinding
         color: AppColors.white,
         borderRadius: BorderRadius.circular(AppRadius.medium),
         border: Border.all(color: good ? AppColors.success : AppColors.divider, width: good ? 1.5 : 1),
+        boxShadow: AppSheen.card,
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -324,7 +325,7 @@ class _ReaderScreenState extends ConsumerState<ReaderScreen> with WidgetsBinding
               Icon(icon, size: 20, color: good ? AppColors.success : AppColors.primary),
               const SizedBox(width: 8),
               Expanded(
-                child: Text(title, style: const TextStyle(fontWeight: FontWeight.w800, fontSize: 15, color: AppColors.primary)),
+                child: Text(title, style: const TextStyle(fontWeight: FontWeight.w800, fontSize: 15, color: AppColors.primaryText)),
               ),
             ],
           ),
@@ -469,13 +470,13 @@ class _ReaderScreenState extends ConsumerState<ReaderScreen> with WidgetsBinding
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(context.t('quiz.quickCheck'),
-              style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 10.5, letterSpacing: 0.5, color: AppColors.primary)),
+              style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 10.5, letterSpacing: 0.5, color: AppColors.primaryText)),
           const SizedBox(height: 6),
           Text(statement, style: const TextStyle(fontSize: 13, height: 1.5, color: AppColors.text)),
           const SizedBox(height: 10),
           if (review)
             Text(correctAnswer == true ? context.t('quiz.answerTrue') : context.t('quiz.answerFalse'),
-                style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w700, color: AppColors.primary))
+                style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w700, color: AppColors.primaryText))
           else
             Row(children: [choice(true), const SizedBox(width: 10), choice(false)]),
           if (!review && answered)
@@ -500,7 +501,7 @@ class _ReaderScreenState extends ConsumerState<ReaderScreen> with WidgetsBinding
               padding: const EdgeInsets.only(top: 12),
               child: _quizResult!.passed
                   ? Text(context.t('quiz.passed'),
-                      style: const TextStyle(fontSize: 12.5, fontWeight: FontWeight.w800, color: AppColors.primary))
+                      style: const TextStyle(fontSize: 12.5, fontWeight: FontWeight.w800, color: AppColors.primaryText))
                   : Column(
                       crossAxisAlignment: CrossAxisAlignment.stretch,
                       children: [
@@ -586,7 +587,7 @@ class _ReaderScreenState extends ConsumerState<ReaderScreen> with WidgetsBinding
           padding: const EdgeInsets.only(top: 20, bottom: 8),
           child: Text(
             section.content['text'] as String? ?? '',
-            style: const TextStyle(fontFamily: AppFonts.serif, fontSize: 16, fontWeight: FontWeight.w600, color: AppColors.primary),
+            style: const TextStyle(fontFamily: AppFonts.serif, fontSize: 16, fontWeight: FontWeight.w600, color: AppColors.primaryText),
           ),
         );
 
@@ -715,7 +716,7 @@ class _ReaderScreenState extends ConsumerState<ReaderScreen> with WidgetsBinding
               headingTextStyle: const TextStyle(
                 fontWeight: FontWeight.w700,
                 fontSize: 10.5,
-                color: AppColors.primary,
+                color: AppColors.primaryText,
                 letterSpacing: 0.3,
               ),
               dataTextStyle: const TextStyle(fontSize: 11.5, color: AppColors.text),
@@ -740,8 +741,9 @@ class _ReaderScreenState extends ConsumerState<ReaderScreen> with WidgetsBinding
           margin: const EdgeInsets.only(bottom: 16),
           padding: const EdgeInsets.all(11),
           decoration: BoxDecoration(
-            color: AppColors.primary,
+            gradient: AppSheen.hero,
             borderRadius: BorderRadius.circular(AppRadius.standard),
+            boxShadow: AppSheen.card,
           ),
           child: InkWell(
             onTap: () => context.go('/videos/$videoId'),

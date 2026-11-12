@@ -101,6 +101,7 @@ class _UpdatesScreenState extends ConsumerState<UpdatesScreen> {
             decoration: BoxDecoration(
               color: AppColors.white,
               border: Border.all(color: AppColors.divider),
+              boxShadow: AppSheen.card,
               borderRadius: BorderRadius.circular(AppRadius.standard),
             ),
             child: Row(
@@ -188,6 +189,7 @@ class _UpdatesScreenState extends ConsumerState<UpdatesScreen> {
             decoration: BoxDecoration(
               color: AppColors.white,
               border: Border.all(color: AppColors.divider),
+              boxShadow: AppSheen.card,
               borderRadius: BorderRadius.circular(AppRadius.standard),
             ),
             child: Row(

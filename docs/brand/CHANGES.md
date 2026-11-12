@@ -96,3 +96,13 @@ The branch starts from commit `8ddaf9a` (the go-live code as deployed on 2026-11
 | `brand/logos.json` (and copies), `mobile/lib/widgets/partner_logo_row.dart`, `admin/src/components/PartnerLogos.tsx` | "In partnership with" removed: logo rows show the logos only |
 | `docs/brand/open_questions.md` | §2 partnership wording decided (none); §4 GF logo confirmed |
 | `mobile/pubspec.yaml`, `mobile/assets/fonts/Arimo-*.ttf`, `OFL-Arimo.txt` | App fonts unchanged (Fraunces, Manrope, JetBrains Mono): Arimo was tried for all text and reverted the same day by decision. Arimo (SIL OFL 1.1) is bundled only for the certificate PDF, so learners' names with ɓ ɗ ƙ ƴ print correctly. |
+
+## IHS Teal base (2026-11-12)
+| File | Change |
+|---|---|
+| `brand/tokens.json` (and generated copies) | Base colour IHS Teal `#05B39C` (decision, after the IHS report layout). New: `primaryText` deep teal `#037D66` (Teal blended with Forest Green; small accent text and fills behind small white text), `teal10`/`teal20`/`teal80` tints, sheen colours, radii +2 |
+| `mobile/lib/theme/app_theme.dart` | Teal app bars with white bold titles; `AppSheen` (hero and button gradients, glossy top edge, soft teal card shadows and glow); filled buttons get the sheen |
+| `mobile/lib/screens/*` | Hero header, splash, video tiles on the Teal gradient; small teal text in deep teal; card shadows |
+| Android launch screen | `brand_primary` (Teal) instead of Forest Green |
+| `admin/` | Deep-teal-to-Teal sidebar, deep teal buttons with gloss, soft card shadows (all via tokens) |
+| `scripts/brand_contrast.py`, `contrast_report.md` | White on Teal (2.65:1) and Teal titles on the page recorded as **accepted by decision**; every other pair passes |

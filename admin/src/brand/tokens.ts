@@ -19,8 +19,11 @@ const palette: Record<string, string> = { ...tokens.palette };
 for (const [name, spec] of Object.entries(tokens.tints as unknown as Record<string, TintSpec>)) {
   palette[name] = tint(palette[spec[0]], spec[1]);
 }
+for (const [name, blend] of Object.entries((tokens as { blends?: Record<string, { hex?: string }> }).blends ?? {})) {
+  if (!name.startsWith("_") && blend.hex) palette[name] = blend.hex.toUpperCase();
+}
 
 export const brandColor = palette;
 
-/** Chart series colours: Forest Green first, then Grass Green 50% to tell a second series apart. */
-export const chartSeries = [palette.forestGreen, palette.grassGreen50];
+/** Chart series colours: IHS Teal first (the base colour), then Forest Green to tell a second series apart. */
+export const chartSeries = [palette.teal, palette.forestGreen];

@@ -83,7 +83,7 @@ class AboutScreen extends ConsumerWidget {
           Container(
             margin: const EdgeInsets.symmetric(horizontal: 22),
             padding: const EdgeInsets.all(15),
-            decoration: BoxDecoration(color: AppColors.primary, borderRadius: BorderRadius.circular(AppRadius.standard)),
+            decoration: BoxDecoration(color: AppColors.primaryText, borderRadius: BorderRadius.circular(AppRadius.standard), boxShadow: AppSheen.card),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -183,6 +183,7 @@ class AboutScreen extends ConsumerWidget {
       decoration: BoxDecoration(
         color: AppColors.white,
         border: Border.all(color: AppColors.divider),
+        boxShadow: AppSheen.card,
         borderRadius: BorderRadius.circular(AppRadius.standard),
       ),
       child: Column(
@@ -252,6 +253,7 @@ class _AboutItem extends StatelessWidget {
       decoration: BoxDecoration(
         color: AppColors.white,
         border: Border.all(color: AppColors.divider),
+        boxShadow: AppSheen.card,
         borderRadius: BorderRadius.circular(AppRadius.standard),
       ),
       child: Row(

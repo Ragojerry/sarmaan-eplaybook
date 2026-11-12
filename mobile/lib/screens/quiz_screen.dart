@@ -155,7 +155,7 @@ class _GeneralTestScreenState extends ConsumerState<GeneralTestScreen> {
               Text(
                 q.prompt,
                 style: const TextStyle(
-                    fontFamily: AppFonts.serif, fontSize: 19, fontWeight: FontWeight.w600, height: 1.3, color: AppColors.primary),
+                    fontFamily: AppFonts.serif, fontSize: 19, fontWeight: FontWeight.w600, height: 1.3, color: AppColors.primaryText),
               ),
               const SizedBox(height: 16),
               for (var i = 0; i < q.options.length; i++)
@@ -218,7 +218,7 @@ class _GeneralTestScreenState extends ConsumerState<GeneralTestScreen> {
       padding: const EdgeInsets.fromLTRB(22, 28, 22, 28),
       children: [
         Text(_isPre ? context.t('general.startingPoint') : context.t('general.yourResult'),
-            style: const TextStyle(fontFamily: AppFonts.serif, fontSize: 21, fontWeight: FontWeight.w600, color: AppColors.primary)),
+            style: const TextStyle(fontFamily: AppFonts.serif, fontSize: 21, fontWeight: FontWeight.w600, color: AppColors.primaryText)),
         const SizedBox(height: 12),
         Text(context.t('general.score', {'correct': o.correct, 'total': o.total, 'percent': o.percent}),
             style: const TextStyle(fontSize: 28, fontWeight: FontWeight.w800, color: AppColors.textStrong)),

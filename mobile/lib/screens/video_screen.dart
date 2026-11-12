@@ -155,8 +155,9 @@ class _VideoScreenState extends ConsumerState<VideoScreen> {
                     onTap: playablePath == null ? null : () => _play(playablePath),
                     child: Container(
                       decoration: BoxDecoration(
-                        color: AppColors.primary,
+                        gradient: AppSheen.hero,
                         borderRadius: BorderRadius.circular(AppRadius.medium),
+                        boxShadow: AppSheen.card,
                       ),
                       child: Center(
                         child: Container(
@@ -194,7 +195,7 @@ class _VideoScreenState extends ConsumerState<VideoScreen> {
                 Expanded(
                   child: Text(
                     context.t('video.downloaded'),
-                    style: const TextStyle(fontSize: 11.5, color: AppColors.primary, fontWeight: FontWeight.w700),
+                    style: const TextStyle(fontSize: 11.5, color: AppColors.primaryText, fontWeight: FontWeight.w700),
                   ),
                 ),
               ],

@@ -142,12 +142,13 @@ class GeneralTestCard extends StatelessWidget {
       decoration: BoxDecoration(
         color: route != null ? AppColors.surfaceSelected : AppColors.white,
         borderRadius: BorderRadius.circular(AppRadius.standard),
-        border: Border.all(color: route != null ? AppColors.primary : AppColors.divider),
+        border: Border.all(color: route != null ? AppColors.primary : AppColors.divider, width: route != null ? 1.5 : 1),
+        boxShadow: route != null ? AppSheen.glow : AppSheen.card,
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          Text(title, style: const TextStyle(fontSize: 13.5, fontWeight: FontWeight.w800, color: AppColors.primary)),
+          Text(title, style: const TextStyle(fontSize: 13.5, fontWeight: FontWeight.w800, color: AppColors.primaryText)),
           const SizedBox(height: 4),
           Text(body, style: const TextStyle(fontSize: 12, height: 1.45, color: AppColors.textMuted)),
           if (hasCertificate(general)) ...[
@@ -189,6 +190,7 @@ class _ModuleRow extends StatelessWidget {
           color: AppColors.white,
           borderRadius: BorderRadius.circular(AppRadius.standard),
           border: Border.all(color: AppColors.divider),
+          boxShadow: AppSheen.card,
         ),
         child: Row(
           children: [
@@ -199,7 +201,7 @@ class _ModuleRow extends StatelessWidget {
               alignment: Alignment.center,
               child: Text(
                 module.moduleNumber.toString(),
-                style: const TextStyle(fontFamily: AppFonts.mono, fontWeight: FontWeight.w700, fontSize: 12, color: AppColors.primary),
+                style: const TextStyle(fontFamily: AppFonts.mono, fontWeight: FontWeight.w700, fontSize: 12, color: AppColors.primaryText),
               ),
             ),
             const SizedBox(width: 12),

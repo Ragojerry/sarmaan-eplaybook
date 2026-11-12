@@ -6,14 +6,22 @@ import 'brand_tokens.g.dart';
 /// brand/tokens.json (IHS Towers Brand Manual 2021), via brand_tokens.g.dart.
 /// Widgets use these names, never a hex value.
 ///
-/// Red, Orange, Blue and Teal are below 4.5:1 as text on white, so they are only
-/// fills, icons and borders; the text beside them uses the matching *Text colour
-/// (docs/brand/contrast_report.md).
+/// Base colour: IHS Teal (decision 2026-11-12, after the IHS report layout): teal
+/// blocks with white bold text, teal titles, dark grey body text. White on Teal is
+/// 2.65:1, accepted for bars, buttons and large text; small text on white uses
+/// [primaryText] (deep teal) and blocks holding small white text use it as their
+/// fill (docs/brand/contrast_report.md).
 class AppColors {
   AppColors._();
 
   static const primary = BrandColors.primary;
   static const onPrimary = BrandColors.onPrimary;
+
+  /// Deep teal: small teal text and links on white, and fills behind small white text.
+  static const primaryText = BrandColors.primaryText;
+  static const sheenLight = BrandColors.sheenLight;
+  static const sheenDark = BrandColors.sheenDark;
+  static const highlightSurface = BrandColors.highlightSurface;
   static const background = BrandColors.background;
   static const surface = BrandColors.surface;
   static const surfaceMuted = BrandColors.surfaceMuted;
@@ -53,6 +61,49 @@ class AppRadius {
   static const standard = BrandRadius.standard;
   static const small = BrandRadius.small;
   static const pill = BrandRadius.pill;
+}
+
+/// The subtle sheen (decision 2026-11-12): gentle teal gradients with a soft glossy
+/// highlight on headers and primary buttons, and softly tinted shadows under cards.
+class AppSheen {
+  AppSheen._();
+
+  /// Headers and banners: deep teal top-left (where the small text sits) to Teal.
+  static const hero = LinearGradient(
+    begin: Alignment.topLeft,
+    end: Alignment.bottomRight,
+    colors: [AppColors.primaryText, AppColors.primary, AppColors.sheenLight],
+    stops: [0, 0.65, 1],
+  );
+
+  /// Primary buttons and filled badges.
+  static const button = LinearGradient(
+    begin: Alignment.topCenter,
+    end: Alignment.bottomCenter,
+    colors: [AppColors.sheenLight, AppColors.primary, AppColors.sheenDark],
+  );
+
+  /// The glossy light along the top edge, laid over a gradient.
+  static const gloss = LinearGradient(
+    begin: Alignment.topCenter,
+    end: Alignment.bottomCenter,
+    colors: [Color(0x40FFFFFF), Color(0x00FFFFFF)],
+    stops: [0, 0.55],
+  );
+
+  /// Soft, teal-tinted shadow under cards.
+  static final card = [
+    BoxShadow(color: AppColors.primary.withValues(alpha: 0.12), blurRadius: 18, offset: const Offset(0, 6)),
+    BoxShadow(color: Colors.black.withValues(alpha: 0.04), blurRadius: 2, offset: const Offset(0, 1)),
+  ];
+
+  /// A stronger glow for the one element that matters most (the next module, primary buttons).
+  static final glow = [
+    BoxShadow(color: AppColors.primary.withValues(alpha: 0.32), blurRadius: 16, offset: const Offset(0, 6)),
+  ];
+
+  /// The hero gradient as a box decoration, for headers and banners.
+  static BoxDecoration heroBox({BorderRadius? radius}) => BoxDecoration(gradient: hero, borderRadius: radius);
 }
 
 /// The app's own bundled fonts (assets/fonts, SIL OFL 1.1), kept by decision on
@@ -98,22 +149,23 @@ class AppTheme {
 
       textTheme: TextTheme(
         // Screen titles ("Choose your language", "Sign in", ...).
-        headlineSmall: scale(BrandTypeScale.headline, AppColors.textStrong),
+        headlineSmall: scale(BrandTypeScale.headline, AppColors.primaryText),
         // Reader section headings.
-        titleMedium: scale(BrandTypeScale.titleSmall, AppColors.textStrong),
+        titleMedium: scale(BrandTypeScale.titleSmall, AppColors.primaryText),
         bodyMedium: scale(BrandTypeScale.body, AppColors.text),
         bodySmall: scale(BrandTypeScale.bodySmall, AppColors.textMuted),
         // Uppercase, letter-spaced labels above screen titles.
         labelSmall: scale(BrandTypeScale.label, AppColors.textStrong),
       ),
 
+      // Teal bars with white bold titles, as in the IHS report layout.
       appBarTheme: AppBarTheme(
-        backgroundColor: AppColors.background,
-        foregroundColor: AppColors.textStrong,
+        backgroundColor: AppColors.primary,
+        foregroundColor: AppColors.onPrimary,
         surfaceTintColor: Colors.transparent,
         elevation: 0,
         centerTitle: false,
-        titleTextStyle: scale(BrandTypeScale.title, AppColors.textStrong),
+        titleTextStyle: scale(BrandTypeScale.title, AppColors.onPrimary).copyWith(fontWeight: FontWeight.w700),
       ),
 
       cardTheme: CardThemeData(
@@ -134,14 +186,28 @@ class AppTheme {
           disabledForegroundColor: AppColors.textMuted,
           padding: const EdgeInsets.symmetric(vertical: 15, horizontal: 20),
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(AppRadius.standard)),
-          textStyle: BrandTypeScale.button,
+          textStyle: BrandTypeScale.button.copyWith(fontWeight: FontWeight.w700),
+          elevation: 3,
+          shadowColor: AppColors.primary.withValues(alpha: 0.5),
+        ).copyWith(
+          // The sheen: a gentle gradient with a glossy top edge (flat when disabled).
+          backgroundBuilder: (context, states, child) => states.contains(WidgetState.disabled)
+              ? child!
+              : ClipRRect(
+                  // Same corners as the button's shape, so the gradient never shows square edges.
+                  borderRadius: BorderRadius.circular(AppRadius.standard),
+                  child: DecoratedBox(
+                    decoration: const BoxDecoration(gradient: AppSheen.button),
+                    child: DecoratedBox(decoration: const BoxDecoration(gradient: AppSheen.gloss), child: child),
+                  ),
+                ),
         ),
       ),
 
       outlinedButtonTheme: OutlinedButtonThemeData(
         style: OutlinedButton.styleFrom(
-          foregroundColor: AppColors.primary,
-          side: const BorderSide(color: AppColors.controlBorder, width: 1.5),
+          foregroundColor: AppColors.primaryText,
+          side: const BorderSide(color: AppColors.primary, width: 1.5),
           padding: const EdgeInsets.symmetric(vertical: 13, horizontal: 18),
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(AppRadius.standard)),
           textStyle: BrandTypeScale.button.copyWith(fontSize: 13.5),
@@ -149,7 +215,7 @@ class AppTheme {
       ),
 
       textButtonTheme: TextButtonThemeData(
-        style: TextButton.styleFrom(foregroundColor: AppColors.primary),
+        style: TextButton.styleFrom(foregroundColor: AppColors.primaryText),
       ),
 
       inputDecorationTheme: InputDecorationTheme(
@@ -157,7 +223,7 @@ class AppTheme {
         fillColor: AppColors.surface,
         contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
         labelStyle: const TextStyle(color: AppColors.textMuted),
-        floatingLabelStyle: const TextStyle(color: AppColors.textStrong),
+        floatingLabelStyle: const TextStyle(color: AppColors.primaryText),
         hintStyle: const TextStyle(color: AppColors.textMuted),
         // Red borders mark the field; the message itself is Forest Green (Red fails as text).
         errorStyle: const TextStyle(color: AppColors.errorText, fontWeight: FontWeight.w600),
@@ -212,7 +278,8 @@ class AppTheme {
       bottomSheetTheme: const BottomSheetThemeData(backgroundColor: AppColors.surface, surfaceTintColor: Colors.transparent),
 
       snackBarTheme: SnackBarThemeData(
-        backgroundColor: AppColors.primary,
+        backgroundColor: AppColors.primaryText,
+        actionTextColor: AppColors.onPrimary,
         contentTextStyle: BrandTypeScale.body.copyWith(color: AppColors.onPrimary),
       ),
 
@@ -224,12 +291,12 @@ class AppTheme {
           (states) => TextStyle(
             fontWeight: FontWeight.w700,
             fontSize: 9.5,
-            color: states.contains(WidgetState.selected) ? AppColors.textStrong : AppColors.textMuted,
+            color: states.contains(WidgetState.selected) ? AppColors.primaryText : AppColors.textMuted,
           ),
         ),
         iconTheme: WidgetStateProperty.resolveWith(
           (states) => IconThemeData(
-            color: states.contains(WidgetState.selected) ? AppColors.primary : AppColors.textMuted,
+            color: states.contains(WidgetState.selected) ? AppColors.primaryText : AppColors.textMuted,
           ),
         ),
       ),

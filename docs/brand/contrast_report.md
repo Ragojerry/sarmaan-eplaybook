@@ -13,11 +13,15 @@ Text 4.5:1, large text and controls 3:1; decor has no threshold.
 | textMuted `#6D6A6B` | surface `#FFFFFF` | 5.35:1 | 4.5:1 (text) | pass | Secondary text on white cards |
 | textMuted `#6D6A6B` | surfaceMuted `#F6F6F5` | 4.95:1 | 4.5:1 (text) | pass | Secondary text on grey panels |
 | text `#494546` | surfaceMuted `#F6F6F5` | 8.74:1 | 4.5:1 (text) | pass | Body text on grey panels / cards |
-| textStrong `#002D14` | surfaceSelected `#E6EAE8` | 12.49:1 | 4.5:1 (text) | pass | Selected nav item, selected option |
-| textOnPrimary `#FFFFFF` | primary `#002D14` | 15.16:1 | 4.5:1 (text) | pass | Primary buttons, app bars, splash, admin header |
-| primary `#002D14` | background `#F6F6F5` | 14.02:1 | 4.5:1 (text) | pass | Outlined buttons, links, icons |
+| textStrong `#002D14` | surfaceSelected `#E6F7F5` | 13.70:1 | 4.5:1 (text) | pass | Selected nav item, selected option |
+| textOnPrimary `#FFFFFF` | primary `#05B39C` | 2.65:1 | - (accepted) | **accepted by decision** (below 3:1) | White bold text on IHS Teal: app bars, buttons, header title (decision 2026-11-12) |
+| primary `#05B39C` | background `#F6F6F5` | 2.45:1 | - (accepted) | **accepted by decision** (below 3:1) | IHS Teal large titles and icons on the page (decision 2026-11-12) |
+| primaryText `#037D66` | background `#F6F6F5` | 4.70:1 | 4.5:1 (text) | pass | Deep teal: small accent text, links, outlined buttons, headings |
+| primaryText `#037D66` | surface `#FFFFFF` | 5.09:1 | 4.5:1 (text) | pass | Deep teal text on white cards |
+| textOnPrimary `#FFFFFF` | primaryText `#037D66` | 5.09:1 | 4.5:1 (text) | pass | White text on deep teal: snack bars, safeguarding box, admin buttons and sidebar top |
+| textStrong `#002D14` | surfaceSelected `#E6F7F5` | 13.70:1 | 4.5:1 (text) | pass | Text on the Teal 10% selected tint |
 | controlBorder `#6D6A6B` | surface `#FFFFFF` | 5.35:1 | 3.0:1 (control) | pass | Text field and checkbox borders (fields are white) |
-| primary `#002D14` | background `#F6F6F5` | 14.02:1 | 3.0:1 (control) | pass | Focused field border, radio/checkbox selected |
+| primary `#05B39C` | surface `#FFFFFF` | 2.65:1 | - (accepted) | **accepted by decision** (below 3:1) | Focused field border, radio/checkbox selected (Teal) |
 | successText `#008732` | surface `#FFFFFF` | 4.65:1 | 4.5:1 (text) | pass | Success text ('Correct.') - white cards only |
 | textStrong `#002D14` | successSurface `#E6F3EA` | 13.26:1 | 4.5:1 (text) | pass | Text in success callouts |
 | success `#008732` | background `#F6F6F5` | 4.30:1 | 3.0:1 (control) | pass | Success icons on the page, progress fill |
@@ -31,7 +35,7 @@ Text 4.5:1, large text and controls 3:1; decor has no threshold.
 | errorText `#002D14` | error `#F04E43` | 4.24:1 | 3.0:1 (large) | pass | Forest text on a Red fill (avoid; large only) |
 | infoText `#002D14` | infoSurface `#E6F3FA` | 13.40:1 | 4.5:1 (text) | pass | Text in information callouts |
 | info `#0888CA` | background `#F6F6F5` | 3.61:1 | 3.0:1 (control) | pass | Information icon / border (on the page) |
-| textStrong `#002D14` | highlightSurface `#69D1C4` | 8.31:1 | 4.5:1 (text) | pass | Text on a Teal 60% highlight |
+| textStrong `#002D14` | highlightSurface `#CDF0EB` | 12.46:1 | 4.5:1 (text) | pass | Text on a Teal 60% highlight |
 | progressFill `#008732` | progressTrack `#D0D0CE` | 3.01:1 | 3.0:1 (control) | pass | Progress bar fill on its track |
 | textDisabled `#A7A8AA` | background `#F6F6F5` | 2.20:1 | - (decor) | pass | Disabled text (exempt from WCAG) |
 | divider `#D0D0CE` | background `#F6F6F5` | 1.43:1 | - (decor) | pass | Dividers, card outlines |

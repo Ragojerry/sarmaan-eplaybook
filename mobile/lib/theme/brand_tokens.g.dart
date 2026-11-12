@@ -27,17 +27,22 @@ class BrandPalette {
   static const red10 = Color(0xFFFEEDEC); // #FEEDEC
   static const lightGrey20 = Color(0xFFF6F6F5); // #F6F6F5
   static const darkGrey80 = Color(0xFF6D6A6B); // #6D6A6B
+  static const teal10 = Color(0xFFE6F7F5); // #E6F7F5
+  static const teal20 = Color(0xFFCDF0EB); // #CDF0EB
+  static const teal80 = Color(0xFF37C2B0); // #37C2B0
+  static const tealDeep = Color(0xFF037D66); // #037D66
+  static const tealShade = Color(0xFF04A38C); // #04A38C
 }
 
 /// What each colour is for. Use these in widgets, never the palette directly.
 class BrandColors {
   BrandColors._();
-  static const primary = BrandPalette.forestGreen;
+  static const primary = BrandPalette.teal;
   static const onPrimary = BrandPalette.white;
   static const background = BrandPalette.lightGrey20;
   static const surface = BrandPalette.white;
   static const surfaceMuted = BrandPalette.lightGrey20;
-  static const surfaceSelected = BrandPalette.forestGreen10;
+  static const surfaceSelected = BrandPalette.teal10;
   static const divider = BrandPalette.lightGrey;
   static const controlBorder = BrandPalette.darkGrey80;
   static const text = BrandPalette.darkGrey;
@@ -60,7 +65,10 @@ class BrandColors {
   static const progressTrack = BrandPalette.lightGrey;
   static const progressFill = BrandPalette.grassGreen;
   static const highlight = BrandPalette.teal;
-  static const highlightSurface = BrandPalette.teal60;
+  static const highlightSurface = BrandPalette.teal20;
+  static const primaryText = BrandPalette.tealDeep;
+  static const sheenLight = BrandPalette.teal80;
+  static const sheenDark = BrandPalette.tealShade;
 }
 
 class BrandFont {
@@ -98,8 +106,8 @@ class BrandSpacing {
 class BrandRadius {
   BrandRadius._();
   static const double small = 10;
-  static const double standard = 14;
-  static const double medium = 16;
-  static const double large = 20;
+  static const double standard = 16;
+  static const double medium = 18;
+  static const double large = 22;
   static const double pill = 999;
 }

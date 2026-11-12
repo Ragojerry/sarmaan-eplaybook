@@ -209,7 +209,7 @@ class _LanguageScreenState extends ConsumerState<LanguageScreen> {
                           fontFamily: AppFonts.mono,
                           fontSize: 9.5,
                           fontWeight: FontWeight.w700,
-                          color: AppColors.primary,
+                          color: AppColors.primaryText,
                         ),
                       ),
                     ),
