@@ -43,6 +43,7 @@ void main() {
   Widget app(LocalDatabase db) {
     final router = GoRouter(initialLocation: '/reader/A', routes: [
       GoRoute(path: '/modules', builder: (context, state) => const Scaffold(body: Text('MODULES'))),
+      GoRoute(path: '/home', builder: (context, state) => const Scaffold(body: Text('HOME'))),
       GoRoute(path: '/reader/:moduleId', builder: (context, state) => ReaderScreen(moduleId: state.pathParameters['moduleId']!)),
     ]);
     return ProviderScope(overrides: [localDatabaseProvider.overrideWithValue(db)], child: MaterialApp.router(routerConfig: router));
@@ -77,7 +78,8 @@ void main() {
     await tester.ensureVisible(find.widgetWithText(FilledButton, 'Complete module'));
     await tester.tap(find.widgetWithText(FilledButton, 'Complete module'));
     await settle(tester);
-    expect(find.text('Module completed'), findsOneWidget);
+    expect(find.text('HOME'), findsOneWidget, reason: 'completing a module goes straight to Home');
+    expect(find.text('Module completed. It will sync to your account when online.'), findsOneWidget);
     final progress = await tester.runAsync(() => db.getProgressForModule('A'));
     expect(progress!.completed, isTrue);
     final attempts = await tester.runAsync(db.getQuizAttempts);

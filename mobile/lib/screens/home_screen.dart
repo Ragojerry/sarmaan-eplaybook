@@ -270,6 +270,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                                 percent: extras?.progress[m.id]?.progressPercent ?? 0,
                                 sectionCount: extras?.sectionCounts[m.id],
                                 stage: extras?.learning.of(m.id)?.stage,
+                                active: m.id == _activeModuleId(modules, extras),
                               ),
                           ],
                         ),
@@ -290,6 +291,17 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
       ),
       bottomNavigationBar: const AppBottomNav(currentRoute: '/home'),
     );
+  }
+
+  /// The module to work on next: the first open one not yet completed (modules
+  /// open one after another, so there is at most one). None before the General
+  /// pre-test, and none once every module is completed.
+  String? _activeModuleId(List<CachedModuleRow> modules, HomeExtras? extras) {
+    if (extras == null) return null;
+    for (final m in modules) {
+      if (extras.learning.of(m.id)?.stage == ModuleStage.reading) return m.id;
+    }
+    return null;
   }
 
   /// One card per module the learner has started but not finished, most
@@ -765,7 +777,11 @@ class _ModuleCard extends StatelessWidget {
   final int? sectionCount;
   final ModuleStage? stage;
 
-  const _ModuleCard({required this.module, this.completed = false, this.percent = 0, this.sectionCount, this.stage});
+  /// The module to work on next: bold border and a drop shadow.
+  final bool active;
+
+  const _ModuleCard(
+      {required this.module, this.completed = false, this.percent = 0, this.sectionCount, this.stage, this.active = false});
 
   @override
   Widget build(BuildContext context) {
@@ -777,7 +793,10 @@ class _ModuleCard extends StatelessWidget {
         decoration: BoxDecoration(
           color: locked ? AppColors.surfaceMuted : AppColors.surface,
           borderRadius: BorderRadius.circular(AppRadius.medium),
-          border: Border.all(color: AppColors.divider),
+          border: active ? Border.all(color: AppColors.primary, width: 2.5) : Border.all(color: AppColors.divider),
+          boxShadow: active
+              ? [BoxShadow(color: AppColors.primary.withValues(alpha: 0.28), blurRadius: 14, offset: const Offset(0, 5))]
+              : null,
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,

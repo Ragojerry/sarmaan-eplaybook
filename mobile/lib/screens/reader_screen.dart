@@ -265,6 +265,8 @@ class _ReaderScreenState extends ConsumerState<ReaderScreen> with WidgetsBinding
 
   /// "Complete module": allowed when the quiz is passed (if the module has one) and
   /// the minimum time is reached; otherwise a plain message says what is missing.
+  /// Once completed, the learner goes straight to Home, where the next module
+  /// (now open) is highlighted.
   Future<void> _complete() async {
     final db = ref.read(localDatabaseProvider);
     await _saveTime();
@@ -275,11 +277,11 @@ class _ReaderScreenState extends ConsumerState<ReaderScreen> with WidgetsBinding
     }
     ref.invalidate(localProgressProvider(widget.moduleId));
     ref.invalidate(learningProvider);
-    if (mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-        content: Text(problem ?? context.t('reader.completedWillSync')),
-      ));
-    }
+    if (!mounted) return;
+    ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+      content: Text(problem ?? context.t('reader.completedWillSync')),
+    ));
+    if (problem == null) context.go('/home');
   }
 
   /// Records the learner's answer; when every statement is answered, the attempt
