@@ -43,7 +43,8 @@ class L10n extends ChangeNotifier {
   }
 
   /// CLDR cardinal rules for the app's languages, reduced to one/other. Fulfulde
-  /// (ff) treats 0 and 1 as singular; English, Hausa and Kanuri only 1.
+  /// (ff) treats 0 and 1 as singular; English, Hausa and Kanuri only 1 (Kanuri
+  /// confirmed by a Kanuri speaker, 2026-11-12).
   static String pluralFormOf(String code, int count) {
     if (code == 'ff') return (count == 0 || count == 1) ? 'one' : 'other';
     return count == 1 ? 'one' : 'other';

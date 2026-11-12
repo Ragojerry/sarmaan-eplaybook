@@ -8,6 +8,7 @@ The General pre/post test and the training rules, for the admin portal.
   GET   /general-test/settings            module_min_seconds, general_test_active (+ why it can't be on)
   PUT   /general-test/settings            change them; switching the test on needs every active
                                           question to have an answer
+  GET   /general-test/certificates/{no}   check a training certificate number (staff)
 
 Every change is audited. Learners never reach these routes (they get /sync/general-test).
 """
@@ -20,6 +21,7 @@ from sqlalchemy.orm import Session
 
 from app.auth.dependencies import get_current_user, require_roles
 from app.database import get_db
+from app.learning.certificate import find_certificate
 from app.learning.settings import SettingError, change_setting, general_test_ready, training_settings
 from app.models import AuditLog, GeneralTestQuestion, User
 from app.models.enums import AuditAction, RoleName
@@ -196,3 +198,16 @@ def put_settings(payload: SettingsIn, db: Session = Depends(get_db), user: User 
         raise HTTPException(status_code=status.HTTP_422_UNPROCESSABLE_ENTITY, detail=str(exc))
     db.commit()
     return get_settings_(db, user)
+
+
+@router.get("/certificates/{number}")
+def check_certificate(number: str, db: Session = Depends(get_db), user: User = Depends(_staff)):
+    """Whether a certificate number belongs to a passing post-test (90% or more).
+    A certificate made offline is found once the learner's phone has synced."""
+    found = find_certificate(db, number)
+    if found is None:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="No certificate has this number. If the learner passed recently, their phone may not have synced yet.",
+        )
+    return found

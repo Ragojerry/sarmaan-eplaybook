@@ -9,6 +9,7 @@ import '../learning/learning_service.dart';
 import '../offline/content_sync_service.dart';
 import '../theme/app_theme.dart';
 import '../l10n/l10n.dart';
+import '../quiz/quiz_grader.dart';
 
 /// The General pre-/post-test (since 2026-11 it replaces the per-module tests):
 /// the same multiple-choice questions, one at a time with the options in the
@@ -212,6 +213,7 @@ class _GeneralTestScreenState extends ConsumerState<GeneralTestScreen> {
 
   Widget _result(GeneralOutcome o) {
     final pre = o.pre;
+    final certified = !_isPre && quizPassed(o.correct, o.total);
     return ListView(
       padding: const EdgeInsets.fromLTRB(22, 28, 22, 28),
       children: [
@@ -224,17 +226,30 @@ class _GeneralTestScreenState extends ConsumerState<GeneralTestScreen> {
         Text(
           _isPre
               ? context.t('general.preDone')
-              : pre == null
-                  ? context.t('general.postDone')
-                  : context.t('general.postDoneWithPre', {'correct': pre.correct, 'total': pre.total, 'percent': pre.percent}),
+              : [
+                  pre == null
+                      ? context.t('general.postDone')
+                      : context.t('general.postDoneWithPre', {'correct': pre.correct, 'total': pre.total, 'percent': pre.percent}),
+                  certified ? context.t('cert.earnedLine') : context.t('cert.notEarnedLine', {'passMark': kQuizPassMark}),
+                ].join(' '),
           style: const TextStyle(fontSize: 13.5, height: 1.5, color: AppColors.textMuted),
         ),
         const SizedBox(height: 22),
-        FilledButton(
-          onPressed: () => context.go('/modules'),
-          style: FilledButton.styleFrom(backgroundColor: AppColors.primary, foregroundColor: AppColors.onPrimary),
-          child: Text(_isPre ? context.t('general.goToModules') : context.t('reader.backToModules')),
-        ),
+        if (certified) ...[
+          FilledButton.icon(
+            onPressed: () => context.go('/certificate'),
+            icon: const Icon(Icons.emoji_events_outlined),
+            style: FilledButton.styleFrom(backgroundColor: AppColors.primary, foregroundColor: AppColors.onPrimary),
+            label: Text(context.t('cert.get')),
+          ),
+          const SizedBox(height: 10),
+          OutlinedButton(onPressed: () => context.go('/modules'), child: Text(context.t('reader.backToModules'))),
+        ] else
+          FilledButton(
+            onPressed: () => context.go('/modules'),
+            style: FilledButton.styleFrom(backgroundColor: AppColors.primary, foregroundColor: AppColors.onPrimary),
+            child: Text(_isPre ? context.t('general.goToModules') : context.t('reader.backToModules')),
+          ),
       ],
     );
   }

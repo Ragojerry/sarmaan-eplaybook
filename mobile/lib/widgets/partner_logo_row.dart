@@ -8,7 +8,7 @@ import '../theme/app_theme.dart';
 
 /// The partner logos for one placement (splash, login, about), as set in
 /// assets/brand/logos.json (copied from brand/logos.json by scripts/brand_sync.py).
-/// Order, row height and the partnership line all come from that file.
+/// Order and row height come from that file.
 ///
 /// Logo rules (brand/logos.json, docs/brand/brand_compliance.md):
 /// - files are shown exactly as supplied: same aspect ratio, no recolouring or effects;
@@ -161,29 +161,16 @@ class _LogoRow extends StatelessWidget {
       ));
     }
 
-    final line = (config['partnershipLine'] as Map?)?['text'] as String?;
     return Container(
       color: AppColors.white,
       padding: EdgeInsets.all(clear),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          if (place['showPartnershipLine'] == true && line != null) ...[
-            Text(line,
-                textAlign: TextAlign.center,
-                style: const TextStyle(
-                    fontSize: 11.5, color: AppColors.textMuted)),
-            SizedBox(height: clear * 0.6),
-          ],
-          // One row where it fits; on a narrow screen a second line rather than a logo below its minimum.
-          Wrap(
-            alignment: WrapAlignment.center,
-            crossAxisAlignment: WrapCrossAlignment.center,
-            spacing: clear,
-            runSpacing: clear,
-            children: images,
-          ),
-        ],
+      // One row where it fits; on a narrow screen a second line rather than a logo below its minimum.
+      child: Wrap(
+        alignment: WrapAlignment.center,
+        crossAxisAlignment: WrapCrossAlignment.center,
+        spacing: clear,
+        runSpacing: clear,
+        children: images,
       ),
     );
   }

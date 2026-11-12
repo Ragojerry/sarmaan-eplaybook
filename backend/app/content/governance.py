@@ -41,13 +41,15 @@ _REJECTORS: dict[ContentReviewStatus, RoleName] = {
 
 
 def advance(db: Session, translation: ModuleTranslation, actor: User, *,
-            entity_type: str = "module_translation", commit: bool = True) -> ModuleTranslation:
+            entity_type: str = "module_translation", commit: bool = True,
+            also_allowed: RoleName | None = None) -> ModuleTranslation:
     """Moves content to the next stage. Raises 403 if the actor's role isn't
     authorized for the current stage, 409 if there's no next stage (already
     PUBLISHED or REJECTED). Works on any record with status / reviewed_by /
     reviewed_at (module translations, app-string translations); `entity_type`
     names it in the audit log. With commit=False the caller commits, so several
-    records can move together or not at all."""
+    records can move together or not at all. `also_allowed` lets one more role
+    take this step (the caller decides when; module translations never pass it)."""
     current = translation.status
     if current not in _TRANSITIONS:
         raise HTTPException(
@@ -56,7 +58,7 @@ def advance(db: Session, translation: ModuleTranslation, actor: User, *,
         )
 
     required_role, next_status = _TRANSITIONS[current]
-    if actor.role != RoleName.SUPER_ADMIN and actor.role != required_role:
+    if actor.role not in (RoleName.SUPER_ADMIN, required_role, also_allowed):
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
             detail=f"Role '{actor.role.value}' cannot advance content out of '{current.value}' "

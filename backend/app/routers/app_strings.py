@@ -8,7 +8,8 @@ Who may do what (SUPER_ADMIN may do everything):
   - edit or import translations: CONTENT_ADMIN and LOCALISATION_REVIEWER. Any
     edit returns the string to DRAFT, so it passes every review stage again;
   - move a string to the next stage: the role governance.py assigns to that stage.
-    Nobody approves their own edit at a review stage (another person must).
+    A localisation reviewer may also submit their own DRAFT for review (decision
+    2026-11-12). Nobody approves their own edit at a review stage (another person must).
 English is the source and is never edited here: it comes from the app
 (python -m app.l10n.seed).
 """
@@ -215,7 +216,9 @@ def _step(db: Session, t: AppStringTranslation, actor: User, action: str, reason
         raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail="Only a DRAFT can be submitted for review.")
     if action == "approve" and t.status not in IN_REVIEW:
         raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail=f"A {t.status.value} translation is not waiting for review.")
-    advance(db, t, actor, entity_type=ENTITY, commit=False)
+    own_draft = (action == "submit-review" and actor.role == RoleName.LOCALISATION_REVIEWER and t.edited_by == actor.id)
+    advance(db, t, actor, entity_type=ENTITY, commit=False,
+            also_allowed=RoleName.LOCALISATION_REVIEWER if own_draft else None)
     if t.status == ContentReviewStatus.PUBLISHED:
         # From now on phones show this text (they keep the previous one until here).
         t.published_text = t.text

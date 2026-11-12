@@ -119,8 +119,8 @@ def test_workflow_roles_self_review_and_audit(env, db):
     tid = _item(h["admin"], "zztest.plain")["translation_id"]
     post = lambda who, action, **kw: client.post(f"/app-strings/translations/{tid}/{action}", headers=h[who], **kw)
 
-    assert post("loc", "submit-review").status_code == 403, "DRAFT -> review is the content admin's step (unchanged)"
-    assert post("admin", "submit-review").status_code == 200
+    assert post("loc2", "submit-review").status_code == 403, "another reviewer's draft: not theirs to submit"
+    assert post("loc", "submit-review").status_code == 200, "a localisation reviewer submits their own draft"
     assert post("tech", "approve").status_code == 403, "wrong stage for this role"
     assert post("prog", "approve").status_code == 200
     r = post("loc", "approve")

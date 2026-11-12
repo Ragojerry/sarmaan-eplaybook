@@ -22,7 +22,7 @@ The buttons, labels and messages of the mobile app can be translated in the admi
 **Governance.** Same stages and roles as module translations:
 - DRAFT → PROGRAMME_REVIEW → LOCALISATION_REVIEW → TECHNICAL_QA → PUBLISHED.
 - Content admins and localisation reviewers may type or import translations. Every edit returns the string to DRAFT.
-- Moving DRAFT → PROGRAMME_REVIEW is the content admin's step, as for modules.
+- Moving DRAFT → PROGRAMME_REVIEW is the content admin's step, as for modules. A localisation reviewer may also submit their own drafts (decision 2026-11-12).
 - Nobody approves their own edit at a review stage.
 - Every change is in the audit log (`app_string_translation`, `app_string_registry`).
 
@@ -72,3 +72,9 @@ Before this change, the app had two Hausa sentences written in its code, marked 
 | `common.ok` | OK | To |
 
 Until then, Hausa phones show these in English.
+
+## Plurals
+
+Each plural string has two forms: singular (`one`) and plural (`other`).
+- English, Hausa and Kanuri use the singular for 1 only. The Kanuri rule was confirmed by a Kanuri speaker on 2026-11-12.
+- Fulfulde uses the singular for 0 and 1.

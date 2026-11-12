@@ -392,7 +392,8 @@ function Row({
   const dirty = text !== (item.text ?? "") || textOne !== (item.text_one ?? "");
   const check = checkDraft(item, text, textOne);
   const isSuper = role === "SUPER_ADMIN";
-  const canMove = item.status && (isSuper || STAGE_OF_ROLE[role] === item.status);
+  const ownDraft = role === "LOCALISATION_REVIEWER" && item.status === "DRAFT" && item.edited_by_id === userId;
+  const canMove = item.status && (isSuper || STAGE_OF_ROLE[role] === item.status || ownDraft);
   const ownEdit = !isSuper && item.status && IN_REVIEW.includes(item.status) && item.edited_by_id === userId;
 
   const save = useMutation({

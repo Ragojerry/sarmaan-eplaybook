@@ -47,6 +47,7 @@ dependencies:
   package_info_plus: ^8.0.2
 
   cupertino_icons: ^1.0.8
+  pdf: 3.11.1
 
 dev_dependencies:
   flutter_test:
@@ -66,30 +67,12 @@ flutter:
   # Bundled typefaces (all SIL Open Font License 1.1 — licence texts sit next to the files).
   # Static instances cut from the official variable fonts, one file per weight the app uses.
   fonts:
-    - family: Fraunces
+    # Arimo (SIL OFL 1.1, assets/fonts/OFL-Arimo.txt): Arial-compatible, with every Hausa,
+    # Fulfulde and Kanuri letter. Medium/SemiBold/ExtraBold weights map to the nearest file.
+    - family: Arimo
       fonts:
-        - asset: assets/fonts/Fraunces-Regular.ttf
-        - asset: assets/fonts/Fraunces-SemiBold.ttf
-          weight: 600
-        - asset: assets/fonts/Fraunces-Bold.ttf
+        - asset: assets/fonts/Arimo-Regular.ttf
+        - asset: assets/fonts/Arimo-Italic.ttf
+          style: italic
+        - asset: assets/fonts/Arimo-Bold.ttf
           weight: 700
-    - family: Manrope
-      fonts:
-        - asset: assets/fonts/Manrope-Regular.ttf
-        - asset: assets/fonts/Manrope-Medium.ttf
-          weight: 500
-        - asset: assets/fonts/Manrope-SemiBold.ttf
-          weight: 600
-        - asset: assets/fonts/Manrope-Bold.ttf
-          weight: 700
-        - asset: assets/fonts/Manrope-ExtraBold.ttf
-          weight: 800
-    - family: JetBrainsMono
-      fonts:
-        - asset: assets/fonts/JetBrainsMono-Regular.ttf
-        - asset: assets/fonts/JetBrainsMono-Medium.ttf
-          weight: 500
-        - asset: assets/fonts/JetBrainsMono-Bold.ttf
-          weight: 700
-        - asset: assets/fonts/JetBrainsMono-ExtraBold.ttf
-          weight: 800

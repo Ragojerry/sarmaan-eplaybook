@@ -1,6 +1,7 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../screens/certificate_screen.dart';
 import '../screens/splash_screen.dart';
 import '../screens/language_screen.dart';
 import '../screens/consent_screen.dart';
@@ -26,7 +27,7 @@ final appRouterProvider = Provider<GoRouter>((ref) {
     // The training screens are closed when the server needs a newer app (min_app_version).
     // Other screens (splash, login, ...) are never delayed: they return synchronously.
     redirect: (context, state) {
-      const gated = ['/home', '/modules', '/reader', '/general-test'];
+      const gated = ['/home', '/modules', '/reader', '/general-test', '/certificate'];
       if (!gated.any((p) => state.matchedLocation.startsWith(p))) return null;
       return updateRequired(ref.read(localDatabaseProvider)).then((needed) => needed ? '/update-required' : null);
     },
@@ -54,6 +55,7 @@ final appRouterProvider = Provider<GoRouter>((ref) {
       GoRoute(path: '/ai', builder: (context, state) => const AiScreen()),
       GoRoute(path: '/about', builder: (context, state) => const AboutScreen()),
       GoRoute(path: '/updates', builder: (context, state) => const UpdatesScreen()),
+      GoRoute(path: '/certificate', builder: (context, state) => const CertificateScreen()),
       GoRoute(path: '/update-required', builder: (context, state) => const UpdateRequiredScreen()),
     ],
   );

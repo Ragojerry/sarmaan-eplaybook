@@ -101,3 +101,5 @@ Result: no matches (see the change list for the run).
 | Launcher icon | ⚠️ SARMAAN-II logo, unmodified, centred on white, downscaled only. From the 118 × 50 px file it is small in the icon and its "PROJECT" line is unreadable at launcher size; a vector file is needed for a full-size icon |
 | Login mark | ⚠️ SARMAAN-II logo at its own pixel size (≈ 45 × 19 dp on a 2.6× phone) |
 | Tab header logo | ⚠️ By decision (2026-11-11) the IHS logo at the top of the Home, Modules, Videos, Ask and About tabs is 36 dp high, 63 dp wide: below the guide's 95 px minimum width. Clear space (width of the "I") is kept at that size; the band is 58 dp. Set in `brand/logos.json` → `placements.tabHeader` (`minWidthDp: 0`); every other placement keeps the 95 dp minimum |
+| Fonts (2026-11-12) | ✅ Arimo (Arial-compatible, SIL OFL 1.1) for all app text: Hausa 10/10, Fulfulde 11/11, Kanuri 4/4 special letters covered, so words never switch font. Admin: system stack (Arial on Windows) |
+| Partnership line (2026-11-12) | Removed by decision; logo rows show logos only |

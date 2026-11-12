@@ -89,3 +89,10 @@ The branch starts from commit `8ddaf9a` (the go-live code as deployed on 2026-11
 | `brand/logos.json`, `partner_logo_row.dart` | Tab header made smaller by decision: logo 36 dp high (63 dp wide, below the IHS 95 dp minimum), band 86 → 58 dp; a placement's `minWidthDp` now overrides the logo's |
 | `mobile/lib/screens/splash_screen.dart`, `mobile/lib/main.dart`, `mobile/android/app/src/main/AndroidManifest.xml` | App name "SARMAAN II e-Playbook" on the splash, in the app title and under the launcher icon (was "SARMAAN e-Playbook") |
 | `mobile/lib/screens/splash_screen.dart` | The "S" mark replaced by the SARMAAN-II logo (`SarmaanLogoMark`, on white), matching the login screen |
+
+## Decisions 2026-11-12
+| File | Change |
+|---|---|
+| `brand/logos.json` (and copies), `mobile/lib/widgets/partner_logo_row.dart`, `admin/src/components/PartnerLogos.tsx` | "In partnership with" removed: logo rows show the logos only |
+| `docs/brand/open_questions.md` | §2 partnership wording decided (none); §4 GF logo confirmed |
+| `brand/tokens.json`, `mobile/pubspec.yaml`, `mobile/assets/fonts/Arimo-*.ttf`, `OFL-Arimo.txt` | Arimo (SIL OFL 1.1, Arial-compatible) for all app text, replacing Fraunces, Manrope and JetBrains Mono; it covers every Hausa, Fulfulde and Kanuri letter. Arial itself cannot be bundled without a licence. The old font files stay on disk, unregistered. |

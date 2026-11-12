@@ -974,6 +974,90 @@
     "ask.tryAsking": {
       "en": "Try asking about:",
       "note": "Ask: shown above suggested questions when nothing matched"
+    },
+    "cert.earnedLine": {
+      "en": "You passed and earned your training certificate.",
+      "note": "Post-test result: the learner passed and earned the certificate"
+    },
+    "cert.notEarnedLine": {
+      "en": "The training certificate needs {passMark}% or more on the post-test.",
+      "note": "Post-test result: below the pass mark, no certificate; {passMark} is a number like 90"
+    },
+    "cert.get": {
+      "en": "Get your certificate",
+      "note": "Post-test result: button that opens the congratulations and certificate screen"
+    },
+    "cert.view": {
+      "en": "View my certificate",
+      "note": "General test card: button to the training certificate after passing the post-test"
+    },
+    "cert.screenTitle": {
+      "en": "Training completed",
+      "note": "Title of the congratulations and certificate screen"
+    },
+    "cert.notEarned": {
+      "en": "The certificate is earned with 90% or more on the General post-test.",
+      "note": "Certificate screen when the learner has not earned it"
+    },
+    "cert.congratulations": {
+      "en": "Congratulations, {name}!",
+      "note": "Certificate screen heading; {name} is the learner's full name"
+    },
+    "cert.passedBody": {
+      "en": "You have completed the SARMAAN II training and passed the post-test with {correct} of {total} ({percent}%).",
+      "note": "Certificate screen: what the learner achieved"
+    },
+    "cert.title": {
+      "en": "Certificate of Completion",
+      "note": "Title printed on the certificate and its preview"
+    },
+    "cert.trainingName": {
+      "en": "SARMAAN II AZM MDA Training",
+      "note": "Training name printed on the certificate"
+    },
+    "cert.numberShort": {
+      "en": "Certificate no. {number}",
+      "note": "Certificate preview: the number, like SII-2026-06E1A47048 (not translated)"
+    },
+    "cert.download": {
+      "en": "Download certificate (PDF)",
+      "note": "Certificate screen: button that saves the PDF on the phone"
+    },
+    "cert.downloadHint": {
+      "en": "The phone asks where to save it; Downloads is chosen first.",
+      "note": "Certificate screen: explains the save screen"
+    },
+    "cert.saved": {
+      "en": "Certificate saved.",
+      "note": "Message after the certificate PDF is saved"
+    },
+    "cert.open": {
+      "en": "OPEN",
+      "note": "Action on the saved message that opens the PDF"
+    },
+    "cert.noViewer": {
+      "en": "No app on this phone can open PDF files. You can find the certificate in your Downloads.",
+      "note": "Shown when the phone has no PDF viewer"
+    },
+    "cert.saveFailed": {
+      "en": "The certificate could not be saved. Please try again.",
+      "note": "Shown when saving the PDF failed"
+    },
+    "cert.certifies": {
+      "en": "This is to certify that",
+      "note": "Certificate line above the learner's name"
+    },
+    "cert.completed": {
+      "en": "has successfully completed",
+      "note": "Certificate line between the name and the training name"
+    },
+    "cert.dateLabel": {
+      "en": "Date of completion",
+      "note": "Certificate: label above the completion date"
+    },
+    "cert.numberLabel": {
+      "en": "Certificate number",
+      "note": "Certificate: label above the certificate number"
     }
   }
 }

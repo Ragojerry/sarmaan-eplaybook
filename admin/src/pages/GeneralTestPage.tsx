@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { api } from "../services/api";
 import { useAuth } from "../services/auth";
+import CertificateCheck from "../components/CertificateCheck";
 
 interface GeneralQuestion {
   id: string;
@@ -105,9 +106,12 @@ export default function GeneralTestPage() {
       <p className="text-sm text-gray-600 mb-4">
         Every learner (CDD, HFW and others) takes the same General test: the <strong>pre-test</strong> once before any
         module opens, and the <strong>post-test</strong> (the same questions) once after completing all their modules. Scores
-        are points out of the number of questions and a percentage; there is no pass mark. Questions marked
+        are points out of the number of questions and a percentage. A post-test score of <strong>90% or more</strong> earns
+        the training completion certificate (a PDF the learner downloads on the phone). Questions marked
         &ldquo;CDD&rdquo; mention CDDs but are shown to everyone.
       </p>
+
+      <CertificateCheck />
 
       {message && <p className="text-sm text-green-700 mb-3">{message}</p>}
       {error && <p className="text-sm text-red-600 mb-3">{error}</p>}

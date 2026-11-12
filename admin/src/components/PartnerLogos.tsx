@@ -1,7 +1,7 @@
 import config from "../brand/logos.json";
 
 type Logo = { file: string; label: string; widthPx: number; heightPx: number; minWidthDp?: number; clearSpaceRatio?: number };
-type Placement = { logos: "order" | string[]; rowHeightDp: number; showPartnershipLine: boolean };
+type Placement = { logos: "order" | string[]; rowHeightDp: number };
 
 /**
  * The partner logos for one placement, as set in src/brand/logos.json (copied from
@@ -21,11 +21,6 @@ export default function PartnerLogos({ placement }: { placement: "adminHeader" |
 
   return (
     <div className="bg-white flex flex-col items-center" style={{ padding: clear }}>
-      {place.showPartnershipLine && (
-        <p className="text-xs text-gray-500" style={{ marginBottom: clear * 0.6 }}>
-          {config.partnershipLine.text}
-        </p>
-      )}
       <div className="flex flex-wrap items-center justify-center" style={{ gap: clear }}>
         {keys.map((key) => {
           const logo = logos[key];

@@ -10,6 +10,7 @@ import '../theme/app_theme.dart';
 import '../widgets/partner_logo_row.dart';
 import '../widgets/app_bottom_nav.dart';
 import '../l10n/l10n.dart';
+import '../learning/certificate.dart';
 
 /// Reads from the local cache (same provider Home uses) — real offline
 /// module listing, per master prompt §18. Includes a simple local search
@@ -149,6 +150,14 @@ class GeneralTestCard extends StatelessWidget {
           Text(title, style: const TextStyle(fontSize: 13.5, fontWeight: FontWeight.w800, color: AppColors.primary)),
           const SizedBox(height: 4),
           Text(body, style: const TextStyle(fontSize: 12, height: 1.45, color: AppColors.textMuted)),
+          if (hasCertificate(general)) ...[
+            const SizedBox(height: 10),
+            OutlinedButton.icon(
+              onPressed: () => context.go('/certificate'),
+              icon: const Icon(Icons.emoji_events_outlined, size: 18),
+              label: Text(context.t('cert.view')),
+            ),
+          ],
           if (route != null) ...[
             const SizedBox(height: 10),
             FilledButton(

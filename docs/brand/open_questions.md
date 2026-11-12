@@ -7,10 +7,8 @@ These need a decision from the programme. Nothing below was decided in the code:
 
 **Decide:** which logo leads, and in what order. To apply it, change `order` (or a placement's own `logos` list) and run `python scripts/brand_sync.py`. No code changes are needed.
 
-## 2. Partnership wording
-The login screen, the About screen and the admin footer show **"In partnership with"** above the logo row. This is a placeholder (`partnershipLine.status: UNCONFIRMED`).
-
-**Decide:** the wording ("In partnership with", "Developed with", or other).
+## 2. Partnership wording. DECIDED 2026-11-12: no wording
+The logo rows (login, About, admin footer) show the logos only. The "In partnership with" line and its setting were removed from `brand/logos.json` and the code.
 
 ## 3. Logo files: resolution and vectors
 | Logo | File supplied | Problem | Needed |
@@ -21,8 +19,8 @@ The login screen, the About screen and the admin footer show **"In partnership w
 | IHS Towers | PNG, 1668 × 948 px (primary, two-colour) | Big enough. The guide's **white reversed** and **secondary single-colour** versions were not supplied. Because of this the logo can only go on white or light backgrounds, so the splash puts the logo row on a white band. | White reversed logotype and secondary (Forest Green 90%) logotype files; the "without strapline" version if small placements are wanted |
 | IHS fragment (red arc) | PNG | Not used, as instructed. | — |
 
-## 4. What the "GF" logo is
-The file was described as the Gates Foundation "GF". We could not confirm that this gold-on-slate "GF" mark is the Gates Foundation's current logo. **Please confirm it with the partner and send their official file.** It is shown under the label "GF" until then.
+## 4. What the "GF" logo is. CONFIRMED 2026-11-12
+The supplied gold-on-slate "GF" file is confirmed as the correct logo. It is used unmodified. (A larger or vector file would still help: see §3.)
 
 ## 5. Each partner's usage guidelines
 Only IHS supplied guidelines. For Malaria Consortium, SARMAAN-II and GF we applied the IHS rules (clear space = width of the IHS "I", no recolouring, cropping, stretching, rotation or effects). **Needed:** each partner's own logo guidelines (clear space, minimum size, approved backgrounds).
