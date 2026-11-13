@@ -25,5 +25,5 @@ for (const [name, blend] of Object.entries((tokens as { blends?: Record<string, 
 
 export const brandColor = palette;
 
-/** Chart series colours: IHS Teal first (the base colour), then Forest Green to tell a second series apart. */
+/** Chart series colours from the palette: logo teal first, then Forest Green (charts carry a legend). */
 export const chartSeries = [palette.teal, palette.forestGreen];

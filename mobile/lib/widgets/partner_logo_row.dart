@@ -22,9 +22,8 @@ class PartnerLogoRow extends StatelessWidget {
   final String placement;
 
   static Future<Map<String, dynamic>>? _config;
-  static Future<Map<String, dynamic>> _load() => _config ??= rootBundle
-      .loadString('assets/brand/logos.json')
-      .then((s) => jsonDecode(s) as Map<String, dynamic>);
+  static Future<Map<String, dynamic>> _load() =>
+      _config ??= rootBundle.loadString('assets/brand/logos.json').then((s) => jsonDecode(s) as Map<String, dynamic>);
 
   @override
   Widget build(BuildContext context) {
@@ -75,7 +74,7 @@ class SarmaanLogoMark extends StatelessWidget {
 }
 
 /// The top of each tab screen (Home, Modules, Videos, Ask, About): the `tabHeader`
-/// placement of logos.json (IHS alone) in a white band under the status bar, then the
+/// placement of logos.json (IHS and Malaria Consortium) in a white band under the status bar, then the
 /// screen's own [appBar] if it has one. Used as `Scaffold.appBar`, so it stays put while
 /// the page scrolls.
 class BrandTopBar extends StatelessWidget implements PreferredSizeWidget {
@@ -94,7 +93,10 @@ class BrandTopBar extends StatelessWidget implements PreferredSizeWidget {
   Widget build(BuildContext context) {
     final top = MediaQuery.paddingOf(context).top;
     return AnnotatedRegion<SystemUiOverlayStyle>(
-      value: SystemUiOverlayStyle.dark,
+      value: SystemUiOverlayStyle.dark.copyWith(
+        systemNavigationBarColor: AppColors.navBar,
+        systemNavigationBarIconBrightness: Brightness.light,
+      ),
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
@@ -105,8 +107,7 @@ class BrandTopBar extends StatelessWidget implements PreferredSizeWidget {
             alignment: Alignment.center,
             child: const PartnerLogoRow(placement: 'tabHeader'),
           ),
-          if (appBar != null)
-            MediaQuery.removePadding(context: context, removeTop: true, child: appBar!),
+          if (appBar != null) MediaQuery.removePadding(context: context, removeTop: true, child: appBar!),
         ],
       ),
     );
@@ -122,23 +123,16 @@ class _LogoRow extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final logos = (config['logos'] as Map).cast<String, dynamic>();
-    final place = ((config['placements'] as Map)[placement] as Map?)
-        ?.cast<String, dynamic>();
+    final place = ((config['placements'] as Map)[placement] as Map?)?.cast<String, dynamic>();
     if (place == null) return const SizedBox.shrink();
-    final keys = place['logos'] == 'order'
-        ? (config['order'] as List).cast<String>()
-        : (place['logos'] as List).cast<String>();
+    final keys = place['logos'] == 'order' ? (config['order'] as List).cast<String>() : (place['logos'] as List).cast<String>();
     final rowHeight = (place['rowHeightDp'] as num).toDouble();
     final dpr = MediaQuery.devicePixelRatioOf(context);
 
     // Clear space: the IHS rule (width of its "I") at the row height, used for every logo.
     final ihs = (logos['ihs'] as Map?)?.cast<String, dynamic>();
-    final clear = ihs == null
-        ? rowHeight * 0.3
-        : (ihs['clearSpaceRatio'] as num) *
-            rowHeight *
-            (ihs['widthPx'] as num) /
-            (ihs['heightPx'] as num);
+    final clear =
+        ihs == null ? rowHeight * 0.3 : (ihs['clearSpaceRatio'] as num) * rowHeight * (ihs['widthPx'] as num) / (ihs['heightPx'] as num);
 
     final images = <Widget>[];
     for (final key in keys) {
@@ -168,7 +162,8 @@ class _LogoRow extends StatelessWidget {
       child: Wrap(
         alignment: WrapAlignment.center,
         crossAxisAlignment: WrapCrossAlignment.center,
-        spacing: clear,
+        // A placement's gapDp (the tab header) widens the space between logos; otherwise the clear space.
+        spacing: (place['gapDp'] as num?)?.toDouble() ?? clear,
         runSpacing: clear,
         children: images,
       ),

@@ -14,6 +14,8 @@ import '../learning/curriculum_notice.dart';
 import '../offline/content_sync_service.dart';
 import '../services/api_client.dart';
 import '../services/auth_service.dart';
+import '../support/support_contacts.dart';
+import '../tools/tools_service.dart';
 import 'analytics_recorder.dart';
 import 'release_installer.dart';
 import '../l10n/l10n.dart';
@@ -234,6 +236,11 @@ class SyncEngine extends StateNotifier<SyncSnapshot> {
       } catch (_) {
         // Restoring is best-effort; local progress keeps working regardless.
       }
+
+      // Support deck contacts for this account (changes only; never throws).
+      await _ref.read(supportContactsServiceProvider).sync(supportAudienceOf(_ref));
+      // Tools repository links (changes only; never throws). Not training: nothing above reads them.
+      await _ref.read(toolsServiceProvider).sync(supportAudienceOf(_ref));
 
       await _checkRelease(forceInstall: roleChanged);
       await _removeHiddenVideos();

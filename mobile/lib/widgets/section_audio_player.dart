@@ -91,7 +91,7 @@ class _SectionAudioPlayerState extends ConsumerState<SectionAudioPlayer> {
       margin: const EdgeInsets.only(bottom: 16),
       padding: const EdgeInsets.fromLTRB(12, 9, 12, 4),
       decoration: BoxDecoration(
-        color: AppColors.white,
+        color: AppColors.surface,
         border: Border.all(color: AppColors.divider, width: 1.5),
         borderRadius: BorderRadius.circular(AppRadius.standard),
       ),

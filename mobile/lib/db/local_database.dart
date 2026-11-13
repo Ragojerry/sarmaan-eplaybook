@@ -338,6 +338,58 @@ class CachedAppStrings extends Table {
   Set<Column> get primaryKey => {languageCode, key};
 }
 
+/// Support deck contacts (v10) for this account's audience, from
+/// GET /sync/support-contacts. Shown on the Ask tab, also offline.
+@DataClassName('CachedSupportContactRow')
+class CachedSupportContacts extends Table {
+  TextColumn get id => text()();
+  TextColumn get type => text()(); // PHONE, SMS, EMAIL, WHATSAPP, LINK
+  TextColumn get label => text()();
+  TextColumn get value => text()();
+  TextColumn get whatsappMessage => text().nullable()();
+  TextColumn get emailSubject => text().nullable()();
+  BoolColumn get includeAppVersion => boolean().withDefault(const Constant(false))();
+  TextColumn get availability => text().nullable()();
+  TextColumn get languages => text().nullable()();
+  IntColumn get displayOrder => integer().withDefault(const Constant(0))();
+
+  @override
+  Set<Column> get primaryKey => {id};
+}
+
+/// Tools repository (v11): the Tools modules assigned to this account, from
+/// GET /sync/tools. Separate from training: never read by progress, tests,
+/// completion or the question index.
+@DataClassName('CachedToolModuleRow')
+class CachedToolModules extends Table {
+  TextColumn get id => text()();
+  TextColumn get title => text()();
+  TextColumn get description => text().nullable()();
+  IntColumn get displayOrder => integer().withDefault(const Constant(0))();
+
+  @override
+  Set<Column> get primaryKey => {id};
+}
+
+/// One Tools link (v11): only the link and its description; the file itself is
+/// never downloaded.
+@DataClassName('CachedToolItemRow')
+class CachedToolItems extends Table {
+  TextColumn get id => text()();
+  TextColumn get toolModuleId => text()();
+  TextColumn get title => text()();
+  TextColumn get description => text().nullable()();
+  TextColumn get type => text()(); // DOCUMENT, SPREADSHEET, ... OTHER
+  TextColumn get url => text()();
+  TextColumn get host => text().nullable()(); // GOOGLE_DRIVE, ONEDRIVE, SHAREPOINT, DROPBOX, YOUTUBE
+  TextColumn get category => text().nullable()();
+  TextColumn get languages => text().nullable()();
+  IntColumn get displayOrder => integer().withDefault(const Constant(0))();
+
+  @override
+  Set<Column> get primaryKey => {id};
+}
+
 @DriftDatabase(
   tables: [
     CachedModules,
@@ -358,6 +410,9 @@ class CachedAppStrings extends Table {
     CachedGeneralQuestions,
     LocalGeneralAttempts,
     CachedAppStrings,
+    CachedSupportContacts,
+    CachedToolModules,
+    CachedToolItems,
   ],
 )
 class LocalDatabase extends _$LocalDatabase {
@@ -378,8 +433,10 @@ class LocalDatabase extends _$LocalDatabase {
   // v8: active time per module on progress, and the General test (questions
   // and attempts). The per-module pre/post tests were retired; their rows stay.
   // v9: the app's interface text in the learner's language (a new table only).
+  // v10: Support deck contacts on the Ask tab (a new table only).
+  // v11: the Tools repository (two new tables only).
   @override
-  int get schemaVersion => 9;
+  int get schemaVersion => 11;
 
   String? _activeUserId;
   String? _learnerRole;
@@ -456,6 +513,15 @@ class LocalDatabase extends _$LocalDatabase {
           if (from < 9) {
             // A new, empty table: nothing existing changes. Until it fills, English shows.
             await m.createTable(cachedAppStrings);
+          }
+          if (from < 10) {
+            // A new, empty table: nothing existing changes. Until it fills, the deck is hidden.
+            await m.createTable(cachedSupportContacts);
+          }
+          if (from < 11) {
+            // New, empty tables: nothing existing changes. Until they fill, no Tools section shows.
+            await m.createTable(cachedToolModules);
+            await m.createTable(cachedToolItems);
           }
           if (from < 8) {
             // Every existing row keeps its data; time starts at 0.
@@ -1117,6 +1183,51 @@ class LocalDatabase extends _$LocalDatabase {
         for (final e in strings.entries)
           CachedAppStringsCompanion.insert(languageCode: languageCode, key: e.key, value: e.value),
       ]);
+    });
+  }
+
+  // ---------- Support deck ----------
+
+  /// The cached Support deck contacts, in display order.
+  Future<List<CachedSupportContactRow>> getSupportContacts() =>
+      (select(cachedSupportContacts)..orderBy([(c) => OrderingTerm.asc(c.displayOrder), (c) => OrderingTerm.asc(c.label)])).get();
+
+  /// Applies one download from GET /sync/support-contacts in a single batch:
+  /// [replaceAll] (a full download) first clears the table; [removed] ids are
+  /// deleted. Safe to repeat.
+  Future<void> applySupportContacts(List<CachedSupportContactsCompanion> contacts, Iterable<String> removed,
+      {bool replaceAll = false}) async {
+    await batch((b) {
+      if (replaceAll) b.deleteAll(cachedSupportContacts);
+      final gone = removed.toList();
+      if (gone.isNotEmpty) b.deleteWhere(cachedSupportContacts, (c) => c.id.isIn(gone));
+      b.insertAllOnConflictUpdate(cachedSupportContacts, contacts);
+    });
+  }
+
+  // ---------- Tools repository ----------
+
+  Future<List<CachedToolModuleRow>> getToolModules() =>
+      (select(cachedToolModules)..orderBy([(m) => OrderingTerm.asc(m.displayOrder), (m) => OrderingTerm.asc(m.title)])).get();
+
+  Future<List<CachedToolItemRow>> getToolItems() =>
+      (select(cachedToolItems)..orderBy([(i) => OrderingTerm.asc(i.displayOrder), (i) => OrderingTerm.asc(i.title)])).get();
+
+  /// Applies one download from GET /sync/tools in a single batch: the Tools
+  /// modules are always replaced (the server sends all of them); items are
+  /// replaced on a full download, else upserted, with [removed] ids deleted.
+  /// Items whose module is no longer listed are dropped. Safe to repeat.
+  Future<void> applyTools(List<CachedToolModulesCompanion> modules, List<CachedToolItemsCompanion> items, Iterable<String> removed,
+      {bool replaceAll = false}) async {
+    final keep = [for (final m in modules) m.id.value];
+    await batch((b) {
+      b.deleteAll(cachedToolModules);
+      b.insertAll(cachedToolModules, modules);
+      if (replaceAll) b.deleteAll(cachedToolItems);
+      final gone = removed.toList();
+      if (gone.isNotEmpty) b.deleteWhere(cachedToolItems, (i) => i.id.isIn(gone));
+      b.insertAllOnConflictUpdate(cachedToolItems, items);
+      b.deleteWhere(cachedToolItems, (i) => i.toolModuleId.isNotIn(keep));
     });
   }
 

@@ -5,53 +5,62 @@ Text 4.5:1, large text and controls 3:1; decor has no threshold.
 
 | Foreground | Background | Ratio | Needs | Result | Used for |
 |---|---|---|---|---|---|
-| text `#494546` | background `#F6F6F5` | 8.74:1 | 4.5:1 (text) | pass | Body text on the Light Grey 20% page |
-| text `#494546` | surface `#FFFFFF` | 9.45:1 | 4.5:1 (text) | pass | Body text on white cards |
-| textStrong `#002D14` | background `#F6F6F5` | 14.02:1 | 4.5:1 (text) | pass | Headings, screen titles on the page |
-| textStrong `#002D14` | surface `#FFFFFF` | 15.16:1 | 4.5:1 (text) | pass | Headings and labels on white cards |
-| textMuted `#6D6A6B` | background `#F6F6F5` | 4.95:1 | 4.5:1 (text) | pass | Secondary text on the page |
-| textMuted `#6D6A6B` | surface `#FFFFFF` | 5.35:1 | 4.5:1 (text) | pass | Secondary text on white cards |
-| textMuted `#6D6A6B` | surfaceMuted `#F6F6F5` | 4.95:1 | 4.5:1 (text) | pass | Secondary text on grey panels |
-| text `#494546` | surfaceMuted `#F6F6F5` | 8.74:1 | 4.5:1 (text) | pass | Body text on grey panels / cards |
-| textStrong `#002D14` | surfaceSelected `#E6F7F5` | 13.70:1 | 4.5:1 (text) | pass | Selected nav item, selected option |
-| textOnPrimary `#FFFFFF` | primary `#05B39C` | 2.65:1 | - (accepted) | **accepted by decision** (below 3:1) | White bold text on IHS Teal: app bars, buttons, header title (decision 2026-11-12) |
-| primary `#05B39C` | background `#F6F6F5` | 2.45:1 | - (accepted) | **accepted by decision** (below 3:1) | IHS Teal large titles and icons on the page (decision 2026-11-12) |
-| primaryText `#037D66` | background `#F6F6F5` | 4.70:1 | 4.5:1 (text) | pass | Deep teal: small accent text, links, outlined buttons, headings |
-| primaryText `#037D66` | surface `#FFFFFF` | 5.09:1 | 4.5:1 (text) | pass | Deep teal text on white cards |
-| textOnPrimary `#FFFFFF` | primaryText `#037D66` | 5.09:1 | 4.5:1 (text) | pass | White text on deep teal: snack bars, safeguarding box, admin buttons and sidebar top |
-| textStrong `#002D14` | surfaceSelected `#E6F7F5` | 13.70:1 | 4.5:1 (text) | pass | Text on the Teal 10% selected tint |
-| controlBorder `#6D6A6B` | surface `#FFFFFF` | 5.35:1 | 3.0:1 (control) | pass | Text field and checkbox borders (fields are white) |
-| primary `#05B39C` | surface `#FFFFFF` | 2.65:1 | - (accepted) | **accepted by decision** (below 3:1) | Focused field border, radio/checkbox selected (Teal) |
-| successText `#008732` | surface `#FFFFFF` | 4.65:1 | 4.5:1 (text) | pass | Success text ('Correct.') - white cards only |
-| textStrong `#002D14` | successSurface `#E6F3EA` | 13.26:1 | 4.5:1 (text) | pass | Text in success callouts |
-| success `#008732` | background `#F6F6F5` | 4.30:1 | 3.0:1 (control) | pass | Success icons on the page, progress fill |
-| textOnPrimary `#FFFFFF` | success `#008732` | 4.65:1 | 4.5:1 (text) | pass | White text on a Grass Green badge |
-| warningText `#002D14` | warningSurface `#FDEBDE` | 13.07:1 | 4.5:1 (text) | pass | Text in warning callouts |
-| textStrong `#002D14` | warningSurface `#FDEBDE` | 13.07:1 | 3.0:1 (control) | pass | Warning icon (Forest Green on the Orange 15% callout) |
-| warning `#F47B22` | background `#F6F6F5` | 2.52:1 | - (decor) | pass | Orange left bar of warning callouts (decorative: icon and text carry the meaning) |
-| warningText `#002D14` | warning `#F47B22` | 5.56:1 | 4.5:1 (text) | pass | Forest text on an Orange chip |
-| errorText `#002D14` | errorSurface `#FEEDEC` | 13.38:1 | 4.5:1 (text) | pass | Text in error and 'Do not' callouts |
-| error `#F04E43` | background `#F6F6F5` | 3.30:1 | 3.0:1 (control) | pass | Error icon / border, 'Do not' marker (on the page) |
-| errorText `#002D14` | error `#F04E43` | 4.24:1 | 3.0:1 (large) | pass | Forest text on a Red fill (avoid; large only) |
-| infoText `#002D14` | infoSurface `#E6F3FA` | 13.40:1 | 4.5:1 (text) | pass | Text in information callouts |
-| info `#0888CA` | background `#F6F6F5` | 3.61:1 | 3.0:1 (control) | pass | Information icon / border (on the page) |
-| textStrong `#002D14` | highlightSurface `#CDF0EB` | 12.46:1 | 4.5:1 (text) | pass | Text on a Teal 60% highlight |
-| progressFill `#008732` | progressTrack `#D0D0CE` | 3.01:1 | 3.0:1 (control) | pass | Progress bar fill on its track |
-| textDisabled `#A7A8AA` | background `#F6F6F5` | 2.20:1 | - (decor) | pass | Disabled text (exempt from WCAG) |
-| divider `#D0D0CE` | background `#F6F6F5` | 1.43:1 | - (decor) | pass | Dividers, card outlines |
+| textOnPrimary `#FFFFFF` | primary `#00685C` | 6.70:1 | 4.5:1 (text) | pass | White text on logo teal: app bars, primary buttons |
+| navInactive `#D9E8E7` | navBar `#1F5035` | 7.38:1 | 4.5:1 (text) | pass | Inactive bottom navigation items (#D9E8E7 on deep forest) |
+| text `#1F2A28` | background `#D9E8E7` | 11.72:1 | 4.5:1 (text) | pass | Body text on the 15% teal page |
+| textMuted `#43544F` | background `#D9E8E7` | 6.35:1 | 4.5:1 (text) | pass | Secondary text on the page |
+| onAccent `#1F2A28` | accent `#D9E8E7` | 11.72:1 | 4.5:1 (text) | pass | Dark text on the pale teal accent: hero label, Continue button |
+| textOnPrimary `#FFFFFF` | primary `#00685C` | 6.70:1 | 4.5:1 (text) | pass | White number on the logo teal badge of the next module |
+| navActive `#FFFFFF` | navBar `#1F5035` | 9.30:1 | 4.5:1 (text) | pass | Active bottom navigation item (white on deep forest) |
+| textOnPrimary `#FFFFFF` | forest `#245C3E` | 7.85:1 | 4.5:1 (text) | pass | White text on Forest Green: splash top, header, hero card, admin sidebar |
+| onPrimaryMuted `#D9E8E7` | forest `#245C3E` | 6.22:1 | 4.5:1 (text) | pass | Secondary text on Forest Green |
+| onPrimaryMuted `#D9E8E7` | primary `#00685C` | 5.31:1 | 4.5:1 (text) | pass | Secondary text on logo teal (hero card bottom, header) |
+| textOnPrimary `#FFFFFF` | midBlend `#14614C` | 7.38:1 | 4.5:1 (text) | pass | White text on the mid-blend (photo fade, button sheen) |
+| textOnPrimary `#FFFFFF` | sheenLight `#1F7A70` | 5.15:1 | 4.5:1 (text) | pass | White text on the light end of the button sheen |
+| textOnPrimary `#FFFFFF` | deepForest `#1F5035` | 9.30:1 | 4.5:1 (text) | pass | Snack bars, admin sidebar bottom, bottom of the splash and Home header |
+| onPrimaryMuted `#D9E8E7` | deepForest `#1F5035` | 7.38:1 | 4.5:1 (text) | pass | Secondary text at the bottom of the Home header |
+| text `#1F2A28` | surface `#F2F8F7` | 13.76:1 | 4.5:1 (text) | pass | Body text on cards |
+| textMuted `#43544F` | surface `#F2F8F7` | 7.46:1 | 4.5:1 (text) | pass | Secondary text on cards |
+| text `#1F2A28` | surfaceSelected `#E6F2F0` | 12.90:1 | 4.5:1 (text) | pass | Text on the pale teal tint (selected rows, chips, callouts) |
+| textMuted `#43544F` | surfaceSelected `#E6F2F0` | 6.99:1 | 4.5:1 (text) | pass | Secondary text on the pale teal tint, locked modules |
+| primaryText `#00685C` | background `#D9E8E7` | 5.31:1 | 4.5:1 (text) | pass | Teal titles, links and icons on the page |
+| primaryText `#00685C` | surface `#F2F8F7` | 6.24:1 | 4.5:1 (text) | pass | Teal text, outlined buttons on cards |
+| primaryText `#00685C` | surfaceSelected `#E6F2F0` | 5.85:1 | 4.5:1 (text) | pass | Teal text on the pale teal tint |
+| controlBorder `#43544F` | surface `#F2F8F7` | 7.46:1 | 3.0:1 (control) | pass | Text field and checkbox borders |
+| primary `#00685C` | surface `#F2F8F7` | 6.24:1 | 3.0:1 (control) | pass | Focused field border, selected radio/checkbox, next-module outline |
+| primary `#00685C` | surfaceMuted `#E6F2F0` | 5.85:1 | 3.0:1 (control) | pass | Dashed outline of a locked module |
+| successText `#245C3E` | surface `#F2F8F7` | 7.31:1 | 4.5:1 (text) | pass | Success text ('Correct.') on cards |
+| successText `#245C3E` | background `#D9E8E7` | 6.22:1 | 4.5:1 (text) | pass | Success text on the page |
+| text `#1F2A28` | successSurface `#E9EFEC` | 12.69:1 | 4.5:1 (text) | pass | Text in success callouts |
+| textOnPrimary `#FFFFFF` | success `#245C3E` | 7.85:1 | 3.0:1 (control) | pass | White tick on the Forest Green completed disc |
+| warning `#C2410C` | surface `#F2F8F7` | 4.82:1 | 3.0:1 (control) | pass | Warning border and icon on cards |
+| warning `#C2410C` | surface `#F2F8F7` | 4.82:1 | 4.5:1 (text) | pass | 'Update available' status label on the Updates card |
+| warning `#C2410C` | warningSurface `#F9ECE7` | 4.48:1 | 3.0:1 (control) | pass | Warning border and icon on the warning callout |
+| warningText `#1F2A28` | warningSurface `#F9ECE7` | 12.80:1 | 4.5:1 (text) | pass | Text in warning callouts (ink) |
+| errorText `#B42318` | surface `#F2F8F7` | 6.12:1 | 4.5:1 (text) | pass | Error text on cards |
+| errorText `#B42318` | background `#D9E8E7` | 5.21:1 | 4.5:1 (text) | pass | Error text on the page |
+| errorText `#B42318` | errorSurface `#F8E9E8` | 5.58:1 | 4.5:1 (text) | pass | Text in error and 'Do not' callouts |
+| textOnPrimary `#FFFFFF` | error `#B42318` | 6.57:1 | 4.5:1 (text) | pass | White text on an error fill |
+| textOnPrimary `#FFFFFF` | warning `#C2410C` | 5.18:1 | 4.5:1 (text) | pass | White text on a warning fill |
+| infoText `#1F2A28` | infoSurface `#E6F2F0` | 12.90:1 | 4.5:1 (text) | pass | Text in information callouts |
+| progressFill `#00685C` | progressTrack `#C6DEDB` | 4.74:1 | 3.0:1 (control) | pass | Progress bar fill on its track |
+| accent `#D9E8E7` | forest `#245C3E` | 6.22:1 | 3.0:1 (control) | pass | Pale teal progress fill, label and button on the hero card (top); Online dot |
+| accent `#D9E8E7` | primary `#00685C` | 5.31:1 | 3.0:1 (control) | pass | Pale teal progress fill, label and button on the hero card (bottom) |
+| text `#1F2A28` | surfaceSelected `#E6F2F0` | 12.90:1 | 4.5:1 (text) | pass | Support deck rows: label, contact type and value |
+| textMuted `#43544F` | surfaceSelected `#E6F2F0` | 6.99:1 | 4.5:1 (text) | pass | Support deck rows: availability and languages |
+| primaryText `#00685C` | surfaceSelected `#E6F2F0` | 5.85:1 | 3.0:1 (control) | pass | Support deck rows: contact type icon |
+| textMuted `#43544F` | surface `#F2F8F7` | 7.46:1 | 4.5:1 (text) | pass | Support deck: intro, admin note, copy icon |
+| text `#1F2A28` | surface `#F2F8F7` | 13.76:1 | 4.5:1 (text) | pass | Tools repository rows: title and description |
+| textMuted `#43544F` | surface `#F2F8F7` | 7.46:1 | 4.5:1 (text) | pass | Tools repository rows: type, service, 'Opens online', copy and share icons |
+| primaryText `#00685C` | surface `#F2F8F7` | 6.24:1 | 3.0:1 (control) | pass | Tools repository rows: type icon |
+| primaryText `#00685C` | surfaceSelected `#E6F2F0` | 5.85:1 | 3.0:1 (control) | pass | Tools card on Home and Modules: icon on its pale tile |
+| textDisabled `#43544F` | surfaceMuted `#E6F2F0` | 6.99:1 | - (decor) | pass | Disabled text (exempt from WCAG; same as muted) |
+| divider `#C6DEDB` | background `#D9E8E7` | 1.12:1 | - (decor) | pass | Thin teal card border (rgba(0,104,92,0.18) on the card) |
 
-## Pairs not used (fail for normal text, so the colour is a fill, icon or border instead)
+## Pairs not used for text
 
 | Foreground | Background | Ratio | Instead |
 |---|---|---|---|
-| error `#F04E43` | background `#F6F6F5` | 3.30:1 | Red as text on white: not used for text |
-| warning `#F47B22` | background `#F6F6F5` | 2.52:1 | Orange as text on white: not used for text |
-| highlight `#05B39C` | background `#F6F6F5` | 2.45:1 | Teal as text on white: not used for text |
-| info `#0888CA` | background `#F6F6F5` | 3.61:1 | Blue as text on white: not used for text |
-| textOnPrimary `#FFFFFF` | error `#F04E43` | 3.57:1 | White text on Red: not used for text |
-| textOnPrimary `#FFFFFF` | warning `#F47B22` | 2.73:1 | White text on Orange: not used for text |
-| textOnPrimary `#FFFFFF` | info `#0888CA` | 3.90:1 | White text on Blue: not used for text |
-| textDisabled `#A7A8AA` | background `#F6F6F5` | 2.20:1 | Mid Grey as text: not used for text |
-| successText `#008732` | background `#F6F6F5` | 4.30:1 | Grass Green text directly on the grey page (4.30) - kept to white cards: not used for text |
-| warning `#F47B22` | background `#F6F6F5` | 2.52:1 | Orange as a standalone icon or border on white (below 3:1): not used for text |
-| highlight `#05B39C` | background `#F6F6F5` | 2.45:1 | Teal as a standalone icon or border on white (below 3:1): not used for text |
+| warning `#C2410C` | warningSurface `#F9ECE7` | 4.48:1 | Warning orange as text on its pale tint (4.48) - text there is ink: not used for text |
+| accent `#D9E8E7` | surface `#F2F8F7` | 1.17:1 | The pale teal accent on cards (so the next module's badge is logo teal instead): not used for text |
+| textOnPrimary `#FFFFFF` | accent `#D9E8E7` | 1.26:1 | White text on the pale teal accent: not used for text |

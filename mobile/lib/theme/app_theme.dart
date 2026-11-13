@@ -3,21 +3,31 @@ import 'package:flutter/material.dart';
 import 'brand_tokens.g.dart';
 
 /// What each colour is for. Every value comes from the one token file,
-/// brand/tokens.json (IHS Towers Brand Manual 2021), via brand_tokens.g.dart.
-/// Widgets use these names, never a hex value.
+/// brand/tokens.json, via brand_tokens.g.dart. Widgets use these names, never a
+/// hex value, so the palette changes in one place.
 ///
-/// Base colour: IHS Teal (decision 2026-11-12, after the IHS report layout): teal
-/// blocks with white bold text, teal titles, dark grey body text. White on Teal is
-/// 2.65:1, accepted for bars, buttons and large text; small text on white uses
-/// [primaryText] (deep teal) and blocks holding small white text use it as their
-/// fill (docs/brand/contrast_report.md).
+/// Palette of 2026-11-12: screens on the 15% teal background, cards on [surface]
+/// with the thin teal [divider]; app bars and primary buttons logo teal with white
+/// text; bottom navigation deep forest; the Home hero card forest to teal with pale teal
+/// accents. Every text pair passes 4.5:1 (docs/brand/contrast_report.md).
 class AppColors {
   AppColors._();
 
   static const primary = BrandColors.primary;
   static const onPrimary = BrandColors.onPrimary;
 
-  /// Deep teal: small teal text and links on white, and fills behind small white text.
+  /// Secondary text on teal, forest and deep forest.
+  static const onPrimaryMuted = BrandColors.onPrimaryMuted;
+  static const forest = BrandColors.forest;
+  static const deepForest = BrandColors.deepForest;
+  static const midBlend = BrandColors.midBlend;
+
+  /// Accent on forest and teal (the pale teal tint): hero label, Continue button,
+  /// hero progress, the Online dot.
+  static const accent = BrandColors.accent;
+  static const onAccent = BrandColors.onAccent;
+
+  /// Teal text and links (the logo teal passes 4.5:1 on every light surface).
   static const primaryText = BrandColors.primaryText;
   static const sheenLight = BrandColors.sheenLight;
   static const sheenDark = BrandColors.sheenDark;
@@ -49,6 +59,12 @@ class AppColors {
 
   static const progressTrack = BrandColors.progressTrack;
   static const progressFill = BrandColors.progressFill;
+
+  static const navBar = BrandColors.navBar;
+  static const navActive = BrandColors.navActive;
+  static const navInactive = BrandColors.navInactive;
+
+  /// Only behind partner logos (approved on white) and the certificate's paper preview.
   static const white = BrandPalette.white;
 }
 
@@ -63,17 +79,32 @@ class AppRadius {
   static const pill = BrandRadius.pill;
 }
 
-/// The subtle sheen (decision 2026-11-12): gentle teal gradients with a soft glossy
-/// highlight on headers and primary buttons, and softly tinted shadows under cards.
+/// The subtle sheen (decision 2026-11-12, kept in the new palette): forest-to-teal
+/// gradients on headers, a soft glossy highlight on primary buttons, and softly
+/// tinted shadows under cards.
 class AppSheen {
   AppSheen._();
 
-  /// Headers and banners: deep teal top-left (where the small text sits) to Teal.
+  /// Splash and Home header: Forest Green at the top to deep forest.
+  static const header = LinearGradient(
+    begin: Alignment.topCenter,
+    end: Alignment.bottomCenter,
+    colors: [AppColors.forest, AppColors.deepForest],
+  );
+
+  /// The Continue hero card and banners: Forest Green at the top to logo teal.
   static const hero = LinearGradient(
-    begin: Alignment.topLeft,
-    end: Alignment.bottomRight,
-    colors: [AppColors.primaryText, AppColors.primary, AppColors.sheenLight],
-    stops: [0, 0.65, 1],
+    begin: Alignment.topCenter,
+    end: Alignment.bottomCenter,
+    colors: [AppColors.forest, AppColors.primary],
+  );
+
+  /// For a photo at the top of the hero card (none yet): the photo fades into the
+  /// card through this gradient, ending in the mid-blend.
+  static final photoFade = LinearGradient(
+    begin: Alignment.topCenter,
+    end: Alignment.bottomCenter,
+    colors: [AppColors.midBlend.withValues(alpha: 0), AppColors.midBlend],
   );
 
   /// Primary buttons and filled badges.
@@ -158,7 +189,7 @@ class AppTheme {
         labelSmall: scale(BrandTypeScale.label, AppColors.textStrong),
       ),
 
-      // Teal bars with white bold titles, as in the IHS report layout.
+      // Logo teal bars with white bold titles.
       appBarTheme: AppBarTheme(
         backgroundColor: AppColors.primary,
         foregroundColor: AppColors.onPrimary,
@@ -268,7 +299,7 @@ class AppTheme {
         linearTrackColor: AppColors.progressTrack,
       ),
 
-      // White dialogs and sheets (Material 3 would tint them with the seed colour).
+      // Card-coloured dialogs and sheets (Material 3 would tint them with the seed colour).
       dialogTheme: DialogThemeData(
         backgroundColor: AppColors.surface,
         surfaceTintColor: Colors.transparent,
@@ -278,25 +309,26 @@ class AppTheme {
       bottomSheetTheme: const BottomSheetThemeData(backgroundColor: AppColors.surface, surfaceTintColor: Colors.transparent),
 
       snackBarTheme: SnackBarThemeData(
-        backgroundColor: AppColors.primaryText,
+        backgroundColor: AppColors.deepForest,
         actionTextColor: AppColors.onPrimary,
         contentTextStyle: BrandTypeScale.body.copyWith(color: AppColors.onPrimary),
       ),
 
+      // Deep forest bar: the active item white on a soft white pill, the others pale teal.
       navigationBarTheme: NavigationBarThemeData(
-        backgroundColor: AppColors.surface,
+        backgroundColor: AppColors.navBar,
         surfaceTintColor: Colors.transparent,
-        indicatorColor: AppColors.surfaceSelected,
+        indicatorColor: AppColors.navActive.withValues(alpha: 0.18),
         labelTextStyle: WidgetStateProperty.resolveWith(
           (states) => TextStyle(
             fontWeight: FontWeight.w700,
             fontSize: 9.5,
-            color: states.contains(WidgetState.selected) ? AppColors.primaryText : AppColors.textMuted,
+            color: states.contains(WidgetState.selected) ? AppColors.navActive : AppColors.navInactive,
           ),
         ),
         iconTheme: WidgetStateProperty.resolveWith(
           (states) => IconThemeData(
-            color: states.contains(WidgetState.selected) ? AppColors.primaryText : AppColors.textMuted,
+            color: states.contains(WidgetState.selected) ? AppColors.navActive : AppColors.navInactive,
           ),
         ),
       ),

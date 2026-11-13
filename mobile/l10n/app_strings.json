@@ -975,6 +975,179 @@
       "en": "Try asking about:",
       "note": "Ask: shown above suggested questions when nothing matched"
     },
+    "support.heading": {
+      "en": "Need help from a person?",
+      "note": "Support deck on the Ask tab: heading of the card with ways to contact the support team"
+    },
+    "support.intro": {
+      "en": "Contact the support team:",
+      "note": "Support deck: line above the contacts when shown under an answer the app could not find"
+    },
+    "support.showContacts": {
+      "en": "Show contacts",
+      "note": "Support deck (collapsed): screen-reader hint for opening the list of contacts"
+    },
+    "support.hideContacts": {
+      "en": "Hide contacts",
+      "note": "Support deck (open): screen-reader hint for closing the list of contacts"
+    },
+    "support.typePhone": {
+      "en": "Call",
+      "note": "Support deck: contact type for a phone call, shown before the number"
+    },
+    "support.typeSms": {
+      "en": "SMS",
+      "note": "Support deck: contact type for a text message, shown before the number"
+    },
+    "support.typeEmail": {
+      "en": "Email",
+      "note": "Support deck: contact type for email, shown before the address"
+    },
+    "support.typeWhatsapp": {
+      "en": "WhatsApp",
+      "note": "Support deck: contact type for a WhatsApp chat (brand name, usually not translated)"
+    },
+    "support.typeLink": {
+      "en": "Website",
+      "note": "Support deck: contact type for a web link, shown before the address"
+    },
+    "support.copy": {
+      "en": "Copy",
+      "note": "Support deck: button on each contact that copies the number or address"
+    },
+    "support.copied": {
+      "en": "Copied {value}",
+      "note": "Support deck: message after copying; {value} is the number or address"
+    },
+    "support.needsInternet": {
+      "en": "{type} needs an internet connection. Connect and try again, or copy the details to use later.",
+      "note": "Support deck: shown when the learner taps an email, WhatsApp or website contact with no connection; {type} is Email, WhatsApp or Website"
+    },
+    "support.openFailed": {
+      "en": "We couldn't open {type} on this phone. You can copy the details and contact the support team another way.",
+      "note": "Support deck: shown when the phone has no app for the contact (for example no WhatsApp); {type} is the contact type"
+    },
+    "support.copyDetails": {
+      "en": "Copy details",
+      "note": "Support deck: button in the message above that copies the number or address"
+    },
+    "support.close": {
+      "en": "Close",
+      "note": "Support deck: button that closes the message"
+    },
+    "support.appVersion": {
+      "en": "App version: {version}",
+      "note": "Support deck: line added to a pre-filled email or WhatsApp message when the admin enables it; {version} is like 0.1.15"
+    },
+    "support.languages": {
+      "en": "Languages: {languages}",
+      "note": "Support deck: languages the support line speaks; {languages} is written by the admin"
+    },
+    "tools.sectionLabel": {
+      "en": "TOOLS",
+      "note": "Home and Modules: small capital label above the Tools repository card (separate from the training modules)"
+    },
+    "tools.entryTitle": {
+      "en": "Tools repository",
+      "note": "Home and Modules: title of the card that opens the Tools repository (links to job aids, forms, websites)"
+    },
+    "tools.linkCount": {
+      "en": "{count} links · open online",
+      "en_one": "{count} link · opens online",
+      "note": "Tools card: how many links; they open on the internet, nothing is downloaded"
+    },
+    "tools.title": {
+      "en": "Tools",
+      "note": "Title of the Tools repository screen"
+    },
+    "tools.intro": {
+      "en": "Links to job aids, forms, guidelines and websites. They open online: nothing is downloaded to this phone.",
+      "note": "Tools screen: short explanation at the top"
+    },
+    "tools.search": {
+      "en": "Search tools",
+      "note": "Tools screen: hint in the search box"
+    },
+    "tools.allCategories": {
+      "en": "All",
+      "note": "Tools screen: category filter chip that shows every category"
+    },
+    "tools.empty": {
+      "en": "No tools are available for you yet.",
+      "note": "Tools screen when no links are assigned"
+    },
+    "tools.noMatch": {
+      "en": "No tools match your search.",
+      "note": "Tools screen when the search or category filter finds nothing"
+    },
+    "tools.opensOnline": {
+      "en": "Opens online",
+      "note": "Tools item: small label saying the link opens on the internet"
+    },
+    "tools.typeDocument": {
+      "en": "Document",
+      "note": "Tools item type"
+    },
+    "tools.typeSpreadsheet": {
+      "en": "Spreadsheet",
+      "note": "Tools item type"
+    },
+    "tools.typePresentation": {
+      "en": "Presentation",
+      "note": "Tools item type"
+    },
+    "tools.typePdf": {
+      "en": "PDF",
+      "note": "Tools item type (file format name)"
+    },
+    "tools.typeImage": {
+      "en": "Image",
+      "note": "Tools item type"
+    },
+    "tools.typeVideoLink": {
+      "en": "Video",
+      "note": "Tools item type: a link to a video online"
+    },
+    "tools.typeWebsite": {
+      "en": "Website",
+      "note": "Tools item type"
+    },
+    "tools.typeForm": {
+      "en": "Form",
+      "note": "Tools item type: an online form"
+    },
+    "tools.typeOther": {
+      "en": "Link",
+      "note": "Tools item type for anything else"
+    },
+    "tools.languages": {
+      "en": "Languages: {languages}",
+      "note": "Tools item: languages the document is in; {languages} is written by the admin"
+    },
+    "tools.copyLink": {
+      "en": "Copy link",
+      "note": "Tools item: button that copies the link"
+    },
+    "tools.shareLink": {
+      "en": "Share link",
+      "note": "Tools item: button that shares the link with another app"
+    },
+    "tools.linkCopied": {
+      "en": "Link copied",
+      "note": "Tools: message after copying a link"
+    },
+    "tools.needsInternet": {
+      "en": "You need an internet connection to open this. You can copy the link and open it later.",
+      "note": "Tools: shown when the learner taps a link with no connection"
+    },
+    "tools.openFailed": {
+      "en": "We couldn't open this link on this phone. You can copy the link instead.",
+      "note": "Tools: shown when no app can open the link"
+    },
+    "tools.close": {
+      "en": "Close",
+      "note": "Tools: button that closes the message"
+    },
     "cert.earnedLine": {
       "en": "You passed and earned your training certificate.",
       "note": "Post-test result: the learner passed and earned the certificate"

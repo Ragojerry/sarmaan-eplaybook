@@ -491,3 +491,62 @@ export interface AppStringProblem {
   key: string | null;
   problem: string;
 }
+
+export type SupportContactType = "PHONE" | "SMS" | "EMAIL" | "WHATSAPP" | "LINK";
+
+/** A Support deck row (GET /support-contacts). Empty `audience` = every learner. */
+export interface SupportContact {
+  id: string;
+  type: SupportContactType;
+  label: string;
+  value: string;
+  whatsapp_message: string | null;
+  email_subject: string | null;
+  include_app_version: boolean;
+  availability: string | null;
+  languages: string | null;
+  audience: LearnerRole[];
+  is_active: boolean;
+  display_order: number;
+  created_by: string | null;
+  updated_by: string | null;
+  created_at: string | null;
+  updated_at: string | null;
+}
+
+export type ToolItemType = "DOCUMENT" | "SPREADSHEET" | "PRESENTATION" | "PDF" | "IMAGE" | "VIDEO_LINK" | "WEBSITE" | "FORM" | "OTHER";
+
+/** A Tools repository module (GET /tools/modules): links only, separate from training. */
+export interface ToolModule {
+  id: string;
+  title: string;
+  description: string | null;
+  audience: ModuleAudience;
+  learner_roles: LearnerRole[];
+  is_active: boolean;
+  display_order: number;
+  item_count: number;
+  updated_by: string | null;
+  updated_at: string | null;
+}
+
+/** A link in a Tools module (GET /tools/items). Empty `audience` = everyone the module is for. */
+export interface ToolItem {
+  id: string;
+  tool_module_id: string;
+  title: string;
+  description: string | null;
+  type: ToolItemType;
+  url: string;
+  host: string | null;
+  category: string | null;
+  languages: string | null;
+  audience: LearnerRole[];
+  is_active: boolean;
+  last_reviewed: string | null;
+  display_order: number;
+  duplicates: { id: string; title: string }[];
+  created_by: string | null;
+  updated_by: string | null;
+  updated_at: string | null;
+}

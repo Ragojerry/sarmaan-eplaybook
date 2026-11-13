@@ -20,7 +20,7 @@ export default function PartnerLogos({ placement }: { placement: "adminHeader" |
   const clear = ihs ? (ihs.clearSpaceRatio ?? 0.165) * row * (ihs.widthPx / ihs.heightPx) : row * 0.3;
 
   return (
-    <div className="bg-white flex flex-col items-center" style={{ padding: clear }}>
+    <div className="bg-paper flex flex-col items-center" style={{ padding: clear }}>
       <div className="flex flex-wrap items-center justify-center" style={{ gap: clear }}>
         {keys.map((key) => {
           const logo = logos[key];

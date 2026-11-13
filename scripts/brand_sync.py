@@ -49,7 +49,7 @@ def dart_source(tokens: dict) -> str:
         "// ignore_for_file: constant_identifier_names",
         "import 'package:flutter/painting.dart';",
         "",
-        "/// Brand palette and tints (IHS Towers Brand Manual 2021).",
+        "/// Brand palette and tints (brand/tokens.json).",
         "class BrandPalette {",
         "  BrandPalette._();",
     ]
@@ -85,6 +85,7 @@ def android_colours(tokens: dict) -> str:
         "<resources>",
         f'    <color name="brand_forest_green">{colours["forestGreen"]}</color>',
         f'    <color name="brand_primary">{colours[tokens["semantic"]["primary"]]}</color>',
+        f'    <color name="brand_deep_forest">{colours["deepForest"]}</color>',
         f'    <color name="brand_white">{colours["white"]}</color>',
         "</resources>",
         "",

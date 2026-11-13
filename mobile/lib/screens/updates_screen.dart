@@ -99,7 +99,7 @@ class _UpdatesScreenState extends ConsumerState<UpdatesScreen> {
           Container(
             padding: const EdgeInsets.all(14),
             decoration: BoxDecoration(
-              color: AppColors.white,
+              color: AppColors.surface,
               border: Border.all(color: AppColors.divider),
               boxShadow: AppSheen.card,
               borderRadius: BorderRadius.circular(AppRadius.standard),
@@ -187,7 +187,7 @@ class _UpdatesScreenState extends ConsumerState<UpdatesScreen> {
           Container(
             padding: const EdgeInsets.fromLTRB(14, 6, 6, 6),
             decoration: BoxDecoration(
-              color: AppColors.white,
+              color: AppColors.surface,
               border: Border.all(color: AppColors.divider),
               boxShadow: AppSheen.card,
               borderRadius: BorderRadius.circular(AppRadius.standard),

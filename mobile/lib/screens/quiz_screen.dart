@@ -167,7 +167,7 @@ class _GeneralTestScreenState extends ConsumerState<GeneralTestScreen> {
                     child: Container(
                       padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
                       decoration: BoxDecoration(
-                        color: chosen == i ? AppColors.surfaceSelected : AppColors.white,
+                        color: chosen == i ? AppColors.surfaceSelected : AppColors.surface,
                         borderRadius: BorderRadius.circular(AppRadius.standard),
                         border: Border.all(color: chosen == i ? AppColors.primary : AppColors.divider, width: chosen == i ? 1.5 : 1),
                       ),

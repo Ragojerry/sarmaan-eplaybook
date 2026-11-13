@@ -106,3 +106,22 @@ The branch starts from commit `8ddaf9a` (the go-live code as deployed on 2026-11
 | Android launch screen | `brand_primary` (Teal) instead of Forest Green |
 | `admin/` | Deep-teal-to-Teal sidebar, deep teal buttons with gloss, soft card shadows (all via tokens) |
 | `scripts/brand_contrast.py`, `contrast_report.md` | White on Teal (2.65:1) and Teal titles on the page recorded as **accepted by decision**; every other pair passes |
+
+## Palette of 2026-11-12 (replaces the IHS Teal base the same day; visual only)
+Forest `#245C3E`, deep forest `#1F5035` (bottom navigation), logo teal `#00685C` (primary), mid-blend `#14614C`, background `#D9E8E7`, gold `#F2A33A`; supporting ink `#1F2A28`, muted `#43544F`, card `#F2F8F7` with a `rgba(0,104,92,0.18)` border (stored opaque as `#C6DEDB`), pale teal `#E6F2F0`, warning `#C2410C`, error `#B42318`. The subtle sheen is kept in the new colours. Every text pair passes 4.5:1 (no pair "accepted by decision" any more).
+
+| File | Change |
+|---|---|
+| `brand/tokens.json` (and generated copies) | New palette and roles; the IHS palette, tints and teal blends removed |
+| `scripts/brand_sync.py` | Android `brand_deep_forest` |
+| `mobile/lib/theme/app_theme.dart` | New roles (`forest`, `deepForest`, `midBlend`, `gold`, `onGold`, `onPrimaryMuted`, `nav*`); forest-to-teal hero gradient, `photoFade` for a future hero photo; deep forest bottom bar with a white pill; deep forest snack bars |
+| `mobile/lib/screens/home_screen.dart` | "Continue" hero card (forest to teal, gold label, gold Continue button, gold progress on a 28% white track); module states: completed forest disc with a white tick, next module teal 2 dp outline with a gold number, locked dashed teal outline with muted text |
+| `mobile/lib/screens/modules_screen.dart`, `mobile/lib/widgets/module_state_marks.dart` | The same three states in the Modules list |
+| `mobile/lib/screens/*` | Card surfaces `#F2F8F7` instead of white (white kept only behind partner logos and the certificate preview) |
+| `mobile/lib/widgets/partner_logo_row.dart` | Deep forest system navigation bar (logo band stays white: logos are approved on white) |
+| Android `launch_background.xml`, `values*/styles.xml` | Forest-to-teal launch gradient; forest status bar and Android 12+ splash; deep forest navigation bar |
+| `admin/tailwind.config.js`, `src/index.css`, `src/layouts/AdminLayout.tsx`, `src/components/PartnerLogos.tsx`, `src/brand/tokens.ts` | Forest-to-deep-forest sidebar with pale teal secondary text, teal buttons, `#D9E8E7` page, `#F2F8F7` cards, status colours from the palette, charts teal and gold; `bg-paper` (white) only behind logos |
+| `scripts/brand_contrast.py`, `contrast_report.md` | Pairs for the new palette |
+| `brand/tokens.json`, `app_theme.dart`, `home_screen.dart`, `modules_screen.dart`, `admin/src/brand/tokens.ts` | Same day, by decision: the gold accent replaced by the pale teal tint `#D9E8E7` (token `accent`, dark text `onAccent`) on the hero card and the Online dot; the next module's number badge is logo teal with a white number (pale teal does not show on cards); admin charts teal and Forest Green |
+| `app_theme.dart` (`AppSheen.header`), `home_screen.dart`, `splash_screen.dart`, Android `launch_background.xml` | Same day, by decision: Home header, splash and launch screen Forest Green to deep forest; the Continue card and banners stay Forest Green to logo teal |
+| `brand/logos.json` (and copies), `partner_logo_row.dart` | Malaria Consortium added to the tab header band after IHS, 32 dp apart (new placement setting `gapDp`) |

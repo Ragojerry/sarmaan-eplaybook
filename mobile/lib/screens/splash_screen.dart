@@ -68,15 +68,14 @@ class _SplashScreenState extends ConsumerState<SplashScreen> {
           Expanded(
             child: Container(
               width: double.infinity,
-              decoration: const BoxDecoration(gradient: AppSheen.hero),
+              decoration: const BoxDecoration(gradient: AppSheen.header),
               child: SafeArea(
                 bottom: false,
                 child: Center(child: _title()),
               ),
             ),
           ),
-          const SafeArea(
-              top: false, child: PartnerLogoRow(placement: 'splash')),
+          const SafeArea(top: false, child: PartnerLogoRow(placement: 'splash')),
         ],
       ),
     );

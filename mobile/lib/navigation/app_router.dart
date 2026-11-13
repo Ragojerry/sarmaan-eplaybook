@@ -1,6 +1,7 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../screens/tools_screen.dart';
 import '../screens/certificate_screen.dart';
 import '../screens/splash_screen.dart';
 import '../screens/language_screen.dart';
@@ -53,6 +54,8 @@ final appRouterProvider = Provider<GoRouter>((ref) {
         builder: (context, state) => VideoScreen(videoId: state.pathParameters['videoId']!),
       ),
       GoRoute(path: '/ai', builder: (context, state) => const AiScreen()),
+      // Tools repository: not gated (open before the General pre-test; not training).
+      GoRoute(path: '/tools', builder: (context, state) => const ToolsScreen()),
       GoRoute(path: '/about', builder: (context, state) => const AboutScreen()),
       GoRoute(path: '/updates', builder: (context, state) => const UpdatesScreen()),
       GoRoute(path: '/certificate', builder: (context, state) => const CertificateScreen()),

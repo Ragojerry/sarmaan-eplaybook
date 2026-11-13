@@ -312,7 +312,7 @@ class _ReaderScreenState extends ConsumerState<ReaderScreen> with WidgetsBinding
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: AppColors.white,
+        color: AppColors.surface,
         borderRadius: BorderRadius.circular(AppRadius.medium),
         border: Border.all(color: good ? AppColors.success : AppColors.divider, width: good ? 1.5 : 1),
         boxShadow: AppSheen.card,
@@ -462,7 +462,7 @@ class _ReaderScreenState extends ConsumerState<ReaderScreen> with WidgetsBinding
       margin: const EdgeInsets.only(bottom: 14),
       padding: const EdgeInsets.fromLTRB(14, 12, 14, 12),
       decoration: BoxDecoration(
-        color: AppColors.white,
+        color: AppColors.surface,
         borderRadius: BorderRadius.circular(10),
         border: Border.all(color: AppColors.primary),
       ),
@@ -630,7 +630,7 @@ class _ReaderScreenState extends ConsumerState<ReaderScreen> with WidgetsBinding
         return Container(
           margin: const EdgeInsets.only(bottom: 14),
           decoration: BoxDecoration(
-            color: AppColors.white,
+            color: AppColors.surface,
             borderRadius: BorderRadius.circular(AppRadius.standard),
             border: Border.all(color: AppColors.divider),
           ),
@@ -825,7 +825,7 @@ class _AudioBar extends StatelessWidget {
       margin: const EdgeInsets.only(bottom: 16),
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 9),
       decoration: BoxDecoration(
-        color: AppColors.white,
+        color: AppColors.surface,
         border: Border.all(color: AppColors.divider, width: 1.5),
         borderRadius: BorderRadius.circular(AppRadius.standard),
       ),

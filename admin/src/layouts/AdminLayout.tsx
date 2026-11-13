@@ -8,6 +8,7 @@ const navItems: { to: string; label: string; roles?: string[] }[] = [
   { to: "/", label: "Dashboard" },
   { to: "/content", label: "Content" },
   { to: "/videos", label: "Videos" },
+  { to: "/tools", label: "Tools repository", roles: ["CONTENT_ADMIN", "PROGRAM_REVIEWER", "LOCALISATION_REVIEWER", "TECHNICAL_REVIEWER", "SUPERVISOR", "READ_ONLY"] },
   { to: "/learning", label: "Roles & tests", roles: ["CONTENT_ADMIN", "PROGRAM_REVIEWER", "LOCALISATION_REVIEWER", "TECHNICAL_REVIEWER", "SUPERVISOR", "READ_ONLY"] },
   { to: "/general-test", label: "General test", roles: ["CONTENT_ADMIN", "PROGRAM_REVIEWER", "LOCALISATION_REVIEWER", "TECHNICAL_REVIEWER", "SUPERVISOR", "READ_ONLY"] },
   { to: "/answers", label: "Curated answers", roles: ["CONTENT_ADMIN", "PROGRAM_REVIEWER", "LOCALISATION_REVIEWER", "TECHNICAL_REVIEWER"] },
@@ -16,6 +17,7 @@ const navItems: { to: string; label: string; roles?: string[] }[] = [
   { to: "/languages", label: "Languages" },
   { to: "/app-text", label: "App interface text", roles: ["CONTENT_ADMIN", "PROGRAM_REVIEWER", "LOCALISATION_REVIEWER", "TECHNICAL_REVIEWER"] },
   { to: "/consent", label: "Consent text", roles: ["CONTENT_ADMIN", "LOCALISATION_REVIEWER"] },
+  { to: "/support-contacts", label: "Support contacts", roles: ["CONTENT_ADMIN", "PROGRAM_REVIEWER", "LOCALISATION_REVIEWER", "TECHNICAL_REVIEWER", "SUPERVISOR", "READ_ONLY"] },
   { to: "/analytics", label: "Analytics", roles: ["CONTENT_ADMIN", "PROGRAM_REVIEWER", "LOCALISATION_REVIEWER", "TECHNICAL_REVIEWER", "SUPERVISOR", "READ_ONLY"] },
   { to: "/reports", label: "Reports", roles: ["CONTENT_ADMIN", "PROGRAM_REVIEWER", "LOCALISATION_REVIEWER", "TECHNICAL_REVIEWER", "SUPERVISOR", "READ_ONLY"] },
   { to: "/audit", label: "Audit log", roles: ["CONTENT_ADMIN", "TECHNICAL_REVIEWER"] },
@@ -42,7 +44,7 @@ export default function AdminLayout() {
               end={item.to === "/"}
               className={({ isActive }) =>
                 `block rounded px-3 py-2 text-sm ${
-                  isActive ? "bg-white text-brand-text-strong font-semibold" : "text-white/90 hover:bg-white/15 hover:text-white"
+                  isActive ? "bg-white text-brand-text-strong font-semibold" : "text-brand-on-primary-muted hover:bg-white/15 hover:text-white"
                 }`
               }
             >
@@ -55,8 +57,8 @@ export default function AdminLayout() {
             <p className="text-sm text-white">
               {user.first_name} {user.last_name}
             </p>
-            <p className="text-xs text-white/80 mb-2">{user.role.replace("_", " ")}</p>
-            <button onClick={() => logout()} className="text-xs text-white/80 hover:text-white underline">
+            <p className="text-xs text-brand-on-primary-muted mb-2">{user.role.replace("_", " ")}</p>
+            <button onClick={() => logout()} className="text-xs text-brand-on-primary-muted hover:text-white underline">
               Sign out
             </button>
           </div>

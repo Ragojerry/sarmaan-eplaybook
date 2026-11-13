@@ -28,8 +28,13 @@ TESTS_DIR = ROOT / "content" / "learning_tests"
 @pytest.fixture()
 def general(world):
     """Three keyed General test questions (numbers 9001-9003; the real 25 are loaded by the
-    loader) and the test switched on through the admin API, as an administrator would."""
+    loader) and the test switched on through the admin API, as an administrator would.
+    Questions already active in the database (the real 25, when loaded) are switched off
+    while the test runs and switched back on afterwards, so only these three count."""
     db = world["db"]
+    real = [q for q in db.query(GeneralTestQuestion).filter(GeneralTestQuestion.number < 9000, GeneralTestQuestion.is_active.is_(True))]
+    for q in real:
+        q.is_active = False
     qs = [GeneralTestQuestion(number=9000 + n, prompt=f"Test question {n}?", options=["a", "b", "c", "d"],
                               correct_index=n % 4, is_active=True) for n in (1, 2, 3)]
     db.add_all(qs)
@@ -42,6 +47,9 @@ def general(world):
     db.query(GeneralTestAttempt).filter(GeneralTestAttempt.user_id.in_([u.id for u in world["learners"].values()])).delete(
         synchronize_session=False)
     db.query(GeneralTestQuestion).filter(GeneralTestQuestion.number >= 9000).delete(synchronize_session=False)
+    if real:
+        db.query(GeneralTestQuestion).filter(GeneralTestQuestion.id.in_([q.id for q in real])).update(
+            {GeneralTestQuestion.is_active: True}, synchronize_session=False)
     row = db.get(PlatformSetting, "general_test_active")
     row.value = False
     db.commit()
@@ -217,6 +225,9 @@ def test_content_files():
 
 def test_loader_places_the_hfw_quizzes_and_reruns_change_nothing(sandbox, tmp_path):  # noqa: F811
     db = sandbox
+    # Start from an empty General test (the sandbox is rolled back, so the real questions stay).
+    db.query(GeneralTestQuestion).delete(synchronize_session=False)
+    db.flush()
     cutover_hfw.run(dry_run=False, db=db, media_root=tmp_path, env="development", cutover_date="")
     chunks_before = sorted(c for (c,) in db.query(ContentChunk.chunk_text))
     rep, warnings = load_learning_tests.run(TESTS_DIR, dry_run=False, db=db)

@@ -56,11 +56,13 @@
     },
     "tabHeader": {
       "logos": [
-        "ihs"
+        "ihs",
+        "malaria_consortium"
       ],
       "rowHeightDp": 36,
-      "_note": "IHS alone at the top of the Home, Modules, Videos, Ask and About tabs. Smaller than the IHS 95 dp minimum by decision (2026-11-11): 36 dp high, 63 dp wide; minWidthDp 0 lifts the minimum for this placement only. Clear space stays the width of the 'I' at this size.",
-      "minWidthDp": 0
+      "_note": "IHS and Malaria Consortium at the top of the Home, Modules, Videos, Ask and About tabs (Malaria Consortium added 2026-11-12), 32 dp apart (gapDp; other placements use the IHS clear space between logos). Smaller than the IHS 95 dp minimum by decision (2026-11-11): 36 dp high, 63 dp wide; minWidthDp 0 lifts the minimum for this placement only. Clear space around the row stays the width of the 'I' at this size.",
+      "minWidthDp": 0,
+      "gapDp": 32
     },
     "adminHeader": {
       "logos": "order",

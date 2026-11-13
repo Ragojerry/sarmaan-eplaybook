@@ -170,6 +170,10 @@ class AnalyticsEventType(str, enum.Enum):
     # Device/session
     DEVICE_HEARTBEAT = "DEVICE_HEARTBEAT"
     UPDATE_INSTALLED = "UPDATE_INSTALLED"
+    # Support deck: payload {"contact_type": ...} only (no contact, no person).
+    SUPPORT_CONTACT_TAP = "SUPPORT_CONTACT_TAP"
+    # Tools repository: payload {"item_id": ...} only (no person, no file).
+    TOOL_OPEN = "TOOL_OPEN"
 
 
 class AuditAction(str, enum.Enum):
@@ -205,6 +209,42 @@ class AuditAction(str, enum.Enum):
     MEDIA_REMOVE = "MEDIA_REMOVE"
     GENERAL_TEST_UPDATE = "GENERAL_TEST_UPDATE"
     SETTING_CHANGE = "SETTING_CHANGE"
+    SUPPORT_CONTACT_CREATE = "SUPPORT_CONTACT_CREATE"
+    SUPPORT_CONTACT_UPDATE = "SUPPORT_CONTACT_UPDATE"
+    SUPPORT_CONTACT_REORDER = "SUPPORT_CONTACT_REORDER"
+    SUPPORT_CONTACT_ACTIVATE = "SUPPORT_CONTACT_ACTIVATE"
+    SUPPORT_CONTACT_DEACTIVATE = "SUPPORT_CONTACT_DEACTIVATE"
+    SUPPORT_CONTACT_DELETE = "SUPPORT_CONTACT_DELETE"
+    # Tools repository (entity_type "tool_module" or "tool_item").
+    TOOL_CREATE = "TOOL_CREATE"
+    TOOL_UPDATE = "TOOL_UPDATE"
+    TOOL_REORDER = "TOOL_REORDER"
+    TOOL_ACTIVATE = "TOOL_ACTIVATE"
+    TOOL_DEACTIVATE = "TOOL_DEACTIVATE"
+    TOOL_DELETE = "TOOL_DELETE"
+    TOOL_IMPORT = "TOOL_IMPORT"
+
+
+class SupportContactType(str, enum.Enum):
+    """How a Support deck row reaches a person (tel:, sms:, mailto:, wa.me, https)."""
+    PHONE = "PHONE"
+    SMS = "SMS"
+    EMAIL = "EMAIL"
+    WHATSAPP = "WHATSAPP"
+    LINK = "LINK"
+
+
+class ToolItemType(str, enum.Enum):
+    """What a Tools repository link points to (decides the icon on the phone)."""
+    DOCUMENT = "DOCUMENT"
+    SPREADSHEET = "SPREADSHEET"
+    PRESENTATION = "PRESENTATION"
+    PDF = "PDF"
+    IMAGE = "IMAGE"
+    VIDEO_LINK = "VIDEO_LINK"
+    WEBSITE = "WEBSITE"
+    FORM = "FORM"
+    OTHER = "OTHER"
 
 
 class QuestionType(str, enum.Enum):

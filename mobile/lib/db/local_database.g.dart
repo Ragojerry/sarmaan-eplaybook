@@ -7603,6 +7603,1334 @@ class CachedAppStringsCompanion extends UpdateCompanion<CachedAppStringRow> {
   }
 }
 
+class $CachedSupportContactsTable extends CachedSupportContacts
+    with TableInfo<$CachedSupportContactsTable, CachedSupportContactRow> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $CachedSupportContactsTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<String> id = GeneratedColumn<String>(
+      'id', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _typeMeta = const VerificationMeta('type');
+  @override
+  late final GeneratedColumn<String> type = GeneratedColumn<String>(
+      'type', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _labelMeta = const VerificationMeta('label');
+  @override
+  late final GeneratedColumn<String> label = GeneratedColumn<String>(
+      'label', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _valueMeta = const VerificationMeta('value');
+  @override
+  late final GeneratedColumn<String> value = GeneratedColumn<String>(
+      'value', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _whatsappMessageMeta =
+      const VerificationMeta('whatsappMessage');
+  @override
+  late final GeneratedColumn<String> whatsappMessage = GeneratedColumn<String>(
+      'whatsapp_message', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _emailSubjectMeta =
+      const VerificationMeta('emailSubject');
+  @override
+  late final GeneratedColumn<String> emailSubject = GeneratedColumn<String>(
+      'email_subject', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _includeAppVersionMeta =
+      const VerificationMeta('includeAppVersion');
+  @override
+  late final GeneratedColumn<bool> includeAppVersion = GeneratedColumn<bool>(
+      'include_app_version', aliasedName, false,
+      type: DriftSqlType.bool,
+      requiredDuringInsert: false,
+      defaultConstraints: GeneratedColumn.constraintIsAlways(
+          'CHECK ("include_app_version" IN (0, 1))'),
+      defaultValue: const Constant(false));
+  static const VerificationMeta _availabilityMeta =
+      const VerificationMeta('availability');
+  @override
+  late final GeneratedColumn<String> availability = GeneratedColumn<String>(
+      'availability', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _languagesMeta =
+      const VerificationMeta('languages');
+  @override
+  late final GeneratedColumn<String> languages = GeneratedColumn<String>(
+      'languages', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _displayOrderMeta =
+      const VerificationMeta('displayOrder');
+  @override
+  late final GeneratedColumn<int> displayOrder = GeneratedColumn<int>(
+      'display_order', aliasedName, false,
+      type: DriftSqlType.int,
+      requiredDuringInsert: false,
+      defaultValue: const Constant(0));
+  @override
+  List<GeneratedColumn> get $columns => [
+        id,
+        type,
+        label,
+        value,
+        whatsappMessage,
+        emailSubject,
+        includeAppVersion,
+        availability,
+        languages,
+        displayOrder
+      ];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'cached_support_contacts';
+  @override
+  VerificationContext validateIntegrity(
+      Insertable<CachedSupportContactRow> instance,
+      {bool isInserting = false}) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    } else if (isInserting) {
+      context.missing(_idMeta);
+    }
+    if (data.containsKey('type')) {
+      context.handle(
+          _typeMeta, type.isAcceptableOrUnknown(data['type']!, _typeMeta));
+    } else if (isInserting) {
+      context.missing(_typeMeta);
+    }
+    if (data.containsKey('label')) {
+      context.handle(
+          _labelMeta, label.isAcceptableOrUnknown(data['label']!, _labelMeta));
+    } else if (isInserting) {
+      context.missing(_labelMeta);
+    }
+    if (data.containsKey('value')) {
+      context.handle(
+          _valueMeta, value.isAcceptableOrUnknown(data['value']!, _valueMeta));
+    } else if (isInserting) {
+      context.missing(_valueMeta);
+    }
+    if (data.containsKey('whatsapp_message')) {
+      context.handle(
+          _whatsappMessageMeta,
+          whatsappMessage.isAcceptableOrUnknown(
+              data['whatsapp_message']!, _whatsappMessageMeta));
+    }
+    if (data.containsKey('email_subject')) {
+      context.handle(
+          _emailSubjectMeta,
+          emailSubject.isAcceptableOrUnknown(
+              data['email_subject']!, _emailSubjectMeta));
+    }
+    if (data.containsKey('include_app_version')) {
+      context.handle(
+          _includeAppVersionMeta,
+          includeAppVersion.isAcceptableOrUnknown(
+              data['include_app_version']!, _includeAppVersionMeta));
+    }
+    if (data.containsKey('availability')) {
+      context.handle(
+          _availabilityMeta,
+          availability.isAcceptableOrUnknown(
+              data['availability']!, _availabilityMeta));
+    }
+    if (data.containsKey('languages')) {
+      context.handle(_languagesMeta,
+          languages.isAcceptableOrUnknown(data['languages']!, _languagesMeta));
+    }
+    if (data.containsKey('display_order')) {
+      context.handle(
+          _displayOrderMeta,
+          displayOrder.isAcceptableOrUnknown(
+              data['display_order']!, _displayOrderMeta));
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  CachedSupportContactRow map(Map<String, dynamic> data,
+      {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return CachedSupportContactRow(
+      id: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}id'])!,
+      type: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}type'])!,
+      label: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}label'])!,
+      value: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}value'])!,
+      whatsappMessage: attachedDatabase.typeMapping.read(
+          DriftSqlType.string, data['${effectivePrefix}whatsapp_message']),
+      emailSubject: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}email_subject']),
+      includeAppVersion: attachedDatabase.typeMapping.read(
+          DriftSqlType.bool, data['${effectivePrefix}include_app_version'])!,
+      availability: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}availability']),
+      languages: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}languages']),
+      displayOrder: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}display_order'])!,
+    );
+  }
+
+  @override
+  $CachedSupportContactsTable createAlias(String alias) {
+    return $CachedSupportContactsTable(attachedDatabase, alias);
+  }
+}
+
+class CachedSupportContactRow extends DataClass
+    implements Insertable<CachedSupportContactRow> {
+  final String id;
+  final String type;
+  final String label;
+  final String value;
+  final String? whatsappMessage;
+  final String? emailSubject;
+  final bool includeAppVersion;
+  final String? availability;
+  final String? languages;
+  final int displayOrder;
+  const CachedSupportContactRow(
+      {required this.id,
+      required this.type,
+      required this.label,
+      required this.value,
+      this.whatsappMessage,
+      this.emailSubject,
+      required this.includeAppVersion,
+      this.availability,
+      this.languages,
+      required this.displayOrder});
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id'] = Variable<String>(id);
+    map['type'] = Variable<String>(type);
+    map['label'] = Variable<String>(label);
+    map['value'] = Variable<String>(value);
+    if (!nullToAbsent || whatsappMessage != null) {
+      map['whatsapp_message'] = Variable<String>(whatsappMessage);
+    }
+    if (!nullToAbsent || emailSubject != null) {
+      map['email_subject'] = Variable<String>(emailSubject);
+    }
+    map['include_app_version'] = Variable<bool>(includeAppVersion);
+    if (!nullToAbsent || availability != null) {
+      map['availability'] = Variable<String>(availability);
+    }
+    if (!nullToAbsent || languages != null) {
+      map['languages'] = Variable<String>(languages);
+    }
+    map['display_order'] = Variable<int>(displayOrder);
+    return map;
+  }
+
+  CachedSupportContactsCompanion toCompanion(bool nullToAbsent) {
+    return CachedSupportContactsCompanion(
+      id: Value(id),
+      type: Value(type),
+      label: Value(label),
+      value: Value(value),
+      whatsappMessage: whatsappMessage == null && nullToAbsent
+          ? const Value.absent()
+          : Value(whatsappMessage),
+      emailSubject: emailSubject == null && nullToAbsent
+          ? const Value.absent()
+          : Value(emailSubject),
+      includeAppVersion: Value(includeAppVersion),
+      availability: availability == null && nullToAbsent
+          ? const Value.absent()
+          : Value(availability),
+      languages: languages == null && nullToAbsent
+          ? const Value.absent()
+          : Value(languages),
+      displayOrder: Value(displayOrder),
+    );
+  }
+
+  factory CachedSupportContactRow.fromJson(Map<String, dynamic> json,
+      {ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return CachedSupportContactRow(
+      id: serializer.fromJson<String>(json['id']),
+      type: serializer.fromJson<String>(json['type']),
+      label: serializer.fromJson<String>(json['label']),
+      value: serializer.fromJson<String>(json['value']),
+      whatsappMessage: serializer.fromJson<String?>(json['whatsappMessage']),
+      emailSubject: serializer.fromJson<String?>(json['emailSubject']),
+      includeAppVersion: serializer.fromJson<bool>(json['includeAppVersion']),
+      availability: serializer.fromJson<String?>(json['availability']),
+      languages: serializer.fromJson<String?>(json['languages']),
+      displayOrder: serializer.fromJson<int>(json['displayOrder']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<String>(id),
+      'type': serializer.toJson<String>(type),
+      'label': serializer.toJson<String>(label),
+      'value': serializer.toJson<String>(value),
+      'whatsappMessage': serializer.toJson<String?>(whatsappMessage),
+      'emailSubject': serializer.toJson<String?>(emailSubject),
+      'includeAppVersion': serializer.toJson<bool>(includeAppVersion),
+      'availability': serializer.toJson<String?>(availability),
+      'languages': serializer.toJson<String?>(languages),
+      'displayOrder': serializer.toJson<int>(displayOrder),
+    };
+  }
+
+  CachedSupportContactRow copyWith(
+          {String? id,
+          String? type,
+          String? label,
+          String? value,
+          Value<String?> whatsappMessage = const Value.absent(),
+          Value<String?> emailSubject = const Value.absent(),
+          bool? includeAppVersion,
+          Value<String?> availability = const Value.absent(),
+          Value<String?> languages = const Value.absent(),
+          int? displayOrder}) =>
+      CachedSupportContactRow(
+        id: id ?? this.id,
+        type: type ?? this.type,
+        label: label ?? this.label,
+        value: value ?? this.value,
+        whatsappMessage: whatsappMessage.present
+            ? whatsappMessage.value
+            : this.whatsappMessage,
+        emailSubject:
+            emailSubject.present ? emailSubject.value : this.emailSubject,
+        includeAppVersion: includeAppVersion ?? this.includeAppVersion,
+        availability:
+            availability.present ? availability.value : this.availability,
+        languages: languages.present ? languages.value : this.languages,
+        displayOrder: displayOrder ?? this.displayOrder,
+      );
+  CachedSupportContactRow copyWithCompanion(
+      CachedSupportContactsCompanion data) {
+    return CachedSupportContactRow(
+      id: data.id.present ? data.id.value : this.id,
+      type: data.type.present ? data.type.value : this.type,
+      label: data.label.present ? data.label.value : this.label,
+      value: data.value.present ? data.value.value : this.value,
+      whatsappMessage: data.whatsappMessage.present
+          ? data.whatsappMessage.value
+          : this.whatsappMessage,
+      emailSubject: data.emailSubject.present
+          ? data.emailSubject.value
+          : this.emailSubject,
+      includeAppVersion: data.includeAppVersion.present
+          ? data.includeAppVersion.value
+          : this.includeAppVersion,
+      availability: data.availability.present
+          ? data.availability.value
+          : this.availability,
+      languages: data.languages.present ? data.languages.value : this.languages,
+      displayOrder: data.displayOrder.present
+          ? data.displayOrder.value
+          : this.displayOrder,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('CachedSupportContactRow(')
+          ..write('id: $id, ')
+          ..write('type: $type, ')
+          ..write('label: $label, ')
+          ..write('value: $value, ')
+          ..write('whatsappMessage: $whatsappMessage, ')
+          ..write('emailSubject: $emailSubject, ')
+          ..write('includeAppVersion: $includeAppVersion, ')
+          ..write('availability: $availability, ')
+          ..write('languages: $languages, ')
+          ..write('displayOrder: $displayOrder')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(id, type, label, value, whatsappMessage,
+      emailSubject, includeAppVersion, availability, languages, displayOrder);
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is CachedSupportContactRow &&
+          other.id == this.id &&
+          other.type == this.type &&
+          other.label == this.label &&
+          other.value == this.value &&
+          other.whatsappMessage == this.whatsappMessage &&
+          other.emailSubject == this.emailSubject &&
+          other.includeAppVersion == this.includeAppVersion &&
+          other.availability == this.availability &&
+          other.languages == this.languages &&
+          other.displayOrder == this.displayOrder);
+}
+
+class CachedSupportContactsCompanion
+    extends UpdateCompanion<CachedSupportContactRow> {
+  final Value<String> id;
+  final Value<String> type;
+  final Value<String> label;
+  final Value<String> value;
+  final Value<String?> whatsappMessage;
+  final Value<String?> emailSubject;
+  final Value<bool> includeAppVersion;
+  final Value<String?> availability;
+  final Value<String?> languages;
+  final Value<int> displayOrder;
+  final Value<int> rowid;
+  const CachedSupportContactsCompanion({
+    this.id = const Value.absent(),
+    this.type = const Value.absent(),
+    this.label = const Value.absent(),
+    this.value = const Value.absent(),
+    this.whatsappMessage = const Value.absent(),
+    this.emailSubject = const Value.absent(),
+    this.includeAppVersion = const Value.absent(),
+    this.availability = const Value.absent(),
+    this.languages = const Value.absent(),
+    this.displayOrder = const Value.absent(),
+    this.rowid = const Value.absent(),
+  });
+  CachedSupportContactsCompanion.insert({
+    required String id,
+    required String type,
+    required String label,
+    required String value,
+    this.whatsappMessage = const Value.absent(),
+    this.emailSubject = const Value.absent(),
+    this.includeAppVersion = const Value.absent(),
+    this.availability = const Value.absent(),
+    this.languages = const Value.absent(),
+    this.displayOrder = const Value.absent(),
+    this.rowid = const Value.absent(),
+  })  : id = Value(id),
+        type = Value(type),
+        label = Value(label),
+        value = Value(value);
+  static Insertable<CachedSupportContactRow> custom({
+    Expression<String>? id,
+    Expression<String>? type,
+    Expression<String>? label,
+    Expression<String>? value,
+    Expression<String>? whatsappMessage,
+    Expression<String>? emailSubject,
+    Expression<bool>? includeAppVersion,
+    Expression<String>? availability,
+    Expression<String>? languages,
+    Expression<int>? displayOrder,
+    Expression<int>? rowid,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (type != null) 'type': type,
+      if (label != null) 'label': label,
+      if (value != null) 'value': value,
+      if (whatsappMessage != null) 'whatsapp_message': whatsappMessage,
+      if (emailSubject != null) 'email_subject': emailSubject,
+      if (includeAppVersion != null) 'include_app_version': includeAppVersion,
+      if (availability != null) 'availability': availability,
+      if (languages != null) 'languages': languages,
+      if (displayOrder != null) 'display_order': displayOrder,
+      if (rowid != null) 'rowid': rowid,
+    });
+  }
+
+  CachedSupportContactsCompanion copyWith(
+      {Value<String>? id,
+      Value<String>? type,
+      Value<String>? label,
+      Value<String>? value,
+      Value<String?>? whatsappMessage,
+      Value<String?>? emailSubject,
+      Value<bool>? includeAppVersion,
+      Value<String?>? availability,
+      Value<String?>? languages,
+      Value<int>? displayOrder,
+      Value<int>? rowid}) {
+    return CachedSupportContactsCompanion(
+      id: id ?? this.id,
+      type: type ?? this.type,
+      label: label ?? this.label,
+      value: value ?? this.value,
+      whatsappMessage: whatsappMessage ?? this.whatsappMessage,
+      emailSubject: emailSubject ?? this.emailSubject,
+      includeAppVersion: includeAppVersion ?? this.includeAppVersion,
+      availability: availability ?? this.availability,
+      languages: languages ?? this.languages,
+      displayOrder: displayOrder ?? this.displayOrder,
+      rowid: rowid ?? this.rowid,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<String>(id.value);
+    }
+    if (type.present) {
+      map['type'] = Variable<String>(type.value);
+    }
+    if (label.present) {
+      map['label'] = Variable<String>(label.value);
+    }
+    if (value.present) {
+      map['value'] = Variable<String>(value.value);
+    }
+    if (whatsappMessage.present) {
+      map['whatsapp_message'] = Variable<String>(whatsappMessage.value);
+    }
+    if (emailSubject.present) {
+      map['email_subject'] = Variable<String>(emailSubject.value);
+    }
+    if (includeAppVersion.present) {
+      map['include_app_version'] = Variable<bool>(includeAppVersion.value);
+    }
+    if (availability.present) {
+      map['availability'] = Variable<String>(availability.value);
+    }
+    if (languages.present) {
+      map['languages'] = Variable<String>(languages.value);
+    }
+    if (displayOrder.present) {
+      map['display_order'] = Variable<int>(displayOrder.value);
+    }
+    if (rowid.present) {
+      map['rowid'] = Variable<int>(rowid.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('CachedSupportContactsCompanion(')
+          ..write('id: $id, ')
+          ..write('type: $type, ')
+          ..write('label: $label, ')
+          ..write('value: $value, ')
+          ..write('whatsappMessage: $whatsappMessage, ')
+          ..write('emailSubject: $emailSubject, ')
+          ..write('includeAppVersion: $includeAppVersion, ')
+          ..write('availability: $availability, ')
+          ..write('languages: $languages, ')
+          ..write('displayOrder: $displayOrder, ')
+          ..write('rowid: $rowid')
+          ..write(')'))
+        .toString();
+  }
+}
+
+class $CachedToolModulesTable extends CachedToolModules
+    with TableInfo<$CachedToolModulesTable, CachedToolModuleRow> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $CachedToolModulesTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<String> id = GeneratedColumn<String>(
+      'id', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _titleMeta = const VerificationMeta('title');
+  @override
+  late final GeneratedColumn<String> title = GeneratedColumn<String>(
+      'title', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _descriptionMeta =
+      const VerificationMeta('description');
+  @override
+  late final GeneratedColumn<String> description = GeneratedColumn<String>(
+      'description', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _displayOrderMeta =
+      const VerificationMeta('displayOrder');
+  @override
+  late final GeneratedColumn<int> displayOrder = GeneratedColumn<int>(
+      'display_order', aliasedName, false,
+      type: DriftSqlType.int,
+      requiredDuringInsert: false,
+      defaultValue: const Constant(0));
+  @override
+  List<GeneratedColumn> get $columns => [id, title, description, displayOrder];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'cached_tool_modules';
+  @override
+  VerificationContext validateIntegrity(
+      Insertable<CachedToolModuleRow> instance,
+      {bool isInserting = false}) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    } else if (isInserting) {
+      context.missing(_idMeta);
+    }
+    if (data.containsKey('title')) {
+      context.handle(
+          _titleMeta, title.isAcceptableOrUnknown(data['title']!, _titleMeta));
+    } else if (isInserting) {
+      context.missing(_titleMeta);
+    }
+    if (data.containsKey('description')) {
+      context.handle(
+          _descriptionMeta,
+          description.isAcceptableOrUnknown(
+              data['description']!, _descriptionMeta));
+    }
+    if (data.containsKey('display_order')) {
+      context.handle(
+          _displayOrderMeta,
+          displayOrder.isAcceptableOrUnknown(
+              data['display_order']!, _displayOrderMeta));
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  CachedToolModuleRow map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return CachedToolModuleRow(
+      id: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}id'])!,
+      title: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}title'])!,
+      description: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}description']),
+      displayOrder: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}display_order'])!,
+    );
+  }
+
+  @override
+  $CachedToolModulesTable createAlias(String alias) {
+    return $CachedToolModulesTable(attachedDatabase, alias);
+  }
+}
+
+class CachedToolModuleRow extends DataClass
+    implements Insertable<CachedToolModuleRow> {
+  final String id;
+  final String title;
+  final String? description;
+  final int displayOrder;
+  const CachedToolModuleRow(
+      {required this.id,
+      required this.title,
+      this.description,
+      required this.displayOrder});
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id'] = Variable<String>(id);
+    map['title'] = Variable<String>(title);
+    if (!nullToAbsent || description != null) {
+      map['description'] = Variable<String>(description);
+    }
+    map['display_order'] = Variable<int>(displayOrder);
+    return map;
+  }
+
+  CachedToolModulesCompanion toCompanion(bool nullToAbsent) {
+    return CachedToolModulesCompanion(
+      id: Value(id),
+      title: Value(title),
+      description: description == null && nullToAbsent
+          ? const Value.absent()
+          : Value(description),
+      displayOrder: Value(displayOrder),
+    );
+  }
+
+  factory CachedToolModuleRow.fromJson(Map<String, dynamic> json,
+      {ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return CachedToolModuleRow(
+      id: serializer.fromJson<String>(json['id']),
+      title: serializer.fromJson<String>(json['title']),
+      description: serializer.fromJson<String?>(json['description']),
+      displayOrder: serializer.fromJson<int>(json['displayOrder']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<String>(id),
+      'title': serializer.toJson<String>(title),
+      'description': serializer.toJson<String?>(description),
+      'displayOrder': serializer.toJson<int>(displayOrder),
+    };
+  }
+
+  CachedToolModuleRow copyWith(
+          {String? id,
+          String? title,
+          Value<String?> description = const Value.absent(),
+          int? displayOrder}) =>
+      CachedToolModuleRow(
+        id: id ?? this.id,
+        title: title ?? this.title,
+        description: description.present ? description.value : this.description,
+        displayOrder: displayOrder ?? this.displayOrder,
+      );
+  CachedToolModuleRow copyWithCompanion(CachedToolModulesCompanion data) {
+    return CachedToolModuleRow(
+      id: data.id.present ? data.id.value : this.id,
+      title: data.title.present ? data.title.value : this.title,
+      description:
+          data.description.present ? data.description.value : this.description,
+      displayOrder: data.displayOrder.present
+          ? data.displayOrder.value
+          : this.displayOrder,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('CachedToolModuleRow(')
+          ..write('id: $id, ')
+          ..write('title: $title, ')
+          ..write('description: $description, ')
+          ..write('displayOrder: $displayOrder')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(id, title, description, displayOrder);
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is CachedToolModuleRow &&
+          other.id == this.id &&
+          other.title == this.title &&
+          other.description == this.description &&
+          other.displayOrder == this.displayOrder);
+}
+
+class CachedToolModulesCompanion extends UpdateCompanion<CachedToolModuleRow> {
+  final Value<String> id;
+  final Value<String> title;
+  final Value<String?> description;
+  final Value<int> displayOrder;
+  final Value<int> rowid;
+  const CachedToolModulesCompanion({
+    this.id = const Value.absent(),
+    this.title = const Value.absent(),
+    this.description = const Value.absent(),
+    this.displayOrder = const Value.absent(),
+    this.rowid = const Value.absent(),
+  });
+  CachedToolModulesCompanion.insert({
+    required String id,
+    required String title,
+    this.description = const Value.absent(),
+    this.displayOrder = const Value.absent(),
+    this.rowid = const Value.absent(),
+  })  : id = Value(id),
+        title = Value(title);
+  static Insertable<CachedToolModuleRow> custom({
+    Expression<String>? id,
+    Expression<String>? title,
+    Expression<String>? description,
+    Expression<int>? displayOrder,
+    Expression<int>? rowid,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (title != null) 'title': title,
+      if (description != null) 'description': description,
+      if (displayOrder != null) 'display_order': displayOrder,
+      if (rowid != null) 'rowid': rowid,
+    });
+  }
+
+  CachedToolModulesCompanion copyWith(
+      {Value<String>? id,
+      Value<String>? title,
+      Value<String?>? description,
+      Value<int>? displayOrder,
+      Value<int>? rowid}) {
+    return CachedToolModulesCompanion(
+      id: id ?? this.id,
+      title: title ?? this.title,
+      description: description ?? this.description,
+      displayOrder: displayOrder ?? this.displayOrder,
+      rowid: rowid ?? this.rowid,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<String>(id.value);
+    }
+    if (title.present) {
+      map['title'] = Variable<String>(title.value);
+    }
+    if (description.present) {
+      map['description'] = Variable<String>(description.value);
+    }
+    if (displayOrder.present) {
+      map['display_order'] = Variable<int>(displayOrder.value);
+    }
+    if (rowid.present) {
+      map['rowid'] = Variable<int>(rowid.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('CachedToolModulesCompanion(')
+          ..write('id: $id, ')
+          ..write('title: $title, ')
+          ..write('description: $description, ')
+          ..write('displayOrder: $displayOrder, ')
+          ..write('rowid: $rowid')
+          ..write(')'))
+        .toString();
+  }
+}
+
+class $CachedToolItemsTable extends CachedToolItems
+    with TableInfo<$CachedToolItemsTable, CachedToolItemRow> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $CachedToolItemsTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<String> id = GeneratedColumn<String>(
+      'id', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _toolModuleIdMeta =
+      const VerificationMeta('toolModuleId');
+  @override
+  late final GeneratedColumn<String> toolModuleId = GeneratedColumn<String>(
+      'tool_module_id', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _titleMeta = const VerificationMeta('title');
+  @override
+  late final GeneratedColumn<String> title = GeneratedColumn<String>(
+      'title', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _descriptionMeta =
+      const VerificationMeta('description');
+  @override
+  late final GeneratedColumn<String> description = GeneratedColumn<String>(
+      'description', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _typeMeta = const VerificationMeta('type');
+  @override
+  late final GeneratedColumn<String> type = GeneratedColumn<String>(
+      'type', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _urlMeta = const VerificationMeta('url');
+  @override
+  late final GeneratedColumn<String> url = GeneratedColumn<String>(
+      'url', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _hostMeta = const VerificationMeta('host');
+  @override
+  late final GeneratedColumn<String> host = GeneratedColumn<String>(
+      'host', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _categoryMeta =
+      const VerificationMeta('category');
+  @override
+  late final GeneratedColumn<String> category = GeneratedColumn<String>(
+      'category', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _languagesMeta =
+      const VerificationMeta('languages');
+  @override
+  late final GeneratedColumn<String> languages = GeneratedColumn<String>(
+      'languages', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _displayOrderMeta =
+      const VerificationMeta('displayOrder');
+  @override
+  late final GeneratedColumn<int> displayOrder = GeneratedColumn<int>(
+      'display_order', aliasedName, false,
+      type: DriftSqlType.int,
+      requiredDuringInsert: false,
+      defaultValue: const Constant(0));
+  @override
+  List<GeneratedColumn> get $columns => [
+        id,
+        toolModuleId,
+        title,
+        description,
+        type,
+        url,
+        host,
+        category,
+        languages,
+        displayOrder
+      ];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'cached_tool_items';
+  @override
+  VerificationContext validateIntegrity(Insertable<CachedToolItemRow> instance,
+      {bool isInserting = false}) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    } else if (isInserting) {
+      context.missing(_idMeta);
+    }
+    if (data.containsKey('tool_module_id')) {
+      context.handle(
+          _toolModuleIdMeta,
+          toolModuleId.isAcceptableOrUnknown(
+              data['tool_module_id']!, _toolModuleIdMeta));
+    } else if (isInserting) {
+      context.missing(_toolModuleIdMeta);
+    }
+    if (data.containsKey('title')) {
+      context.handle(
+          _titleMeta, title.isAcceptableOrUnknown(data['title']!, _titleMeta));
+    } else if (isInserting) {
+      context.missing(_titleMeta);
+    }
+    if (data.containsKey('description')) {
+      context.handle(
+          _descriptionMeta,
+          description.isAcceptableOrUnknown(
+              data['description']!, _descriptionMeta));
+    }
+    if (data.containsKey('type')) {
+      context.handle(
+          _typeMeta, type.isAcceptableOrUnknown(data['type']!, _typeMeta));
+    } else if (isInserting) {
+      context.missing(_typeMeta);
+    }
+    if (data.containsKey('url')) {
+      context.handle(
+          _urlMeta, url.isAcceptableOrUnknown(data['url']!, _urlMeta));
+    } else if (isInserting) {
+      context.missing(_urlMeta);
+    }
+    if (data.containsKey('host')) {
+      context.handle(
+          _hostMeta, host.isAcceptableOrUnknown(data['host']!, _hostMeta));
+    }
+    if (data.containsKey('category')) {
+      context.handle(_categoryMeta,
+          category.isAcceptableOrUnknown(data['category']!, _categoryMeta));
+    }
+    if (data.containsKey('languages')) {
+      context.handle(_languagesMeta,
+          languages.isAcceptableOrUnknown(data['languages']!, _languagesMeta));
+    }
+    if (data.containsKey('display_order')) {
+      context.handle(
+          _displayOrderMeta,
+          displayOrder.isAcceptableOrUnknown(
+              data['display_order']!, _displayOrderMeta));
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  CachedToolItemRow map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return CachedToolItemRow(
+      id: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}id'])!,
+      toolModuleId: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}tool_module_id'])!,
+      title: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}title'])!,
+      description: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}description']),
+      type: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}type'])!,
+      url: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}url'])!,
+      host: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}host']),
+      category: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}category']),
+      languages: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}languages']),
+      displayOrder: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}display_order'])!,
+    );
+  }
+
+  @override
+  $CachedToolItemsTable createAlias(String alias) {
+    return $CachedToolItemsTable(attachedDatabase, alias);
+  }
+}
+
+class CachedToolItemRow extends DataClass
+    implements Insertable<CachedToolItemRow> {
+  final String id;
+  final String toolModuleId;
+  final String title;
+  final String? description;
+  final String type;
+  final String url;
+  final String? host;
+  final String? category;
+  final String? languages;
+  final int displayOrder;
+  const CachedToolItemRow(
+      {required this.id,
+      required this.toolModuleId,
+      required this.title,
+      this.description,
+      required this.type,
+      required this.url,
+      this.host,
+      this.category,
+      this.languages,
+      required this.displayOrder});
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id'] = Variable<String>(id);
+    map['tool_module_id'] = Variable<String>(toolModuleId);
+    map['title'] = Variable<String>(title);
+    if (!nullToAbsent || description != null) {
+      map['description'] = Variable<String>(description);
+    }
+    map['type'] = Variable<String>(type);
+    map['url'] = Variable<String>(url);
+    if (!nullToAbsent || host != null) {
+      map['host'] = Variable<String>(host);
+    }
+    if (!nullToAbsent || category != null) {
+      map['category'] = Variable<String>(category);
+    }
+    if (!nullToAbsent || languages != null) {
+      map['languages'] = Variable<String>(languages);
+    }
+    map['display_order'] = Variable<int>(displayOrder);
+    return map;
+  }
+
+  CachedToolItemsCompanion toCompanion(bool nullToAbsent) {
+    return CachedToolItemsCompanion(
+      id: Value(id),
+      toolModuleId: Value(toolModuleId),
+      title: Value(title),
+      description: description == null && nullToAbsent
+          ? const Value.absent()
+          : Value(description),
+      type: Value(type),
+      url: Value(url),
+      host: host == null && nullToAbsent ? const Value.absent() : Value(host),
+      category: category == null && nullToAbsent
+          ? const Value.absent()
+          : Value(category),
+      languages: languages == null && nullToAbsent
+          ? const Value.absent()
+          : Value(languages),
+      displayOrder: Value(displayOrder),
+    );
+  }
+
+  factory CachedToolItemRow.fromJson(Map<String, dynamic> json,
+      {ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return CachedToolItemRow(
+      id: serializer.fromJson<String>(json['id']),
+      toolModuleId: serializer.fromJson<String>(json['toolModuleId']),
+      title: serializer.fromJson<String>(json['title']),
+      description: serializer.fromJson<String?>(json['description']),
+      type: serializer.fromJson<String>(json['type']),
+      url: serializer.fromJson<String>(json['url']),
+      host: serializer.fromJson<String?>(json['host']),
+      category: serializer.fromJson<String?>(json['category']),
+      languages: serializer.fromJson<String?>(json['languages']),
+      displayOrder: serializer.fromJson<int>(json['displayOrder']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<String>(id),
+      'toolModuleId': serializer.toJson<String>(toolModuleId),
+      'title': serializer.toJson<String>(title),
+      'description': serializer.toJson<String?>(description),
+      'type': serializer.toJson<String>(type),
+      'url': serializer.toJson<String>(url),
+      'host': serializer.toJson<String?>(host),
+      'category': serializer.toJson<String?>(category),
+      'languages': serializer.toJson<String?>(languages),
+      'displayOrder': serializer.toJson<int>(displayOrder),
+    };
+  }
+
+  CachedToolItemRow copyWith(
+          {String? id,
+          String? toolModuleId,
+          String? title,
+          Value<String?> description = const Value.absent(),
+          String? type,
+          String? url,
+          Value<String?> host = const Value.absent(),
+          Value<String?> category = const Value.absent(),
+          Value<String?> languages = const Value.absent(),
+          int? displayOrder}) =>
+      CachedToolItemRow(
+        id: id ?? this.id,
+        toolModuleId: toolModuleId ?? this.toolModuleId,
+        title: title ?? this.title,
+        description: description.present ? description.value : this.description,
+        type: type ?? this.type,
+        url: url ?? this.url,
+        host: host.present ? host.value : this.host,
+        category: category.present ? category.value : this.category,
+        languages: languages.present ? languages.value : this.languages,
+        displayOrder: displayOrder ?? this.displayOrder,
+      );
+  CachedToolItemRow copyWithCompanion(CachedToolItemsCompanion data) {
+    return CachedToolItemRow(
+      id: data.id.present ? data.id.value : this.id,
+      toolModuleId: data.toolModuleId.present
+          ? data.toolModuleId.value
+          : this.toolModuleId,
+      title: data.title.present ? data.title.value : this.title,
+      description:
+          data.description.present ? data.description.value : this.description,
+      type: data.type.present ? data.type.value : this.type,
+      url: data.url.present ? data.url.value : this.url,
+      host: data.host.present ? data.host.value : this.host,
+      category: data.category.present ? data.category.value : this.category,
+      languages: data.languages.present ? data.languages.value : this.languages,
+      displayOrder: data.displayOrder.present
+          ? data.displayOrder.value
+          : this.displayOrder,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('CachedToolItemRow(')
+          ..write('id: $id, ')
+          ..write('toolModuleId: $toolModuleId, ')
+          ..write('title: $title, ')
+          ..write('description: $description, ')
+          ..write('type: $type, ')
+          ..write('url: $url, ')
+          ..write('host: $host, ')
+          ..write('category: $category, ')
+          ..write('languages: $languages, ')
+          ..write('displayOrder: $displayOrder')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(id, toolModuleId, title, description, type,
+      url, host, category, languages, displayOrder);
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is CachedToolItemRow &&
+          other.id == this.id &&
+          other.toolModuleId == this.toolModuleId &&
+          other.title == this.title &&
+          other.description == this.description &&
+          other.type == this.type &&
+          other.url == this.url &&
+          other.host == this.host &&
+          other.category == this.category &&
+          other.languages == this.languages &&
+          other.displayOrder == this.displayOrder);
+}
+
+class CachedToolItemsCompanion extends UpdateCompanion<CachedToolItemRow> {
+  final Value<String> id;
+  final Value<String> toolModuleId;
+  final Value<String> title;
+  final Value<String?> description;
+  final Value<String> type;
+  final Value<String> url;
+  final Value<String?> host;
+  final Value<String?> category;
+  final Value<String?> languages;
+  final Value<int> displayOrder;
+  final Value<int> rowid;
+  const CachedToolItemsCompanion({
+    this.id = const Value.absent(),
+    this.toolModuleId = const Value.absent(),
+    this.title = const Value.absent(),
+    this.description = const Value.absent(),
+    this.type = const Value.absent(),
+    this.url = const Value.absent(),
+    this.host = const Value.absent(),
+    this.category = const Value.absent(),
+    this.languages = const Value.absent(),
+    this.displayOrder = const Value.absent(),
+    this.rowid = const Value.absent(),
+  });
+  CachedToolItemsCompanion.insert({
+    required String id,
+    required String toolModuleId,
+    required String title,
+    this.description = const Value.absent(),
+    required String type,
+    required String url,
+    this.host = const Value.absent(),
+    this.category = const Value.absent(),
+    this.languages = const Value.absent(),
+    this.displayOrder = const Value.absent(),
+    this.rowid = const Value.absent(),
+  })  : id = Value(id),
+        toolModuleId = Value(toolModuleId),
+        title = Value(title),
+        type = Value(type),
+        url = Value(url);
+  static Insertable<CachedToolItemRow> custom({
+    Expression<String>? id,
+    Expression<String>? toolModuleId,
+    Expression<String>? title,
+    Expression<String>? description,
+    Expression<String>? type,
+    Expression<String>? url,
+    Expression<String>? host,
+    Expression<String>? category,
+    Expression<String>? languages,
+    Expression<int>? displayOrder,
+    Expression<int>? rowid,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (toolModuleId != null) 'tool_module_id': toolModuleId,
+      if (title != null) 'title': title,
+      if (description != null) 'description': description,
+      if (type != null) 'type': type,
+      if (url != null) 'url': url,
+      if (host != null) 'host': host,
+      if (category != null) 'category': category,
+      if (languages != null) 'languages': languages,
+      if (displayOrder != null) 'display_order': displayOrder,
+      if (rowid != null) 'rowid': rowid,
+    });
+  }
+
+  CachedToolItemsCompanion copyWith(
+      {Value<String>? id,
+      Value<String>? toolModuleId,
+      Value<String>? title,
+      Value<String?>? description,
+      Value<String>? type,
+      Value<String>? url,
+      Value<String?>? host,
+      Value<String?>? category,
+      Value<String?>? languages,
+      Value<int>? displayOrder,
+      Value<int>? rowid}) {
+    return CachedToolItemsCompanion(
+      id: id ?? this.id,
+      toolModuleId: toolModuleId ?? this.toolModuleId,
+      title: title ?? this.title,
+      description: description ?? this.description,
+      type: type ?? this.type,
+      url: url ?? this.url,
+      host: host ?? this.host,
+      category: category ?? this.category,
+      languages: languages ?? this.languages,
+      displayOrder: displayOrder ?? this.displayOrder,
+      rowid: rowid ?? this.rowid,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<String>(id.value);
+    }
+    if (toolModuleId.present) {
+      map['tool_module_id'] = Variable<String>(toolModuleId.value);
+    }
+    if (title.present) {
+      map['title'] = Variable<String>(title.value);
+    }
+    if (description.present) {
+      map['description'] = Variable<String>(description.value);
+    }
+    if (type.present) {
+      map['type'] = Variable<String>(type.value);
+    }
+    if (url.present) {
+      map['url'] = Variable<String>(url.value);
+    }
+    if (host.present) {
+      map['host'] = Variable<String>(host.value);
+    }
+    if (category.present) {
+      map['category'] = Variable<String>(category.value);
+    }
+    if (languages.present) {
+      map['languages'] = Variable<String>(languages.value);
+    }
+    if (displayOrder.present) {
+      map['display_order'] = Variable<int>(displayOrder.value);
+    }
+    if (rowid.present) {
+      map['rowid'] = Variable<int>(rowid.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('CachedToolItemsCompanion(')
+          ..write('id: $id, ')
+          ..write('toolModuleId: $toolModuleId, ')
+          ..write('title: $title, ')
+          ..write('description: $description, ')
+          ..write('type: $type, ')
+          ..write('url: $url, ')
+          ..write('host: $host, ')
+          ..write('category: $category, ')
+          ..write('languages: $languages, ')
+          ..write('displayOrder: $displayOrder, ')
+          ..write('rowid: $rowid')
+          ..write(')'))
+        .toString();
+  }
+}
+
 abstract class _$LocalDatabase extends GeneratedDatabase {
   _$LocalDatabase(QueryExecutor e) : super(e);
   $LocalDatabaseManager get managers => $LocalDatabaseManager(this);
@@ -7633,6 +8961,12 @@ abstract class _$LocalDatabase extends GeneratedDatabase {
       $LocalGeneralAttemptsTable(this);
   late final $CachedAppStringsTable cachedAppStrings =
       $CachedAppStringsTable(this);
+  late final $CachedSupportContactsTable cachedSupportContacts =
+      $CachedSupportContactsTable(this);
+  late final $CachedToolModulesTable cachedToolModules =
+      $CachedToolModulesTable(this);
+  late final $CachedToolItemsTable cachedToolItems =
+      $CachedToolItemsTable(this);
   @override
   Iterable<TableInfo<Table, Object?>> get allTables =>
       allSchemaEntities.whereType<TableInfo<Table, Object?>>();
@@ -7655,7 +8989,10 @@ abstract class _$LocalDatabase extends GeneratedDatabase {
         cachedSectionTranslations,
         cachedGeneralQuestions,
         localGeneralAttempts,
-        cachedAppStrings
+        cachedAppStrings,
+        cachedSupportContacts,
+        cachedToolModules,
+        cachedToolItems
       ];
 }
 
@@ -11513,6 +12850,682 @@ typedef $$CachedAppStringsTableProcessedTableManager = ProcessedTableManager<
     ),
     CachedAppStringRow,
     PrefetchHooks Function()>;
+typedef $$CachedSupportContactsTableCreateCompanionBuilder
+    = CachedSupportContactsCompanion Function({
+  required String id,
+  required String type,
+  required String label,
+  required String value,
+  Value<String?> whatsappMessage,
+  Value<String?> emailSubject,
+  Value<bool> includeAppVersion,
+  Value<String?> availability,
+  Value<String?> languages,
+  Value<int> displayOrder,
+  Value<int> rowid,
+});
+typedef $$CachedSupportContactsTableUpdateCompanionBuilder
+    = CachedSupportContactsCompanion Function({
+  Value<String> id,
+  Value<String> type,
+  Value<String> label,
+  Value<String> value,
+  Value<String?> whatsappMessage,
+  Value<String?> emailSubject,
+  Value<bool> includeAppVersion,
+  Value<String?> availability,
+  Value<String?> languages,
+  Value<int> displayOrder,
+  Value<int> rowid,
+});
+
+class $$CachedSupportContactsTableFilterComposer
+    extends Composer<_$LocalDatabase, $CachedSupportContactsTable> {
+  $$CachedSupportContactsTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<String> get id => $composableBuilder(
+      column: $table.id, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get type => $composableBuilder(
+      column: $table.type, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get label => $composableBuilder(
+      column: $table.label, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get value => $composableBuilder(
+      column: $table.value, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get whatsappMessage => $composableBuilder(
+      column: $table.whatsappMessage,
+      builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get emailSubject => $composableBuilder(
+      column: $table.emailSubject, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<bool> get includeAppVersion => $composableBuilder(
+      column: $table.includeAppVersion,
+      builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get availability => $composableBuilder(
+      column: $table.availability, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get languages => $composableBuilder(
+      column: $table.languages, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<int> get displayOrder => $composableBuilder(
+      column: $table.displayOrder, builder: (column) => ColumnFilters(column));
+}
+
+class $$CachedSupportContactsTableOrderingComposer
+    extends Composer<_$LocalDatabase, $CachedSupportContactsTable> {
+  $$CachedSupportContactsTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<String> get id => $composableBuilder(
+      column: $table.id, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get type => $composableBuilder(
+      column: $table.type, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get label => $composableBuilder(
+      column: $table.label, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get value => $composableBuilder(
+      column: $table.value, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get whatsappMessage => $composableBuilder(
+      column: $table.whatsappMessage,
+      builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get emailSubject => $composableBuilder(
+      column: $table.emailSubject,
+      builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<bool> get includeAppVersion => $composableBuilder(
+      column: $table.includeAppVersion,
+      builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get availability => $composableBuilder(
+      column: $table.availability,
+      builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get languages => $composableBuilder(
+      column: $table.languages, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<int> get displayOrder => $composableBuilder(
+      column: $table.displayOrder,
+      builder: (column) => ColumnOrderings(column));
+}
+
+class $$CachedSupportContactsTableAnnotationComposer
+    extends Composer<_$LocalDatabase, $CachedSupportContactsTable> {
+  $$CachedSupportContactsTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<String> get id =>
+      $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<String> get type =>
+      $composableBuilder(column: $table.type, builder: (column) => column);
+
+  GeneratedColumn<String> get label =>
+      $composableBuilder(column: $table.label, builder: (column) => column);
+
+  GeneratedColumn<String> get value =>
+      $composableBuilder(column: $table.value, builder: (column) => column);
+
+  GeneratedColumn<String> get whatsappMessage => $composableBuilder(
+      column: $table.whatsappMessage, builder: (column) => column);
+
+  GeneratedColumn<String> get emailSubject => $composableBuilder(
+      column: $table.emailSubject, builder: (column) => column);
+
+  GeneratedColumn<bool> get includeAppVersion => $composableBuilder(
+      column: $table.includeAppVersion, builder: (column) => column);
+
+  GeneratedColumn<String> get availability => $composableBuilder(
+      column: $table.availability, builder: (column) => column);
+
+  GeneratedColumn<String> get languages =>
+      $composableBuilder(column: $table.languages, builder: (column) => column);
+
+  GeneratedColumn<int> get displayOrder => $composableBuilder(
+      column: $table.displayOrder, builder: (column) => column);
+}
+
+class $$CachedSupportContactsTableTableManager extends RootTableManager<
+    _$LocalDatabase,
+    $CachedSupportContactsTable,
+    CachedSupportContactRow,
+    $$CachedSupportContactsTableFilterComposer,
+    $$CachedSupportContactsTableOrderingComposer,
+    $$CachedSupportContactsTableAnnotationComposer,
+    $$CachedSupportContactsTableCreateCompanionBuilder,
+    $$CachedSupportContactsTableUpdateCompanionBuilder,
+    (
+      CachedSupportContactRow,
+      BaseReferences<_$LocalDatabase, $CachedSupportContactsTable,
+          CachedSupportContactRow>
+    ),
+    CachedSupportContactRow,
+    PrefetchHooks Function()> {
+  $$CachedSupportContactsTableTableManager(
+      _$LocalDatabase db, $CachedSupportContactsTable table)
+      : super(TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$CachedSupportContactsTableFilterComposer(
+                  $db: db, $table: table),
+          createOrderingComposer: () =>
+              $$CachedSupportContactsTableOrderingComposer(
+                  $db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$CachedSupportContactsTableAnnotationComposer(
+                  $db: db, $table: table),
+          updateCompanionCallback: ({
+            Value<String> id = const Value.absent(),
+            Value<String> type = const Value.absent(),
+            Value<String> label = const Value.absent(),
+            Value<String> value = const Value.absent(),
+            Value<String?> whatsappMessage = const Value.absent(),
+            Value<String?> emailSubject = const Value.absent(),
+            Value<bool> includeAppVersion = const Value.absent(),
+            Value<String?> availability = const Value.absent(),
+            Value<String?> languages = const Value.absent(),
+            Value<int> displayOrder = const Value.absent(),
+            Value<int> rowid = const Value.absent(),
+          }) =>
+              CachedSupportContactsCompanion(
+            id: id,
+            type: type,
+            label: label,
+            value: value,
+            whatsappMessage: whatsappMessage,
+            emailSubject: emailSubject,
+            includeAppVersion: includeAppVersion,
+            availability: availability,
+            languages: languages,
+            displayOrder: displayOrder,
+            rowid: rowid,
+          ),
+          createCompanionCallback: ({
+            required String id,
+            required String type,
+            required String label,
+            required String value,
+            Value<String?> whatsappMessage = const Value.absent(),
+            Value<String?> emailSubject = const Value.absent(),
+            Value<bool> includeAppVersion = const Value.absent(),
+            Value<String?> availability = const Value.absent(),
+            Value<String?> languages = const Value.absent(),
+            Value<int> displayOrder = const Value.absent(),
+            Value<int> rowid = const Value.absent(),
+          }) =>
+              CachedSupportContactsCompanion.insert(
+            id: id,
+            type: type,
+            label: label,
+            value: value,
+            whatsappMessage: whatsappMessage,
+            emailSubject: emailSubject,
+            includeAppVersion: includeAppVersion,
+            availability: availability,
+            languages: languages,
+            displayOrder: displayOrder,
+            rowid: rowid,
+          ),
+          withReferenceMapper: (p0) => p0
+              .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
+              .toList(),
+          prefetchHooksCallback: null,
+        ));
+}
+
+typedef $$CachedSupportContactsTableProcessedTableManager
+    = ProcessedTableManager<
+        _$LocalDatabase,
+        $CachedSupportContactsTable,
+        CachedSupportContactRow,
+        $$CachedSupportContactsTableFilterComposer,
+        $$CachedSupportContactsTableOrderingComposer,
+        $$CachedSupportContactsTableAnnotationComposer,
+        $$CachedSupportContactsTableCreateCompanionBuilder,
+        $$CachedSupportContactsTableUpdateCompanionBuilder,
+        (
+          CachedSupportContactRow,
+          BaseReferences<_$LocalDatabase, $CachedSupportContactsTable,
+              CachedSupportContactRow>
+        ),
+        CachedSupportContactRow,
+        PrefetchHooks Function()>;
+typedef $$CachedToolModulesTableCreateCompanionBuilder
+    = CachedToolModulesCompanion Function({
+  required String id,
+  required String title,
+  Value<String?> description,
+  Value<int> displayOrder,
+  Value<int> rowid,
+});
+typedef $$CachedToolModulesTableUpdateCompanionBuilder
+    = CachedToolModulesCompanion Function({
+  Value<String> id,
+  Value<String> title,
+  Value<String?> description,
+  Value<int> displayOrder,
+  Value<int> rowid,
+});
+
+class $$CachedToolModulesTableFilterComposer
+    extends Composer<_$LocalDatabase, $CachedToolModulesTable> {
+  $$CachedToolModulesTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<String> get id => $composableBuilder(
+      column: $table.id, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get title => $composableBuilder(
+      column: $table.title, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get description => $composableBuilder(
+      column: $table.description, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<int> get displayOrder => $composableBuilder(
+      column: $table.displayOrder, builder: (column) => ColumnFilters(column));
+}
+
+class $$CachedToolModulesTableOrderingComposer
+    extends Composer<_$LocalDatabase, $CachedToolModulesTable> {
+  $$CachedToolModulesTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<String> get id => $composableBuilder(
+      column: $table.id, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get title => $composableBuilder(
+      column: $table.title, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get description => $composableBuilder(
+      column: $table.description, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<int> get displayOrder => $composableBuilder(
+      column: $table.displayOrder,
+      builder: (column) => ColumnOrderings(column));
+}
+
+class $$CachedToolModulesTableAnnotationComposer
+    extends Composer<_$LocalDatabase, $CachedToolModulesTable> {
+  $$CachedToolModulesTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<String> get id =>
+      $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<String> get title =>
+      $composableBuilder(column: $table.title, builder: (column) => column);
+
+  GeneratedColumn<String> get description => $composableBuilder(
+      column: $table.description, builder: (column) => column);
+
+  GeneratedColumn<int> get displayOrder => $composableBuilder(
+      column: $table.displayOrder, builder: (column) => column);
+}
+
+class $$CachedToolModulesTableTableManager extends RootTableManager<
+    _$LocalDatabase,
+    $CachedToolModulesTable,
+    CachedToolModuleRow,
+    $$CachedToolModulesTableFilterComposer,
+    $$CachedToolModulesTableOrderingComposer,
+    $$CachedToolModulesTableAnnotationComposer,
+    $$CachedToolModulesTableCreateCompanionBuilder,
+    $$CachedToolModulesTableUpdateCompanionBuilder,
+    (
+      CachedToolModuleRow,
+      BaseReferences<_$LocalDatabase, $CachedToolModulesTable,
+          CachedToolModuleRow>
+    ),
+    CachedToolModuleRow,
+    PrefetchHooks Function()> {
+  $$CachedToolModulesTableTableManager(
+      _$LocalDatabase db, $CachedToolModulesTable table)
+      : super(TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$CachedToolModulesTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$CachedToolModulesTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$CachedToolModulesTableAnnotationComposer(
+                  $db: db, $table: table),
+          updateCompanionCallback: ({
+            Value<String> id = const Value.absent(),
+            Value<String> title = const Value.absent(),
+            Value<String?> description = const Value.absent(),
+            Value<int> displayOrder = const Value.absent(),
+            Value<int> rowid = const Value.absent(),
+          }) =>
+              CachedToolModulesCompanion(
+            id: id,
+            title: title,
+            description: description,
+            displayOrder: displayOrder,
+            rowid: rowid,
+          ),
+          createCompanionCallback: ({
+            required String id,
+            required String title,
+            Value<String?> description = const Value.absent(),
+            Value<int> displayOrder = const Value.absent(),
+            Value<int> rowid = const Value.absent(),
+          }) =>
+              CachedToolModulesCompanion.insert(
+            id: id,
+            title: title,
+            description: description,
+            displayOrder: displayOrder,
+            rowid: rowid,
+          ),
+          withReferenceMapper: (p0) => p0
+              .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
+              .toList(),
+          prefetchHooksCallback: null,
+        ));
+}
+
+typedef $$CachedToolModulesTableProcessedTableManager = ProcessedTableManager<
+    _$LocalDatabase,
+    $CachedToolModulesTable,
+    CachedToolModuleRow,
+    $$CachedToolModulesTableFilterComposer,
+    $$CachedToolModulesTableOrderingComposer,
+    $$CachedToolModulesTableAnnotationComposer,
+    $$CachedToolModulesTableCreateCompanionBuilder,
+    $$CachedToolModulesTableUpdateCompanionBuilder,
+    (
+      CachedToolModuleRow,
+      BaseReferences<_$LocalDatabase, $CachedToolModulesTable,
+          CachedToolModuleRow>
+    ),
+    CachedToolModuleRow,
+    PrefetchHooks Function()>;
+typedef $$CachedToolItemsTableCreateCompanionBuilder = CachedToolItemsCompanion
+    Function({
+  required String id,
+  required String toolModuleId,
+  required String title,
+  Value<String?> description,
+  required String type,
+  required String url,
+  Value<String?> host,
+  Value<String?> category,
+  Value<String?> languages,
+  Value<int> displayOrder,
+  Value<int> rowid,
+});
+typedef $$CachedToolItemsTableUpdateCompanionBuilder = CachedToolItemsCompanion
+    Function({
+  Value<String> id,
+  Value<String> toolModuleId,
+  Value<String> title,
+  Value<String?> description,
+  Value<String> type,
+  Value<String> url,
+  Value<String?> host,
+  Value<String?> category,
+  Value<String?> languages,
+  Value<int> displayOrder,
+  Value<int> rowid,
+});
+
+class $$CachedToolItemsTableFilterComposer
+    extends Composer<_$LocalDatabase, $CachedToolItemsTable> {
+  $$CachedToolItemsTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<String> get id => $composableBuilder(
+      column: $table.id, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get toolModuleId => $composableBuilder(
+      column: $table.toolModuleId, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get title => $composableBuilder(
+      column: $table.title, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get description => $composableBuilder(
+      column: $table.description, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get type => $composableBuilder(
+      column: $table.type, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get url => $composableBuilder(
+      column: $table.url, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get host => $composableBuilder(
+      column: $table.host, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get category => $composableBuilder(
+      column: $table.category, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get languages => $composableBuilder(
+      column: $table.languages, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<int> get displayOrder => $composableBuilder(
+      column: $table.displayOrder, builder: (column) => ColumnFilters(column));
+}
+
+class $$CachedToolItemsTableOrderingComposer
+    extends Composer<_$LocalDatabase, $CachedToolItemsTable> {
+  $$CachedToolItemsTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<String> get id => $composableBuilder(
+      column: $table.id, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get toolModuleId => $composableBuilder(
+      column: $table.toolModuleId,
+      builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get title => $composableBuilder(
+      column: $table.title, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get description => $composableBuilder(
+      column: $table.description, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get type => $composableBuilder(
+      column: $table.type, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get url => $composableBuilder(
+      column: $table.url, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get host => $composableBuilder(
+      column: $table.host, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get category => $composableBuilder(
+      column: $table.category, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get languages => $composableBuilder(
+      column: $table.languages, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<int> get displayOrder => $composableBuilder(
+      column: $table.displayOrder,
+      builder: (column) => ColumnOrderings(column));
+}
+
+class $$CachedToolItemsTableAnnotationComposer
+    extends Composer<_$LocalDatabase, $CachedToolItemsTable> {
+  $$CachedToolItemsTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<String> get id =>
+      $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<String> get toolModuleId => $composableBuilder(
+      column: $table.toolModuleId, builder: (column) => column);
+
+  GeneratedColumn<String> get title =>
+      $composableBuilder(column: $table.title, builder: (column) => column);
+
+  GeneratedColumn<String> get description => $composableBuilder(
+      column: $table.description, builder: (column) => column);
+
+  GeneratedColumn<String> get type =>
+      $composableBuilder(column: $table.type, builder: (column) => column);
+
+  GeneratedColumn<String> get url =>
+      $composableBuilder(column: $table.url, builder: (column) => column);
+
+  GeneratedColumn<String> get host =>
+      $composableBuilder(column: $table.host, builder: (column) => column);
+
+  GeneratedColumn<String> get category =>
+      $composableBuilder(column: $table.category, builder: (column) => column);
+
+  GeneratedColumn<String> get languages =>
+      $composableBuilder(column: $table.languages, builder: (column) => column);
+
+  GeneratedColumn<int> get displayOrder => $composableBuilder(
+      column: $table.displayOrder, builder: (column) => column);
+}
+
+class $$CachedToolItemsTableTableManager extends RootTableManager<
+    _$LocalDatabase,
+    $CachedToolItemsTable,
+    CachedToolItemRow,
+    $$CachedToolItemsTableFilterComposer,
+    $$CachedToolItemsTableOrderingComposer,
+    $$CachedToolItemsTableAnnotationComposer,
+    $$CachedToolItemsTableCreateCompanionBuilder,
+    $$CachedToolItemsTableUpdateCompanionBuilder,
+    (
+      CachedToolItemRow,
+      BaseReferences<_$LocalDatabase, $CachedToolItemsTable, CachedToolItemRow>
+    ),
+    CachedToolItemRow,
+    PrefetchHooks Function()> {
+  $$CachedToolItemsTableTableManager(
+      _$LocalDatabase db, $CachedToolItemsTable table)
+      : super(TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$CachedToolItemsTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$CachedToolItemsTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$CachedToolItemsTableAnnotationComposer($db: db, $table: table),
+          updateCompanionCallback: ({
+            Value<String> id = const Value.absent(),
+            Value<String> toolModuleId = const Value.absent(),
+            Value<String> title = const Value.absent(),
+            Value<String?> description = const Value.absent(),
+            Value<String> type = const Value.absent(),
+            Value<String> url = const Value.absent(),
+            Value<String?> host = const Value.absent(),
+            Value<String?> category = const Value.absent(),
+            Value<String?> languages = const Value.absent(),
+            Value<int> displayOrder = const Value.absent(),
+            Value<int> rowid = const Value.absent(),
+          }) =>
+              CachedToolItemsCompanion(
+            id: id,
+            toolModuleId: toolModuleId,
+            title: title,
+            description: description,
+            type: type,
+            url: url,
+            host: host,
+            category: category,
+            languages: languages,
+            displayOrder: displayOrder,
+            rowid: rowid,
+          ),
+          createCompanionCallback: ({
+            required String id,
+            required String toolModuleId,
+            required String title,
+            Value<String?> description = const Value.absent(),
+            required String type,
+            required String url,
+            Value<String?> host = const Value.absent(),
+            Value<String?> category = const Value.absent(),
+            Value<String?> languages = const Value.absent(),
+            Value<int> displayOrder = const Value.absent(),
+            Value<int> rowid = const Value.absent(),
+          }) =>
+              CachedToolItemsCompanion.insert(
+            id: id,
+            toolModuleId: toolModuleId,
+            title: title,
+            description: description,
+            type: type,
+            url: url,
+            host: host,
+            category: category,
+            languages: languages,
+            displayOrder: displayOrder,
+            rowid: rowid,
+          ),
+          withReferenceMapper: (p0) => p0
+              .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
+              .toList(),
+          prefetchHooksCallback: null,
+        ));
+}
+
+typedef $$CachedToolItemsTableProcessedTableManager = ProcessedTableManager<
+    _$LocalDatabase,
+    $CachedToolItemsTable,
+    CachedToolItemRow,
+    $$CachedToolItemsTableFilterComposer,
+    $$CachedToolItemsTableOrderingComposer,
+    $$CachedToolItemsTableAnnotationComposer,
+    $$CachedToolItemsTableCreateCompanionBuilder,
+    $$CachedToolItemsTableUpdateCompanionBuilder,
+    (
+      CachedToolItemRow,
+      BaseReferences<_$LocalDatabase, $CachedToolItemsTable, CachedToolItemRow>
+    ),
+    CachedToolItemRow,
+    PrefetchHooks Function()>;
 
 class $LocalDatabaseManager {
   final _$LocalDatabase _db;
@@ -11555,4 +13568,10 @@ class $LocalDatabaseManager {
       $$LocalGeneralAttemptsTableTableManager(_db, _db.localGeneralAttempts);
   $$CachedAppStringsTableTableManager get cachedAppStrings =>
       $$CachedAppStringsTableTableManager(_db, _db.cachedAppStrings);
+  $$CachedSupportContactsTableTableManager get cachedSupportContacts =>
+      $$CachedSupportContactsTableTableManager(_db, _db.cachedSupportContacts);
+  $$CachedToolModulesTableTableManager get cachedToolModules =>
+      $$CachedToolModulesTableTableManager(_db, _db.cachedToolModules);
+  $$CachedToolItemsTableTableManager get cachedToolItems =>
+      $$CachedToolItemsTableTableManager(_db, _db.cachedToolItems);
 }

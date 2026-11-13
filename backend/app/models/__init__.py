@@ -21,6 +21,8 @@ from app.models.reference_document import ReferenceDocument, ReferencePassage
 from app.models.faq_entry import FaqEntry
 from app.models.consent_text import ConsentText
 from app.models.app_string import AppString, AppStringTranslation
+from app.models.support_contact import SupportContact
+from app.models.tool import ToolItem, ToolModule
 from app.models.audit_log import AuditLog
 from app.models.boundary import AdminBoundary
 from app.models.api_key import ApiKey
@@ -53,6 +55,9 @@ __all__ = [
     "ConsentText",
     "AppString",
     "AppStringTranslation",
+    "SupportContact",
+    "ToolModule",
+    "ToolItem",
     "AuditLog",
     "AdminBoundary",
     "ApiKey",

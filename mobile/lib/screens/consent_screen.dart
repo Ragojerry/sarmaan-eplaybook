@@ -85,7 +85,7 @@ class _ConsentScreenState extends ConsumerState<ConsentScreen> {
               Flexible(
                 child: Container(
                   decoration: BoxDecoration(
-                    color: AppColors.white,
+                    color: AppColors.surface,
                     border: Border.all(color: AppColors.divider),
                     borderRadius: BorderRadius.circular(AppRadius.standard),
                   ),

@@ -6,6 +6,7 @@ import '../qa/question_answer_service.dart';
 import '../theme/app_theme.dart';
 import '../widgets/partner_logo_row.dart';
 import '../widgets/app_bottom_nav.dart';
+import '../widgets/support_deck.dart';
 import '../l10n/l10n.dart';
 
 class _Message {
@@ -69,6 +70,8 @@ class _AiScreenState extends ConsumerState<AiScreen> {
 
   @override
   Widget build(BuildContext context) {
+    // The Support deck sits under the most recent answer the app could not find.
+    final lastFallback = _messages.lastIndexWhere((m) => m.answer != null && !m.answer!.matched);
     return Scaffold(
       appBar: BrandTopBar(appBar: AppBar(title: Text(context.t('ask.title')))),
       body: Column(
@@ -80,7 +83,10 @@ class _AiScreenState extends ConsumerState<AiScreen> {
                     controller: _scroll,
                     padding: const EdgeInsets.fromLTRB(22, 16, 22, 8),
                     children: [
-                      for (final m in _messages) m.question != null ? _UserBubble(text: m.question!) : _AnswerCard(result: m.answer!, onAsk: _ask),
+                      for (final (i, m) in _messages.indexed) ...[
+                        m.question != null ? _UserBubble(text: m.question!) : _AnswerCard(result: m.answer!, onAsk: _ask),
+                        if (i == lastFallback) const Padding(padding: EdgeInsets.only(right: 24), child: SupportDeck()),
+                      ],
                       if (_asking) const Padding(padding: EdgeInsets.all(12), child: Center(child: CircularProgressIndicator(strokeWidth: 2))),
                     ],
                   ),
@@ -106,6 +112,9 @@ class _AiScreenState extends ConsumerState<AiScreen> {
         ),
         const SizedBox(height: 18),
         for (final s in kSuggestions) _SuggestionChip(text: s, onTap: () => _ask(s)),
+        // Below the suggestions and folded, so it never pushes the question box away.
+        const SizedBox(height: 6),
+        const SupportDeck(collapsible: true),
       ],
     );
   }
@@ -151,7 +160,7 @@ class _SuggestionChip extends StatelessWidget {
         margin: const EdgeInsets.only(bottom: 9),
         padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
         decoration: BoxDecoration(
-          color: AppColors.white,
+          color: AppColors.surface,
           border: Border.all(color: AppColors.divider),
           borderRadius: BorderRadius.circular(AppRadius.standard),
         ),
@@ -200,7 +209,7 @@ class _AnswerCard extends StatelessWidget {
       margin: const EdgeInsets.only(bottom: 16, right: 24),
       padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
-        color: matched ? AppColors.white : AppColors.warningSurface,
+        color: matched ? AppColors.surface : AppColors.warningSurface,
         borderRadius: BorderRadius.circular(AppRadius.standard),
         border: matched ? Border.all(color: AppColors.divider) : const Border(left: BorderSide(color: AppColors.warning, width: 3)),
       ),

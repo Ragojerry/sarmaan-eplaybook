@@ -9,6 +9,8 @@ import '../learning/learning_service.dart';
 import '../theme/app_theme.dart';
 import '../widgets/partner_logo_row.dart';
 import '../widgets/app_bottom_nav.dart';
+import '../widgets/module_state_marks.dart';
+import '../widgets/tools_entry.dart';
 import '../l10n/l10n.dart';
 import '../learning/certificate.dart';
 
@@ -59,9 +61,7 @@ class _ModulesScreenState extends ConsumerState<ModulesScreen> {
           Expanded(
             child: modulesAsync.when(
               data: (modules) {
-                final filtered = _query.isEmpty
-                    ? modules
-                    : modules.where((m) => m.title.toLowerCase().contains(_query)).toList();
+                final filtered = _query.isEmpty ? modules : modules.where((m) => m.title.toLowerCase().contains(_query)).toList();
                 if (filtered.isEmpty) {
                   return Center(
                     child: Text(
@@ -76,11 +76,14 @@ class _ModulesScreenState extends ConsumerState<ModulesScreen> {
                   children: [
                     if (learning != null && _query.isEmpty) GeneralTestCard(general: learning.general),
                     for (final m in filtered) _ModuleRow(module: m, state: learning?.of(m.id)),
+                    // Separate from training: links only, no progress or locks.
+                    if (_query.isEmpty) const ToolsEntry(),
                   ],
                 );
               },
               loading: () => const Center(child: CircularProgressIndicator()),
-              error: (e, _) => Center(child: Text(context.t('home.loadFailed', {'error': e}), style: const TextStyle(color: AppColors.errorText))),
+              error: (e, _) =>
+                  Center(child: Text(context.t('home.loadFailed', {'error': e}), style: const TextStyle(color: AppColors.errorText))),
             ),
           ),
         ],
@@ -140,7 +143,7 @@ class GeneralTestCard extends StatelessWidget {
       margin: const EdgeInsets.fromLTRB(22, 0, 22, 12),
       padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
-        color: route != null ? AppColors.surfaceSelected : AppColors.white,
+        color: route != null ? AppColors.surfaceSelected : AppColors.surface,
         borderRadius: BorderRadius.circular(AppRadius.standard),
         border: Border.all(color: route != null ? AppColors.primary : AppColors.divider, width: route != null ? 1.5 : 1),
         boxShadow: route != null ? AppSheen.glow : AppSheen.card,
@@ -181,52 +184,68 @@ class _ModuleRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final locked = state?.stage == ModuleStage.locked;
+    final completed = state?.completed == true;
+    // In progress: teal outline and a teal number. Locked: dashed teal outline, muted text.
+    final inProgress = state?.stage == ModuleStage.reading && !completed;
     return GestureDetector(
       onTap: () => context.go('/reader/${module.id}'),
       child: Container(
         margin: const EdgeInsets.fromLTRB(22, 0, 22, 10),
-        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 13),
-        decoration: BoxDecoration(
-          color: AppColors.white,
-          borderRadius: BorderRadius.circular(AppRadius.standard),
-          border: Border.all(color: AppColors.divider),
-          boxShadow: AppSheen.card,
-        ),
-        child: Row(
-          children: [
-            Container(
-              width: 30,
-              height: 30,
-              decoration: BoxDecoration(color: AppColors.surfaceSelected, borderRadius: BorderRadius.circular(9)),
-              alignment: Alignment.center,
-              child: Text(
-                module.moduleNumber.toString(),
-                style: const TextStyle(fontFamily: AppFonts.mono, fontWeight: FontWeight.w700, fontSize: 12, color: AppColors.primaryText),
-              ),
+        child: CustomPaint(
+          foregroundPainter: locked ? const DashedOutline(color: AppColors.primary, radius: AppRadius.standard) : null,
+          child: Container(
+            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 13),
+            decoration: BoxDecoration(
+              color: locked ? AppColors.surfaceMuted : AppColors.surface,
+              borderRadius: BorderRadius.circular(AppRadius.standard),
+              border: inProgress
+                  ? Border.all(color: AppColors.primary, width: 2)
+                  : locked
+                      ? null
+                      : Border.all(color: AppColors.divider),
+              boxShadow: inProgress ? AppSheen.glow : (locked ? null : AppSheen.card),
             ),
-            const SizedBox(width: 12),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(module.title, style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w700, color: AppColors.textStrong)),
-                  const SizedBox(height: 2),
-                  Text(
-                    state == null ? module.moduleCode : '${module.moduleCode} · ${stageLabel(state!.stage)}',
-                    style: const TextStyle(fontSize: 10.5, color: AppColors.textMuted),
+            child: Row(
+              children: [
+                Container(
+                  width: 30,
+                  height: 30,
+                  decoration: BoxDecoration(
+                      color: inProgress ? AppColors.primary : AppColors.surfaceSelected, borderRadius: BorderRadius.circular(9)),
+                  alignment: Alignment.center,
+                  child: Text(
+                    module.moduleNumber.toString(),
+                    style: TextStyle(
+                        fontFamily: AppFonts.mono,
+                        fontWeight: FontWeight.w700,
+                        fontSize: 12,
+                        color: inProgress ? AppColors.onPrimary : AppColors.primaryText),
                   ),
-                ],
-              ),
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(module.title,
+                          style: TextStyle(
+                              fontSize: 13, fontWeight: FontWeight.w700, color: locked ? AppColors.textMuted : AppColors.textStrong)),
+                      const SizedBox(height: 2),
+                      Text(
+                        state == null ? module.moduleCode : '${module.moduleCode} · ${stageLabel(state!.stage)}',
+                        style: const TextStyle(fontSize: 10.5, color: AppColors.textMuted),
+                      ),
+                    ],
+                  ),
+                ),
+                if (completed)
+                  const DoneMark(size: 22)
+                else
+                  Icon(locked ? Icons.lock_outline : Icons.chevron_right, color: AppColors.textMuted),
+              ],
             ),
-            Icon(
-              state?.stage == ModuleStage.locked
-                  ? Icons.lock_outline
-                  : state?.completed == true
-                      ? Icons.check_circle
-                      : Icons.chevron_right,
-              color: state?.completed == true ? AppColors.success : AppColors.textDisabled,
-            ),
-          ],
+          ),
         ),
       ),
     );

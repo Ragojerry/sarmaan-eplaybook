@@ -14,6 +14,8 @@ import '../sync/sync_engine.dart';
 import '../theme/app_theme.dart';
 import '../widgets/partner_logo_row.dart';
 import '../widgets/app_bottom_nav.dart';
+import '../widgets/module_state_marks.dart';
+import '../widgets/tools_entry.dart';
 import '../l10n/l10n.dart';
 import 'modules_screen.dart' show GeneralTestCard;
 
@@ -66,11 +68,7 @@ class _SearchHit {
 /// Offline search: every typed word must appear in a passage (or in a module
 /// title). Titles rank first, then passages with the most occurrences.
 List<_SearchHit> _search(String query, List<CachedModuleRow> modules, List<ContentChunkRow> chunks) {
-  final terms = query
-      .toLowerCase()
-      .split(RegExp(r'[^a-z0-9]+'))
-      .where((t) => t.length >= 2)
-      .toList();
+  final terms = query.toLowerCase().split(RegExp(r'[^a-z0-9]+')).where((t) => t.length >= 2).toList();
   if (terms.isEmpty) return const [];
   final hits = <(int, _SearchHit)>[];
   for (final m in modules) {
@@ -284,6 +282,8 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                   child: Text(context.t('home.loadFailed', {'error': e}), style: const TextStyle(color: AppColors.errorText)),
                 ),
               ),
+              // Separate from the training modules above: links only, no progress or locks.
+              const ToolsEntry(),
             ],
             const SizedBox(height: 90),
           ],
@@ -321,10 +321,9 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     ]..sort((a, b) => (b.lastOpenedAt ?? DateTime(0)).compareTo(a.lastOpenedAt ?? DateTime(0)));
     if (started.isEmpty) return const [];
     return [
-      _SectionLabel(context.t('home.continueReading')),
       for (var i = 0; i < started.length; i++)
         Padding(
-          padding: EdgeInsets.fromLTRB(22, i == 0 ? 0 : 10, 22, 0),
+          padding: EdgeInsets.fromLTRB(22, i == 0 ? 18 : 10, 22, 0),
           child: _ContinueCard(module: byId[started[i].moduleId]!, progress: started[i]),
         ),
     ];
@@ -341,7 +340,11 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
           Text(
             hits.isEmpty ? context.t('search.noMatches') : context.t('search.results'),
             style: const TextStyle(
-              fontFamily: AppFonts.sans, fontSize: 11, fontWeight: FontWeight.w800, letterSpacing: 0.9, color: AppColors.textMuted,
+              fontFamily: AppFonts.sans,
+              fontSize: 11,
+              fontWeight: FontWeight.w800,
+              letterSpacing: 0.9,
+              color: AppColors.textMuted,
             ),
           ),
           const SizedBox(height: 10),
@@ -358,7 +361,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                 margin: const EdgeInsets.only(bottom: 10),
                 padding: const EdgeInsets.all(13),
                 decoration: BoxDecoration(
-                  color: AppColors.white,
+                  color: AppColors.surface,
                   borderRadius: BorderRadius.circular(AppRadius.medium),
                   border: Border.all(color: AppColors.divider),
                   boxShadow: AppSheen.card,
@@ -432,7 +435,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
       padding: const EdgeInsets.fromLTRB(22, 20, 22, 22),
       // The sheen: deep teal behind the small greeting, IHS Teal under the title, a soft glow below.
       decoration: BoxDecoration(
-        gradient: AppSheen.hero,
+        gradient: AppSheen.header,
         borderRadius: const BorderRadius.only(bottomLeft: Radius.circular(26), bottomRight: Radius.circular(26)),
         boxShadow: AppSheen.glow,
       ),
@@ -470,7 +473,8 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                     child: Row(
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        Icon(Icons.circle, size: 7, color: online ? AppColors.success : AppColors.textDisabled),
+                        // The accent: the success green would vanish on the Forest Green header.
+                        Icon(Icons.circle, size: 7, color: online ? AppColors.accent : AppColors.onPrimaryMuted.withValues(alpha: 0.5)),
                         const SizedBox(width: 5),
                         Text(
                           online ? context.t('common.online') : context.t('common.offline'),
@@ -553,15 +557,22 @@ class _SectionLabel extends StatelessWidget {
 
 class _CodeBadge extends StatelessWidget {
   final String code;
-  const _CodeBadge(this.code);
+
+  /// Logo teal for the module to work on next.
+  final bool next;
+  const _CodeBadge(this.code, {this.next = false});
 
   @override
   Widget build(BuildContext context) => Container(
         padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-        decoration: BoxDecoration(color: AppColors.surfaceSelected, borderRadius: BorderRadius.circular(5)),
+        decoration: BoxDecoration(color: next ? AppColors.primary : AppColors.surfaceSelected, borderRadius: BorderRadius.circular(5)),
         child: Text(
           code,
-          style: const TextStyle(fontFamily: AppFonts.mono, fontSize: 9.5, fontWeight: FontWeight.w700, color: AppColors.textStrong),
+          style: TextStyle(
+              fontFamily: AppFonts.mono,
+              fontSize: 9.5,
+              fontWeight: FontWeight.w700,
+              color: next ? AppColors.onPrimary : AppColors.textStrong),
         ),
       );
 }
@@ -603,7 +614,7 @@ class _SyncCard extends StatelessWidget {
       child: Container(
         padding: const EdgeInsets.fromLTRB(14, 10, 10, 10),
         decoration: BoxDecoration(
-          color: AppColors.white,
+          color: AppColors.surface,
           borderRadius: BorderRadius.circular(AppRadius.medium),
           border: Border.all(color: AppColors.divider),
           boxShadow: AppSheen.card,
@@ -669,7 +680,10 @@ class _UpdateBanner extends StatelessWidget {
         onTap: () => context.go('/updates'),
         child: Container(
           padding: const EdgeInsets.all(14),
-          decoration: BoxDecoration(color: AppColors.infoSurface, border: Border.all(color: AppColors.info), borderRadius: BorderRadius.circular(AppRadius.medium)),
+          decoration: BoxDecoration(
+              color: AppColors.infoSurface,
+              border: Border.all(color: AppColors.info),
+              borderRadius: BorderRadius.circular(AppRadius.medium)),
           child: Row(
             children: [
               const Icon(Icons.info_outline, size: 16, color: AppColors.info),
@@ -701,7 +715,9 @@ class _UpdateBanner extends StatelessWidget {
   }
 }
 
-/// A "Continue reading" card: code tile, title, "N% complete · section" and a bar.
+/// The "Continue" hero card: Forest Green to logo teal, a pale teal label and Continue
+/// button, and the module's progress in pale teal on a 28% white track. A photo, when
+/// one is added, goes at the top and fades into the card through [AppSheen.photoFade].
 class _ContinueCard extends StatelessWidget {
   final CachedModuleRow module;
   final LocalProgressRow progress;
@@ -710,60 +726,81 @@ class _ContinueCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final where = progress.lastSection;
+    void open() => context.go('/reader/${module.id}');
     return GestureDetector(
-      onTap: () => context.go('/reader/${module.id}'),
+      onTap: open,
       child: Container(
-        padding: const EdgeInsets.all(14),
+        padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
-          color: AppColors.white,
-          borderRadius: BorderRadius.circular(AppRadius.medium),
-          border: Border.all(color: AppColors.divider),
-          boxShadow: AppSheen.card,
+          gradient: AppSheen.hero,
+          borderRadius: BorderRadius.circular(AppRadius.large),
+          boxShadow: AppSheen.glow,
         ),
-        child: Row(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Container(
-              width: 52,
-              height: 52,
-              alignment: Alignment.center,
-              decoration: BoxDecoration(color: AppColors.surfaceSelected, borderRadius: BorderRadius.circular(12)),
-              child: Text(
-                module.moduleCode,
-                style: const TextStyle(fontFamily: AppFonts.mono, fontWeight: FontWeight.w700, color: AppColors.primaryText),
+            Row(
+              children: [
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 3),
+                  decoration: BoxDecoration(color: AppColors.accent, borderRadius: BorderRadius.circular(AppRadius.pill)),
+                  child: Text(
+                    context.t('home.continueReading'),
+                    style: const TextStyle(fontSize: 10, fontWeight: FontWeight.w800, letterSpacing: 0.8, color: AppColors.onAccent),
+                  ),
+                ),
+                const Spacer(),
+                Text(
+                  module.moduleCode,
+                  style: const TextStyle(fontFamily: AppFonts.mono, fontWeight: FontWeight.w700, color: AppColors.onPrimaryMuted),
+                ),
+              ],
+            ),
+            const SizedBox(height: 12),
+            Text(
+              module.title,
+              maxLines: 2,
+              overflow: TextOverflow.ellipsis,
+              style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w700, height: 1.3, color: AppColors.onPrimary),
+            ),
+            const SizedBox(height: 4),
+            Text(
+              [
+                context.t('home.percentComplete', {'percent': progress.progressPercent}),
+                if (where != null && where.isNotEmpty) where,
+              ].join(' · '),
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              style: const TextStyle(fontSize: 11.5, color: AppColors.onPrimaryMuted),
+            ),
+            const SizedBox(height: 10),
+            ClipRRect(
+              borderRadius: BorderRadius.circular(4),
+              child: LinearProgressIndicator(
+                value: progress.progressPercent / 100,
+                minHeight: 6,
+                backgroundColor: AppColors.onPrimary.withValues(alpha: 0.28),
+                valueColor: const AlwaysStoppedAnimation(AppColors.accent),
               ),
             ),
-            const SizedBox(width: 14),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    module.title,
-                    maxLines: 2,
-                    overflow: TextOverflow.ellipsis,
-                    style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w700, height: 1.3, color: AppColors.textStrong),
+            const SizedBox(height: 14),
+            Align(
+              alignment: Alignment.centerRight,
+              child: FilledButton(
+                onPressed: open,
+                style: FilledButton.styleFrom(
+                  backgroundColor: AppColors.accent,
+                  foregroundColor: AppColors.onAccent,
+                  padding: const EdgeInsets.symmetric(horizontal: 22),
+                  visualDensity: VisualDensity.compact,
+                ).copyWith(
+                  // Pale teal with the glossy top edge, instead of the theme's teal gradient.
+                  backgroundBuilder: (context, states, child) => ClipRRect(
+                    borderRadius: BorderRadius.circular(AppRadius.standard),
+                    child: DecoratedBox(decoration: const BoxDecoration(gradient: AppSheen.gloss), child: child),
                   ),
-                  const SizedBox(height: 3),
-                  Text(
-                    [
-                      context.t('home.percentComplete', {'percent': progress.progressPercent}),
-                      if (where != null && where.isNotEmpty) where,
-                    ].join(' · '),
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                    style: const TextStyle(fontSize: 11.5, color: AppColors.textMuted),
-                  ),
-                  const SizedBox(height: 8),
-                  ClipRRect(
-                    borderRadius: BorderRadius.circular(4),
-                    child: LinearProgressIndicator(
-                      value: progress.progressPercent / 100,
-                      minHeight: 6,
-                      backgroundColor: AppColors.surfaceMuted,
-                      valueColor: const AlwaysStoppedAnimation(AppColors.primary),
-                    ),
-                  ),
-                ],
+                ),
+                child: Text(context.t('common.continue')),
               ),
             ),
           ],
@@ -782,80 +819,90 @@ class _ModuleCard extends StatelessWidget {
   final int? sectionCount;
   final ModuleStage? stage;
 
-  /// The module to work on next: bold border and a drop shadow.
+  /// The module to work on next: teal outline, teal number badge and a glow.
   final bool active;
 
-  const _ModuleCard(
-      {required this.module, this.completed = false, this.percent = 0, this.sectionCount, this.stage, this.active = false});
+  const _ModuleCard({required this.module, this.completed = false, this.percent = 0, this.sectionCount, this.stage, this.active = false});
 
   @override
   Widget build(BuildContext context) {
     final locked = stage == ModuleStage.locked;
     return GestureDetector(
       onTap: () => context.go('/reader/${module.id}'),
-      child: Container(
-        padding: const EdgeInsets.all(13),
-        decoration: BoxDecoration(
-          color: locked ? AppColors.surfaceMuted : AppColors.surface,
-          borderRadius: BorderRadius.circular(AppRadius.medium),
-          border: active ? Border.all(color: AppColors.primary, width: 2.5) : Border.all(color: AppColors.divider),
-          boxShadow: active ? AppSheen.glow : (locked ? null : AppSheen.card),
-        ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                _CodeBadge(module.moduleCode),
-                if (completed) const Icon(Icons.check, size: 16, color: AppColors.success),
-                if (locked) const Icon(Icons.lock_outline, size: 16, color: AppColors.textMuted),
-              ],
-            ),
-            const SizedBox(height: 8),
-            Expanded(
-              child: Text(
-                module.title,
-                maxLines: 4,
-                overflow: TextOverflow.ellipsis,
-                style: const TextStyle(fontSize: 12.5, fontWeight: FontWeight.w700, height: 1.35, color: AppColors.textStrong),
+      child: CustomPaint(
+        foregroundPainter: locked ? const DashedOutline(color: AppColors.primary, radius: AppRadius.medium) : null,
+        child: Container(
+          padding: const EdgeInsets.all(13),
+          decoration: BoxDecoration(
+            color: locked ? AppColors.surfaceMuted : AppColors.surface,
+            borderRadius: BorderRadius.circular(AppRadius.medium),
+            border: active
+                ? Border.all(color: AppColors.primary, width: 2)
+                : locked
+                    ? null
+                    : Border.all(color: AppColors.divider),
+            boxShadow: active ? AppSheen.glow : (locked ? null : AppSheen.card),
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  _CodeBadge(module.moduleCode, next: active),
+                  if (completed) const DoneMark(),
+                  if (locked) const Icon(Icons.lock_outline, size: 16, color: AppColors.textMuted),
+                ],
               ),
-            ),
-            const SizedBox(height: 6),
-            Row(
-              children: [
-                const Icon(Icons.menu_book_outlined, size: 12, color: AppColors.textMuted),
-                const SizedBox(width: 4),
-                Expanded(
-                  child: Text(
-                    [
-                      if (sectionCount != null) context.tn('home.sectionCount', sectionCount!),
-                      stage != null && stage != ModuleStage.reading && !completed
-                          ? stageLabel(stage!)
-                          : !completed && percent > 0
-                              ? context.t('home.percentRead', {'percent': percent})
-                              : context.t('home.availableOffline'),
-                    ].join(' · '),
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                    style: const TextStyle(fontSize: 10.5, color: AppColors.textMuted),
+              const SizedBox(height: 8),
+              Expanded(
+                child: Text(
+                  module.title,
+                  maxLines: 4,
+                  overflow: TextOverflow.ellipsis,
+                  style: TextStyle(
+                      fontSize: 12.5,
+                      fontWeight: FontWeight.w700,
+                      height: 1.35,
+                      color: locked ? AppColors.textMuted : AppColors.textStrong),
+                ),
+              ),
+              const SizedBox(height: 6),
+              Row(
+                children: [
+                  const Icon(Icons.menu_book_outlined, size: 12, color: AppColors.textMuted),
+                  const SizedBox(width: 4),
+                  Expanded(
+                    child: Text(
+                      [
+                        if (sectionCount != null) context.tn('home.sectionCount', sectionCount!),
+                        stage != null && stage != ModuleStage.reading && !completed
+                            ? stageLabel(stage!)
+                            : !completed && percent > 0
+                                ? context.t('home.percentRead', {'percent': percent})
+                                : context.t('home.availableOffline'),
+                      ].join(' · '),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: const TextStyle(fontSize: 10.5, color: AppColors.textMuted),
+                    ),
+                  ),
+                ],
+              ),
+              if (!completed && !locked && percent > 0) ...[
+                const SizedBox(height: 6),
+                ClipRRect(
+                  borderRadius: BorderRadius.circular(3),
+                  child: LinearProgressIndicator(
+                    value: percent / 100,
+                    minHeight: 4,
+                    backgroundColor: AppColors.surfaceMuted,
+                    valueColor: const AlwaysStoppedAnimation(AppColors.primary),
                   ),
                 ),
               ],
-            ),
-            if (!completed && !locked && percent > 0) ...[
-              const SizedBox(height: 6),
-              ClipRRect(
-                borderRadius: BorderRadius.circular(3),
-                child: LinearProgressIndicator(
-                  value: percent / 100,
-                  minHeight: 4,
-                  backgroundColor: AppColors.surfaceMuted,
-                  valueColor: const AlwaysStoppedAnimation(AppColors.primary),
-                ),
-              ),
             ],
-          ],
+          ),
         ),
       ),
     );

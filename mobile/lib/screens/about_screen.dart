@@ -181,7 +181,7 @@ class AboutScreen extends ConsumerWidget {
       margin: const EdgeInsets.symmetric(horizontal: 22),
       padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
-        color: AppColors.white,
+        color: AppColors.surface,
         border: Border.all(color: AppColors.divider),
         boxShadow: AppSheen.card,
         borderRadius: BorderRadius.circular(AppRadius.standard),
@@ -251,7 +251,7 @@ class _AboutItem extends StatelessWidget {
       margin: const EdgeInsets.fromLTRB(22, 0, 22, 9),
       padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 13),
       decoration: BoxDecoration(
-        color: AppColors.white,
+        color: AppColors.surface,
         border: Border.all(color: AppColors.divider),
         boxShadow: AppSheen.card,
         borderRadius: BorderRadius.circular(AppRadius.standard),

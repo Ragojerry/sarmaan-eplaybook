@@ -2,36 +2,26 @@
 // ignore_for_file: constant_identifier_names
 import 'package:flutter/painting.dart';
 
-/// Brand palette and tints (IHS Towers Brand Manual 2021).
+/// Brand palette and tints (brand/tokens.json).
 class BrandPalette {
   BrandPalette._();
-  static const forestGreen = Color(0xFF002D14); // #002D14
+  static const forestGreen = Color(0xFF245C3E); // #245C3E
+  static const deepForest = Color(0xFF1F5035); // #1F5035
+  static const teal = Color(0xFF00685C); // #00685C
+  static const midBlend = Color(0xFF14614C); // #14614C
+  static const tealMist = Color(0xFFD9E8E7); // #D9E8E7
   static const white = Color(0xFFFFFFFF); // #FFFFFF
-  static const red = Color(0xFFF04E43); // #F04E43
-  static const grassGreen = Color(0xFF008732); // #008732
-  static const lightGrey = Color(0xFFD0D0CE); // #D0D0CE
-  static const midGrey = Color(0xFFA7A8AA); // #A7A8AA
-  static const darkGrey = Color(0xFF494546); // #494546
-  static const teal = Color(0xFF05B39C); // #05B39C
-  static const orange = Color(0xFFF47B22); // #F47B22
-  static const blue = Color(0xFF0888CA); // #0888CA
-  static const forestGreen40 = Color(0xFF99ABA1); // #99ABA1
-  static const forestGreen10 = Color(0xFFE6EAE8); // #E6EAE8
-  static const grassGreen50 = Color(0xFF80C398); // #80C398
-  static const grassGreen10 = Color(0xFFE6F3EA); // #E6F3EA
-  static const teal60 = Color(0xFF69D1C4); // #69D1C4
-  static const orange60 = Color(0xFFF8B07A); // #F8B07A
-  static const orange15 = Color(0xFFFDEBDE); // #FDEBDE
-  static const blue50 = Color(0xFF84C4E4); // #84C4E4
-  static const blue10 = Color(0xFFE6F3FA); // #E6F3FA
-  static const red10 = Color(0xFFFEEDEC); // #FEEDEC
-  static const lightGrey20 = Color(0xFFF6F6F5); // #F6F6F5
-  static const darkGrey80 = Color(0xFF6D6A6B); // #6D6A6B
-  static const teal10 = Color(0xFFE6F7F5); // #E6F7F5
-  static const teal20 = Color(0xFFCDF0EB); // #CDF0EB
-  static const teal80 = Color(0xFF37C2B0); // #37C2B0
-  static const tealDeep = Color(0xFF037D66); // #037D66
-  static const tealShade = Color(0xFF04A38C); // #04A38C
+  static const ink = Color(0xFF1F2A28); // #1F2A28
+  static const inkMuted = Color(0xFF43544F); // #43544F
+  static const card = Color(0xFFF2F8F7); // #F2F8F7
+  static const paleTeal = Color(0xFFE6F2F0); // #E6F2F0
+  static const warningOrange = Color(0xFFC2410C); // #C2410C
+  static const errorRed = Color(0xFFB42318); // #B42318
+  static const forestGreen10 = Color(0xFFE9EFEC); // #E9EFEC
+  static const warningOrange10 = Color(0xFFF9ECE7); // #F9ECE7
+  static const errorRed10 = Color(0xFFF8E9E8); // #F8E9E8
+  static const teal88 = Color(0xFF1F7A70); // #1F7A70
+  static const border = Color(0xFFC6DEDB); // #C6DEDB
 }
 
 /// What each colour is for. Use these in widgets, never the palette directly.
@@ -39,36 +29,45 @@ class BrandColors {
   BrandColors._();
   static const primary = BrandPalette.teal;
   static const onPrimary = BrandPalette.white;
-  static const background = BrandPalette.lightGrey20;
-  static const surface = BrandPalette.white;
-  static const surfaceMuted = BrandPalette.lightGrey20;
-  static const surfaceSelected = BrandPalette.teal10;
-  static const divider = BrandPalette.lightGrey;
-  static const controlBorder = BrandPalette.darkGrey80;
-  static const text = BrandPalette.darkGrey;
-  static const textStrong = BrandPalette.forestGreen;
-  static const textMuted = BrandPalette.darkGrey80;
-  static const textDisabled = BrandPalette.midGrey;
+  static const onPrimaryMuted = BrandPalette.tealMist;
+  static const forest = BrandPalette.forestGreen;
+  static const deepForest = BrandPalette.deepForest;
+  static const midBlend = BrandPalette.midBlend;
+  static const accent = BrandPalette.tealMist;
+  static const onAccent = BrandPalette.ink;
+  static const background = BrandPalette.tealMist;
+  static const surface = BrandPalette.card;
+  static const surfaceMuted = BrandPalette.paleTeal;
+  static const surfaceSelected = BrandPalette.paleTeal;
+  static const divider = BrandPalette.border;
+  static const controlBorder = BrandPalette.inkMuted;
+  static const text = BrandPalette.ink;
+  static const textStrong = BrandPalette.ink;
+  static const textMuted = BrandPalette.inkMuted;
+  static const textDisabled = BrandPalette.inkMuted;
   static const textOnPrimary = BrandPalette.white;
-  static const success = BrandPalette.grassGreen;
-  static const successText = BrandPalette.grassGreen;
-  static const successSurface = BrandPalette.grassGreen10;
-  static const warning = BrandPalette.orange;
-  static const warningText = BrandPalette.forestGreen;
-  static const warningSurface = BrandPalette.orange15;
-  static const error = BrandPalette.red;
-  static const errorText = BrandPalette.forestGreen;
-  static const errorSurface = BrandPalette.red10;
-  static const info = BrandPalette.blue;
-  static const infoText = BrandPalette.forestGreen;
-  static const infoSurface = BrandPalette.blue10;
-  static const progressTrack = BrandPalette.lightGrey;
-  static const progressFill = BrandPalette.grassGreen;
+  static const success = BrandPalette.forestGreen;
+  static const successText = BrandPalette.forestGreen;
+  static const successSurface = BrandPalette.forestGreen10;
+  static const warning = BrandPalette.warningOrange;
+  static const warningText = BrandPalette.ink;
+  static const warningSurface = BrandPalette.warningOrange10;
+  static const error = BrandPalette.errorRed;
+  static const errorText = BrandPalette.errorRed;
+  static const errorSurface = BrandPalette.errorRed10;
+  static const info = BrandPalette.teal;
+  static const infoText = BrandPalette.ink;
+  static const infoSurface = BrandPalette.paleTeal;
+  static const progressTrack = BrandPalette.border;
+  static const progressFill = BrandPalette.teal;
   static const highlight = BrandPalette.teal;
-  static const highlightSurface = BrandPalette.teal20;
-  static const primaryText = BrandPalette.tealDeep;
-  static const sheenLight = BrandPalette.teal80;
-  static const sheenDark = BrandPalette.tealShade;
+  static const highlightSurface = BrandPalette.paleTeal;
+  static const primaryText = BrandPalette.teal;
+  static const sheenLight = BrandPalette.teal88;
+  static const sheenDark = BrandPalette.midBlend;
+  static const navBar = BrandPalette.deepForest;
+  static const navActive = BrandPalette.white;
+  static const navInactive = BrandPalette.tealMist;
 }
 
 class BrandFont {

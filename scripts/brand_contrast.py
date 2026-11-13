@@ -8,8 +8,6 @@ app and the admin portal use, computed from brand/tokens.json.
 Thresholds: text 4.5:1; large text (>= 18.66 px bold or 24 px regular) and
 controls/icons/borders that must be seen (WCAG 1.4.11) 3:1. "decor" pairs
 (dividers, card outlines) are listed for completeness and have no threshold.
-"accepted" pairs are below the threshold and kept by a recorded decision (the IHS
-Teal base, 2026-11-12, after the IHS report layout); they are reported, never hidden.
 """
 import argparse
 import json
@@ -19,59 +17,70 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 from brand_sync import BRAND, ROOT, resolved_colours  # noqa: E402
 
-THRESHOLD = {"text": 4.5, "large": 3.0, "control": 3.0, "decor": 0.0, "accepted": 0.0}
+THRESHOLD = {"text": 4.5, "large": 3.0, "control": 3.0, "decor": 0.0}
 
 # (foreground, background, where, kind) — semantic token names from tokens.json
 PAIRS = [
-    ("text", "background", "Body text on the Light Grey 20% page", "text"),
-    ("text", "surface", "Body text on white cards", "text"),
-    ("textStrong", "background", "Headings, screen titles on the page", "text"),
-    ("textStrong", "surface", "Headings and labels on white cards", "text"),
+    # The pairs named in the palette brief of 2026-11-12.
+    ("textOnPrimary", "primary", "White text on logo teal: app bars, primary buttons", "text"),
+    ("navInactive", "navBar", "Inactive bottom navigation items (#D9E8E7 on deep forest)", "text"),
+    ("text", "background", "Body text on the 15% teal page", "text"),
     ("textMuted", "background", "Secondary text on the page", "text"),
-    ("textMuted", "surface", "Secondary text on white cards", "text"),
-    ("textMuted", "surfaceMuted", "Secondary text on grey panels", "text"),
-    ("text", "surfaceMuted", "Body text on grey panels / cards", "text"),
-    ("textStrong", "surfaceSelected", "Selected nav item, selected option", "text"),
-    ("textOnPrimary", "primary", "White bold text on IHS Teal: app bars, buttons, header title (decision 2026-11-12)", "accepted"),
-    ("primary", "background", "IHS Teal large titles and icons on the page (decision 2026-11-12)", "accepted"),
-    ("primaryText", "background", "Deep teal: small accent text, links, outlined buttons, headings", "text"),
-    ("primaryText", "surface", "Deep teal text on white cards", "text"),
-    ("textOnPrimary", "primaryText", "White text on deep teal: snack bars, safeguarding box, admin buttons and sidebar top", "text"),
-    ("textStrong", "surfaceSelected", "Text on the Teal 10% selected tint", "text"),
-    ("controlBorder", "surface", "Text field and checkbox borders (fields are white)", "control"),
-    ("primary", "surface", "Focused field border, radio/checkbox selected (Teal)", "accepted"),
-    ("successText", "surface", "Success text ('Correct.') - white cards only", "text"),
-    ("textStrong", "successSurface", "Text in success callouts", "text"),
-    ("success", "background", "Success icons on the page, progress fill", "control"),
-    ("textOnPrimary", "success", "White text on a Grass Green badge", "text"),
-    ("warningText", "warningSurface", "Text in warning callouts", "text"),
-    ("textStrong", "warningSurface", "Warning icon (Forest Green on the Orange 15% callout)", "control"),
-    ("warning", "background", "Orange left bar of warning callouts (decorative: icon and text carry the meaning)", "decor"),
-    ("warningText", "warning", "Forest text on an Orange chip", "text"),
+    ("onAccent", "accent", "Dark text on the pale teal accent: hero label, Continue button", "text"),
+    ("textOnPrimary", "primary", "White number on the logo teal badge of the next module", "text"),
+    # Everything else the app and the admin portal use.
+    ("navActive", "navBar", "Active bottom navigation item (white on deep forest)", "text"),
+    ("textOnPrimary", "forest", "White text on Forest Green: splash top, header, hero card, admin sidebar", "text"),
+    ("onPrimaryMuted", "forest", "Secondary text on Forest Green", "text"),
+    ("onPrimaryMuted", "primary", "Secondary text on logo teal (hero card bottom, header)", "text"),
+    ("textOnPrimary", "midBlend", "White text on the mid-blend (photo fade, button sheen)", "text"),
+    ("textOnPrimary", "sheenLight", "White text on the light end of the button sheen", "text"),
+    ("textOnPrimary", "deepForest", "Snack bars, admin sidebar bottom, bottom of the splash and Home header", "text"),
+    ("onPrimaryMuted", "deepForest", "Secondary text at the bottom of the Home header", "text"),
+    ("text", "surface", "Body text on cards", "text"),
+    ("textMuted", "surface", "Secondary text on cards", "text"),
+    ("text", "surfaceSelected", "Text on the pale teal tint (selected rows, chips, callouts)", "text"),
+    ("textMuted", "surfaceSelected", "Secondary text on the pale teal tint, locked modules", "text"),
+    ("primaryText", "background", "Teal titles, links and icons on the page", "text"),
+    ("primaryText", "surface", "Teal text, outlined buttons on cards", "text"),
+    ("primaryText", "surfaceSelected", "Teal text on the pale teal tint", "text"),
+    ("controlBorder", "surface", "Text field and checkbox borders", "control"),
+    ("primary", "surface", "Focused field border, selected radio/checkbox, next-module outline", "control"),
+    ("primary", "surfaceMuted", "Dashed outline of a locked module", "control"),
+    ("successText", "surface", "Success text ('Correct.') on cards", "text"),
+    ("successText", "background", "Success text on the page", "text"),
+    ("text", "successSurface", "Text in success callouts", "text"),
+    ("textOnPrimary", "success", "White tick on the Forest Green completed disc", "control"),
+    ("warning", "surface", "Warning border and icon on cards", "control"),
+    ("warning", "surface", "'Update available' status label on the Updates card", "text"),
+    ("warning", "warningSurface", "Warning border and icon on the warning callout", "control"),
+    ("warningText", "warningSurface", "Text in warning callouts (ink)", "text"),
+    ("errorText", "surface", "Error text on cards", "text"),
+    ("errorText", "background", "Error text on the page", "text"),
     ("errorText", "errorSurface", "Text in error and 'Do not' callouts", "text"),
-    ("error", "background", "Error icon / border, 'Do not' marker (on the page)", "control"),
-    ("errorText", "error", "Forest text on a Red fill (avoid; large only)", "large"),
+    ("textOnPrimary", "error", "White text on an error fill", "text"),
+    ("textOnPrimary", "warning", "White text on a warning fill", "text"),
     ("infoText", "infoSurface", "Text in information callouts", "text"),
-    ("info", "background", "Information icon / border (on the page)", "control"),
-    ("textStrong", "highlightSurface", "Text on a Teal 60% highlight", "text"),
     ("progressFill", "progressTrack", "Progress bar fill on its track", "control"),
-    ("textDisabled", "background", "Disabled text (exempt from WCAG)", "decor"),
-    ("divider", "background", "Dividers, card outlines", "decor"),
+    ("accent", "forest", "Pale teal progress fill, label and button on the hero card (top); Online dot", "control"),
+    ("accent", "primary", "Pale teal progress fill, label and button on the hero card (bottom)", "control"),
+    ("text", "surfaceSelected", "Support deck rows: label, contact type and value", "text"),
+    ("textMuted", "surfaceSelected", "Support deck rows: availability and languages", "text"),
+    ("primaryText", "surfaceSelected", "Support deck rows: contact type icon", "control"),
+    ("textMuted", "surface", "Support deck: intro, admin note, copy icon", "text"),
+    ("text", "surface", "Tools repository rows: title and description", "text"),
+    ("textMuted", "surface", "Tools repository rows: type, service, 'Opens online', copy and share icons", "text"),
+    ("primaryText", "surface", "Tools repository rows: type icon", "control"),
+    ("primaryText", "surfaceSelected", "Tools card on Home and Modules: icon on its pale tile", "control"),
+    ("textDisabled", "surfaceMuted", "Disabled text (exempt from WCAG; same as muted)", "decor"),
+    ("divider", "background", "Thin teal card border (rgba(0,104,92,0.18) on the card)", "decor"),
 ]
 
-# Pairs that were tried and rejected, reported so the adjustments are visible.
+# Pairs that were checked and are not used, reported so the choices are visible.
 REJECTED = [
-    ("error", "background", "Red as text on white"),
-    ("warning", "background", "Orange as text on white"),
-    ("highlight", "background", "Teal as text on white"),
-    ("info", "background", "Blue as text on white"),
-    ("textOnPrimary", "error", "White text on Red"),
-    ("textOnPrimary", "warning", "White text on Orange"),
-    ("textOnPrimary", "info", "White text on Blue"),
-    ("textDisabled", "background", "Mid Grey as text"),
-    ("successText", "background", "Grass Green text directly on the grey page (4.30) - kept to white cards"),
-    ("warning", "background", "Orange as a standalone icon or border on white (below 3:1)"),
-    ("highlight", "background", "Teal as a standalone icon or border on white (below 3:1)"),
+    ("warning", "warningSurface", "Warning orange as text on its pale tint (4.48) - text there is ink"),
+    ("accent", "surface", "The pale teal accent on cards (so the next module's badge is logo teal instead)"),
+    ("textOnPrimary", "accent", "White text on the pale teal accent"),
 ]
 
 
@@ -104,8 +113,8 @@ def report() -> tuple[str, int]:
         ok = r >= need
         failures += not ok
         lines.append(f"| {fg} `{sem[fg]}` | {bg} `{sem[bg]}` | {r:.2f}:1 | {need or '-'}{':1' if need else ''} ({kind}) | "
-                     f"{'**accepted by decision** (below 3:1)' if kind == 'accepted' else 'pass' if ok else '**FAIL**'} | {where} |")
-    lines += ["", "## Pairs not used (fail for normal text, so the colour is a fill, icon or border instead)", "",
+                     f"{'pass' if ok else '**FAIL**'} | {where} |")
+    lines += ["", "## Pairs not used for text", "",
               "| Foreground | Background | Ratio | Instead |", "|---|---|---|---|"]
     for fg, bg, what in REJECTED:
         lines.append(f"| {fg} `{sem[fg]}` | {bg} `{sem[bg]}` | {ratio(sem[fg], sem[bg]):.2f}:1 | {what}: not used for text |")

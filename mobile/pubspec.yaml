@@ -1,7 +1,7 @@
 name: sarmaan_eplaybook
 description: SARMAAN e-Playbook — offline-first CDD training app.
 publish_to: "none"
-version: 0.1.14+15
+version: 0.1.15+16
 
 environment:
   sdk: ">=3.4.0 <4.0.0"
@@ -45,6 +45,11 @@ dependencies:
   # Real app version for the About screen (replaces the prototype's
   # hardcoded "1.2.0" string — docs/prototype-analysis.md §8).
   package_info_plus: ^8.0.2
+
+  # Support deck on the Ask tab: opens the dialer, SMS, mail, WhatsApp (wa.me) and https links.
+  url_launcher: ^6.3.1
+  # Tools repository: "Share link" opens the phone's share sheet (no files are shared, only the link).
+  share_plus: ^10.1.4
 
   cupertino_icons: ^1.0.8
   pdf: 3.11.1

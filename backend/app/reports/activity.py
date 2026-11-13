@@ -47,6 +47,9 @@ CATEGORY_EVENTS = {
     "technical": (ET.DOWNLOAD_STARTED, ET.DOWNLOAD_FAILED, ET.SYNC_FAILED, ET.APPLICATION_ERROR, ET.STORAGE_ERROR),
     "session": (ET.DEVICE_HEARTBEAT, ET.UPDATE_INSTALLED),
 }
+# Not training activity: never counted in these reports, not even as "last activity"
+# (the Support deck and the Tools repository are separate from training).
+NON_TRAINING_EVENTS = (ET.SUPPORT_CONTACT_TAP, ET.TOOL_OPEN)
 LEVELS = ["country", "state", "lga", "ward", "facility"]
 ACTIVE_WINDOW_DAYS = 30
 
@@ -141,6 +144,7 @@ def user_rows(db: Session, f: Filters) -> list[dict]:
             User, User.id == AnalyticsEvent.user_id
         ).filter(
             AnalyticsEvent.user_id.in_(ids), *_in_range(AnalyticsEvent.occurred_at, f),
+            AnalyticsEvent.event_type.notin_(NON_TRAINING_EVENTS),
             or_(User.training_restarted_at.is_(None), AnalyticsEvent.occurred_at >= User.training_restarted_at),
         ).group_by(AnalyticsEvent.user_id, AnalyticsEvent.event_type)
         by_type = {t: c for c, types in CATEGORY_EVENTS.items() for t in types}

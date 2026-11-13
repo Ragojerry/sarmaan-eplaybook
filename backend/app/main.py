@@ -10,7 +10,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from app.config import get_settings
-from app.routers import health, auth, modules, languages, media, videos, releases, sync, ai, analytics, audit, users, quiz, boundaries, reports, bi, sessions, references, faqs, consent, learning, section_media, general_test, app_strings
+from app.routers import health, auth, modules, languages, media, videos, releases, sync, ai, analytics, audit, users, quiz, boundaries, reports, bi, sessions, references, faqs, consent, learning, section_media, general_test, app_strings, support_contacts, tools
 
 settings = get_settings()
 
@@ -53,6 +53,10 @@ app.include_router(learning.router, prefix="/learning", tags=["learning"])
 app.include_router(general_test.router, prefix="/general-test", tags=["general-test"])
 app.include_router(app_strings.router, prefix="/app-strings", tags=["app-strings"])
 app.include_router(app_strings.sync_router, prefix="/sync", tags=["sync"])
+app.include_router(support_contacts.router, prefix="/support-contacts", tags=["support-contacts"])
+app.include_router(support_contacts.sync_router, prefix="/sync", tags=["sync"])
+app.include_router(tools.router, prefix="/tools", tags=["tools"])
+app.include_router(tools.sync_router, prefix="/sync", tags=["sync"])
 
 
 @app.get("/", tags=["health"])

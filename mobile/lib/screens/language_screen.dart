@@ -183,7 +183,7 @@ class _LanguageScreenState extends ConsumerState<LanguageScreen> {
         margin: const EdgeInsets.only(bottom: 10),
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 15),
         decoration: BoxDecoration(
-          color: selected ? AppColors.surfaceSelected : AppColors.white,
+          color: selected ? AppColors.surfaceSelected : AppColors.surface,
           borderRadius: BorderRadius.circular(AppRadius.standard),
           border: Border.all(color: selected ? AppColors.primary : AppColors.divider, width: 1.5),
         ),

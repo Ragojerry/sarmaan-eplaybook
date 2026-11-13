@@ -1,13 +1,16 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- Android 12+ system splash: Forest Green behind the (unchanged) launcher icon.
+<!-- Android 12+ system splash: Forest Green (the top of the launch gradient) behind the (unchanged) launcher icon.
      Colours from values/brand_colors.xml, generated from brand/tokens.json. -->
 <resources>
     <style name="LaunchTheme" parent="@android:style/Theme.Black.NoTitleBar">
         <item name="android:windowBackground">@drawable/launch_background</item>
-        <item name="android:windowSplashScreenBackground">@color/brand_primary</item>
+        <item name="android:statusBarColor">@color/brand_forest_green</item>
+        <item name="android:navigationBarColor">@color/brand_deep_forest</item>
+        <item name="android:windowSplashScreenBackground">@color/brand_forest_green</item>
     </style>
 
     <style name="NormalTheme" parent="@android:style/Theme.Black.NoTitleBar">
         <item name="android:windowBackground">@color/brand_white</item>
+        <item name="android:navigationBarColor">@color/brand_deep_forest</item>
     </style>
 </resources>
