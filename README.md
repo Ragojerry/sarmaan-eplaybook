@@ -1,4 +1,4 @@
-# SARMAAN e-Playbook
+# SARMAAN II Multi-lingual e-Playbook
 
 Offline-first training app for Community Drug Distributors (CDDs) delivering the AZM (Azithromycin) Mass
 Drug Administration training curriculum, built to replace the `sarmaan-eplaybook-prototype_1.html`

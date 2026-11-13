@@ -9,7 +9,6 @@ import '../learning/learning_service.dart';
 import '../offline/content_sync_service.dart';
 import '../theme/app_theme.dart';
 import '../l10n/l10n.dart';
-import '../quiz/quiz_grader.dart';
 
 /// The General pre-/post-test (since 2026-11 it replaces the per-module tests):
 /// the same multiple-choice questions, one at a time with the options in the
@@ -213,7 +212,8 @@ class _GeneralTestScreenState extends ConsumerState<GeneralTestScreen> {
 
   Widget _result(GeneralOutcome o) {
     final pre = o.pre;
-    final certified = !_isPre && quizPassed(o.correct, o.total);
+    // The certificate follows the post-test pass mark stored with the attempt.
+    final certified = !_isPre && o.passed;
     return ListView(
       padding: const EdgeInsets.fromLTRB(22, 28, 22, 28),
       children: [
@@ -223,6 +223,8 @@ class _GeneralTestScreenState extends ConsumerState<GeneralTestScreen> {
         Text(context.t('general.score', {'correct': o.correct, 'total': o.total, 'percent': o.percent}),
             style: const TextStyle(fontSize: 28, fontWeight: FontWeight.w800, color: AppColors.textStrong)),
         const SizedBox(height: 10),
+        _Verdict(passed: o.passed, passMark: o.passMark, needed: o.needed, total: o.total),
+        const SizedBox(height: 12),
         Text(
           _isPre
               ? context.t('general.preDone')
@@ -230,7 +232,7 @@ class _GeneralTestScreenState extends ConsumerState<GeneralTestScreen> {
                   pre == null
                       ? context.t('general.postDone')
                       : context.t('general.postDoneWithPre', {'correct': pre.correct, 'total': pre.total, 'percent': pre.percent}),
-                  certified ? context.t('cert.earnedLine') : context.t('cert.notEarnedLine', {'passMark': kQuizPassMark}),
+                  certified ? context.t('cert.earnedLine') : context.t('cert.notEarnedLine', {'passMark': o.passMark}),
                 ].join(' '),
           style: const TextStyle(fontSize: 13.5, height: 1.5, color: AppColors.textMuted),
         ),
@@ -251,6 +253,52 @@ class _GeneralTestScreenState extends ConsumerState<GeneralTestScreen> {
             child: Text(_isPre ? context.t('general.goToModules') : context.t('reader.backToModules')),
           ),
       ],
+    );
+  }
+}
+
+
+/// Passed or Not passed with an icon and words (never colour alone), and the pass
+/// mark that applied: "Pass mark 80% (20 of 25 correct)".
+class _Verdict extends StatelessWidget {
+  final bool passed;
+  final int passMark;
+  final int needed;
+  final int total;
+
+  const _Verdict({required this.passed, required this.passMark, required this.needed, required this.total});
+
+  @override
+  Widget build(BuildContext context) {
+    final verdict = passed ? context.t('general.passed') : context.t('general.notPassed');
+    final mark = context.t('general.passMarkLine', {'passMark': passMark, 'needed': needed, 'total': total});
+    return Semantics(
+      label: '$verdict. $mark',
+      excludeSemantics: true,
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+        decoration: BoxDecoration(
+          color: passed ? AppColors.successSurface : AppColors.surfaceMuted,
+          borderRadius: BorderRadius.circular(AppRadius.small),
+          border: Border.all(color: passed ? AppColors.success : AppColors.controlBorder),
+        ),
+        child: Row(
+          children: [
+            Icon(passed ? Icons.check_circle_rounded : Icons.cancel_outlined,
+                size: 22, color: passed ? AppColors.successText : AppColors.textMuted),
+            const SizedBox(width: 10),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(verdict, style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w800, color: AppColors.textStrong)),
+                  Text(mark, style: const TextStyle(fontSize: 12.5, color: AppColors.text)),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
     );
   }
 }

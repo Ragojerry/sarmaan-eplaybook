@@ -1,6 +1,7 @@
 import { NavLink, Outlet } from "react-router-dom";
 import { useAuth } from "../services/auth";
 import PartnerLogos from "../components/PartnerLogos";
+import BrandMark from "../components/BrandMark";
 
 // `roles` mirrors the backend (the server is what actually enforces access;
 // hiding a link is only a courtesy). SUPER_ADMIN always sees everything.
@@ -33,7 +34,7 @@ export default function AdminLayout() {
     <div className="min-h-screen flex bg-gray-50">
       {/* Brand: IHS Teal sheen navigation (deep teal at the top) with white text (index.css). */}
       <aside className="admin-sidebar w-56 text-white p-4 flex flex-col">
-        <div className="text-lg font-semibold mb-6">SARMAAN e-Playbook</div>
+        <BrandMark short className="text-base mb-6" size={36} />
         <nav className="space-y-1 flex-1">
           {navItems
             .filter((item) => !item.roles || user?.role === "SUPER_ADMIN" || (user && item.roles.includes(user.role)))

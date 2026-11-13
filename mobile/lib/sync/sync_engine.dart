@@ -11,9 +11,11 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../db/local_database.dart';
 import '../l10n/app_strings_service.dart';
 import '../learning/curriculum_notice.dart';
+import '../learning/learning_service.dart' show kGeneralPassMarkKey;
 import '../offline/content_sync_service.dart';
 import '../services/api_client.dart';
 import '../services/auth_service.dart';
+import '../services/device_identity.dart';
 import '../support/support_contacts.dart';
 import '../tools/tools_service.dart';
 import 'analytics_recorder.dart';
@@ -85,8 +87,6 @@ class SyncSnapshot {
 
 final syncEngineProvider = StateNotifierProvider<SyncEngine, SyncSnapshot>((ref) => SyncEngine(ref));
 
-/// Setting keys (app_settings table).
-const kDeviceIdKey = 'device_id';
 
 /// The one place that talks to /sync/*. Offline-first contract:
 ///  * nothing here is ever required for the app to work — screens read the
@@ -112,14 +112,14 @@ class SyncEngine extends StateNotifier<SyncSnapshot> {
 
   /// Random id generated once and kept in the local database. Not derived from
   /// hardware identifiers, so it says nothing about the person or the phone.
-  Future<String> deviceId() async {
-    var id = await _db.getSetting(kDeviceIdKey);
-    if (id == null || id.length < 16) {
-      final r = Random.secure();
-      id = List.generate(16, (_) => r.nextInt(256).toRadixString(16).padLeft(2, '0')).join();
-      await _db.setSetting(kDeviceIdKey, id);
-    }
-    return id;
+  Future<String> deviceId() => installId(_db);
+
+  /// Refreshes this install in the server's device registry (last seen, last sync,
+  /// OS and app version). Best effort: an older server without it is fine.
+  Future<void> _registerDevice() async {
+    try {
+      await _api.dio.post('/sync/device', data: await deviceInfoPayload(_db));
+    } catch (_) {}
   }
 
   /// "Connected to a network" is not the same as "can reach our server"
@@ -193,19 +193,22 @@ class SyncEngine extends StateNotifier<SyncSnapshot> {
       state = state.copyWith(status: SyncStatus.online);
 
       final device = await deviceId();
+      await _registerDevice();
       await _maybeHeartbeat();
 
       // Uploads first, so a slow or failing update can never block them.
       Object? uploadError;
       // A restart goes first: everything after it belongs to the new attempt.
-      // Then the General test (it opens the modules), then module-quiz attempts,
-      // then progress: a completion is accepted only once the server knows the
-      // quiz was passed, so a backlog after days offline lands in a safe order.
+      // Then the General pre-test (it opens the modules), module-quiz attempts,
+      // progress (a completion needs its quiz on the server), and the post-test last
+      // (it needs every completion). The server also re-checks anything that still
+      // arrives early (backend app/learning/revalidate.py).
       for (final step in [
         _uploadRestart,
-        _uploadGeneralAttempts,
+        (String d) => _uploadGeneralAttempts(d, 'PRE'),
         _uploadQuizAttempts,
         _uploadProgress,
+        (String d) => _uploadGeneralAttempts(d, 'POST'),
         _uploadAiQuestions,
         _uploadAnalytics,
       ]) {
@@ -347,8 +350,12 @@ class SyncEngine extends StateNotifier<SyncSnapshot> {
           correct: (t['correct_count'] as num).toInt(),
           total: (t['total_count'] as num).toInt(),
           takenAt: DateTime.parse(t['taken_at'] as String).toLocal(),
+          passMark: (t['pass_mark'] as num?)?.toInt(),
         );
       }
+      // This learner's current pass mark (servers before 2026-11-13 send none: defaults apply).
+      final mark = (general['pass_mark'] as num?)?.toInt();
+      if (mark != null) await _db.setSetting(kGeneralPassMarkKey, '$mark');
     }
   }
 
@@ -456,9 +463,9 @@ class SyncEngine extends StateNotifier<SyncSnapshot> {
     }
   }
 
-  /// General pre-/post-tests; the server grades them again from the answers.
-  Future<void> _uploadGeneralAttempts(String device) async {
-    final rows = await _db.getUnsyncedGeneralAttempts();
+  /// General pre-/post-tests of [testType]; the server grades them again from the answers.
+  Future<void> _uploadGeneralAttempts(String device, String testType) async {
+    final rows = (await _db.getUnsyncedGeneralAttempts()).where((r) => r.testType == testType).toList();
     if (rows.isEmpty) return;
     final resp = await _api.dio.post('/sync/general-test-attempts', data: {
       'device_id': device,
@@ -511,6 +518,14 @@ class SyncEngine extends StateNotifier<SyncSnapshot> {
           continue;
         }
         final row = batch.where((r) => r.moduleId == res['key']).firstOrNull;
+        // A completion the server could not accept yet (e.g. an older server that saw the
+        // quiz before the previous module's completion) is sent again at the next sync,
+        // instead of leaving the phone and the server apart for good.
+        final refused = (res['detail'] as String?)?.startsWith('not completed') ?? false;
+        if (row != null && row.completed && refused) {
+          allLanded = false;
+          continue;
+        }
         if (row != null) await _db.markProgressSynced(row.moduleId, row.lastOpenedAt);
       }
     }

@@ -17,6 +17,7 @@ import '../widgets/app_bottom_nav.dart';
 import '../widgets/module_state_marks.dart';
 import '../widgets/tools_entry.dart';
 import '../l10n/l10n.dart';
+import '../tour/app_tour.dart';
 import 'modules_screen.dart' show GeneralTestCard;
 
 /// Reads from the LOCAL cache (Phase 8), never directly from the network —
@@ -123,7 +124,17 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       await _syncIfCacheEmpty();
       await _showTrainingNotice();
+      await _maybeShowTour();
     });
+  }
+
+  /// The first-run tour, once per account on this phone, after the General pre-test.
+  Future<void> _maybeShowTour() async {
+    if (!mounted) return;
+    try {
+      final extras = await ref.read(homeExtrasProvider.future);
+      if (mounted) await maybeShowFirstRunTour(context, ref, extras.learning.general);
+    } catch (_) {}
   }
 
   /// One-time notice after the curriculum changeover (set by the release installer).

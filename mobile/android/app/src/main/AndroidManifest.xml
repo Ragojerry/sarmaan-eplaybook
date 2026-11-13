@@ -37,7 +37,7 @@
     </queries>
 
     <application
-        android:label="SARMAAN II e-Playbook"
+        android:label="@string/app_label"
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher">
         <activity

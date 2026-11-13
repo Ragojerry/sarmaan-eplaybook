@@ -3,12 +3,15 @@ from datetime import date, datetime
 
 from pydantic import BaseModel, EmailStr, Field
 
+from app.devices.registry import DeviceInfo
 from app.models.enums import LearnerRole, RoleName, UserStatus
 
 
 class LoginRequest(BaseModel):
     username: str = Field(min_length=1, max_length=150)
     password: str = Field(min_length=1, max_length=255)
+    # Sent by app 0.1.16+ (app/devices/registry.py); older apps omit it.
+    device: DeviceInfo | None = None
 
 
 class TokenResponse(BaseModel):
@@ -60,6 +63,8 @@ class UserResponse(BaseModel):
     learner_role_needs_review: bool = False
     language_id: uuid.UUID | None
     status: UserStatus
+    deactivated_at: datetime | None = None
+    deactivation_reason: str | None = None
     last_login_at: datetime | None
     created_at: datetime
 

@@ -13,8 +13,10 @@ import string
 import uuid
 from concurrent.futures import ThreadPoolExecutor
 
+from datetime import datetime, timezone
+
 from fastapi import APIRouter, Depends, File, HTTPException, Query, UploadFile, status
-from pydantic import ValidationError
+from pydantic import BaseModel, Field, ValidationError
 from sqlalchemy import func
 from sqlalchemy.orm import Session
 
@@ -23,6 +25,7 @@ from app.auth.security import hash_password
 from app.database import get_db
 from app.models import AdminBoundary, TrainingSession, User
 from app.models.audit_log import AuditLog
+from app.models.refresh_token import RefreshToken
 from app.models.enums import BOUNDARY_ORDER, LEARNER_ROLE_LABELS, AuditAction, LearnerRole, RoleName, UserStatus
 from app.schemas.auth import UserResponse
 from app.routers.boundaries import LEVEL_COLUMN, _find, ancestors
@@ -31,6 +34,48 @@ from app.schemas.users import UserCreate, UserUpdate
 
 router = APIRouter()
 ADMINS = (RoleName.SUPER_ADMIN,)
+
+
+class StatusChange(BaseModel):
+    reason: str | None = Field(None, max_length=500)
+
+
+def _status_guard(db: Session, user: User, actor: User, new_status: UserStatus) -> None:
+    """Item 2 rules for taking an account out of ACTIVE (via any endpoint)."""
+    if new_status == UserStatus.ACTIVE or user.status != UserStatus.ACTIVE:
+        return
+    if user.id == actor.id:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="You cannot deactivate your own account.")
+    if user.role == RoleName.SUPER_ADMIN:
+        others = db.query(User).filter(User.role == RoleName.SUPER_ADMIN, User.status == UserStatus.ACTIVE, User.id != user.id).count()
+        if others == 0:
+            raise HTTPException(status_code=status.HTTP_409_CONFLICT,
+                                detail="This is the last active super admin: make another account super admin first.")
+
+
+def _set_status(db: Session, user: User, actor: User, new_status: UserStatus, reason: str | None) -> bool:
+    """Changes the status, revokes every refresh token when leaving ACTIVE, records
+    who/when/why and audits it. Nothing else about the account is touched."""
+    if user.status == new_status:
+        return False
+    _status_guard(db, user, actor, new_status)
+    before = user.status
+    now = datetime.now(timezone.utc)
+    reason = (reason or "").strip() or None
+    revoked = 0
+    if new_status != UserStatus.ACTIVE:
+        revoked = (db.query(RefreshToken).filter(RefreshToken.user_id == user.id, RefreshToken.revoked.is_(False))
+                   .update({RefreshToken.revoked: True}, synchronize_session=False))
+        user.deactivated_at, user.deactivated_by, user.deactivation_reason = now, actor.id, reason
+    else:
+        user.deactivated_at, user.deactivated_by, user.deactivation_reason = None, None, None
+    user.status = new_status
+    db.add(AuditLog(user_id=actor.id,
+                    action=AuditAction.USER_REACTIVATE if new_status == UserStatus.ACTIVE else AuditAction.USER_DEACTIVATE,
+                    entity_type="user", entity_id=user.id,
+                    details={"username": user.username, "before": before.value, "after": new_status.value,
+                             "reason": reason, "refresh_tokens_revoked": revoked}))
+    return True
 
 
 LEARNER_ROLE_REQUIRED = (
@@ -296,6 +341,32 @@ def reset_training(
     return user
 
 
+@router.post("/{user_id}/deactivate", response_model=UserResponse)
+def deactivate_user(user_id: uuid.UUID, payload: StatusChange | None = None, db: Session = Depends(get_db),
+                    current_user: User = Depends(require_roles(*ADMINS))):
+    """Blocks sign-in, token refresh and sync at once; keeps every record."""
+    user = db.get(User, user_id)
+    if user is None:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User not found")
+    _set_status(db, user, current_user, UserStatus.INACTIVE, payload.reason if payload else None)
+    db.commit()
+    db.refresh(user)
+    return user
+
+
+@router.post("/{user_id}/reactivate", response_model=UserResponse)
+def reactivate_user(user_id: uuid.UUID, payload: StatusChange | None = None, db: Session = Depends(get_db),
+                    current_user: User = Depends(require_roles(*ADMINS))):
+    """Restores access; all progress, attempts and devices are still there."""
+    user = db.get(User, user_id)
+    if user is None:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User not found")
+    if _set_status(db, user, current_user, UserStatus.ACTIVE, payload.reason if payload else None):
+        db.commit()
+        db.refresh(user)
+    return user
+
+
 @router.patch("/{user_id}", response_model=UserResponse)
 def update_user(
     user_id: uuid.UUID,
@@ -337,6 +408,9 @@ def update_user(
         changes["training_session_id"] = None
     else:
         changes.pop("training_session_id", None)
+    new_status = changes.pop("status", None)
+    if new_status is not None and new_status != user.status:
+        _set_status(db, user, current_user, new_status, None)  # same rules and audit as /deactivate
     before = {k: (getattr(user, k).value if hasattr(getattr(user, k), "value") else getattr(user, k)) for k in changes}
     changed_area = any(k in changes for k in LEVEL_COLUMN.values())
     for k, v in changes.items():

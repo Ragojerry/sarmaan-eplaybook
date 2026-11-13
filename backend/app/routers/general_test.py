@@ -5,7 +5,8 @@ The General pre/post test and the training rules, for the admin portal.
   POST  /general-test/questions           add a question (content admins)
   PATCH /general-test/questions/{id}      edit text, options, answer, active, CDD note
   POST  /general-test/answer-key          set many answers at once: "1-B, 2-B, ..."
-  GET   /general-test/settings            module_min_seconds, general_test_active (+ why it can't be on)
+  GET   /general-test/settings            module_min_seconds, general_test_active (+ why it can't be on),
+                                          general_pass_mark_cdd / _other (pass marks: SUPER_ADMIN only to change)
   PUT   /general-test/settings            change them; switching the test on needs every active
                                           question to have an answer
   GET   /general-test/certificates/{no}   check a training certificate number (staff)
@@ -22,7 +23,7 @@ from sqlalchemy.orm import Session
 from app.auth.dependencies import get_current_user, require_roles
 from app.database import get_db
 from app.learning.certificate import find_certificate
-from app.learning.settings import SettingError, change_setting, general_test_ready, training_settings
+from app.learning.settings import PASS_MARK_KEYS, SettingError, change_setting, general_test_ready, training_settings
 from app.models import AuditLog, GeneralTestQuestion, User
 from app.models.enums import AuditAction, RoleName
 
@@ -62,6 +63,8 @@ class AnswerKeyIn(BaseModel):
 class SettingsIn(BaseModel):
     module_min_seconds: int | None = None
     general_test_active: bool | None = None
+    general_pass_mark_cdd: int | None = None
+    general_pass_mark_other: int | None = None
 
 
 def _out(q: GeneralTestQuestion) -> dict:
@@ -184,13 +187,17 @@ def set_answer_key(payload: AnswerKeyIn, db: Session = Depends(get_db), user: Us
 def get_settings_(db: Session = Depends(get_db), user: User = Depends(_staff)):
     s = training_settings(db)
     return {"module_min_seconds": s.module_min_seconds, "general_test_active": s.general_test_active,
+            "general_pass_mark_cdd": s.general_pass_mark_cdd, "general_pass_mark_other": s.general_pass_mark_other,
             "cannot_activate_because": general_test_ready(db)}
 
 
 @router.put("/settings")
 def put_settings(payload: SettingsIn, db: Session = Depends(get_db), user: User = Depends(require_roles(*EDITORS))):
+    changes = {k: v for k, v in payload.model_dump(exclude_unset=True).items() if v is not None}
+    if any(k in PASS_MARK_KEYS for k in changes) and user.role != RoleName.SUPER_ADMIN:
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Only a super admin can change the pass marks.")
     try:
-        for key, value in payload.model_dump(exclude_unset=True).items():
+        for key, value in changes.items():
             if value is not None:
                 change_setting(db, key, value, user)
     except SettingError as exc:
@@ -202,7 +209,7 @@ def put_settings(payload: SettingsIn, db: Session = Depends(get_db), user: User 
 
 @router.get("/certificates/{number}")
 def check_certificate(number: str, db: Session = Depends(get_db), user: User = Depends(_staff)):
-    """Whether a certificate number belongs to a passing post-test (90% or more).
+    """Whether a certificate number belongs to a passed post-test (its stored pass mark, or 90% before 2026-11-13).
     A certificate made offline is found once the learner's phone has synced."""
     found = find_certificate(db, number)
     if found is None:

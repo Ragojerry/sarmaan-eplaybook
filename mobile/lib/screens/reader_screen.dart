@@ -124,6 +124,8 @@ class _ReaderScreenState extends ConsumerState<ReaderScreen> with WidgetsBinding
   final Map<String, bool> _answers = {};
   QuizResult? _quizResult;
   bool _submittingQuiz = false;
+  // Statements already answered correctly in the latest attempt: a retry does not ask them again.
+  Set<String> _credit = const {};
 
   @override
   void initState() {
@@ -142,6 +144,8 @@ class _ReaderScreenState extends ConsumerState<ReaderScreen> with WidgetsBinding
       await db.upsertProgress(moduleId: widget.moduleId);
       recordAnalyticsEvent(db, 'MODULE_OPEN', moduleId: widget.moduleId);
       _checkShortModule();
+      final credit = await quizCredit(db, widget.moduleId);
+      if (mounted) setState(() => _credit = credit);
       if (mounted && state != null && !state.completed) {
         _baseSeconds = state.secondsSpent;
         _timing = true;
@@ -286,10 +290,12 @@ class _ReaderScreenState extends ConsumerState<ReaderScreen> with WidgetsBinding
 
   /// Records the learner's answer; when every statement is answered, the attempt
   /// is graded and saved (offline too).
-  Future<void> _answer(String sectionId, bool value, int statements) async {
+  /// [toAnswer]: the statements shown in this attempt (all of them, or on a retry only
+  /// those still wrong).
+  Future<void> _answer(String sectionId, bool value, int toAnswer) async {
     if (_quizResult != null || _answers.containsKey(sectionId) || _submittingQuiz) return;
     setState(() => _answers[sectionId] = value);
-    if (_answers.length < statements) return;
+    if (_answers.length < toAnswer) return;
     _submittingQuiz = true;
     try {
       final result = await recordModuleQuiz(ref.read(localDatabaseProvider), moduleId: widget.moduleId, answers: Map.of(_answers));
@@ -302,11 +308,17 @@ class _ReaderScreenState extends ConsumerState<ReaderScreen> with WidgetsBinding
     }
   }
 
-  /// "Try again": every statement is answered again (unlimited until the module is completed).
-  void _retryQuiz() => setState(() {
-        _answers.clear();
-        _quizResult = null;
-      });
+  /// "Try again": only the statements still wrong are asked again; the correct ones keep
+  /// their credit (unlimited until the module is completed).
+  Future<void> _retryQuiz() async {
+    final credit = await quizCredit(ref.read(localDatabaseProvider), widget.moduleId);
+    if (!mounted) return;
+    setState(() {
+      _credit = credit;
+      _answers.clear();
+      _quizResult = null;
+    });
+  }
 
   Widget _card({required IconData icon, required String title, required String body, Widget? action, bool good = false}) {
     return Container(
@@ -402,7 +414,7 @@ class _ReaderScreenState extends ConsumerState<ReaderScreen> with WidgetsBinding
   }
 
   /// The end of the module: the quiz status, the time, and "Complete module".
-  Widget _completionArea(ModuleLearning state, int statements) {
+  Widget _completionArea(ModuleLearning state, int statements, int toRetry) {
     if (state.completed) {
       return _card(
         icon: Icons.check_circle,
@@ -418,7 +430,9 @@ class _ReaderScreenState extends ConsumerState<ReaderScreen> with WidgetsBinding
       if (state.hasQuiz)
         state.quizPassed
             ? context.t('reader.quizPassedLine')
-            : context.tn('reader.quizTodoLine', statements, {'passMark': kQuizPassMark}),
+            : toRetry > 0 && toRetry < statements
+                ? context.tn('quiz.toRetry', toRetry)
+                : context.tn('reader.quizTodoLine', statements, {'passMark': kQuizPassMark}),
       secs >= state.minSeconds
           ? context.t('reader.timeReached', {'minimum': formatDuration(state.minSeconds)})
           : context.t('reader.timeSoFar', {'spent': formatDuration(secs), 'minimum': formatDuration(state.minSeconds)}),
@@ -433,11 +447,13 @@ class _ReaderScreenState extends ConsumerState<ReaderScreen> with WidgetsBinding
 
   /// One inline True/False statement. Answered once per attempt; when every
   /// statement is answered the attempt is graded, and "Try again" starts a new one.
-  Widget _quizCard(ContentSection section, ModuleLearning? state, int statements) {
+  Widget _quizCard(ContentSection section, ModuleLearning? state, int toAnswer) {
     final statement = section.content['statement'] as String? ?? '';
     final correctAnswer = section.content['answer'] as bool?;
     final explanation = section.content['explanation'] as String?;
     final review = state == null || state.completed || (state.hasQuiz && state.quizPassed && _quizResult == null);
+    // Answered correctly in the latest attempt: kept, not asked again on a retry.
+    final kept = !review && _credit.contains(section.id) && !_answers.containsKey(section.id);
     final mine = _answers[section.id];
     final answered = mine != null;
     final right = answered && mine == correctAnswer;
@@ -446,7 +462,7 @@ class _ReaderScreenState extends ConsumerState<ReaderScreen> with WidgetsBinding
       final chosen = mine == value;
       return Expanded(
         child: OutlinedButton(
-          onPressed: review || answered ? null : () => _answer(section.id, value, statements),
+          onPressed: review || answered || kept ? null : () => _answer(section.id, value, toAnswer),
           style: OutlinedButton.styleFrom(
             backgroundColor: chosen ? (right ? AppColors.successSurface : AppColors.errorSurface) : null,
             // Once answered the buttons are disabled; the chosen one keeps full-contrast text.
@@ -477,6 +493,17 @@ class _ReaderScreenState extends ConsumerState<ReaderScreen> with WidgetsBinding
           if (review)
             Text(correctAnswer == true ? context.t('quiz.answerTrue') : context.t('quiz.answerFalse'),
                 style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w700, color: AppColors.primaryText))
+          else if (kept)
+            Row(
+              children: [
+                const Icon(Icons.check_circle_outline, size: 16, color: AppColors.successText),
+                const SizedBox(width: 6),
+                Expanded(
+                  child: Text(context.t('quiz.kept'),
+                      style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w700, color: AppColors.successText)),
+                ),
+              ],
+            )
           else
             Row(children: [choice(true), const SizedBox(width: 10), choice(false)]),
           if (!review && answered)
@@ -491,7 +518,7 @@ class _ReaderScreenState extends ConsumerState<ReaderScreen> with WidgetsBinding
                 style: TextStyle(fontSize: 12, fontWeight: FontWeight.w700, color: right ? AppColors.successText : AppColors.errorText),
               ),
             ),
-          if ((review || answered) && explanation != null && explanation.isNotEmpty)
+          if ((review || answered || kept) && explanation != null && explanation.isNotEmpty)
             Padding(
               padding: const EdgeInsets.only(top: 4),
               child: Text(explanation, style: const TextStyle(fontSize: 11.5, height: 1.4, color: AppColors.textMuted)),
@@ -508,6 +535,11 @@ class _ReaderScreenState extends ConsumerState<ReaderScreen> with WidgetsBinding
                         Text(
                           context.tn('quiz.failedRetry', _quizResult!.total, {'correct': _quizResult!.correct}),
                           style: const TextStyle(fontSize: 12, color: AppColors.warningText),
+                        ),
+                        const SizedBox(height: 4),
+                        Text(
+                          context.tn('quiz.toRetry', _quizResult!.remaining),
+                          style: const TextStyle(fontSize: 12.5, fontWeight: FontWeight.w800, color: AppColors.textStrong),
                         ),
                         const SizedBox(height: 8),
                         _primary(context.t('quiz.tryAgain'), _retryQuiz),
@@ -542,6 +574,8 @@ class _ReaderScreenState extends ConsumerState<ReaderScreen> with WidgetsBinding
           _canRead = true;
           final statements = sections.where((x) => x.contentType == 'TRUE_FALSE').toList();
           _lastStatementId = statements.isEmpty ? null : statements.last.id;
+          // A retry asks only the statements not already answered correctly.
+          final toAnswer = statements.where((s) => !_credit.contains(s.id)).length;
           if (_loadedSections.isEmpty && sections.isNotEmpty) _checkShortModule();
           _loadedSections = sections;
           return sections.isEmpty
@@ -567,10 +601,10 @@ class _ReaderScreenState extends ConsumerState<ReaderScreen> with WidgetsBinding
                   _timeIndicator(state),
                   for (final section in sections)
                     section.contentType == 'TRUE_FALSE'
-                        ? _quizCard(section, state, statements.length)
+                        ? _quizCard(section, state, toAnswer)
                         : _buildSection(context, section),
                   const SizedBox(height: 22),
-                  _completionArea(state, statements.length),
+                  _completionArea(state, statements.length, _quizResult?.remaining ?? (_credit.isEmpty ? 0 : toAnswer)),
                 ],
               );
         },

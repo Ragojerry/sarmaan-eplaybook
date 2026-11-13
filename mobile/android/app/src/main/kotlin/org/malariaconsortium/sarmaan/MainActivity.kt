@@ -4,6 +4,7 @@ import android.app.Activity
 import android.content.ActivityNotFoundException
 import android.content.Intent
 import android.net.Uri
+import android.os.Build
 import io.flutter.embedding.android.FlutterActivity
 import io.flutter.embedding.engine.FlutterEngine
 import io.flutter.plugin.common.MethodChannel
@@ -13,6 +14,9 @@ import io.flutter.plugin.common.MethodChannel
  * "Save as" screen (ACTION_CREATE_DOCUMENT), which opens in Downloads, works on
  * every supported Android version and needs no storage permission. "open" shows
  * a saved file in the phone's PDF viewer.
+ *
+ * The device channel answers only "osVersion" (for example "Android 14 (API 34)") for
+ * the admin portal's device list. No model, hardware id, IMEI or phone number is read.
  */
 class MainActivity : FlutterActivity() {
     private var pendingResult: MethodChannel.Result? = null
@@ -20,6 +24,10 @@ class MainActivity : FlutterActivity() {
 
     override fun configureFlutterEngine(flutterEngine: FlutterEngine) {
         super.configureFlutterEngine(flutterEngine)
+        MethodChannel(flutterEngine.dartExecutor.binaryMessenger, DEVICE_CHANNEL).setMethodCallHandler { call, result ->
+            if (call.method == "osVersion") result.success("Android ${Build.VERSION.RELEASE} (API ${Build.VERSION.SDK_INT})")
+            else result.notImplemented()
+        }
         MethodChannel(flutterEngine.dartExecutor.binaryMessenger, CHANNEL).setMethodCallHandler { call, result ->
             when (call.method) {
                 "save" -> {
@@ -90,6 +98,7 @@ class MainActivity : FlutterActivity() {
 
     companion object {
         private const val CHANNEL = "org.malariaconsortium.sarmaan/files"
+        private const val DEVICE_CHANNEL = "org.malariaconsortium.sarmaan/device"
         private const val SAVE_REQUEST = 4207
     }
 }

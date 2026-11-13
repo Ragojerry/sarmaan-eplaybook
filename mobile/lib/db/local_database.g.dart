@@ -6846,6 +6846,12 @@ class $LocalGeneralAttemptsTable extends LocalGeneralAttempts
   late final GeneratedColumn<String> invalidReason = GeneratedColumn<String>(
       'invalid_reason', aliasedName, true,
       type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _passMarkMeta =
+      const VerificationMeta('passMark');
+  @override
+  late final GeneratedColumn<int> passMark = GeneratedColumn<int>(
+      'pass_mark', aliasedName, true,
+      type: DriftSqlType.int, requiredDuringInsert: false);
   @override
   List<GeneratedColumn> get $columns => [
         id,
@@ -6859,7 +6865,8 @@ class $LocalGeneralAttemptsTable extends LocalGeneralAttempts
         takenAt,
         synced,
         serverValid,
-        invalidReason
+        invalidReason,
+        passMark
       ];
   @override
   String get aliasedName => _alias ?? actualTableName;
@@ -6945,6 +6952,10 @@ class $LocalGeneralAttemptsTable extends LocalGeneralAttempts
           invalidReason.isAcceptableOrUnknown(
               data['invalid_reason']!, _invalidReasonMeta));
     }
+    if (data.containsKey('pass_mark')) {
+      context.handle(_passMarkMeta,
+          passMark.isAcceptableOrUnknown(data['pass_mark']!, _passMarkMeta));
+    }
     return context;
   }
 
@@ -6978,6 +6989,8 @@ class $LocalGeneralAttemptsTable extends LocalGeneralAttempts
           .read(DriftSqlType.bool, data['${effectivePrefix}server_valid']),
       invalidReason: attachedDatabase.typeMapping
           .read(DriftSqlType.string, data['${effectivePrefix}invalid_reason']),
+      passMark: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}pass_mark']),
     );
   }
 
@@ -7001,6 +7014,7 @@ class LocalGeneralAttemptRow extends DataClass
   final bool synced;
   final bool? serverValid;
   final String? invalidReason;
+  final int? passMark;
   const LocalGeneralAttemptRow(
       {required this.id,
       required this.userId,
@@ -7013,7 +7027,8 @@ class LocalGeneralAttemptRow extends DataClass
       required this.takenAt,
       required this.synced,
       this.serverValid,
-      this.invalidReason});
+      this.invalidReason,
+      this.passMark});
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
     final map = <String, Expression>{};
@@ -7032,6 +7047,9 @@ class LocalGeneralAttemptRow extends DataClass
     }
     if (!nullToAbsent || invalidReason != null) {
       map['invalid_reason'] = Variable<String>(invalidReason);
+    }
+    if (!nullToAbsent || passMark != null) {
+      map['pass_mark'] = Variable<int>(passMark);
     }
     return map;
   }
@@ -7054,6 +7072,9 @@ class LocalGeneralAttemptRow extends DataClass
       invalidReason: invalidReason == null && nullToAbsent
           ? const Value.absent()
           : Value(invalidReason),
+      passMark: passMark == null && nullToAbsent
+          ? const Value.absent()
+          : Value(passMark),
     );
   }
 
@@ -7073,6 +7094,7 @@ class LocalGeneralAttemptRow extends DataClass
       synced: serializer.fromJson<bool>(json['synced']),
       serverValid: serializer.fromJson<bool?>(json['serverValid']),
       invalidReason: serializer.fromJson<String?>(json['invalidReason']),
+      passMark: serializer.fromJson<int?>(json['passMark']),
     );
   }
   @override
@@ -7091,6 +7113,7 @@ class LocalGeneralAttemptRow extends DataClass
       'synced': serializer.toJson<bool>(synced),
       'serverValid': serializer.toJson<bool?>(serverValid),
       'invalidReason': serializer.toJson<String?>(invalidReason),
+      'passMark': serializer.toJson<int?>(passMark),
     };
   }
 
@@ -7106,7 +7129,8 @@ class LocalGeneralAttemptRow extends DataClass
           DateTime? takenAt,
           bool? synced,
           Value<bool?> serverValid = const Value.absent(),
-          Value<String?> invalidReason = const Value.absent()}) =>
+          Value<String?> invalidReason = const Value.absent(),
+          Value<int?> passMark = const Value.absent()}) =>
       LocalGeneralAttemptRow(
         id: id ?? this.id,
         userId: userId ?? this.userId,
@@ -7121,6 +7145,7 @@ class LocalGeneralAttemptRow extends DataClass
         serverValid: serverValid.present ? serverValid.value : this.serverValid,
         invalidReason:
             invalidReason.present ? invalidReason.value : this.invalidReason,
+        passMark: passMark.present ? passMark.value : this.passMark,
       );
   LocalGeneralAttemptRow copyWithCompanion(LocalGeneralAttemptsCompanion data) {
     return LocalGeneralAttemptRow(
@@ -7145,6 +7170,7 @@ class LocalGeneralAttemptRow extends DataClass
       invalidReason: data.invalidReason.present
           ? data.invalidReason.value
           : this.invalidReason,
+      passMark: data.passMark.present ? data.passMark.value : this.passMark,
     );
   }
 
@@ -7162,7 +7188,8 @@ class LocalGeneralAttemptRow extends DataClass
           ..write('takenAt: $takenAt, ')
           ..write('synced: $synced, ')
           ..write('serverValid: $serverValid, ')
-          ..write('invalidReason: $invalidReason')
+          ..write('invalidReason: $invalidReason, ')
+          ..write('passMark: $passMark')
           ..write(')'))
         .toString();
   }
@@ -7180,7 +7207,8 @@ class LocalGeneralAttemptRow extends DataClass
       takenAt,
       synced,
       serverValid,
-      invalidReason);
+      invalidReason,
+      passMark);
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
@@ -7196,7 +7224,8 @@ class LocalGeneralAttemptRow extends DataClass
           other.takenAt == this.takenAt &&
           other.synced == this.synced &&
           other.serverValid == this.serverValid &&
-          other.invalidReason == this.invalidReason);
+          other.invalidReason == this.invalidReason &&
+          other.passMark == this.passMark);
 }
 
 class LocalGeneralAttemptsCompanion
@@ -7213,6 +7242,7 @@ class LocalGeneralAttemptsCompanion
   final Value<bool> synced;
   final Value<bool?> serverValid;
   final Value<String?> invalidReason;
+  final Value<int?> passMark;
   const LocalGeneralAttemptsCompanion({
     this.id = const Value.absent(),
     this.userId = const Value.absent(),
@@ -7226,6 +7256,7 @@ class LocalGeneralAttemptsCompanion
     this.synced = const Value.absent(),
     this.serverValid = const Value.absent(),
     this.invalidReason = const Value.absent(),
+    this.passMark = const Value.absent(),
   });
   LocalGeneralAttemptsCompanion.insert({
     this.id = const Value.absent(),
@@ -7240,6 +7271,7 @@ class LocalGeneralAttemptsCompanion
     this.synced = const Value.absent(),
     this.serverValid = const Value.absent(),
     this.invalidReason = const Value.absent(),
+    this.passMark = const Value.absent(),
   })  : clientId = Value(clientId),
         testType = Value(testType),
         correctCount = Value(correctCount),
@@ -7260,6 +7292,7 @@ class LocalGeneralAttemptsCompanion
     Expression<bool>? synced,
     Expression<bool>? serverValid,
     Expression<String>? invalidReason,
+    Expression<int>? passMark,
   }) {
     return RawValuesInsertable({
       if (id != null) 'id': id,
@@ -7274,6 +7307,7 @@ class LocalGeneralAttemptsCompanion
       if (synced != null) 'synced': synced,
       if (serverValid != null) 'server_valid': serverValid,
       if (invalidReason != null) 'invalid_reason': invalidReason,
+      if (passMark != null) 'pass_mark': passMark,
     });
   }
 
@@ -7289,7 +7323,8 @@ class LocalGeneralAttemptsCompanion
       Value<DateTime>? takenAt,
       Value<bool>? synced,
       Value<bool?>? serverValid,
-      Value<String?>? invalidReason}) {
+      Value<String?>? invalidReason,
+      Value<int?>? passMark}) {
     return LocalGeneralAttemptsCompanion(
       id: id ?? this.id,
       userId: userId ?? this.userId,
@@ -7303,6 +7338,7 @@ class LocalGeneralAttemptsCompanion
       synced: synced ?? this.synced,
       serverValid: serverValid ?? this.serverValid,
       invalidReason: invalidReason ?? this.invalidReason,
+      passMark: passMark ?? this.passMark,
     );
   }
 
@@ -7345,6 +7381,9 @@ class LocalGeneralAttemptsCompanion
     if (invalidReason.present) {
       map['invalid_reason'] = Variable<String>(invalidReason.value);
     }
+    if (passMark.present) {
+      map['pass_mark'] = Variable<int>(passMark.value);
+    }
     return map;
   }
 
@@ -7362,7 +7401,8 @@ class LocalGeneralAttemptsCompanion
           ..write('takenAt: $takenAt, ')
           ..write('synced: $synced, ')
           ..write('serverValid: $serverValid, ')
-          ..write('invalidReason: $invalidReason')
+          ..write('invalidReason: $invalidReason, ')
+          ..write('passMark: $passMark')
           ..write(')'))
         .toString();
   }
@@ -12436,6 +12476,7 @@ typedef $$LocalGeneralAttemptsTableCreateCompanionBuilder
   Value<bool> synced,
   Value<bool?> serverValid,
   Value<String?> invalidReason,
+  Value<int?> passMark,
 });
 typedef $$LocalGeneralAttemptsTableUpdateCompanionBuilder
     = LocalGeneralAttemptsCompanion Function({
@@ -12451,6 +12492,7 @@ typedef $$LocalGeneralAttemptsTableUpdateCompanionBuilder
   Value<bool> synced,
   Value<bool?> serverValid,
   Value<String?> invalidReason,
+  Value<int?> passMark,
 });
 
 class $$LocalGeneralAttemptsTableFilterComposer
@@ -12497,6 +12539,9 @@ class $$LocalGeneralAttemptsTableFilterComposer
 
   ColumnFilters<String> get invalidReason => $composableBuilder(
       column: $table.invalidReason, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<int> get passMark => $composableBuilder(
+      column: $table.passMark, builder: (column) => ColumnFilters(column));
 }
 
 class $$LocalGeneralAttemptsTableOrderingComposer
@@ -12546,6 +12591,9 @@ class $$LocalGeneralAttemptsTableOrderingComposer
   ColumnOrderings<String> get invalidReason => $composableBuilder(
       column: $table.invalidReason,
       builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<int> get passMark => $composableBuilder(
+      column: $table.passMark, builder: (column) => ColumnOrderings(column));
 }
 
 class $$LocalGeneralAttemptsTableAnnotationComposer
@@ -12592,6 +12640,9 @@ class $$LocalGeneralAttemptsTableAnnotationComposer
 
   GeneratedColumn<String> get invalidReason => $composableBuilder(
       column: $table.invalidReason, builder: (column) => column);
+
+  GeneratedColumn<int> get passMark =>
+      $composableBuilder(column: $table.passMark, builder: (column) => column);
 }
 
 class $$LocalGeneralAttemptsTableTableManager extends RootTableManager<
@@ -12636,6 +12687,7 @@ class $$LocalGeneralAttemptsTableTableManager extends RootTableManager<
             Value<bool> synced = const Value.absent(),
             Value<bool?> serverValid = const Value.absent(),
             Value<String?> invalidReason = const Value.absent(),
+            Value<int?> passMark = const Value.absent(),
           }) =>
               LocalGeneralAttemptsCompanion(
             id: id,
@@ -12650,6 +12702,7 @@ class $$LocalGeneralAttemptsTableTableManager extends RootTableManager<
             synced: synced,
             serverValid: serverValid,
             invalidReason: invalidReason,
+            passMark: passMark,
           ),
           createCompanionCallback: ({
             Value<int> id = const Value.absent(),
@@ -12664,6 +12717,7 @@ class $$LocalGeneralAttemptsTableTableManager extends RootTableManager<
             Value<bool> synced = const Value.absent(),
             Value<bool?> serverValid = const Value.absent(),
             Value<String?> invalidReason = const Value.absent(),
+            Value<int?> passMark = const Value.absent(),
           }) =>
               LocalGeneralAttemptsCompanion.insert(
             id: id,
@@ -12678,6 +12732,7 @@ class $$LocalGeneralAttemptsTableTableManager extends RootTableManager<
             synced: synced,
             serverValid: serverValid,
             invalidReason: invalidReason,
+            passMark: passMark,
           ),
           withReferenceMapper: (p0) => p0
               .map((e) => (e.readTable(table), BaseReferences(db, table, e)))

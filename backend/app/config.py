@@ -57,6 +57,8 @@ class Settings(BaseSettings):
     cutover_date: str | None = None
     # Lowest app version allowed to train (e.g. "0.1.10"); None = no minimum. Sent with GET /sync/learning.
     min_app_version: str | None = None
+    # A device counts as active when it logged in or synced within this many days (app/devices/registry.py).
+    active_device_days: int = 30
 
 
 @lru_cache

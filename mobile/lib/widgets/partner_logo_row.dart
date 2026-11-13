@@ -38,41 +38,6 @@ class PartnerLogoRow extends StatelessWidget {
   }
 }
 
-/// The SARMAAN-II logo on its own (the app mark on the login screen), from the
-/// `sarmaan_ii` entry of logos.json: unmodified, on white, never larger than the file's
-/// own pixels. Swap in a vector file there and the mark grows to [targetHeight].
-class SarmaanLogoMark extends StatelessWidget {
-  const SarmaanLogoMark({super.key, this.targetHeight = 56});
-
-  final double targetHeight;
-
-  @override
-  Widget build(BuildContext context) {
-    return FutureBuilder<Map<String, dynamic>>(
-      future: PartnerLogoRow._load(),
-      builder: (context, snap) {
-        final logo = ((snap.data?['logos'] as Map?)?['sarmaan_ii'] as Map?)?.cast<String, dynamic>();
-        if (logo == null) return SizedBox(height: targetHeight);
-        final wPx = (logo['widthPx'] as num).toDouble();
-        final hPx = (logo['heightPx'] as num).toDouble();
-        final h = math.min(targetHeight, hPx / MediaQuery.devicePixelRatioOf(context));
-        return Container(
-          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-          decoration: BoxDecoration(color: AppColors.white, borderRadius: BorderRadius.circular(AppRadius.small)),
-          child: Image.asset(
-            'assets/brand/${logo['file']}',
-            width: h * wPx / hPx,
-            height: h,
-            fit: BoxFit.contain,
-            filterQuality: FilterQuality.medium,
-            semanticLabel: logo['label'] as String?,
-          ),
-        );
-      },
-    );
-  }
-}
-
 /// The top of each tab screen (Home, Modules, Videos, Ask, About): the `tabHeader`
 /// placement of logos.json (IHS and Malaria Consortium) in a white band under the status bar, then the
 /// screen's own [appBar] if it has one. Used as `Scaffold.appBar`, so it stays put while

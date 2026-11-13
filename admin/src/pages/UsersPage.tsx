@@ -1,6 +1,7 @@
 import { Fragment, useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { api } from "../services/api";
+import { useAuth } from "../services/auth";
 import { ManagedUser, TrainingSession } from "../types/api";
 import AreaPicker, { AreaValue, areaFromUser, deepest } from "../components/AreaPicker";
 import { LEARNER_ROLES, learnerRoleLabel, portalRoleLabel } from "../learnerRoles";
@@ -50,7 +51,10 @@ export default function UsersPage() {
   const queryClient = useQueryClient();
   const [teamFilter, setTeamFilter] = useState("");
   const [learnerFilter, setLearnerFilter] = useState("");
+  const { user: me } = useAuth();
   const [reviewOnly, setReviewOnly] = useState(false);
+  const [statusFilter, setStatusFilter] = useState<"" | "ACTIVE" | "DEACTIVATED">("");
+  const [statusEdit, setStatusEdit] = useState<{ id: string; action: "deactivate" | "reactivate"; reason: string } | null>(null);
   const [roleEdit, setRoleEdit] = useState<{ id: string; value: string } | null>(null);
   const [showCreate, setShowCreate] = useState(false);
   const [showImport, setShowImport] = useState(false);
@@ -151,6 +155,28 @@ export default function UsersPage() {
     onError: (e) => setMessage({ kind: "error", text: errorText(e, "Could not update the account.") }),
   });
 
+  // Deactivation blocks sign-in, token refresh and sync at once; every record is kept.
+  const changeStatus = useMutation({
+    mutationFn: async (v: { id: string; action: "deactivate" | "reactivate"; reason: string }) =>
+      (await api.post(`/users/${v.id}/${v.action}`, { reason: v.reason.trim() || null })).data,
+    onSuccess: (_d, v) => {
+      setStatusEdit(null);
+      setMessage({
+        kind: "info",
+        text:
+          v.action === "deactivate"
+            ? "Account deactivated. The person is signed out on every phone; all their data is kept."
+            : "Account reactivated. The person can sign in again; their progress is unchanged.",
+      });
+      refresh();
+    },
+    onError: (e) => setMessage({ kind: "error", text: errorText(e, "Could not change the account status.") }),
+  });
+
+  const shownUsers = (users.data ?? []).filter((u) =>
+    statusFilter === "" ? true : statusFilter === "ACTIVE" ? u.status === "ACTIVE" : u.status !== "ACTIVE",
+  );
+
   const resetTraining = useMutation({
     mutationFn: async (id: string) => (await api.post(`/users/${id}/reset-training`)).data,
     onSuccess: () => {
@@ -185,6 +211,16 @@ export default function UsersPage() {
             <input type="checkbox" checked={reviewOnly} onChange={(e) => setReviewOnly(e.target.checked)} />
             Needs review
           </label>
+          <select
+            className="border rounded px-2 py-1.5 text-sm"
+            aria-label="Status"
+            value={statusFilter}
+            onChange={(e) => setStatusFilter(e.target.value as "" | "ACTIVE" | "DEACTIVATED")}
+          >
+            <option value="">Active and deactivated</option>
+            <option value="ACTIVE">Active only</option>
+            <option value="DEACTIVATED">Deactivated only</option>
+          </select>
           <button onClick={() => setShowImport((v) => !v)} className="border text-sm rounded px-4 py-2">
             Bulk upload
           </button>
@@ -370,16 +406,16 @@ export default function UsersPage() {
                 </td>
               </tr>
             )}
-            {users.data?.length === 0 && (
+            {users.data && shownUsers.length === 0 && (
               <tr>
                 <td colSpan={8} className="px-3 py-4 text-gray-500">
                   No users found.
                 </td>
               </tr>
             )}
-            {users.data?.map((u) => (
+            {shownUsers.map((u) => (
               <Fragment key={u.id}>
-              <tr className="border-t">
+              <tr className={`border-t ${u.status !== "ACTIVE" ? "bg-gray-50 text-gray-600" : ""}`}>
                 <td className="px-3 py-2">
                   {u.first_name} {u.last_name}
                   <div className="text-xs text-gray-500">{u.email}</div>
@@ -496,18 +532,67 @@ export default function UsersPage() {
                     </div>
                   )}
                 </td>
-                <td className="px-3 py-2">
-                  <button
-                    className="text-xs underline text-gray-700"
-                    onClick={() => patch.mutate({ id: u.id, body: { status: u.status === "ACTIVE" ? "INACTIVE" : "ACTIVE" } })}
-                  >
-                    {u.status}
-                  </button>
+                <td className="px-3 py-2 whitespace-nowrap">
+                  {u.status === "ACTIVE" ? (
+                    <span className="text-xs">● Active</span>
+                  ) : (
+                    <span className="inline-block text-xs font-medium border border-gray-400 rounded px-1.5 py-0.5" title={u.deactivation_reason ?? undefined}>
+                      ⊘ {u.status === "INACTIVE" ? "Deactivated" : "Suspended"}
+                    </span>
+                  )}
+                  {u.status !== "ACTIVE" && u.deactivated_at && (
+                    <div className="text-xs">since {new Date(u.deactivated_at).toLocaleDateString()}</div>
+                  )}
+                  {u.status !== "ACTIVE" && u.deactivation_reason && <div className="text-xs max-w-[14rem] whitespace-normal">“{u.deactivation_reason}”</div>}
+                  {u.id !== me?.id && (
+                    <div>
+                      <button
+                        className="text-xs underline mt-1"
+                        onClick={() => setStatusEdit({ id: u.id, action: u.status === "ACTIVE" ? "deactivate" : "reactivate", reason: "" })}
+                      >
+                        {u.status === "ACTIVE" ? "Deactivate" : "Reactivate"}
+                      </button>
+                    </div>
+                  )}
                 </td>
                 <td className="px-3 py-2 text-gray-500 whitespace-nowrap">
                   {u.last_login_at ? new Date(u.last_login_at).toLocaleString() : "never"}
                 </td>
               </tr>
+              {statusEdit?.id === u.id && (
+                <tr className="bg-gray-50">
+                  <td colSpan={8} className="px-3 py-3">
+                    <form
+                      className="flex flex-wrap items-end gap-2 text-sm"
+                      onSubmit={(e) => {
+                        e.preventDefault();
+                        changeStatus.mutate(statusEdit);
+                      }}
+                    >
+                      <p className="w-full">
+                        {statusEdit.action === "deactivate"
+                          ? `Deactivate ${u.first_name} ${u.last_name}? They are signed out on every phone and cannot sign in or sync. Nothing is deleted; you can reactivate them later.`
+                          : `Reactivate ${u.first_name} ${u.last_name}? They can sign in again with their progress intact.`}
+                      </p>
+                      <label className="block grow max-w-md">
+                        <span className="text-xs text-gray-600">Reason (optional, kept in the audit log)</span>
+                        <input
+                          className="mt-1 w-full border rounded px-2 py-1"
+                          maxLength={500}
+                          value={statusEdit.reason}
+                          onChange={(e) => setStatusEdit({ ...statusEdit, reason: e.target.value })}
+                        />
+                      </label>
+                      <button disabled={changeStatus.isPending} className="bg-gray-900 text-white rounded px-3 py-1.5 disabled:opacity-50">
+                        {statusEdit.action === "deactivate" ? "Deactivate" : "Reactivate"}
+                      </button>
+                      <button type="button" className="underline text-xs" onClick={() => setStatusEdit(null)}>
+                        Cancel
+                      </button>
+                    </form>
+                  </td>
+                </tr>
+              )}
               {areaEdit?.id === u.id && (
                 <tr className="bg-gray-50">
                   <td colSpan={8} className="px-3 py-3">

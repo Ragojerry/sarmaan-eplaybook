@@ -54,6 +54,12 @@ Text 4.5:1, large text and controls 3:1; decor has no threshold.
 | textMuted `#43544F` | surface `#F2F8F7` | 7.46:1 | 4.5:1 (text) | pass | Tools repository rows: type, service, 'Opens online', copy and share icons |
 | primaryText `#00685C` | surface `#F2F8F7` | 6.24:1 | 3.0:1 (control) | pass | Tools repository rows: type icon |
 | primaryText `#00685C` | surfaceSelected `#E6F2F0` | 5.85:1 | 3.0:1 (control) | pass | Tools card on Home and Modules: icon on its pale tile |
+| textStrong `#1F2A28` | successSurface `#E9EFEC` | 12.69:1 | 4.5:1 (text) | pass | General test result: 'Passed' and its pass-mark line |
+| successText `#245C3E` | successSurface `#E9EFEC` | 6.74:1 | 3.0:1 (control) | pass | General test result: tick icon and border when passed |
+| text `#1F2A28` | surfaceMuted `#E6F2F0` | 12.90:1 | 4.5:1 (text) | pass | General test result: 'Not passed' and its pass-mark line |
+| textMuted `#43544F` | surfaceMuted `#E6F2F0` | 6.99:1 | 3.0:1 (control) | pass | General test result: cross icon when not passed |
+| warningText `#1F2A28` | warningSurface `#F9ECE7` | 12.80:1 | 4.5:1 (text) | pass | Sign-in screen: 'Your account has been deactivated' message |
+| primaryText `#00685C` | surface `#F2F8F7` | 6.24:1 | 4.5:1 (text) | pass | Tour: Skip and Back buttons, area icon |
 | textDisabled `#43544F` | surfaceMuted `#E6F2F0` | 6.99:1 | - (decor) | pass | Disabled text (exempt from WCAG; same as muted) |
 | divider `#C6DEDB` | background `#D9E8E7` | 1.12:1 | - (decor) | pass | Thin teal card border (rgba(0,104,92,0.18) on the card) |
 

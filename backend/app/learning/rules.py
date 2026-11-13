@@ -34,6 +34,12 @@ def reaches(correct: int, total: int, percent: int) -> bool:
     return total > 0 and correct * 100 >= percent * total
 
 
+def general_passes(correct: int, total: int, pass_mark: int) -> bool:
+    """General pre/post-test against the pass mark that applied to the attempt
+    (whole numbers: correct x 100 >= mark x total; 25 questions at 80% need 20)."""
+    return reaches(correct, total, pass_mark)
+
+
 def module_quiz_passes(correct: int, total: int) -> bool:
     """A module's inline True/False quiz is passed at the same 90% pass mark
     (exact arithmetic: 3 statements need 3 right, 2 of 3 is 66.7%)."""

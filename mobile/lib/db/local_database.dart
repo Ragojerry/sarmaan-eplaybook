@@ -323,6 +323,8 @@ class LocalGeneralAttempts extends Table {
   BoolColumn get synced => boolean().withDefault(const Constant(false))();
   BoolColumn get serverValid => boolean().nullable()();
   TextColumn get invalidReason => text().nullable()();
+  // v12: the pass mark (%) the attempt was graded against; null before 2026-11-13.
+  IntColumn get passMark => integer().nullable()();
 }
 
 /// Published interface text (buttons, labels, messages) per language (v9), from
@@ -435,8 +437,9 @@ class LocalDatabase extends _$LocalDatabase {
   // v9: the app's interface text in the learner's language (a new table only).
   // v10: Support deck contacts on the Ask tab (a new table only).
   // v11: the Tools repository (two new tables only).
+  // v12: the pass mark stored with each General test attempt (a new nullable column).
   @override
-  int get schemaVersion => 11;
+  int get schemaVersion => 12;
 
   String? _activeUserId;
   String? _learnerRole;
@@ -472,6 +475,13 @@ class LocalDatabase extends _$LocalDatabase {
     if (id == null) return;
     await (update(pendingSync)..where((s) => s.userId.equals('') & s.entityType.equals('analytics')))
         .write(PendingSyncCompanion(userId: Value(id)));
+  }
+
+  /// Whether [table] already has [column] (an upgrade step that was interrupted, or
+  /// a copy made by a newer build, must not fail on "duplicate column").
+  Future<bool> _hasColumn(String table, String column) async {
+    final rows = await customSelect('PRAGMA table_info($table)').get();
+    return rows.any((r) => r.read<String>('name') == column);
   }
 
   @override
@@ -517,6 +527,11 @@ class LocalDatabase extends _$LocalDatabase {
           if (from < 10) {
             // A new, empty table: nothing existing changes. Until it fills, the deck is hidden.
             await m.createTable(cachedSupportContacts);
+          }
+          if (from >= 8 && from < 12 && !await _hasColumn('local_general_attempts', 'pass_mark')) {
+            // (A database older than 8 just created the table with the column.)
+            // Existing attempts keep NULL: they are never re-graded.
+            await m.addColumn(localGeneralAttempts, localGeneralAttempts.passMark);
           }
           if (from < 11) {
             // New, empty tables: nothing existing changes. Until they fill, no Tools section shows.
@@ -764,8 +779,10 @@ class LocalDatabase extends _$LocalDatabase {
     required int total,
     required String answersJson,
     DateTime? takenAt,
+    int? passMark,
   }) =>
       into(localGeneralAttempts).insert(LocalGeneralAttemptsCompanion.insert(
+        passMark: Value(passMark),
         userId: Value(_uid),
         clientId: clientId,
         testType: testType,
@@ -799,12 +816,24 @@ class LocalDatabase extends _$LocalDatabase {
     required int correct,
     required int total,
     required DateTime takenAt,
+    int? passMark,
   }) =>
       transaction(() async {
         final existing =
             await (select(localGeneralAttempts)..where((a) => a.clientId.equals(clientId))).getSingleOrNull();
-        if (existing != null) return;
+        if (existing != null) {
+          // The server sends only the result that counts: if this phone had it marked as
+          // refused (it arrived before the last completion), it counts now. The server's
+          // stored mark is the one that decides the certificate.
+          await (update(localGeneralAttempts)..where((a) => a.id.equals(existing.id))).write(LocalGeneralAttemptsCompanion(
+            serverValid: const Value(true),
+            invalidReason: const Value(null),
+            passMark: passMark != null ? Value(passMark) : const Value.absent(),
+          ));
+          return;
+        }
         await into(localGeneralAttempts).insert(LocalGeneralAttemptsCompanion.insert(
+          passMark: Value(passMark),
           userId: Value(_uid),
           clientId: clientId,
           testType: testType,

@@ -46,7 +46,9 @@ from app.models import (
     UserModuleProgress,
 )
 from app.learning.access import module_visible_to, visible_module_ids
-from app.learning.rules import auto_approve_percent
+from app.learning.rules import auto_approve_percent, general_passes
+from app.learning.certificate import certifies
+from app.learning.revalidate import revalidate
 from app.learning.state import READING_PERCENT, ModuleState, learning_overview, module_state
 from app.models.enums import AnalyticsEventType, ContentReviewStatus, ModuleStatus, ReleaseStatus, TestType
 from app.releases.packager import package_path
@@ -152,7 +154,9 @@ def sync_quiz_attempts(payload: QuizAttemptBatch, db: Session = Depends(get_db),
                         correct_count=item.correct_count, total_count=item.total_count,
                         score_percent=score_percent(item.correct_count, item.total_count),
                         passed=quiz_passed(item.correct_count, item.total_count),
-                        results=[{"question_id": str(r.question_id), "correct": r.correct} for r in item.results],
+                        results=[{"question_id": str(r.question_id), "correct": r.correct,
+                                  **({"shown": r.shown} if r.shown is not None else {}),
+                                  **({"answer": r.answer} if r.answer is not None else {})} for r in item.results],
                         device_id=payload.device_id, taken_at=item.taken_at,
                         test_type=test_type, valid=problem is None, invalid_reason=problem,
                     )
@@ -171,13 +175,15 @@ def _score(a) -> TestScore | None:
     if a is None:
         return None
     return TestScore(client_id=a.client_id, correct_count=a.correct_count, total_count=a.total_count,
-                     score_percent=a.score_percent, taken_at=a.taken_at)
+                     score_percent=a.score_percent, taken_at=a.taken_at, pass_mark=a.pass_mark,
+                     passed=None if a.pass_mark is None else general_passes(a.correct_count, a.total_count, a.pass_mark))
 
 
-def _general_state(general) -> GeneralTestState:
+def _general_state(general, pass_mark: int | None = None) -> GeneralTestState:
     return GeneralTestState(active=general.active, questions=general.questions, pre_test=_score(general.pre),
                             post_test=_score(general.post), post_unlocked=general.post_unlocked,
-                            modules_total=general.modules_total, modules_completed=general.modules_completed)
+                            modules_total=general.modules_total, modules_completed=general.modules_completed,
+                            pass_mark=pass_mark)
 
 
 @router.get("/learning", response_model=LearningState)
@@ -208,7 +214,7 @@ def get_learning_state(db: Session = Depends(get_db), user: User = Depends(get_c
         auto_approve_percent=auto_approve_percent(),
         min_app_version=get_settings().min_app_version,
         module_min_seconds=training_settings(db).module_min_seconds,
-        general_test=_general_state(general),
+        general_test=_general_state(general, training_settings(db).pass_mark_for(user)),
         modules=modules,
         attempts=[AttemptOut.model_validate(a) for a in attempts],
     )
@@ -238,6 +244,8 @@ def _general_problem(general, test_type: TestType, taken_at: datetime) -> str | 
     if general.pre is None:
         return "no pre-test yet"
     if general.post is not None:
+        if test_type == TestType.POST and certifies(general.post):
+            return "post-test already taken: certification already obtained, kept as history and does not count"
         return "post-test already taken"
     if _aware(general.pre.taken_at) > _aware(taken_at):
         return "taken before the pre-test"
@@ -274,6 +282,7 @@ def sync_general_test_attempts(payload: GeneralAttemptBatch, db: Session = Depen
                     correct_count=correct, total_count=len(graded), score_percent=score_percent(correct, len(graded)),
                     answers=graded, valid=problem is None, invalid_reason=problem,
                     device_id=payload.device_id, taken_at=item.taken_at,
+                    pass_mark=training_settings(db).pass_mark_for(user),
                 ))
                 db.flush()
             results.append(ItemResult(key=item.client_id, status="ok",
@@ -282,6 +291,7 @@ def sync_general_test_attempts(payload: GeneralAttemptBatch, db: Session = Depen
             results.append(ItemResult(key=item.client_id, status="duplicate"))
         except Exception as exc:  # noqa: BLE001
             results.append(ItemResult(key=item.client_id, status="error", detail=type(exc).__name__))
+    revalidate(db, user)
     db.commit()
     return BatchResult(results=results)
 
@@ -396,8 +406,14 @@ def _completion_problem(state: ModuleState | None) -> str | None:
 
 @router.post("/progress", response_model=BatchResult)
 def sync_progress(payload: ProgressBatch, db: Session = Depends(get_db), user: User = Depends(get_current_user)):
-    results: list[ItemResult] = []
-    for item in payload.items:
+    # Earlier modules first, so completing module 1 and module 2 in one upload works
+    # whatever order the phone listed them in. Results still come back in the order sent.
+    order = {m_id: (s, n) for m_id, s, n in db.query(Module.id, Module.sort_order, Module.module_number)}
+    by_index: dict[int, ItemResult] = {}
+    processing = sorted(range(len(payload.items)), key=lambda k: order.get(payload.items[k].module_id, (10**6, 10**6)))
+    for index in processing:
+        item = payload.items[index]
+        results: list[ItemResult] = []  # this item's result (appended below, collected after)
         key = str(item.module_id)
         try:
             with db.begin_nested():
@@ -432,6 +448,10 @@ def sync_progress(payload: ProgressBatch, db: Session = Depends(get_db), user: U
                 if item.seconds_spent is not None and item.seconds_spent > (row.seconds_spent or 0):
                     row.seconds_spent = item.seconds_spent
                 db.flush()
+                if item.completed:
+                    # A quiz uploaded before the previous module's completion was refused as
+                    # "locked"; that completion may be on the server now (revalidate.py).
+                    revalidate(db, user)
                 state = module_state(db, user, module.id)
                 refused = _completion_problem(state) if item.completed else None
                 locked = state is not None and not state.unlocked
@@ -463,8 +483,12 @@ def sync_progress(payload: ProgressBatch, db: Session = Depends(get_db), user: U
             results.append(ItemResult(key=key, status="error", detail="conflict, retry"))
         except Exception as exc:  # noqa: BLE001 - never let one item sink the batch
             results.append(ItemResult(key=key, status="error", detail=type(exc).__name__))
+        finally:  # also for the early "rejected" answers, which leave the loop with continue
+            if results:
+                by_index[index] = results[0]
+    revalidate(db, user)  # a post-test uploaded before the last completion (older apps)
     db.commit()
-    return BatchResult(results=results)
+    return BatchResult(results=[by_index[k] for k in range(len(payload.items))])
 
 
 @router.post("/ai-questions", response_model=BatchResult)

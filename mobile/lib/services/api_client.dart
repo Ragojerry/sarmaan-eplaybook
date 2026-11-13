@@ -19,6 +19,20 @@ class ApiClient {
   final FlutterSecureStorage _storage;
   Future<String?>? _refreshInFlight;
 
+  /// Called once the server says this account was deactivated (header
+  /// X-Account-Status: deactivated on any call or on the token refresh). The tokens
+  /// are already cleared; the sign-in state signs the person out (auth_service.dart).
+  void Function()? onAccountDeactivated;
+  bool _refreshSaidDeactivated = false;
+
+  static bool isDeactivated(Response<dynamic>? response) =>
+      response?.headers.value('x-account-status')?.toLowerCase() == 'deactivated';
+
+  Future<void> _deactivated() async {
+    await clearTokens();
+    onAccountDeactivated?.call();
+  }
+
   ApiClient({FlutterSecureStorage? storage})
       : _storage = storage ?? const FlutterSecureStorage(),
         dio = Dio(BaseOptions(baseUrl: _baseUrl, connectTimeout: const Duration(seconds: 10))) {
@@ -32,6 +46,12 @@ class ApiClient {
           handler.next(options);
         },
         onError: (error, handler) async {
+          // Login answers 403 + the header; the sign-in screen shows its own message for it.
+          if (isDeactivated(error.response) && error.requestOptions.path != '/auth/login') {
+            await _deactivated();
+            handler.next(error);
+            return;
+          }
           final isAuthError = error.response?.statusCode == 401;
           final alreadyRetried = error.requestOptions.extra['retried'] == true;
           if (!isAuthError || alreadyRetried) {
@@ -50,6 +70,10 @@ class ApiClient {
             final newAccessToken = await _refreshInFlight;
             _refreshInFlight = null;
             if (newAccessToken == null) {
+              if (_refreshSaidDeactivated) {
+                _refreshSaidDeactivated = false;
+                await _deactivated();
+              }
               handler.next(error);
               return;
             }
@@ -78,6 +102,9 @@ class ApiClient {
       final newAccessToken = response.data['access_token'] as String;
       await _storage.write(key: _accessTokenKey, value: newAccessToken);
       return newAccessToken;
+    } on DioException catch (e) {
+      _refreshSaidDeactivated = isDeactivated(e.response);
+      return null;
     } catch (_) {
       return null;
     }

@@ -18,7 +18,14 @@ interface GeneralQuestion {
 interface TrainingSettings {
   module_min_seconds: number;
   general_test_active: boolean;
+  general_pass_mark_cdd: number;
+  general_pass_mark_other: number;
   cannot_activate_because: string | null;
+}
+
+/** Questions needed to pass with this mark: whole numbers, correct x 100 >= mark x total. */
+function needed(mark: number, total: number) {
+  return Math.ceil((mark * total) / 100);
 }
 
 const LETTERS = "ABCDEFGHIJ";
@@ -36,6 +43,8 @@ export default function GeneralTestPage() {
   const [error, setError] = useState<string | null>(null);
   const [editing, setEditing] = useState<GeneralQuestion | null>(null);
   const [minutes, setMinutes] = useState<string | null>(null);
+  const [marks, setMarks] = useState<{ cdd: string; other: string } | null>(null);
+  const isSuper = user?.role === "SUPER_ADMIN";
 
   const { data: questions } = useQuery<GeneralQuestion[]>({
     queryKey: ["general-test-questions"],
@@ -170,6 +179,53 @@ export default function GeneralTestPage() {
             {!settings.general_test_active && settings.cannot_activate_because && (
               <p className="text-xs text-amber-700">Cannot be switched on yet: {settings.cannot_activate_because}.</p>
             )}
+            <div className="text-sm border-t pt-3 space-y-2">
+              <div className="font-medium">Pass marks (General pre-test and post-test)</div>
+              <p className="text-xs text-gray-600 max-w-2xl">
+                Decides Passed or Not passed, and the training certificate (post-test). The pre-test only needs to be
+                taken; a low score never blocks the modules. Each result keeps the mark that applied when it was taken,
+                so changing a mark never changes earlier results. Module quizzes are not affected (they stay at 90%).
+                {isSuper ? "" : " Only a super admin can change the pass marks."}
+              </p>
+              {(
+                [
+                  ["cdd", "CDD", settings.general_pass_mark_cdd],
+                  ["other", "Health Worker, Logistician, Monitor/Supervisor and Others", settings.general_pass_mark_other],
+                ] as const
+              ).map(([k, label, saved]) => {
+                const value = marks?.[k] ?? String(saved);
+                const total = questions?.filter((q) => q.is_active).length || 25;
+                return (
+                  <label key={k} className="flex flex-wrap items-center gap-2">
+                    <span className="w-80">{label}</span>
+                    <input
+                      type="number"
+                      min={1}
+                      max={100}
+                      step={1}
+                      disabled={!isSuper}
+                      className="w-20 border rounded px-2 py-1 disabled:bg-gray-50"
+                      value={value}
+                      onChange={(e) => setMarks({ cdd: marks?.cdd ?? String(settings.general_pass_mark_cdd), other: marks?.other ?? String(settings.general_pass_mark_other), [k]: e.target.value })}
+                    />
+                    <span>% — at least {needed(Number(value) || 0, total)} of {total} correct</span>
+                  </label>
+                );
+              })}
+              {isSuper && marks && (
+                <button
+                  className="bg-gray-900 text-white rounded px-3 py-1 text-sm"
+                  onClick={() =>
+                    saveSettings.mutate(
+                      { general_pass_mark_cdd: Number(marks.cdd), general_pass_mark_other: Number(marks.other) },
+                      { onSuccess: () => setMarks(null) },
+                    )
+                  }
+                >
+                  Save pass marks
+                </button>
+              )}
+            </div>
           </>
         )}
       </section>

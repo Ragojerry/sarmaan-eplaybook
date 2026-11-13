@@ -21,13 +21,13 @@
       "en": "About",
       "note": "Bottom navigation tab: app information and settings"
     },
-    "app.name": {
-      "en": "SARMAAN II e-Playbook",
-      "note": "App name shown on the splash and sign-in screens"
-    },
     "login.failed": {
       "en": "Login failed. Check your connection.",
       "note": "Sign-in error when the server cannot be reached"
+    },
+    "auth.deactivated": {
+      "en": "Your account has been deactivated. Please contact support.",
+      "note": "Sign-in screen: the account was deactivated by an administrator (the person is signed out; their data is kept)"
     },
     "common.somethingWrong": {
       "en": "Something went wrong. Please try again.",
@@ -579,13 +579,22 @@
       "note": "Module quiz result when every statement is right"
     },
     "quiz.failedRetry": {
-      "en": "You got {correct} of {count}. All need to be right to pass. Try again: you answer all {count} statements again.",
+      "en": "You got {correct} of {count}. All need to be right to pass. Try again: only the statements you got wrong are asked again.",
       "note": "Module quiz result when not all statements are right; {count} is the number of statements",
-      "en_one": "You got {correct} of {count}. All need to be right to pass. Try again: you answer the statement again."
+      "en_one": "You got {correct} of {count}. It needs to be right to pass. Try again."
     },
     "quiz.tryAgain": {
       "en": "Try again",
       "note": "Button that restarts the module quiz"
+    },
+    "quiz.toRetry": {
+      "en": "{count} questions to retry",
+      "en_one": "{count} question to retry",
+      "note": "Module quiz: how many statements are still wrong and will be asked again"
+    },
+    "quiz.kept": {
+      "en": "Answered correctly: kept from your last try.",
+      "note": "Module quiz retry: this statement was right last time, so it is not asked again"
     },
     "reader.module": {
       "en": "Module",
@@ -915,8 +924,20 @@
       "en": "{correct} of {total} ({percent}%)",
       "note": "General test result score, like 18 of 25 (72%)"
     },
+    "general.passed": {
+      "en": "Passed",
+      "note": "General pre/post-test result: the score reached the pass mark (shown with a tick icon)"
+    },
+    "general.notPassed": {
+      "en": "Not passed",
+      "note": "General pre/post-test result: the score is below the pass mark (shown with a cross icon)"
+    },
+    "general.passMarkLine": {
+      "en": "Pass mark {passMark}% ({needed} of {total} correct)",
+      "note": "General test result: the pass mark that applied; e.g. Pass mark 80% (20 of 25 correct)"
+    },
     "general.preDone": {
-      "en": "Thank you. Your modules are now open. At the end of the training you will answer the same questions again.",
+      "en": "Thank you. Your modules are now open, whatever your score. At the end of the training you will answer the same questions again.",
       "note": "General pre-test result text"
     },
     "general.postDone": {
@@ -974,6 +995,86 @@
     "ask.tryAsking": {
       "en": "Try asking about:",
       "note": "Ask: shown above suggested questions when nothing matched"
+    },
+    "tour.progress": {
+      "en": "{step} of {count}",
+      "note": "Tour: which step this is, e.g. 2 of 6"
+    },
+    "tour.skip": {
+      "en": "Skip",
+      "note": "Tour: button on every step that closes the tour (it does not show again)"
+    },
+    "tour.back": {
+      "en": "Back",
+      "note": "Tour: previous step"
+    },
+    "tour.next": {
+      "en": "Next",
+      "note": "Tour: next step"
+    },
+    "tour.done": {
+      "en": "Start",
+      "note": "Tour: button on the last step that closes the tour"
+    },
+    "tour.homeTitle": {
+      "en": "Home",
+      "note": "Tour step title: the Home tab"
+    },
+    "tour.homeBody": {
+      "en": "Home shows the module to continue, your progress, and the Sync & update card. Tap Sync when you have internet to send your progress and get updates.",
+      "note": "Tour step: what Home shows and what Sync does"
+    },
+    "tour.modulesTitle": {
+      "en": "Modules",
+      "note": "Tour step title: the Modules tab"
+    },
+    "tour.modulesBody": {
+      "en": "All your training modules, in order. Finish one to open the next. Once downloaded, modules work without internet.",
+      "note": "Tour step: the module list and offline use"
+    },
+    "tour.videosTitle": {
+      "en": "Videos",
+      "note": "Tour step title: the Videos tab"
+    },
+    "tour.videosBody": {
+      "en": "Training videos. Download a video once over internet, then watch it any time offline.",
+      "note": "Tour step: videos and offline download"
+    },
+    "tour.askTitle": {
+      "en": "Ask",
+      "note": "Tour step title: the Ask tab"
+    },
+    "tour.askBody": {
+      "en": "Ask a question about the training. Answers come from the training materials on this phone, so this works offline too.",
+      "note": "Tour step: the Ask tab"
+    },
+    "tour.askSupport": {
+      "en": "If you need a person, open “Need help from a person?” on the Ask tab.",
+      "note": "Tour step: added to the Ask step only when support contacts are set up"
+    },
+    "tour.toolsTitle": {
+      "en": "Tools",
+      "note": "Tour step title: the Tools repository (shown only to roles that have Tools)"
+    },
+    "tour.toolsBody": {
+      "en": "Job aids, forms and useful links for your role, on Home and Modules. They open online.",
+      "note": "Tour step: the Tools repository"
+    },
+    "tour.aboutTitle": {
+      "en": "About",
+      "note": "Tour step title: the About tab"
+    },
+    "tour.aboutBody": {
+      "en": "Change the app language, check for updates and see what is stored on this phone. You can replay this tour here.",
+      "note": "Tour step: language, updates, storage and replaying the tour"
+    },
+    "tour.replay": {
+      "en": "Replay tour",
+      "note": "About: opens the short tour of the app again"
+    },
+    "tour.replayHint": {
+      "en": "A short walk through the main parts of the app",
+      "note": "About: line under Replay tour"
     },
     "support.heading": {
       "en": "Need help from a person?",

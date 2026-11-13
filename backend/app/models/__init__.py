@@ -23,6 +23,7 @@ from app.models.consent_text import ConsentText
 from app.models.app_string import AppString, AppStringTranslation
 from app.models.support_contact import SupportContact
 from app.models.tool import ToolItem, ToolModule
+from app.models.device import Device
 from app.models.audit_log import AuditLog
 from app.models.boundary import AdminBoundary
 from app.models.api_key import ApiKey
@@ -58,6 +59,7 @@ __all__ = [
     "SupportContact",
     "ToolModule",
     "ToolItem",
+    "Device",
     "AuditLog",
     "AdminBoundary",
     "ApiKey",

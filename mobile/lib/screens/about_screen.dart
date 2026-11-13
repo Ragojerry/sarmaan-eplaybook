@@ -12,6 +12,7 @@ import '../widgets/partner_logo_row.dart';
 import '../video/video_manager.dart';
 import '../widgets/app_bottom_nav.dart';
 import '../l10n/l10n.dart';
+import '../tour/app_tour.dart';
 
 final packageInfoProvider = FutureProvider<PackageInfo>((ref) => PackageInfo.fromPlatform());
 
@@ -76,6 +77,14 @@ class AboutScreen extends ConsumerWidget {
             subtitle: Text(context.t('about.syncUpdatesHint'), style: const TextStyle(fontSize: 11)),
             trailing: const Icon(Icons.chevron_right),
             onTap: () => context.go('/updates'),
+          ),
+          ListTile(
+            contentPadding: const EdgeInsets.symmetric(horizontal: 22),
+            minTileHeight: 48,
+            title: Text(context.t('tour.replay'), style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w600)),
+            subtitle: Text(context.t('tour.replayHint'), style: const TextStyle(fontSize: 11)),
+            trailing: const Icon(Icons.slideshow_outlined),
+            onTap: () => showAppTour(context, ref),
           ),
           const SizedBox(height: 6),
           _buildStorageCard(ref),

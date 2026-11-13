@@ -39,6 +39,8 @@ from app.models import (
     UserModuleProgress,
 )
 from app.learning.access import module_visible_to
+from app.devices import registry as device_registry
+from app.learning.rules import general_passes
 from app.models.enums import AnalyticsEventType as ET, BoundaryLevel, LearnerRole, ModuleStatus, RoleName, TestType
 
 CATEGORY_EVENTS = {
@@ -108,6 +110,7 @@ def user_rows(db: Session, f: Filters) -> list[dict]:
         q = q.filter(User.team_code == f.team_code)
     users = q.order_by(User.last_name, User.first_name).all()
     ids = [u.id for u in users]
+    devices = device_registry.report_fields(db, ids)
     modules = db.query(Module).filter(Module.status == ModuleStatus.PUBLISHED).all()
     # Each person is measured against the modules they can see (general + their learner role's).
     visible_to = {u.id: {m.id for m in modules if module_visible_to(m, u)} for u in users}
@@ -211,6 +214,7 @@ def user_rows(db: Session, f: Filters) -> list[dict]:
                 "role": u.role.value,
                 "learner_role": u.learner_role.value if u.learner_role else None,
                 "status": u.status.value,
+                "deactivated_at": u.deactivated_at.isoformat() if u.deactivated_at else None,
                 "team_code": u.team_code,
                 "country": u.country_name,
                 "state": u.state_name,
@@ -252,6 +256,8 @@ def user_rows(db: Session, f: Filters) -> list[dict]:
                 "last_activity": max(last_candidates).isoformat() if last_candidates else None,
                 "last_login": u.last_login_at.isoformat() if u.last_login_at else None,
                 "created_at": u.created_at.isoformat() if u.created_at else None,
+                # since 2026-11-13: devices (app 0.1.16+; older apps have none)
+                **devices[u.id],
             }
         )
     return rows
@@ -267,7 +273,20 @@ def _general_fields(mine: dict) -> dict:
         "general_post_total": post.total_count if post else None,
         "general_post_percent": post.score_percent if post else None,
         "general_change_points": post.correct_count - pre.correct_count if pre and post else None,
+        # since 2026-11-13: the pass mark stored with each attempt (none before) and the verdict
+        "general_change_percent": post.score_percent - pre.score_percent if pre and post else None,
+        "general_pre_pass_mark": pre.pass_mark if pre else None,
+        "general_pre_passed": _verdict(pre),
+        "general_post_pass_mark": post.pass_mark if post else None,
+        "general_post_passed": _verdict(post),
     }
+
+
+def _verdict(a) -> str | None:
+    """PASSED / NOT_PASSED against the stored mark; None without an attempt or a stored mark."""
+    if a is None or a.pass_mark is None:
+        return None
+    return "PASSED" if general_passes(a.correct_count, a.total_count, a.pass_mark) else "NOT_PASSED"
 
 
 SUM_FIELDS = [

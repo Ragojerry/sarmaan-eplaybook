@@ -111,6 +111,11 @@ class CurrentReleaseResponse(BaseModel):
 class QuizResultItem(BaseModel):
     question_id: uuid.UUID
     correct: bool
+    # since app 0.1.16 (optional; older apps omit them): a retry shows only the statements
+    # still wrong, so `shown` = asked in this attempt (False = credit kept from an earlier
+    # attempt) and `answer` = the learner's True/False for a shown statement.
+    shown: bool | None = None
+    answer: bool | None = None
 
 
 class QuizAttemptItem(BaseModel):
@@ -150,6 +155,9 @@ class TestScore(BaseModel):
     total_count: int
     score_percent: int
     taken_at: datetime
+    # since 2026-11-13 (older apps ignore them): the pass mark that applied, and the verdict.
+    pass_mark: int | None = None
+    passed: bool | None = None
 
 
 class ModuleLearning(BaseModel):
@@ -209,6 +217,8 @@ class GeneralTestState(BaseModel):
     post_unlocked: bool = False
     modules_total: int = 0
     modules_completed: int = 0
+    # This learner's current General pass mark (%), app/learning/settings.py.
+    pass_mark: int | None = None
 
 
 LearningState.model_rebuild()

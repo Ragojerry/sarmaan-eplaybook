@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../widgets/brand_mark.dart';
 import '../services/auth_service.dart';
 import '../services/settings_service.dart';
 import '../theme/app_theme.dart';
@@ -85,18 +86,12 @@ class _SplashScreenState extends ConsumerState<SplashScreen> {
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: [
-        // The SARMAAN-II logo on its own white card, as on the login screen.
-        const SarmaanLogoMark(),
+        // The app logo on its own white card, as on the login screen.
+        const BrandLogo(),
         const SizedBox(height: 22),
-        Text(
-          context.t('app.name'),
+        const BrandTitle(
           textAlign: TextAlign.center,
-          style: const TextStyle(
-            fontFamily: AppFonts.serif,
-            fontSize: 26,
-            fontWeight: FontWeight.w600,
-            color: AppColors.onPrimary,
-          ),
+          style: TextStyle(fontFamily: AppFonts.serif, fontSize: 26, fontWeight: FontWeight.w600, color: AppColors.onPrimary),
         ),
         const SizedBox(height: 6),
         Text(

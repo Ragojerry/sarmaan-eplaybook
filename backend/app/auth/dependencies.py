@@ -8,6 +8,7 @@ from sqlalchemy.orm import Session
 from app.database import get_db
 from app.models import User
 from app.models.enums import RoleName, UserStatus
+from app.auth.account import deactivated
 from app.auth.security import decode_token
 
 bearer_scheme = HTTPBearer(auto_error=False)
@@ -45,8 +46,10 @@ def get_current_user(
     except (ValueError, TypeError):
         raise unauthorized
 
-    if user is None or user.status != UserStatus.ACTIVE:
+    if user is None:
         raise unauthorized
+    if user.status != UserStatus.ACTIVE:
+        raise deactivated()
 
     return user
 

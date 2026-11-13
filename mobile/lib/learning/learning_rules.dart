@@ -41,16 +41,34 @@ class TestScore {
   final int total;
   final DateTime takenAt;
 
+  /// General pre/post-test only: the pass mark (%) that applied to this attempt
+  /// (null for attempts from before 2026-11-13: never recalculated).
+  final int? passMark;
+
   const TestScore({
     required this.clientId,
     required this.testType,
     required this.correct,
     required this.total,
     required this.takenAt,
+    this.passMark,
   });
 
   int get percent => quizScorePercent(correct, total);
+
+  /// Passed / not passed against [passMark]; null when no mark was stored.
+  bool? get passed => passMark == null ? null : generalPasses(correct, total, passMark!);
 }
+
+/// General pre/post-test pass marks (backend app/learning/settings.py): CDD 60%,
+/// every other learner role and staff 80%, until the server sends this learner's mark.
+int defaultGeneralPassMark(String? learnerRole) => learnerRole == 'CDD' ? 60 : 80;
+
+/// Whole numbers only: correct x 100 >= mark x total (25 questions at 80% need 20).
+bool generalPasses(int correct, int total, int passMark) => total > 0 && correct * 100 >= passMark * total;
+
+/// Correct answers needed to pass [total] questions at [passMark].
+int generalNeeded(int total, int passMark) => (passMark * total + 99) ~/ 100;
 
 class ModuleLearning {
   final String moduleId;

@@ -5,6 +5,7 @@ import 'package:flutter/services.dart';
 import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart' as pw;
 
+import '../theme/brand_identity.g.dart';
 import '../l10n/l10n.dart';
 import '../theme/app_theme.dart';
 import 'certificate.dart';
@@ -25,7 +26,7 @@ Future<Uint8List> buildCertificatePdf(CertificateData data, {AssetBundle? bundle
   final date = '${data.completedAt.toLocal().day.toString().padLeft(2, '0')}/'
       '${data.completedAt.toLocal().month.toString().padLeft(2, '0')}/${data.completedAt.toLocal().year}';
 
-  final doc = pw.Document(title: L10n.t('cert.title'), author: L10n.t('app.name'));
+  final doc = pw.Document(title: L10n.t('cert.title'), author: BrandIdentity.title);
   doc.addPage(pw.Page(
     pageFormat: PdfPageFormat.a4.landscape,
     margin: const pw.EdgeInsets.all(28),

@@ -1,5 +1,5 @@
 """
-SARMAAN e-Playbook backend entrypoint.
+SARMAAN II Multi-lingual e-Playbook backend entrypoint.
 
 Phase 2 scope: app boots, exposes a health endpoint, and wires up router
 stubs for the domains defined in the architecture doc. Real business logic
@@ -10,14 +10,14 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from app.config import get_settings
-from app.routers import health, auth, modules, languages, media, videos, releases, sync, ai, analytics, audit, users, quiz, boundaries, reports, bi, sessions, references, faqs, consent, learning, section_media, general_test, app_strings, support_contacts, tools
+from app.routers import health, auth, modules, languages, media, videos, releases, sync, ai, analytics, audit, users, quiz, boundaries, reports, bi, sessions, references, faqs, consent, learning, section_media, general_test, app_strings, support_contacts, tools, devices
 
 settings = get_settings()
 
 app = FastAPI(
-    title="SARMAAN e-Playbook API",
+    title="SARMAAN II Multi-lingual e-Playbook API",
     version="0.1.0",
-    description="Backend API for the SARMAAN e-Playbook admin portal and mobile app.",
+    description="Backend API for the SARMAAN II Multi-lingual e-Playbook admin portal and mobile app.",
 )
 
 app.add_middleware(
@@ -57,6 +57,7 @@ app.include_router(support_contacts.router, prefix="/support-contacts", tags=["s
 app.include_router(support_contacts.sync_router, prefix="/sync", tags=["sync"])
 app.include_router(tools.router, prefix="/tools", tags=["tools"])
 app.include_router(tools.sync_router, prefix="/sync", tags=["sync"])
+app.include_router(devices.sync_router, prefix="/sync", tags=["sync"])
 
 
 @app.get("/", tags=["health"])

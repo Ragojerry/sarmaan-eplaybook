@@ -111,7 +111,7 @@ def test_pre_test_gate_post_test_unlock_and_scores(world, general):
     _complete_everything(lh)
     assert _learning(lh)["general_test"]["post_unlocked"] is True
     assert _general(lh, "post", "POST", 400, _answers(general))["detail"] == "score 3/3"
-    assert _general(lh, "post-again", "POST", 401, _answers(general))["detail"] == "post-test already taken"  # once only
+    assert _general(lh, "post-again", "POST", 401, _answers(general))["detail"] .startswith("post-test already taken")  # once only
     assert _general(lh, "post", "POST", 400, _answers(general))["status"] == "ok" or True
     again = client.post("/sync/general-test-attempts", headers=lh, json={"device_id": "dev", "items": [
         {"client_id": "post", "test_type": "POST", "taken_at": at(400), "answers": _answers(general)}]}).json()
@@ -181,6 +181,7 @@ def test_admin_page_answer_key_and_activation(world):
         assert client.put("/general-test/settings", headers=ch, json={"module_min_seconds": -1}).status_code == 422
         r = client.put("/general-test/settings", headers=ch, json={"module_min_seconds": 120, "general_test_active": True})
         assert r.status_code == 200 and r.json() == {"module_min_seconds": 120, "general_test_active": True,
+                                                     "general_pass_mark_cdd": 60, "general_pass_mark_other": 80,
                                                      "cannot_activate_because": None}
         assert _learning(lh)["module_min_seconds"] == 120
         # while it is on, an answer cannot be removed

@@ -50,6 +50,9 @@ class GeneralTestAttempt(Base):
     valid: Mapped[bool] = mapped_column(Boolean, nullable=False, default=True, server_default="true")
     invalid_reason: Mapped[str | None] = mapped_column(String(120), nullable=True)
     device_id: Mapped[str | None] = mapped_column(String(255), nullable=True)
+    # The learner's pass mark (%) when the attempt reached the server; NULL for attempts
+    # from before 2026-11-13 (never recalculated). app/learning/settings.py.
+    pass_mark: Mapped[int | None] = mapped_column(Integer, nullable=True)
     taken_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
 

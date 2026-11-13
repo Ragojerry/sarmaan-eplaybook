@@ -223,6 +223,8 @@ class AuditAction(str, enum.Enum):
     TOOL_DEACTIVATE = "TOOL_DEACTIVATE"
     TOOL_DELETE = "TOOL_DELETE"
     TOOL_IMPORT = "TOOL_IMPORT"
+    USER_DEACTIVATE = "USER_DEACTIVATE"
+    USER_REACTIVATE = "USER_REACTIVATE"
 
 
 class SupportContactType(str, enum.Enum):

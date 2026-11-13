@@ -1,3 +1,4 @@
+import BrandMark from "../components/BrandMark";
 import { useState, FormEvent } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { useAuth } from "../services/auth";
@@ -32,8 +33,7 @@ export default function LoginPage() {
     <div className="min-h-screen flex flex-col bg-gray-50">
       <div className="flex-1 flex items-center justify-center">
       <form onSubmit={handleSubmit} className="w-full max-w-sm bg-white p-8 rounded-lg shadow">
-        <h1 className="text-xl font-semibold mb-1">SARMAAN e-Playbook</h1>
-        <p className="text-sm text-gray-500 mb-6">Admin Portal</p>
+        <BrandMark heading className="text-xl mb-6" subtitle="Admin Portal" />
 
         {error && (
           <div className="mb-4 text-sm text-red-700 bg-red-50 border border-red-200 rounded px-3 py-2">

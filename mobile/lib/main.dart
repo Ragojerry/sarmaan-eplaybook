@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import 'services/auth_service.dart';
+import 'theme/brand_identity.g.dart';
 import 'l10n/app_strings_service.dart';
 import 'l10n/l10n.dart';
 import 'navigation/app_router.dart';
@@ -35,8 +37,13 @@ class SarmaanEPlaybookApp extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final router = ref.watch(appRouterProvider);
+    // A deactivated account is signed out from wherever it was (a sync, any screen):
+    // back to sign-in, which explains why.
+    ref.listen<AuthState>(authProvider, (previous, next) {
+      if (next.deactivated && !(previous?.deactivated ?? false)) router.go('/login');
+    });
     return MaterialApp.router(
-      onGenerateTitle: (context) => context.t('app.name'),
+      title: BrandIdentity.title,
       debugShowCheckedModeBanner: false,
       theme: AppTheme.light(),
       routerConfig: router,

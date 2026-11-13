@@ -1,13 +1,20 @@
 """User activity reports for the admin portal: per user, per area, per module,
-with CSV export. The same data is served to Power BI by routers/bi.py."""
-from fastapi import APIRouter, Depends, HTTPException, Query, Response, status
+with CSV export. The same data is served to Power BI by routers/bi.py.
+
+The per-user table and its CSV take column filters and sorting
+(app/reports/column_filters.py: q./in./min./max./from./to.<column>, sort, order),
+so an export always contains exactly the rows on screen."""
+import uuid
+
+from fastapi import APIRouter, Depends, HTTPException, Query, Request, Response, status
 from sqlalchemy.orm import Session
 
 from app.auth.dependencies import require_roles
 from app.database import get_db
 from app.models import User
 from app.models.enums import RoleName
-from app.reports import activity
+from app.devices import registry as device_registry
+from app.reports import activity, column_filters
 from app.reports.activity import Filters
 from app.reports.params import report_filters
 
@@ -44,14 +51,31 @@ def summary(f: Filters = Depends(report_filters), db: Session = Depends(get_db),
     }
 
 
+def _filtered(request: Request, rows: list[dict]) -> list[dict]:
+    try:
+        return column_filters.apply(rows, request.query_params.multi_items())
+    except ValueError as e:
+        raise HTTPException(status_code=status.HTTP_422_UNPROCESSABLE_ENTITY, detail=str(e))
+
+
 @router.get("/users")
-def users(f: Filters = Depends(report_filters), db: Session = Depends(get_db), user: User = Depends(require_roles(*VIEWERS))):
-    return activity.user_rows(db, f)
+def users(request: Request, f: Filters = Depends(report_filters), db: Session = Depends(get_db),
+          user: User = Depends(require_roles(*VIEWERS))):
+    return _filtered(request, activity.user_rows(db, f))
 
 
 @router.get("/users.csv")
-def users_csv(f: Filters = Depends(report_filters), db: Session = Depends(get_db), user: User = Depends(require_roles(*VIEWERS))):
-    return csv_response(activity.user_rows(db, f), "user_activity")
+def users_csv(request: Request, f: Filters = Depends(report_filters), db: Session = Depends(get_db),
+              user: User = Depends(require_roles(*VIEWERS))):
+    return csv_response(_filtered(request, activity.user_rows(db, f)), "user_activity")
+
+
+@router.get("/users/{user_id}/devices")
+def user_devices(user_id: uuid.UUID, db: Session = Depends(get_db), user: User = Depends(require_roles(*VIEWERS))):
+    """Every device this account ever used (newest first), with active or not."""
+    if db.get(User, user_id) is None:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User not found")
+    return {"active_days": device_registry.active_days(), "devices": device_registry.devices_of(db, user_id)}
 
 
 @router.get("/boundaries")

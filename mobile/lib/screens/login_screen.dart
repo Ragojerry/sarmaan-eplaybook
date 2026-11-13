@@ -3,6 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../services/api_client.dart';
+import '../widgets/brand_mark.dart';
 import '../services/auth_service.dart';
 import '../theme/app_theme.dart';
 import '../widgets/partner_logo_row.dart';
@@ -37,7 +39,9 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
       await ref.read(authProvider.notifier).login(_usernameController.text.trim(), _passwordController.text);
       if (mounted) context.go('/home');
     } on DioException catch (e) {
-      setState(() => _error = e.response?.data?['detail']?.toString() ?? L10n.t('login.failed'));
+      setState(() => _error = ApiClient.isDeactivated(e.response)
+          ? L10n.t('auth.deactivated')
+          : e.response?.data?['detail']?.toString() ?? L10n.t('login.failed'));
     } catch (_) {
       setState(() => _error = L10n.t('common.somethingWrong'));
     } finally {
@@ -66,17 +70,40 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
               crossAxisAlignment: CrossAxisAlignment.stretch,
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                // The SARMAAN-II logo replaces the old "S" mark. Shown unmodified on white, and
-                // never larger than the supplied file's own pixels (it is only 118 x 50 px).
-                const Align(alignment: Alignment.centerLeft, child: SarmaanLogoMark()),
+                // The app logo and title (brand/brand.json); the title wraps on small phones.
+                const Align(alignment: Alignment.centerLeft, child: BrandLogo()),
                 const SizedBox(height: 16),
-                Text(context.t('app.name'), style: Theme.of(context).textTheme.headlineSmall),
+                const BrandTitle(),
                 const SizedBox(height: 4),
                 Text(
                   context.t('login.eyebrow'),
                   style: Theme.of(context).textTheme.labelSmall?.copyWith(color: AppColors.textMuted),
                 ),
                 const SizedBox(height: 28),
+                if (_error == null && ref.watch(authProvider.select((a) => a.deactivated))) ...[
+                  Container(
+                    padding: const EdgeInsets.all(12),
+                    decoration: BoxDecoration(
+                      color: AppColors.warningSurface,
+                      borderRadius: BorderRadius.circular(AppRadius.small),
+                      border: const Border(left: BorderSide(color: AppColors.warning, width: 3)),
+                    ),
+                    child: Semantics(
+                      liveRegion: true,
+                      child: Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          const Icon(Icons.info_outline_rounded, size: 18, color: AppColors.warningText),
+                          const SizedBox(width: 8),
+                          Expanded(
+                            child: Text(context.t('auth.deactivated'), style: const TextStyle(color: AppColors.warningText, fontSize: 13, height: 1.4)),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+                ],
                 if (_error != null) ...[
                   Container(
                     padding: const EdgeInsets.all(12),

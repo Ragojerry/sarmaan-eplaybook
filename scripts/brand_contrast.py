@@ -72,6 +72,12 @@ PAIRS = [
     ("textMuted", "surface", "Tools repository rows: type, service, 'Opens online', copy and share icons", "text"),
     ("primaryText", "surface", "Tools repository rows: type icon", "control"),
     ("primaryText", "surfaceSelected", "Tools card on Home and Modules: icon on its pale tile", "control"),
+    ("textStrong", "successSurface", "General test result: 'Passed' and its pass-mark line", "text"),
+    ("successText", "successSurface", "General test result: tick icon and border when passed", "control"),
+    ("text", "surfaceMuted", "General test result: 'Not passed' and its pass-mark line", "text"),
+    ("textMuted", "surfaceMuted", "General test result: cross icon when not passed", "control"),
+    ("warningText", "warningSurface", "Sign-in screen: 'Your account has been deactivated' message", "text"),
+    ("primaryText", "surface", "Tour: Skip and Back buttons, area icon", "text"),
     ("textDisabled", "surfaceMuted", "Disabled text (exempt from WCAG; same as muted)", "decor"),
     ("divider", "background", "Thin teal card border (rgba(0,104,92,0.18) on the card)", "decor"),
 ]

@@ -5,8 +5,9 @@ import 'package:crypto/crypto.dart';
 import '../quiz/quiz_grader.dart';
 import 'learning_rules.dart';
 
-/// The training completion certificate: earned with a General post-test at the
-/// pass mark (90%, the same as the module quizzes). Works offline.
+/// The training completion certificate: earned with a General post-test that passed
+/// its stored pass mark (since 2026-11-13: CDD 60%, others 80%), or 90% for older
+/// attempts stored without one (never re-graded). Works offline.
 ///
 /// The number is derived, not stored, so the phone can print it before it syncs
 /// and the admin portal can still check it (backend/app/learning/certificate.py
@@ -20,7 +21,8 @@ String certificateNumber(String userId, String clientId, DateTime takenAt) {
 /// Whether [general] holds a passing post-test.
 bool hasCertificate(GeneralLearning general) {
   final post = general.post;
-  return post != null && quizPassed(post.correct, post.total);
+  if (post == null) return false;
+  return post.passMark == null ? quizPassed(post.correct, post.total) : generalPasses(post.correct, post.total, post.passMark!);
 }
 
 /// What the certificate shows.

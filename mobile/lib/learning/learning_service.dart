@@ -33,9 +33,24 @@ class LearningSnapshot {
   int get completedCount => byId.values.where((s) => s.completed).length;
 }
 
-/// Module-quiz attempts that count: not rejected by the server. (PRE/POST and
-/// LEGACY rows are the retired per-module tests: history only.)
-bool attemptCounts(LocalQuizAttemptRow a) => a.testType == 'MODULE_QUIZ' && a.serverValid != false;
+/// Server refusals that only mean "arrived before the completion that opened it"
+/// (backend app/learning/revalidate.py). The server re-checks them once that
+/// completion arrives, so the phone keeps counting them meanwhile: a learner who
+/// passed is never sent back to retake a quiz or the post-test because of upload order.
+const kOrderOnlyReasons = {
+  'take the General pre-test first',
+  'module is locked: complete the previous module first',
+  'complete all your modules first',
+};
+
+bool _refusedForGood(bool? serverValid, String? reason) => serverValid == false && !kOrderOnlyReasons.contains(reason);
+
+/// Module-quiz attempts that count: not rejected by the server for good. (PRE/POST
+/// and LEGACY rows are the retired per-module tests: history only.)
+bool attemptCounts(LocalQuizAttemptRow a) => a.testType == 'MODULE_QUIZ' && !_refusedForGood(a.serverValid, a.invalidReason);
+
+/// General pre/post-test attempts that count (the same rule).
+bool generalAttemptCounts(LocalGeneralAttemptRow a) => !_refusedForGood(a.serverValid, a.invalidReason);
 
 TestScore scoreOf(LocalQuizAttemptRow a) => TestScore(
       clientId: a.clientId,
@@ -51,7 +66,17 @@ TestScore generalScoreOf(LocalGeneralAttemptRow a) => TestScore(
       correct: a.correctCount,
       total: a.totalCount,
       takenAt: a.takenAt,
+      passMark: a.passMark,
     );
+
+/// app_settings key: this learner's current General pass mark, from GET /sync/learning.
+const kGeneralPassMarkKey = 'general_pass_mark';
+
+/// The pass mark a General test taken now is graded against.
+Future<int> currentGeneralPassMark(LocalDatabase db) async {
+  final stored = int.tryParse(await db.getSetting(kGeneralPassMarkKey) ?? '');
+  return (stored != null && stored >= 1 && stored <= 100) ? stored : defaultGeneralPassMark(db.activeLearnerRole);
+}
 
 Future<LearningSnapshot> loadLearning(LocalDatabase db) async {
   final modules = await db.getAllModules();
@@ -60,7 +85,7 @@ Future<LearningSnapshot> loadLearning(LocalDatabase db) async {
   final attempts = (await db.getQuizAttempts()).where(attemptCounts).toList();
   final generalAttempts = [
     for (final a in await db.getGeneralAttempts())
-      if (a.serverValid != false) generalScoreOf(a),
+      if (generalAttemptCounts(a)) generalScoreOf(a),
   ];
   final active = await db.isGeneralTestActive();
   final pre = firstOf(generalAttempts, 'PRE');
@@ -111,7 +136,8 @@ class QuizStatement {
   }
 }
 
-/// The outcome of one module-quiz attempt.
+/// The outcome of one module-quiz attempt. [correct] is the effective score: the
+/// statements answered correctly now plus those kept from earlier attempts.
 class QuizResult {
   final int correct;
   final int total;
@@ -119,18 +145,53 @@ class QuizResult {
   final bool completedModuleQuiz; // the module's quiz is passed now (this or an earlier attempt)
 
   const QuizResult(this.correct, this.total, this.passed, this.completedModuleQuiz);
+
+  /// Statements still wrong, asked again at the next try.
+  int get remaining => total - correct;
+}
+
+/// Statements of [moduleId] already answered correctly in the latest counted attempt,
+/// while its quiz is not passed yet: a retry asks only the others, and these keep
+/// their credit. Empty when there is no attempt, the quiz is passed or the module is
+/// completed (attempts restored from the server carry no per-statement detail).
+Future<Set<String>> quizCredit(LocalDatabase db, String moduleId) async {
+  final state = (await loadLearning(db)).of(moduleId);
+  if (state == null || state.completed || state.quizPassed) return {};
+  final mine = (await db.getQuizAttempts()).where((a) => a.moduleId == moduleId && attemptCounts(a)).toList()
+    ..sort((a, b) => a.takenAt.compareTo(b.takenAt));
+  if (mine.isEmpty) return {};
+  try {
+    final results = (jsonDecode(mine.last.resultsJson) as List).cast<Map<String, dynamic>>();
+    return {for (final r in results) if (r['correct'] == true) r['question_id'] as String};
+  } catch (_) {
+    return {};
+  }
 }
 
 /// Grades one attempt at a module's inline quiz ([answers]: section id -> the
-/// learner's True/False) against the cached statements and saves it for upload.
-/// Retakes are unlimited until the module is completed; every attempt is kept.
+/// learner's True/False for the statements shown) against the cached statements and
+/// saves it for upload. A retry shows only the statements still wrong: the others keep
+/// their credit from the latest attempt ([quizCredit]), so the attempt's score is the
+/// effective score, graded with the unchanged pass rule. Each attempt records which
+/// statements were shown and the answers. Retakes are unlimited until the module is
+/// completed; every attempt is kept.
 Future<QuizResult> recordModuleQuiz(LocalDatabase db, {required String moduleId, required Map<String, bool> answers}) async {
   final before = (await loadLearning(db)).of(moduleId);
   if (before == null) throw StateError('module not available');
   if (!before.canTakeQuiz) throw StateError('the quiz is not open');
   final statements = (await db.getSectionsForModule(moduleId)).map(QuizStatement.fromSection).whereType<QuizStatement>().toList();
+  final credit = await quizCredit(db, moduleId);
   final results = [
-    for (final q in statements) {'question_id': q.sectionId, 'correct': answers[q.sectionId] == q.answer},
+    for (final q in statements)
+      if (credit.contains(q.sectionId) && !answers.containsKey(q.sectionId))
+        {'question_id': q.sectionId, 'correct': true, 'shown': false}
+      else
+        {
+          'question_id': q.sectionId,
+          'correct': answers[q.sectionId] == q.answer,
+          'shown': true,
+          if (answers[q.sectionId] != null) 'answer': answers[q.sectionId],
+        },
   ];
   final correct = results.where((r) => r['correct'] == true).length;
   await db.insertQuizAttempt(
@@ -183,10 +244,13 @@ class GeneralOutcome {
   final int correct;
   final int total;
   final TestScore? pre; // the learner's pre-test, for the post-test result
+  final int passMark; // stored with the attempt: a later change never alters this result
 
-  const GeneralOutcome(this.testType, this.correct, this.total, this.pre);
+  const GeneralOutcome(this.testType, this.correct, this.total, this.pre, {this.passMark = 80});
 
   int get percent => quizScorePercent(correct, total);
+  bool get passed => generalPasses(correct, total, passMark);
+  int get needed => generalNeeded(total, passMark);
 }
 
 /// Grades a General test ([answers]: question id -> chosen option index; missing
@@ -199,7 +263,9 @@ Future<GeneralOutcome> recordGeneralTest(LocalDatabase db,
   if (!allowed) throw StateError('this test is not open');
   final questions = (await db.getGeneralQuestions()).where((q) => q.correctIndex != null).toList();
   final correct = questions.where((q) => answers[q.id] == q.correctIndex).length;
+  final passMark = await currentGeneralPassMark(db);
   await db.insertGeneralAttempt(
+    passMark: passMark,
     clientId: newClientId('general-${testType.toLowerCase()}'),
     testType: testType,
     correct: correct,
@@ -208,7 +274,7 @@ Future<GeneralOutcome> recordGeneralTest(LocalDatabase db,
       for (final q in questions) {'question_id': q.id, 'choice': answers[q.id]},
     ]),
   );
-  return GeneralOutcome(testType, correct, questions.length, before.pre);
+  return GeneralOutcome(testType, correct, questions.length, before.pre, passMark: passMark);
 }
 
 int _seq = 0;

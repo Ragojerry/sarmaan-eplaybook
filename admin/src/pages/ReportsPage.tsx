@@ -7,6 +7,7 @@ import { ReportRow, TrainingSession } from "../types/api";
 import AreaPicker, { areaParams, AreaValue } from "../components/AreaPicker";
 import BiAccess from "../components/BiAccess";
 import TestReport from "../components/TestReport";
+import UserReportTable from "../components/UserReportTable";
 import { LEARNER_ROLES } from "../learnerRoles";
 
 type Tab = "session" | "area" | "user" | "module" | "tests" | "bi";
@@ -24,13 +25,6 @@ const AREA_COLS: [string, string][] = [
   ["users_completed_all", "Finished all"], ["modules_completed", "Modules done"], ["quizzes_passed", "Quizzes passed"],
   ["avg_best_quiz_score", "Avg quiz %"], ["training_events", "Training"], ["video_events", "Video"],
   ["questions_asked", "Q&A"], ["technical_events", "Technical"], ["session_events", "Sessions"],
-];
-const USER_COLS: [string, string][] = [
-  ["full_name", "Name"], ["username", "Username"], ["learner_role", "Learner role"], ["team_code", "Team"], ["session", "Session"], ["training_attempt", "Attempt"], ["state", "State"], ["lga", "LGA"], ["ward", "Ward"],
-  ["facility", "Facility"], ["modules_completed", "Done"], ["completion_rate", "Completion %"], ["quizzes_passed", "Quizzes passed"],
-  ["avg_best_quiz_score", "Avg quiz %"], ["training_events", "Training"], ["video_events", "Video"], ["questions_asked", "Q&A"],
-  ["technical_events", "Technical"], ["general_pre_points", "General pre"], ["general_post_points", "General post"],
-  ["module_quizzes_passed", "Module quizzes passed"], ["seconds_spent_total", "Seconds in modules"], ["last_activity", "Last activity"],
 ];
 const MODULE_COLS: [string, string][] = [
   ["module_code", "Module"], ["module_title", "Title"], ["area", "Area"], ["users", "Users"], ["started", "Started"],
@@ -141,11 +135,6 @@ export default function ReportsPage() {
     queryKey: ["rep-area", key, level],
     queryFn: async () => (await api.get("/reports/boundaries", { params: { ...params, level } })).data,
     enabled: tab === "area",
-  });
-  const byUser = useQuery<ReportRow[]>({
-    queryKey: ["rep-user", key],
-    queryFn: async () => (await api.get("/reports/users", { params })).data,
-    enabled: tab === "user",
   });
   const byModule = useQuery<ReportRow[]>({
     queryKey: ["rep-module", key, modLevel],
@@ -277,16 +266,7 @@ export default function ReportsPage() {
               <Table rows={byArea.data} cols={AREA_COLS} loading={byArea.isLoading} />
             </>
           )}
-          {tab === "user" && (
-            <>
-              <div className="mb-3">
-                <button className="border bg-white text-sm rounded px-3 py-1.5" onClick={() => download("/reports/users.csv", {}, "user_activity.csv")}>
-                  Export CSV
-                </button>
-              </div>
-              <Table rows={byUser.data} cols={USER_COLS} loading={byUser.isLoading} />
-            </>
-          )}
+          {tab === "user" && <UserReportTable params={params} onDownload={download} />}
           {tab === "tests" && (
             <TestReport params={params} onDownload={(path, filename) => download(path, {}, filename)} />
           )}

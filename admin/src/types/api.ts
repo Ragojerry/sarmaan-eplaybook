@@ -245,6 +245,8 @@ export interface ManagedUser {
   training_attempt: number;
   training_restarted_at: string | null;
   last_login_at: string | null;
+  deactivated_at?: string | null;
+  deactivation_reason?: string | null;
   created_at: string;
 }
 

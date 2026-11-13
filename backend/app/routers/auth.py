@@ -13,6 +13,8 @@ from app.database import get_db
 from app.models import User, RefreshToken
 from app.models.enums import UserStatus, AuditAction
 from app.models.audit_log import AuditLog
+from app.auth.account import deactivated
+from app.devices import registry as device_registry
 from app.auth.security import verify_password, create_access_token, create_refresh_token, decode_token
 from app.auth.dependencies import get_current_user
 from app.schemas.auth import (
@@ -66,10 +68,7 @@ def login(payload: LoginRequest, request: Request, db: Session = Depends(get_db)
             )
         )
         db.commit()
-        raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN,
-            detail=f"Account is {user.status.value.lower()}, not active.",
-        )
+        raise deactivated(status.HTTP_403_FORBIDDEN)
 
     access_token = create_access_token(str(user.id), user.role.value)
     refresh_token_str = create_refresh_token(str(user.id))
@@ -83,6 +82,8 @@ def login(payload: LoginRequest, request: Request, db: Session = Depends(get_db)
         )
     )
     user.last_login_at = datetime.now(timezone.utc)
+    if payload.device is not None:
+        device_registry.touch(db, user, payload.device, "login")
     db.add(AuditLog(user_id=user.id, action=AuditAction.LOGIN, entity_type="user", entity_id=user.id, ip_address=ip))
     db.commit()
 
@@ -102,13 +103,14 @@ def refresh(payload: RefreshRequest, db: Session = Depends(get_db)):
         raise invalid
 
     stored = db.query(RefreshToken).filter_by(token=payload.refresh_token).one_or_none()
-    if stored is None or stored.revoked:
+    if stored is None:
         raise invalid
-    if stored.expires_at < datetime.now(timezone.utc):
-        raise invalid
-
-    user = db.get(User, uuid.UUID(claims["sub"]))
-    if user is None or user.status != UserStatus.ACTIVE:
+    # Checked before "revoked": deactivating an account revokes its tokens, and the
+    # phone should hear "deactivated", not "sign in again".
+    user = db.get(User, stored.user_id)
+    if user is not None and user.status != UserStatus.ACTIVE:
+        raise deactivated()
+    if stored.revoked or stored.expires_at < datetime.now(timezone.utc) or user is None:
         raise invalid
 
     new_access_token = create_access_token(str(user.id), user.role.value)

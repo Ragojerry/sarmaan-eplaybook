@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../db/local_database.dart';
 import '../offline/content_sync_service.dart' show localDatabaseProvider;
 import 'api_client.dart';
+import 'device_identity.dart';
 import '../models/api_models.dart';
 
 final apiClientProvider = Provider<ApiClient>((ref) => ApiClient());
@@ -11,12 +12,16 @@ class AuthState {
   final UserProfile? user;
   final bool loading;
 
-  const AuthState({this.user, this.loading = true});
+  /// The server deactivated the account: the person was signed out and the sign-in
+  /// screen explains why (cleared at the next sign-in attempt).
+  final bool deactivated;
+
+  const AuthState({this.user, this.loading = true, this.deactivated = false});
 
   bool get isLoggedIn => user != null;
 
-  AuthState copyWith({UserProfile? user, bool? loading, bool clearUser = false}) =>
-      AuthState(user: clearUser ? null : (user ?? this.user), loading: loading ?? this.loading);
+  AuthState copyWith({UserProfile? user, bool? loading, bool clearUser = false, bool? deactivated}) => AuthState(
+      user: clearUser ? null : (user ?? this.user), loading: loading ?? this.loading, deactivated: deactivated ?? this.deactivated);
 }
 
 class AuthNotifier extends StateNotifier<AuthState> {
@@ -54,7 +59,16 @@ class AuthNotifier extends StateNotifier<AuthState> {
   /// Throws a DioException on failure — screens should catch it and show
   /// `error.response?.data['detail']` per FastAPI's error shape.
   Future<void> login(String username, String password) async {
-    final resp = await _api.dio.post('/auth/login', data: {'username': username, 'password': password});
+    if (state.deactivated) state = state.copyWith(deactivated: false);
+    Map<String, dynamic>? device;
+    try {
+      device = await deviceInfoPayload(_db);
+    } catch (_) {}
+    final resp = await _api.dio.post('/auth/login', data: {
+      'username': username,
+      'password': password,
+      if (device != null) 'device': device, // device registry; older servers ignore it
+    });
     await _api.saveTokens(accessToken: resp.data['access_token'], refreshToken: resp.data['refresh_token']);
     final meResp = await _api.dio.get('/auth/me');
     await _setUser(UserProfile.fromJson(meResp.data));
@@ -84,6 +98,14 @@ class AuthNotifier extends StateNotifier<AuthState> {
     return changed;
   }
 
+  /// The server deactivated this account (api_client.dart): sign out locally, keep
+  /// every local record, and let the sign-in screen say why. Never loops.
+  void accountDeactivated() {
+    if (state.user == null && state.deactivated) return;
+    _db.setActiveUser(null);
+    state = const AuthState(loading: false, deactivated: true);
+  }
+
   Future<void> logout() async {
     final refreshToken = await _api.getRefreshToken();
     try {
@@ -102,6 +124,9 @@ class AuthNotifier extends StateNotifier<AuthState> {
   }
 }
 
-final authProvider = StateNotifierProvider<AuthNotifier, AuthState>(
-  (ref) => AuthNotifier(ref.read(apiClientProvider), ref.read(localDatabaseProvider)),
-);
+final authProvider = StateNotifierProvider<AuthNotifier, AuthState>((ref) {
+  final api = ref.read(apiClientProvider);
+  final notifier = AuthNotifier(api, ref.read(localDatabaseProvider));
+  api.onAccountDeactivated = notifier.accountDeactivated;
+  return notifier;
+});
