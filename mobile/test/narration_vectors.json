@@ -1,0 +1,396 @@
+{
+  "_about": "Expected \"Read aloud\" narration (English) from LocalNarrationBuilder for three real modules (content/*/content_sections.json). A server-side builder must produce the same chunks.",
+  "max_length": 3500,
+  "modules": [
+    {
+      "module_code": "HFW-01",
+      "chunks": [
+        {
+          "section_id": "",
+          "text": "Introduction to Azithromycin (A-Z-M). What A-Z-M is, who receives it, how often, and how it is delivered."
+        },
+        {
+          "section_id": "4d884d84-0c47-5d2c-b61d-531ae1723bfa",
+          "text": "The A-Z-M medicine bottle, as shown on the cover of the training flipbook."
+        },
+        {
+          "section_id": "6fbe096f-fc68-5dc9-bbe6-f395d3cbe9c7",
+          "text": "Purpose of A-Z-M training."
+        },
+        {
+          "section_id": "2cbccbf8-91db-5e91-bb10-57365fc7f8d7",
+          "text": "Learn the knowledge and skills to give Azithromycin to eligible children during the campaign. Understand proper dosing and schedules for A-Z-M, and know when to refer a child to a health facility. Learn safeguarding practices that protect children and vulnerable people during A-Z-M drug administration. Learn good interpersonal communication to teach caregivers about A-Z-M and its possible side effects. Practise every part of A-Z-M drug administration through demonstration and role plays."
+        },
+        {
+          "section_id": "aa2522da-5b84-5f8e-addc-68214991f686",
+          "text": "Acronyms."
+        },
+        {
+          "section_id": "dbb02989-ffea-5a0b-afbc-2ddb7c229f21",
+          "text": "ADR. Meaning: Adverse Drug Reactions. A-Z-M. Meaning: Azithromycin. CU5. Meaning: Children under Five Years. C-D-D. Meaning: Community Drug Distributors. EOR. Meaning: End of Round. FMoH. Meaning: Federal Ministry of Health. HF. Meaning: Health facility. HFW. Meaning: Health facility Worker. IDM. Meaning: Institute for Disease Modelling. LGA. Meaning: Local Government Area. LQAS. Meaning: Lots Quality Assurance Sampling. MC. Meaning: Malaria Consortium. NTD. Meaning: Neglected Tropical Disease. RBM. Meaning: Roll Back Malaria. SAE. Meaning: Severe adverse Reaction. SMEP. Meaning: State Malaria Elimination program. SPHCDA. Meaning: State primary health care Development Agency. WHO. Meaning: World Health organization."
+        },
+        {
+          "section_id": "80b305f9-6191-5704-b54f-d6f72ed65450",
+          "text": "C-D-Ds in A-Z-M vests speak with a family before giving A-Z-M."
+        },
+        {
+          "section_id": "195ecd27-cd08-5968-8718-f8a30ff26e44",
+          "text": "What is A-Z-M?"
+        },
+        {
+          "section_id": "fdf7be3b-e4ff-51aa-bd74-3eb9134161d2",
+          "text": "A-Z-M means Azithromycin."
+        },
+        {
+          "section_id": "67ac9971-d907-5688-9a08-fece0c022ea5",
+          "text": "A-Z-M POS means Azithromycin Powdered Oral Suspension."
+        },
+        {
+          "section_id": "6561ac7d-c123-56e9-9a8f-282e6c9cbf44",
+          "text": "A-Z-M benefits."
+        },
+        {
+          "section_id": "a0d18a28-62ba-5a59-a396-d43cfdcca319",
+          "text": "Azithromycin is a broad-spectrum antibiotic. It prevents and treats many bacterial infections: acute lower respiratory tract, skin and soft tissue, and gastro-enteric infections. It also protects against malaria caused by Plasmodium falciparum. It reduces childhood deaths by preventing and treating pneumonia, diarrhoea and malaria."
+        },
+        {
+          "section_id": "b441971b-03a7-5162-94f7-825a5716483b",
+          "text": "Who receives A-Z-M?"
+        },
+        {
+          "section_id": "fb14d992-6626-5925-aadc-1839746f0414",
+          "text": "A-Z-M drug administration protects children aged 1 to 59 months from childhood infections."
+        },
+        {
+          "section_id": "3bd12798-c0b9-5764-a145-ce33d01d1fdf",
+          "text": "A-Z-M is given every six months (bi-annually) to children 1 to 59 months of age."
+        },
+        {
+          "section_id": "a7133e98-d31d-5f2d-b9be-1e121a681473",
+          "text": "How is A-Z-M delivered?"
+        },
+        {
+          "section_id": "28d4885b-9e50-5032-83fb-35c6440c75fc",
+          "text": "Trained Community Drug Distributors (C-D-Ds) go door to door. C-D-D supervisors, LGA, State and National teams supervise them. C-D-Ds record A-Z-M administration in the DIGIT HCM app on their devices."
+        },
+        {
+          "section_id": "1ab0ec6b-7463-5de6-b86d-bb7b6e0cc86a",
+          "text": "Delivery platforms."
+        },
+        {
+          "section_id": "672a0528-749e-5859-94cf-9053bfd0876b",
+          "text": "A-Z-M MDA uses these child health interventions:"
+        },
+        {
+          "section_id": "8d5cc547-8219-50dc-babb-9dd05ebc02a9",
+          "text": "Neglected tropical disease (NTDs). Polio Eradication Initiative campaign. Seasonal Malaria Chemoprevention. Maternal Newborn and Child health (MNCH)."
+        },
+        {
+          "section_id": "87bc9759-d3ec-5b65-abdb-be9c478ab1ce",
+          "text": "Using these platforms reduces costs, makes the most of resources and reaches more eligible children."
+        },
+        {
+          "section_id": "cf403dc9-4f22-5de2-978f-54e3d7bb3db5",
+          "text": "Tools for each participant."
+        },
+        {
+          "section_id": "0067f888-4c56-5802-acfe-e17433892314",
+          "text": "A-Z-M Job Aid. Sample of A-Z-M POS. DIGIT HCM App."
+        }
+      ]
+    },
+    {
+      "module_code": "HFW-04",
+      "chunks": [
+        {
+          "section_id": "",
+          "text": "Referral of Children to the Health Facility. When to refer a child, signs of allergy, and the referral steps."
+        },
+        {
+          "section_id": "a851ea6a-1932-5ebe-ade2-b832095b1be1",
+          "text": "a C-D-D explains a referral to a caregiver, holding the referral form."
+        },
+        {
+          "section_id": "1ddcd6ed-a3de-5b7f-9815-9c78b0ae8172",
+          "text": "When to refer a sick child."
+        },
+        {
+          "section_id": "8a4ce1ed-4135-5555-89e3-fb75559d43ed",
+          "text": "A child is sick or has danger signs when the child has:"
+        },
+        {
+          "section_id": "a7f28888-09e0-5185-b9d3-76622b12f232",
+          "text": "Convulsion. Fever or high temperature. Difficulty breathing. Difficulty staying awake. Vomiting."
+        },
+        {
+          "section_id": "6cdba474-f0f3-529d-9f2e-b24b4fac6a9e",
+          "text": "Not able to eat or drink. Severe pains or bleeding. Neck pain or severe headache. Severe Acute Malnutrition."
+        },
+        {
+          "section_id": "52167b0b-da72-5e11-8be5-aba1103eaf88",
+          "text": "Do refer the child when the child is sick or has danger signs."
+        },
+        {
+          "section_id": "ea6b964e-8a29-5e3e-ab83-55d5ebd75b17",
+          "text": "Do refer the child when the child has fever."
+        },
+        {
+          "section_id": "6083ae31-4449-5639-9593-0736d60ff205",
+          "text": "Why refer?"
+        },
+        {
+          "section_id": "3f4c6537-fff9-556d-a8bd-58187dd627f3",
+          "text": "Children with fever may have malaria or other childhood infections. Malaria, pneumonia and diarrhoea are the leading causes of death in under-five children in Nigeria. Children with fever need evaluation to avoid complications. Children with S-A-M after MUAC screening are excluded, evaluated and given support (resuscitation, feeding programme, etc.)."
+        },
+        {
+          "section_id": "18d0695d-d0ab-555c-a52d-5d541130b7ca",
+          "text": "Allergy and side effects."
+        },
+        {
+          "section_id": "da803f00-dd4a-501f-81f3-8d50c83bccaa",
+          "text": "Allergies to A-Z-M are rare but may occur."
+        },
+        {
+          "section_id": "5af43b1f-77d9-5eb4-9f5c-46bd97881f6a",
+          "text": "Refer a child to the nearest health facility if the child has side effects or suspected adverse reactions."
+        },
+        {
+          "section_id": "6109cad1-33b9-5525-95de-b93e2e3600c7",
+          "text": "Do refer a child who shows any of these signs after A-Z-M."
+        },
+        {
+          "section_id": "a53ecc9e-b3ac-5285-ae0e-1dddb82639a7",
+          "text": "Do not give A-Z-M to a child with any of these signs. Refer the child."
+        },
+        {
+          "section_id": "0e0cec1d-abbc-5cb2-bfd9-44152acdd4e8",
+          "text": "Possible allergy or reasons for exclusion. Swelling of the face, mouth, tongue or other parts of the body. Nausea or continuous vomiting. Skin rashes or blistering of the skin. Body itching. Weakness or fatigue."
+        },
+        {
+          "section_id": "309eed10-b2a4-5629-81d2-f4fabafa2c7f",
+          "text": "Loss of appetite. Abdominal pains, diarrhoea. Headache. Yellowing of the skin or eyes."
+        },
+        {
+          "section_id": "de424be4-78f2-57af-b5c8-468c6d182204",
+          "text": "Referral steps."
+        },
+        {
+          "section_id": "9bfa766d-f0d1-5571-ad67-2f58b22fdd93",
+          "text": "Use these steps for children who are sick, have severe acute malnutrition or have suspected adverse reactions."
+        },
+        {
+          "section_id": "1806150f-7f92-5916-8057-84b13d068e95",
+          "text": "do not give A-Z-M, fill the referral form, then explain the referral to the caregiver."
+        },
+        {
+          "section_id": "cecc0374-bbf4-5a99-ae02-437400016f21",
+          "text": "Do not give A-Z-M. Complete the top portion of the referral form. Explain the reason for the referral and the need to act immediately. Tell the caregiver how to get to the nearest health facility. Give the A-Z-M referral form to the caregiver to take to the health facility."
+        },
+        {
+          "section_id": "c8a3847d-bbbf-5349-a3b7-2559da82fdb2",
+          "text": "Warning. Explain the danger. If the child has fever or S-A-M, the child could have malaria or other diseases. Explain that the child could get worse or die without immediate treatment."
+        },
+        {
+          "section_id": "fc76b1cf-6cbc-5d05-8865-303ccf21ce03",
+          "text": "Explain that the health worker will evaluate the child at the facility."
+        },
+        {
+          "section_id": "2b3d5935-fd1a-537e-b2e8-33eecf535a2d",
+          "text": "Key take away of module 3. 1. Refer children who are sick or malnourished to the nearest health facility. 2. Fill out the referral form and give it to the caregiver to take to the health facility. 3. Explain the reason for referral and encourage the caregiver to take the child to the health facility immediately."
+        }
+      ]
+    },
+    {
+      "module_code": "CDD-02",
+      "chunks": [
+        {
+          "section_id": "",
+          "text": "C-D-D - Module 2: Determination of Eligibility for Azithromycin (A-Z-M) Drug Administration. Who can receive A-Z-M, how to find a child's age, who must not receive A-Z-M, and the MUAC nutrition check."
+        },
+        {
+          "section_id": "789a6320-59ce-5010-b548-e5834fde0294",
+          "text": "Module 2: Determination of Eligibility for Azithromycin (A-Z-M) Drug Administration."
+        },
+        {
+          "section_id": "42063a5d-8abe-5a1a-912b-1fc34430ae6a",
+          "text": "Contents. Age eligibility for A-Z-M Drug Administration. How to determine a child's age. Children that are not eligible for A-Z-M during campaign. Summary of child eligibility for A-Z-M."
+        },
+        {
+          "section_id": "8be36efa-5b3a-561c-9a6f-abfa8d26ae52",
+          "text": "Tools for each participant. A-Z-M Job Aid."
+        },
+        {
+          "section_id": "37f7605b-96fb-5d48-bc14-430c44baae89",
+          "text": "Age eligibility for Azithromycin (A-Z-M) administration during campaign."
+        },
+        {
+          "section_id": "46702ba2-a61c-5496-99b5-b1af88c2da45",
+          "text": "Eligibility age range for Children to receive A-Z-M. A-Z-M is given to only healthy children between 1 to 59 months of age. Children who are less than one month or older than 59 months are not eligible. Children who are 59 months old in round one should receive A-Z-M but will not be eligible in the next round. Neonates who are less than one month are not eligible."
+        },
+        {
+          "section_id": "a9c62227-b936-58eb-8ea4-c3e0cb134897",
+          "text": "",
+          "quiz_stop": true
+        },
+        {
+          "section_id": "e1c9fd68-a4a7-54e8-8757-e495a27e2783",
+          "text": "Why only children 1 to 59 months are eligible for A-Z-M. The safety protocol for A-Z-M has been established for children 1 months and above. Younger children are more susceptible to potential side effects. Children between 1 to 59 months are at the highest risk of severe malaria and other childhood infections. The age group experience the highest mortality rates from childhood infections. It is easier to monitor and manage potential side effects in this age group (1 to 59 months)."
+        },
+        {
+          "section_id": "15bcde96-d5a3-5596-9617-cc3ec98fbfa2",
+          "text": "What are the ways to determine the age of a child. Ask to see the child's child health card. Ask the caregiver the age of the child. Use calendar of events."
+        },
+        {
+          "section_id": "5b659d3e-5604-53c7-a110-e45c77c74b2b",
+          "text": "How to know if an infant is between 1 to 2 months. Cannot hold head and neck steady when held upright."
+        },
+        {
+          "section_id": "8eac1865-7975-56f1-90b2-23a7ee19be8d",
+          "text": "How to know if an infant is between 3 to 4 months. Can hold head and neck steady when held upright."
+        },
+        {
+          "section_id": "48809d45-38ea-5b3c-aab0-e920b277265d",
+          "text": "How to know if an infant is between 3 to 11 months. Can hold head and neck steady when held upright. Can crawl. Can sit without help."
+        },
+        {
+          "section_id": "2eb35e8b-9f82-53f1-b54b-7213bb3e9501",
+          "text": "How do you know if a child is between 12 to 59 months. Can stand, walk or run. Not able to raise the arm and touch the opposite side of the ear. Not able to stand on one leg."
+        },
+        {
+          "section_id": "49fabfa8-6172-5f46-9b55-23044a748668",
+          "text": "How to know children older than 59months. Can raise the arm and touch the opposite side of the ear. Can stand on one leg for 10 seconds. Can jump on one leg. They are not eligible for A-Z-M MDA."
+        },
+        {
+          "section_id": "bc1b0af2-c4c1-576a-8cd6-27ab81f33643",
+          "text": "How to determine child's age for A-Z-M drug administration."
+        },
+        {
+          "section_id": "8164f720-2c4d-5d2e-ae30-a406faa1edd1",
+          "text": "How to determine a child's age. Children 1 to 11 months: child 1 to 2 months cannot hold head and neck steady when upright; not newborn or less than one month; child 3 to 4 months can hold head and neck steady when upright; child 5 to 11 months can crawl and can sit without help. Child 12 to 59 months: can stand or walk; cannot raise arm and touch opposite ear; cannot stand or jump on one foot."
+        },
+        {
+          "section_id": "684b0a00-cd2c-5d50-a658-7aad1f6b163b",
+          "text": "Children that are not eligible for A-Z-M drug administration."
+        },
+        {
+          "section_id": "e7cbe799-71d5-56fa-8777-38741986e839",
+          "text": "Warning. Sick children. Do not give A-Z-M to children who are sick."
+        },
+        {
+          "section_id": "1794b0eb-7244-5b2e-9f52-2da1783f9869",
+          "text": "",
+          "quiz_stop": true
+        },
+        {
+          "section_id": "046e0a8b-bd77-5178-bc62-58d045f84057",
+          "text": "Warning. Severe Acute Malnutrition (S-A-M). Do not give A-Z-M to children who are suffering from Severe Acute Malnutrition (S-A-M):"
+        },
+        {
+          "section_id": "ade97ff8-c4dc-59a9-839f-bf8121ffbe30",
+          "text": "Advise the caregiver to take the child to the nearest health facility for further evaluation. Complete the referral form and give to the caregiver to take to the health facility. Do not give the caregiver the A-Z-M medicine to administer later or the child record card."
+        },
+        {
+          "section_id": "b29fdd78-c5da-5033-8d4f-0265391fd4eb",
+          "text": "Warning. Allergy to A-Z-M or macrolide antibiotics. Do not give A-Z-M to children who are allergic to A-Z-M or other macrolide antibiotics."
+        },
+        {
+          "section_id": "f55e8a40-b819-51c9-b20d-ddbf03715b36",
+          "text": "ASK the Caregiver. Does the Child get sick after taking antibiotic medicines or similar medications. Has the child taken A-Z-M or similar antibiotics before, If so, did the child get sick after taking them or had reactions such as rashes, swelling or difficulty breathing."
+        },
+        {
+          "section_id": "afcde5e2-1baa-5974-8040-7ff8315ede9c",
+          "text": "Determination of eligibility for Azithromycin (A-Z-M)."
+        },
+        {
+          "section_id": "fafc03fa-99f3-5df3-9dbc-f6c62eaec32b",
+          "text": "Eligible for A-Z-M: healthy children from a young baby to a standing child. not eligible for A-Z-M: difficulty in swallowing, severe acute malnutrition, not eating, very sick, fever."
+        },
+        {
+          "section_id": "00d94f33-3eda-518a-9ea7-b420deaa73a2",
+          "text": "Children that are not eligible for A-Z-M drug administration."
+        },
+        {
+          "section_id": "b4b6fbe9-12d5-5274-b020-88c31c7e8505",
+          "text": "Warning. Antibiotics in the last 28 days. Do not give A-Z-M to children who have taken antibiotics or similar medication in the last 28 days or 4 weeks or one month."
+        },
+        {
+          "section_id": "e1c70a20-0480-59ae-b6b9-3caecd0324b2",
+          "text": "Ask the caregiver. Has the child taken any medicine in the last 28 days or 4 weeks. If yes, what medicine has the child taken in the past one month. If possible, ask to see the packet for confirmation."
+        },
+        {
+          "section_id": "eff4d5c1-58dc-5f5f-ba79-ea2f2995927a",
+          "text": "Children not eligible for A-Z-M MDA due to malnutrition: how to identify a child with severe acute malnutrition (Look and Feel Approach). Visible severe wasting; The child looks extremely thin. The ribs, shoulder blades and bones are very prominent. The arms and thigh look like “skin and bones” with little or no muscle or flesh. The child's buttock may appear flat or baggy."
+        },
+        {
+          "section_id": "f3458eb4-c19c-58c4-8152-37bfe89fc4d7",
+          "text": "Bilateral Pitting Oedema. Press gently with your thumb on the top of both feet for about 3 seconds. If a pit remains after removing the thumb, oedema is present. This indicates that the child has Kwashiorkor, a form of S-A-M."
+        },
+        {
+          "section_id": "ad9a24fc-f1d5-5013-bb46-887be3355152",
+          "text": "",
+          "quiz_stop": true
+        },
+        {
+          "section_id": "aaee9ed1-d483-555a-9099-bb04d7fa5afd",
+          "text": "Warning. A-Z-M should not be given to the following children. Children from 60 months and older. Children that are allergic to A-Z-M or similar antibiotics. Children who are sick or have fever. Children who have received A-Z-M or other antibiotics in the last one month. Children who are currently taking A-Z-M or other antibiotics. Children who cannot swallow."
+        },
+        {
+          "section_id": "5fd9cd51-f766-5a87-b65d-9a75fb75ba3b",
+          "text": "Summary of child eligibility for A-Z-M."
+        },
+        {
+          "section_id": "7b8328e9-d95c-5345-ae48-4070f44eded0",
+          "text": "Summary of child eligibility for A-Z-M, with Eligible and Refer columns."
+        },
+        {
+          "section_id": "ad325264-2d83-5533-a934-52c6ec2e550c",
+          "text": "Between 1 to 59 months. Eligible: Yes. When the child is sick. Eligible: No. Refer: Yes. When the child has fever. Eligible: No. Refer: Yes. When the child has allergy to antibiotics or similar medicines or has mild or severe or acute malnutrition. Eligible: No. Refer: Yes. When the child has taken A-Z-M or other similar antibiotics in the last 28 days (4 weeks). Eligible: No."
+        },
+        {
+          "section_id": "963f9378-464d-505d-b92f-824718dd973a",
+          "text": "Section 2: MUAC assessment."
+        },
+        {
+          "section_id": "a1cb91f3-bbe6-58e4-8a2d-7b57e2d3ae39",
+          "text": "1. MUAC Assessment and Data Collection within SARMAAN II Workflow: the assessment will be implemented within routine SARMAAN II household visits, leveraging. Trained C-D-Ds. Established supervision structures. Kobo Collect digital data platform. Existing household engagement processes. No additional household visits will be required."
+        },
+        {
+          "section_id": "1a47c94d-ae3b-5f6a-9bdc-63d280013550",
+          "text": "Mid-Upper Arm Circumference (MUAC) using standard colour-coded MUAC tapes."
+        },
+        {
+          "section_id": "6b79c4b6-87ce-5392-9aba-5a9721432743",
+          "text": "Measurement protocol. Left arm. Correct midpoint. Tape applied lightly or comfortably, not tight or too tight."
+        },
+        {
+          "section_id": "0cc2f462-6044-5ad2-b85a-a4fb9d0d4062",
+          "text": "Kobo Collect will automatically classify MUAC values using WHO or UNICEF thresholds."
+        },
+        {
+          "section_id": "b153db62-853c-51a6-980c-33dc2dac8e77",
+          "text": "MUAC or Nutrition Assessment (Children 6 to 59 months)."
+        },
+        {
+          "section_id": "acae4d12-f515-5163-90db-8f1570825175",
+          "text": "≥ 12.5 cm. Status: Well-nourished. Classification: Normal. Action Required: No immediate action. 11.5 to 12.4 cm. Status: At Risk or M-A-M. Classification: Moderate Acute Malnutrition. Action Required: Immediate referral to health facility for counselling. < 11.5 cm. Status: S-A-M. Classification: Severe Acute Malnutrition. Action Required: Immediate referral to health facility."
+        },
+        {
+          "section_id": "4a492eb4-9745-5071-bdee-23b8650226a6",
+          "text": "MUAC ranges: green 12.5 cm or more (normal), yellow 11.5 to 12.4 cm (M-A-M), red below 11.5 cm (S-A-M)."
+        },
+        {
+          "section_id": "e8367142-2e95-587d-9a1b-94f9b3b36268",
+          "text": "MUAC assessment, right and wrong. Good MUAC assessment: left arm, not too tight. Bad MUAC assessment: right arm, too tight."
+        },
+        {
+          "section_id": "8c5344dd-62a0-5afb-b65c-09151d77f9da",
+          "text": "A C-D-D taking MUAC reading of a child within the age group 6 to 59 months."
+        },
+        {
+          "section_id": "45436033-66ea-5e0f-b8ed-75be2bf372b8",
+          "text": "MUAC Tape."
+        }
+      ]
+    }
+  ]
+}

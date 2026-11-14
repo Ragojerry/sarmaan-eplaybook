@@ -1437,6 +1437,50 @@
     "settings.videosDeleted": {
       "en": "Downloaded videos deleted.",
       "note": "Shown after deleting all downloaded videos"
+    },
+    "readAloud.play": {
+      "en": "Play",
+      "note": "Read aloud: start or continue reading the module"
+    },
+    "readAloud.pause": {
+      "en": "Pause",
+      "note": "Read aloud: pause (Play continues from the start of that section)"
+    },
+    "readAloud.previous": {
+      "en": "Previous section",
+      "note": "Read aloud: go back one section"
+    },
+    "readAloud.next": {
+      "en": "Next section",
+      "note": "Read aloud: skip to the next section"
+    },
+    "readAloud.stop": {
+      "en": "Stop",
+      "note": "Read aloud: stop reading"
+    },
+    "readAloud.speed": {
+      "en": "Speed {speed}",
+      "note": "Read aloud speed button; {speed} is 0.75x, 1x or 1.25x"
+    },
+    "readAloud.reading": {
+      "en": "Reading aloud. Tap a section to continue from there.",
+      "note": "Shown while the module is being read aloud"
+    },
+    "readAloud.paused": {
+      "en": "Paused. Play continues from the start of this section.",
+      "note": "Shown while Read aloud is paused"
+    },
+    "readAloud.quizPause": {
+      "en": "Answer the quiz, then press Play to continue.",
+      "note": "Read aloud stopped at an inline True/False quiz"
+    },
+    "readAloud.needsVoice": {
+      "en": "Your phone needs an English voice to read aloud.",
+      "note": "No English text-to-speech voice or engine on the phone"
+    },
+    "readAloud.openVoiceSettings": {
+      "en": "Open voice settings",
+      "note": "Button: open the phone's text-to-speech settings to install an English voice"
     }
   }
 }

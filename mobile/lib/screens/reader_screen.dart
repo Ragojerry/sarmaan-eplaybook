@@ -3,7 +3,6 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:flutter_tts/flutter_tts.dart';
 import 'package:go_router/go_router.dart';
 
 import '../sync/analytics_recorder.dart';
@@ -19,6 +18,8 @@ import '../theme/app_theme.dart';
 import '../widgets/offline_aware_image.dart';
 import '../widgets/section_audio_player.dart';
 import '../widgets/video_download_controls.dart';
+import '../services/read_aloud_service.dart';
+import '../widgets/read_aloud_bar.dart';
 import '../l10n/l10n.dart';
 
 /// Phase 8: reads from the LOCAL cache — never the network — matching
@@ -87,7 +88,8 @@ final localProgressProvider = FutureProvider.autoDispose.family<LocalProgressRow
 });
 
 /// Real content reader: renders cached content per ContentType (no raw
-/// HTML, per master prompt §16), real on-device TTS via flutter_tts,
+/// HTML, per master prompt §16), Read aloud with the phone's own voice
+/// (read_aloud_service.dart; English only),
 /// offline-first image loading via OfflineAwareImage, and a real
 /// "mark as complete" that writes to the local `local_progress` table and
 /// queues a `pending_sync` entry. Visual language matches the prototype's
@@ -105,8 +107,8 @@ class ReaderScreen extends ConsumerStatefulWidget {
 }
 
 class _ReaderScreenState extends ConsumerState<ReaderScreen> with WidgetsBindingObserver {
-  final FlutterTts _tts = FlutterTts();
-  bool _speaking = false;
+  late final ReadAloudService _readAloud; // kept for dispose (ref is not usable there)
+  String? _readingSection; // the section Read aloud last scrolled to
   final ScrollController _scroll = ScrollController();
   late final LocalDatabase _db;
   List<ContentSection> _loadedSections = const [];
@@ -145,6 +147,7 @@ class _ReaderScreenState extends ConsumerState<ReaderScreen> with WidgetsBinding
   void initState() {
     super.initState();
     _db = ref.read(localDatabaseProvider);
+    _readAloud = ref.read(readAloudServiceProvider);
     _scroll.addListener(_onScroll);
     WidgetsBinding.instance.addObserver(this);
     WidgetsBinding.instance.addPostFrameCallback((_) async {
@@ -177,6 +180,10 @@ class _ReaderScreenState extends ConsumerState<ReaderScreen> with WidgetsBinding
   @override
   void didChangeAppLifecycleState(AppLifecycleState lifecycle) {
     _inFront = lifecycle == AppLifecycleState.resumed;
+    // Read aloud stops when the app goes to the background (Play resumes that section).
+    if ((lifecycle == AppLifecycleState.paused || lifecycle == AppLifecycleState.hidden) && _readAloud.moduleId == widget.moduleId) {
+      _readAloud.pause();
+    }
     if (lifecycle == AppLifecycleState.resumed) {
       _resumeTimer();
     } else {
@@ -271,21 +278,24 @@ class _ReaderScreenState extends ConsumerState<ReaderScreen> with WidgetsBinding
     _pauseTimer();
     _flushProgress();
     _scroll.dispose();
-    _tts.stop();
+    // Leaving the reader (or opening a test) stops Read aloud, just after the screen is
+    // gone (Riverpod refuses changes while the widget tree is being torn down).
+    final readAloud = _readAloud, moduleId = widget.moduleId;
+    if (readAloud.moduleId == moduleId) {
+      Future.microtask(() {
+        if (readAloud.moduleId == moduleId) readAloud.stop();
+      });
+    }
     super.dispose();
   }
 
-  Future<void> _toggleSpeak(String? audioText) async {
-    if (audioText == null || audioText.isEmpty) return;
-    if (_speaking) {
-      await _tts.stop();
-      setState(() => _speaking = false);
-    } else {
-      setState(() => _speaking = true);
-      _tts.setCompletionHandler(() {
-        if (mounted) setState(() => _speaking = false);
-      });
-      await _tts.speak(audioText);
+  /// Keeps the section being read on screen.
+  void _followReading(String? sectionId) {
+    if (sectionId == null || sectionId == _readingSection) return;
+    _readingSection = sectionId;
+    final target = _sectionKeys[sectionId]?.currentContext;
+    if (target != null) {
+      Scrollable.ensureVisible(target, duration: const Duration(milliseconds: 350), alignment: 0.15, curve: Curves.easeOut);
     }
   }
 
@@ -642,6 +652,10 @@ class _ReaderScreenState extends ConsumerState<ReaderScreen> with WidgetsBinding
     final translationAsync = ref.watch(localModuleTranslationProvider(widget.moduleId));
     final sectionsAsync = ref.watch(localModuleSectionsProvider(widget.moduleId));
     final learningAsync = ref.watch(learningProvider);
+    final readAloudAllowed = ref.watch(readAloudAllowedProvider).valueOrNull ?? false;
+    ref.listen<ReadAloudService>(readAloudServiceProvider, (_, s) {
+      if (s.moduleId == widget.moduleId) _followReading(s.currentSectionId);
+    });
 
     return Scaffold(
       appBar: AppBar(
@@ -687,19 +701,25 @@ class _ReaderScreenState extends ConsumerState<ReaderScreen> with WidgetsBinding
                 controller: _scroll,
                 padding: const EdgeInsets.fromLTRB(22, 18, 22, 28),
                 children: [
-                  translationAsync.maybeWhen(
-                    data: (t) => (t?.audioText != null && t!.audioText!.isNotEmpty)
-                        ? _AudioBar(speaking: _speaking, onToggle: () => _toggleSpeak(t.audioText))
-                        : const SizedBox.shrink(),
-                    orElse: () => const SizedBox.shrink(),
-                  ),
+                  // Read aloud: English content only (never English text with another language selected).
+                  if (readAloudAllowed)
+                    translationAsync.maybeWhen(
+                      data: (t) => ReadAloudBar(
+                        moduleId: widget.moduleId,
+                        title: t?.title ?? '',
+                        description: t?.description,
+                        sections: sections,
+                      ),
+                      orElse: () => const SizedBox.shrink(),
+                    ),
                   _timeIndicator(state),
                   ModuleVideosBar(moduleId: widget.moduleId),
                   for (final section in sections)
                     section.contentType == 'TRUE_FALSE'
                         ? _quizCard(section, state, toAnswer)
                         : KeyedSubtree(
-                            key: _sectionKeys.putIfAbsent(section.id, GlobalKey.new), child: _buildSection(context, section)),
+                            key: _sectionKeys.putIfAbsent(section.id, GlobalKey.new),
+                            child: ReadAloudHighlight(moduleId: widget.moduleId, sectionId: section.id, child: _buildSection(context, section))),
                   const SizedBox(height: 22),
                   _completionArea(state, statements.length, _quizResult?.remaining ?? (_credit.isEmpty ? 0 : toAnswer)),
                 ],
@@ -943,63 +963,3 @@ class _ReaderScreenState extends ConsumerState<ReaderScreen> with WidgetsBinding
   }
 }
 
-/// Matches the prototype's `.audio-bar`: pill-shaped card, filled
-/// teal-deep play button (or a small clay "stop" state while speaking).
-class _AudioBar extends StatelessWidget {
-  final bool speaking;
-  final VoidCallback onToggle;
-
-  const _AudioBar({required this.speaking, required this.onToggle});
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      margin: const EdgeInsets.only(bottom: 16),
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 9),
-      decoration: BoxDecoration(
-        color: AppColors.surface,
-        border: Border.all(color: AppColors.divider, width: 1.5),
-        borderRadius: BorderRadius.circular(AppRadius.standard),
-      ),
-      child: Row(
-        children: [
-          GestureDetector(
-            onTap: onToggle,
-            child: Container(
-              width: speaking ? 28 : 34,
-              height: speaking ? 28 : 34,
-              decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                color: speaking ? AppColors.surfaceSelected : AppColors.primary,
-              ),
-              alignment: Alignment.center,
-              child: Icon(
-                speaking ? Icons.stop_rounded : Icons.play_arrow_rounded,
-                size: speaking ? 14 : 16,
-                color: speaking ? AppColors.primary : AppColors.onPrimary,
-              ),
-            ),
-          ),
-          const SizedBox(width: 10),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(context.t('reader.readAloud'),
-                    style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w700, color: AppColors.textStrong)),
-                Text(context.t('reader.onDeviceAudio'),
-                    style: const TextStyle(fontFamily: AppFonts.mono, fontSize: 9.5, color: AppColors.textMuted)),
-              ],
-            ),
-          ),
-          if (speaking)
-            const SizedBox(
-              width: 16,
-              height: 16,
-              child: CircularProgressIndicator(strokeWidth: 2, valueColor: AlwaysStoppedAnimation(AppColors.primary)),
-            ),
-        ],
-      ),
-    );
-  }
-}
