@@ -9,6 +9,7 @@ import 'package:drift/drift.dart' show Value;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../db/local_database.dart';
+import '../video/video_manifest.dart';
 import '../l10n/app_strings_service.dart';
 import '../learning/curriculum_notice.dart';
 import '../learning/learning_service.dart' show kGeneralPassMarkKey, quizAttemptsReadyToUpload;
@@ -246,6 +247,7 @@ class SyncEngine extends StateNotifier<SyncSnapshot> {
       await _ref.read(toolsServiceProvider).sync(supportAudienceOf(_ref));
 
       await _checkRelease(forceInstall: roleChanged);
+      await _refreshVideos();
       await _removeHiddenVideos();
 
       await _db.purgeSyncedQueue();
@@ -299,6 +301,14 @@ class SyncEngine extends StateNotifier<SyncSnapshot> {
       );
     }
     state = state.copyWith(contentRevision: state.contentRevision + 1);
+  }
+
+  /// The video manifest (sizes, hashes, CloudFront URLs) and nothing more: a
+  /// video downloads only when the learner asks for it. Best-effort.
+  Future<void> _refreshVideos() async {
+    try {
+      await refreshVideoManifest(_ref.read(apiClientProvider), _db);
+    } catch (_) {}
   }
 
   /// Downloaded videos of modules this account may no longer see are deleted

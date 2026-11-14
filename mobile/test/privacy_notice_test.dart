@@ -15,7 +15,8 @@ import 'package:sarmaan_eplaybook/services/settings_service.dart';
 
 /// The consent screen carries the full privacy notice
 /// (content/privacy_notice/consent_body_en.txt), folded with See more / See less.
-final _notice = File('../content/privacy_notice/consent_body_en.txt').readAsStringSync().trim();
+// Git may check the file out with Windows line endings; the app's copy has LF.
+final _notice = File('../content/privacy_notice/consent_body_en.txt').readAsStringSync().replaceAll('\r\n', '\n').trim();
 
 ApiClient _offlineApi() {
   final api = ApiClient();

@@ -1,7 +1,7 @@
 import uuid
 from datetime import datetime
 
-from sqlalchemy import String, Text, Integer, Boolean, DateTime, ForeignKey, Enum as SAEnum
+from sqlalchemy import BigInteger, String, Text, Integer, Boolean, DateTime, ForeignKey, Enum as SAEnum
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from sqlalchemy.sql import func
@@ -25,7 +25,7 @@ class Video(Base):
     thumbnail_path: Mapped[str | None] = mapped_column(String(500), nullable=True)
     mime_type: Mapped[str] = mapped_column(String(100), nullable=False)
     duration_seconds: Mapped[int | None] = mapped_column(Integer, nullable=True)
-    file_size: Mapped[int | None] = mapped_column(Integer, nullable=True)
+    file_size: Mapped[int | None] = mapped_column(BigInteger, nullable=True)
     checksum: Mapped[str | None] = mapped_column(String(128), nullable=True)
     language: Mapped[str] = mapped_column(String(10), nullable=False, default="en")
     release_id: Mapped[uuid.UUID | None] = mapped_column(
@@ -39,6 +39,13 @@ class Video(Base):
     # (Phase 9) reads this to decide what to auto-download vs. leave to the
     # user's choice.
     required_offline: Mapped[bool] = mapped_column(Boolean, nullable=False, default=False)
+    # S3 object (app/video_storage.py): videos/<id>/<sha256[:16]>.mp4; None while the file is
+    # only on the server's disk (development) or not uploaded.
+    storage_key: Mapped[str | None] = mapped_column(String(500), nullable=True)
+    # Goes up by one each time the file is replaced; phones offer "Update available".
+    version: Mapped[int] = mapped_column(Integer, nullable=False, default=1, server_default="1")
+    # Sent to phones in the video manifest. Nothing reads it: no training rule depends on videos.
+    required_for_completion: Mapped[bool] = mapped_column(Boolean, nullable=False, default=False, server_default="false")
     status: Mapped[VideoStatus] = mapped_column(
         SAEnum(VideoStatus, name="video_status"), nullable=False, default=VideoStatus.DRAFT
     )

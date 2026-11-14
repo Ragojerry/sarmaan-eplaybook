@@ -36,6 +36,13 @@ class Settings(BaseSettings):
     audio_upload_formats: List[str] = ["mp3", "m4a", "wav"]
     video_upload_formats: List[str] = ["mp4"]
     release_storage_path: str = "../content/releases"  # built release manifests (Phase 12)
+    # Training videos (app/video_storage.py): "s3" keeps them in S3 behind CloudFront and the
+    # admin browser uploads straight there; "local" keeps them on disk (development only).
+    video_storage: str = "local"
+    video_s3_bucket: str | None = None
+    video_s3_prefix: str = "videos"
+    video_cdn_base_url: str | None = None  # e.g. https://dpoc28iz0vbai.cloudfront.net
+    aws_region: str = "eu-north-1"
     s3_endpoint_url: str | None = None
     s3_bucket: str | None = None
     s3_access_key: str | None = None

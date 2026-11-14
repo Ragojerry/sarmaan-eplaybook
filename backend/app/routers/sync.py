@@ -186,6 +186,41 @@ def _general_state(general, pass_mark: int | None = None) -> GeneralTestState:
                             pass_mark=pass_mark)
 
 
+@router.get("/videos")
+def get_video_manifest(db: Session = Depends(get_db), user: User = Depends(get_current_user)):
+    """The video manifest: what each published video is and where to fetch it (CloudFront),
+    for the videos this account may see. Never video bytes, and nothing tells the phone
+    to download: a video is fetched only when the learner asks for it."""
+    from app import video_storage
+    from app.models import Video
+    from app.models.enums import VideoStatus
+    from app.routers.videos import NO_FILE
+
+    store = video_storage.current()
+    visible = visible_module_ids(db, user)
+    out = []
+    for v in db.query(Video).filter(Video.status == VideoStatus.PUBLISHED).order_by(Video.title).all():
+        if v.module_id is not None and v.module_id not in visible:
+            continue
+        if store is not None:
+            if not v.storage_key:
+                continue
+            url = store.url(v.storage_key)
+        else:  # development: the API serves the file from disk
+            if v.filename == NO_FILE:
+                continue
+            url = f"/videos/{v.id}/file"
+        if not v.file_size or not v.checksum:
+            continue  # scripts/backfill_videos.py fills these in
+        out.append({
+            "video_id": str(v.id), "module_id": str(v.module_id) if v.module_id else None, "title": v.title,
+            "language": v.language, "size_bytes": v.file_size, "duration_seconds": v.duration_seconds,
+            "content_hash": v.checksum, "url": url, "version": v.version or 1,
+            "required_for_completion": bool(v.required_for_completion), "mime_type": v.mime_type,
+        })
+    return {"generated_at": datetime.now(timezone.utc).isoformat(), "videos": out}
+
+
 @router.get("/learning", response_model=LearningState)
 def get_learning_state(db: Session = Depends(get_db), user: User = Depends(get_current_user)):
     """The account's own state per visible module, its module-quiz attempts (so a new

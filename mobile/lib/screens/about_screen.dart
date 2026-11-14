@@ -9,7 +9,9 @@ import '../services/settings_service.dart';
 import '../sync/sync_engine.dart';
 import '../theme/app_theme.dart';
 import '../widgets/partner_logo_row.dart';
-import '../video/video_manager.dart';
+import '../video/video_downloads.dart';
+import '../video/video_manifest.dart';
+import '../widgets/video_download_controls.dart';
 import '../widgets/app_bottom_nav.dart';
 import '../l10n/l10n.dart';
 import '../tour/app_tour.dart';
@@ -24,10 +26,10 @@ final packageInfoProvider = FutureProvider<PackageInfo>((ref) => PackageInfo.fro
 /// reporting needs a platform-specific plugin this build doesn't include
 /// yet. A real Videos/Training total with an honest gap beats fake
 /// precision everywhere.
-final storageUsageProvider = FutureProvider<({int videoBytes, int trainingBytes})>((ref) async {
-  final videoManager = ref.read(videoManagerProvider);
+final storageUsageProvider = FutureProvider.autoDispose<({int videoBytes, int trainingBytes})>((ref) async {
+  final videoManager = ref.watch(videoDownloadManagerProvider);
   final db = ref.read(localDatabaseProvider);
-  final videoBytes = await videoManager.totalVideoBytesUsed();
+  final videoBytes = await videoManager.totalBytesUsed();
   final trainingBytes = await db.totalCachedMediaBytes();
   return (videoBytes: videoBytes, trainingBytes: trainingBytes);
 });
@@ -88,6 +90,8 @@ class AboutScreen extends ConsumerWidget {
           ),
           const SizedBox(height: 6),
           _buildStorageCard(ref),
+          const SizedBox(height: 6),
+          const _VideoStorageCard(),
           const SizedBox(height: 6),
           Container(
             margin: const EdgeInsets.symmetric(horizontal: 22),
@@ -289,3 +293,76 @@ final selectedLanguageLabelProvider = FutureProvider.autoDispose<String>((ref) a
   }
   return code == 'en' ? 'English' : code;
 });
+
+/// Every video not on the phone yet, and what downloading them would take.
+final _allVideosMissingProvider = FutureProvider.autoDispose<({List<VideoEntry> missing, int bytes, int total})>((ref) async {
+  final manager = ref.watch(videoDownloadManagerProvider);
+  final entries = await allVideoEntries(ref.read(localDatabaseProvider));
+  final missing = <VideoEntry>[];
+  for (final e in entries) {
+    final s = await manager.statusOf(e.videoId);
+    if (!s.playable && !s.busy) missing.add(e);
+  }
+  return (missing: missing, bytes: missing.fold<int>(0, (n, e) => n + e.sizeBytes), total: entries.length);
+});
+
+/// Settings: space used by videos, "Download all videos for offline" (optional,
+/// one at a time) and "Delete downloaded videos". Training progress is never touched.
+class _VideoStorageCard extends ConsumerWidget {
+  const _VideoStorageCard();
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final used = ref.watch(storageUsageProvider).valueOrNull?.videoBytes ?? 0;
+    final all = ref.watch(_allVideosMissingProvider).valueOrNull;
+    if (all == null || all.total == 0) return const SizedBox.shrink();
+    return Container(
+      margin: const EdgeInsets.symmetric(horizontal: 22),
+      padding: const EdgeInsets.all(14),
+      decoration: BoxDecoration(
+        color: AppColors.surface,
+        border: Border.all(color: AppColors.divider),
+        boxShadow: AppSheen.card,
+        borderRadius: BorderRadius.circular(AppRadius.standard),
+      ),
+      child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+        Text(context.t('settings.videosTitle'),
+            style: const TextStyle(fontFamily: AppFonts.mono, fontSize: 10, fontWeight: FontWeight.w700, color: AppColors.textMuted, letterSpacing: 0.5)),
+        const SizedBox(height: 8),
+        Text(context.t('settings.videosUsed', {'size': formatBytes(used)}), style: const TextStyle(fontSize: 12, color: AppColors.textStrong)),
+        const SizedBox(height: 10),
+        if (all.missing.isEmpty)
+          Text(context.t('settings.allVideosOffline'), style: const TextStyle(fontSize: 11.5, color: AppColors.primary))
+        else
+          OutlinedButton.icon(
+            icon: const Icon(Icons.download_for_offline_outlined, size: 18),
+            label: Text(context.t('settings.downloadAllVideos', {'size': formatBytes(all.bytes)})),
+            onPressed: () => requestVideoDownloads(context, ref, all.missing),
+          ),
+        if (used > 0)
+          TextButton.icon(
+            icon: const Icon(Icons.delete_outline, size: 18),
+            style: TextButton.styleFrom(foregroundColor: AppColors.errorText),
+            label: Text(context.t('settings.deleteAllVideos')),
+            onPressed: () async {
+              final ok = await showDialog<bool>(
+                context: context,
+                builder: (context) => AlertDialog(
+                  content: Text(context.t('settings.deleteAllVideosConfirm')),
+                  actions: [
+                    TextButton(onPressed: () => Navigator.pop(context, false), child: Text(context.t('common.cancel'))),
+                    FilledButton(onPressed: () => Navigator.pop(context, true), child: Text(context.t('settings.deleteAllVideos'))),
+                  ],
+                ),
+              );
+              if (ok != true) return;
+              await ref.read(videoDownloadManagerProvider).deleteAll();
+              if (context.mounted) {
+                ScaffoldMessenger.maybeOf(context)?.showSnackBar(SnackBar(content: Text(context.t('settings.videosDeleted'))));
+              }
+            },
+          ),
+      ]),
+    );
+  }
+}

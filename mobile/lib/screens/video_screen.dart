@@ -1,41 +1,27 @@
-import 'dart:io';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:video_player/video_player.dart';
 
-import '../db/local_database.dart';
-import '../models/api_models.dart';
 import '../offline/content_sync_service.dart';
-import '../services/auth_service.dart';
 import '../sync/analytics_recorder.dart';
 import '../theme/app_theme.dart';
-import '../video/video_manager.dart';
+import '../video/video_downloads.dart';
+import '../video/video_manifest.dart';
+import '../widgets/video_download_controls.dart';
 import '../l10n/l10n.dart';
 
-final videoDetailProvider = FutureProvider.family<TrainingVideo, String>((ref, videoId) async {
-  final api = ref.read(apiClientProvider);
-  final resp = await api.dio.get('/videos/$videoId');
-  return TrainingVideo.fromJson(resp.data);
+/// Whether the phone is online now (refreshed with every download change).
+final videoOnlineProvider = FutureProvider.autoDispose<bool>((ref) {
+  ref.watch(videoDownloadManagerProvider);
+  return ref.read(videoNetworkProvider).isOnline();
 });
 
-final localVideoProvider = FutureProvider.family<CachedVideoRow?, String>((ref, videoId) async {
-  final db = ref.read(localDatabaseProvider);
-  return db.getVideo(videoId);
-});
-
-/// Real video download + local playback (Phase 9). Three real states, not
-/// one fake one:
-///   1. No file uploaded server-side yet (video.hasFile == false) — honest
-///      "not available" notice, same as Phase 7.
-///   2. File exists server-side but not downloaded to this device yet —
-///      a real download button using VideoManager (checksum-verified,
-///      resumable).
-///   3. Downloaded and checksum-verified — plays from the REAL local file
-///      via video_player. Never a remote URL relabeled as offline (master
-///      prompt §95) — this is the exact guarantee the prototype's video
-///      screen never had (docs/prototype-analysis.md §1).
+/// One video. Works from the phone's copy of the video manifest, so it opens
+/// offline. Tap to watch: a downloaded video plays from its verified local file;
+/// otherwise it downloads (resumable, checked against its SHA-256) and plays as
+/// soon as it is verified. Offline and not downloaded: "Connect to the internet
+/// to watch this video." Nothing in training depends on watching.
 class VideoScreen extends ConsumerStatefulWidget {
   final String videoId;
 
@@ -47,10 +33,8 @@ class VideoScreen extends ConsumerStatefulWidget {
 
 class _VideoScreenState extends ConsumerState<VideoScreen> {
   VideoPlayerController? _controller;
-  bool _downloading = false;
-  double _progress = 0;
-  String? _downloadError;
   bool _completionReported = false;
+  String? _playError;
 
   @override
   void initState() {
@@ -66,170 +50,123 @@ class _VideoScreenState extends ConsumerState<VideoScreen> {
     super.dispose();
   }
 
-  Future<void> _startDownload() async {
-    setState(() {
-      _downloading = true;
-      _progress = 0;
-      _downloadError = null;
-    });
-    try {
-      await ref.read(videoManagerProvider).downloadVideo(
-            widget.videoId,
-            onProgress: (p) {
-              if (mounted) setState(() => _progress = p);
-            },
-          );
-      ref.invalidate(localVideoProvider(widget.videoId));
-    } catch (e) {
-      setState(() => _downloadError = e.toString());
-    } finally {
-      if (mounted) setState(() => _downloading = false);
-    }
-  }
-
   Future<void> _play(String localPath) async {
     final db = ref.read(localDatabaseProvider);
-    final controller = VideoPlayerController.file(File(localPath));
+    VideoPlayerController? controller;
     try {
-      await controller.initialize();
-      await controller.play();
+      controller = await ref.read(videoOpenerProvider)(localPath);
+      await controller?.play();
     } catch (e) {
-      await controller.dispose();
+      await controller?.dispose();
       await recordAnalyticsEvent(db, 'VIDEO_PLAYBACK_FAILURE', videoId: widget.videoId, payload: {'reason': e.runtimeType.toString()});
-      if (mounted) setState(() => _downloadError = L10n.t('video.playFailed'));
+      if (mounted) setState(() => _playError = L10n.t('video.playFailed'));
       return;
     }
-    // One VIDEO_COMPLETE per viewing session, when playback reaches the end.
+    if (controller == null) return;
+    // One VIDEO_COMPLETE ("watched") per viewing, when playback reaches the end. Analytics only.
     controller.addListener(() {
-      final v = controller.value;
-      if (!_completionReported &&
-          v.isInitialized &&
-          v.duration > Duration.zero &&
-          v.position >= v.duration - const Duration(milliseconds: 500)) {
+      final v = controller!.value;
+      if (!_completionReported && v.isInitialized && v.duration > Duration.zero && v.position >= v.duration - const Duration(milliseconds: 500)) {
         _completionReported = true;
         recordAnalyticsEvent(db, 'VIDEO_COMPLETE', videoId: widget.videoId);
       }
     });
-    if (mounted) setState(() => _controller = controller);
+    if (!mounted) {
+      await controller.dispose();
+      return;
+    }
+    await _controller?.dispose();
+    setState(() {
+      _controller = controller;
+      _playError = null;
+    });
   }
 
   @override
   Widget build(BuildContext context) {
-    final videoAsync = ref.watch(videoDetailProvider(widget.videoId));
-    final localAsync = ref.watch(localVideoProvider(widget.videoId));
-
+    // A download started on this screen plays as soon as it is verified.
+    ref.listen(videoStatusProvider(widget.videoId), (prev, next) {
+      final before = prev?.valueOrNull;
+      final now = next.valueOrNull;
+      if (before != null && !before.playable && now != null && now.playable && _controller == null) {
+        _play(now.localPath!);
+      }
+    });
+    final entryAsync = ref.watch(videoEntryProvider(widget.videoId));
     return Scaffold(
       appBar: AppBar(
         title: Text(context.t('video.title')),
         leading: BackButton(onPressed: () => context.go('/videos')),
       ),
-      body: videoAsync.when(
-        data: (video) => localAsync.when(
-          data: (local) => _buildBody(video, local),
-          loading: () => const Center(child: CircularProgressIndicator()),
-          error: (e, _) => _buildBody(video, null),
-        ),
+      body: entryAsync.when(
+        data: (entry) => entry == null ? _notice(context.t('video.notInManifest')) : _body(entry),
         loading: () => const Center(child: CircularProgressIndicator()),
-        error: (e, _) => Center(child: Text(context.t('video.loadFailed', {'error': e}), style: const TextStyle(color: AppColors.errorText))),
+        error: (e, _) => _notice(context.t('common.somethingWrong')),
       ),
     );
   }
 
-  Widget _buildBody(TrainingVideo video, CachedVideoRow? local) {
-    final playablePath = (local != null && local.hasFile) ? local.localPath : null;
-    final downloaded = playablePath != null;
+  Widget _body(VideoEntry entry) {
+    final status = ref.watch(videoStatusProvider(widget.videoId)).valueOrNull;
+    final online = ref.watch(videoOnlineProvider).valueOrNull ?? true;
+    final playing = _controller != null && _controller!.value.isInitialized;
+    final offlineAndMissing = !online && status != null && !status.playable && !status.busy;
 
-    return Padding(
+    return ListView(
       padding: const EdgeInsets.fromLTRB(22, 16, 22, 22),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          AspectRatio(
-            aspectRatio: 16 / 9,
-            child: downloaded && _controller != null && _controller!.value.isInitialized
-                ? ClipRRect(
-                    borderRadius: BorderRadius.circular(AppRadius.medium),
-                    child: VideoPlayer(_controller!),
-                  )
-                : GestureDetector(
-                    onTap: playablePath == null ? null : () => _play(playablePath),
-                    child: Container(
-                      decoration: BoxDecoration(
-                        gradient: AppSheen.hero,
-                        borderRadius: BorderRadius.circular(AppRadius.medium),
-                        boxShadow: AppSheen.card,
-                      ),
-                      child: Center(
-                        child: Container(
-                          width: 56,
-                          height: 56,
-                          decoration: BoxDecoration(
-                            shape: BoxShape.circle,
-                            color: AppColors.onPrimary.withValues(alpha: 0.15),
-                            border: Border.all(color: AppColors.onPrimary.withValues(alpha: 0.5), width: 1.5),
-                          ),
-                          child: Icon(
-                            downloaded ? Icons.play_arrow_rounded : Icons.download_rounded,
-                            color: AppColors.onPrimary,
-                            size: 28,
-                          ),
+      children: [
+        AspectRatio(
+          aspectRatio: 16 / 9,
+          child: playing
+              ? GestureDetector(
+                  onTap: () => setState(() => _controller!.value.isPlaying ? _controller!.pause() : _controller!.play()),
+                  child: ClipRRect(borderRadius: BorderRadius.circular(AppRadius.medium), child: VideoPlayer(_controller!)),
+                )
+              : GestureDetector(
+                  onTap: status?.playable == true
+                      ? () => _play(status!.localPath!)
+                      : (offlineAndMissing || status?.busy == true ? null : () => requestVideoDownloads(context, ref, [entry])),
+                  child: Container(
+                    decoration: BoxDecoration(gradient: AppSheen.hero, borderRadius: BorderRadius.circular(AppRadius.medium), boxShadow: AppSheen.card),
+                    child: Center(
+                      child: Container(
+                        width: 56,
+                        height: 56,
+                        decoration: BoxDecoration(
+                          shape: BoxShape.circle,
+                          color: AppColors.onPrimary.withValues(alpha: 0.15),
+                          border: Border.all(color: AppColors.onPrimary.withValues(alpha: 0.5), width: 1.5),
+                        ),
+                        child: Icon(
+                          status?.playable == true ? Icons.play_arrow_rounded : (offlineAndMissing ? Icons.cloud_off : Icons.download_rounded),
+                          color: AppColors.onPrimary,
+                          size: 28,
                         ),
                       ),
                     ),
                   ),
-          ),
-          const SizedBox(height: 14),
-          Text(video.title, style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 14)),
-          const SizedBox(height: 6),
-          if (video.description != null)
-            Text(video.description!, style: const TextStyle(fontSize: 11.5, color: AppColors.textMuted, height: 1.5)),
-          const SizedBox(height: 16),
-
-          if (!video.hasFile)
-            _notice(context.t('video.notAvailable'))
-          else if (downloaded) ...[
-            Row(
-              children: [
-                const Icon(Icons.check_circle, size: 16, color: AppColors.success),
-                const SizedBox(width: 6),
-                Expanded(
-                  child: Text(
-                    context.t('video.downloaded'),
-                    style: const TextStyle(fontSize: 11.5, color: AppColors.primaryText, fontWeight: FontWeight.w700),
-                  ),
                 ),
-              ],
-            ),
-          ] else ...[
-            if (_downloading) ...[
-              ClipRRect(
-                borderRadius: BorderRadius.circular(99),
-                child: LinearProgressIndicator(
-                  value: _progress,
-                  minHeight: 7,
-                  backgroundColor: AppColors.progressTrack,
-                  valueColor: const AlwaysStoppedAnimation(AppColors.primary),
-                ),
-              ),
-              const SizedBox(height: 6),
-              Text('${(_progress * 100).toStringAsFixed(0)}%', style: const TextStyle(fontFamily: AppFonts.mono, fontSize: 10.5, color: AppColors.textMuted)),
-            ] else
-              FilledButton.icon(
-                onPressed: _startDownload,
-                icon: const Icon(Icons.download_rounded, size: 18),
-                label: Text(video.fileSize != null
-                    ? context.t('video.downloadSize', {'size': _formatBytes(video.fileSize!)})
-                    : context.t('video.download')),
-              ),
-            if (_downloadError != null) ...[
-              const SizedBox(height: 10),
-              _notice(_downloadError!),
-            ],
-          ],
-        ],
-      ),
+        ),
+        const SizedBox(height: 14),
+        Text(entry.title, style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 14)),
+        const SizedBox(height: 4),
+        Text(
+          [if (entry.durationSeconds != null) _duration(entry.durationSeconds!), formatBytes(entry.sizeBytes)].join(' · '),
+          style: const TextStyle(fontFamily: AppFonts.mono, fontSize: 10.5, color: AppColors.textMuted),
+        ),
+        const SizedBox(height: 16),
+        if (offlineAndMissing)
+          _notice(context.t('video.connectToWatch'))
+        else
+          VideoDownloadControls(entry: entry, onPlay: status?.playable == true ? () => _play(status!.localPath!) : null),
+        if (_playError != null) ...[const SizedBox(height: 10), _notice(_playError!)],
+        const SizedBox(height: 18),
+        Text(context.t('video.optionalNote'), style: const TextStyle(fontSize: 11, color: AppColors.textMuted)),
+      ],
     );
   }
+
+  static String _duration(int s) => '${s ~/ 60}:${(s % 60).toString().padLeft(2, '0')}';
 
   Widget _notice(String text) {
     return Container(
@@ -244,11 +181,5 @@ class _VideoScreenState extends ConsumerState<VideoScreen> {
         ],
       ),
     );
-  }
-
-  String _formatBytes(int bytes) {
-    if (bytes < 1024) return '$bytes B';
-    if (bytes < 1024 * 1024) return '${(bytes / 1024).toStringAsFixed(0)} KB';
-    return '${(bytes / (1024 * 1024)).toStringAsFixed(1)} MB';
   }
 }

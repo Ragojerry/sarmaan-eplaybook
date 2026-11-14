@@ -29,6 +29,13 @@ services:
       - /opt/sarmaan/.env.prod
     environment:
       DATABASE_URL: postgresql+psycopg://sarmaan:${POSTGRES_PASSWORD}@db:5432/sarmaan_eplaybook
+      # Training videos live in S3 under videos/ and are served by the admin CloudFront
+      # distribution (app/video_storage.py). Needs the instance role to allow
+      # s3:PutObject on videos/* and the bucket CORS rule in deploy/aws/README.md.
+      VIDEO_STORAGE: s3
+      VIDEO_S3_BUCKET: sarmaan-admin-568898409880
+      VIDEO_CDN_BASE_URL: https://dpoc28iz0vbai.cloudfront.net
+      AWS_REGION: eu-north-1
     # Same image as development, minus --reload; migrations run first and are a
     # no-op once the schema is current.
     command: >

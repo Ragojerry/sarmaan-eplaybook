@@ -2,45 +2,57 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
-import '../models/api_models.dart';
 import '../offline/content_sync_service.dart';
 import '../services/auth_service.dart';
 import '../theme/app_theme.dart';
+import '../video/video_downloads.dart';
+import '../video/video_manifest.dart';
 import '../widgets/partner_logo_row.dart';
 import '../widgets/app_bottom_nav.dart';
+import '../widgets/video_download_controls.dart';
 import '../l10n/l10n.dart';
 
-final videosProvider = FutureProvider<List<TrainingVideo>>((ref) async {
-  final api = ref.read(apiClientProvider);
-  final resp = await api.dio.get('/videos');
-  return (resp.data as List).map((j) => TrainingVideo.fromJson(j)).toList();
-});
-
-/// Real video list from GET /videos — replaces the prototype's 4 hardcoded
-/// entries. Three real states now (Phase 9): no file uploaded server-side
-/// (has_file=false — still true for every video right now, see
-/// docs/content-migration.md §4), uploaded but not yet downloaded to this
-/// device, and downloaded (checksum-verified) for real offline playback.
-/// Styled to match the prototype's `.video-list-item`/`.video-list-thumb`
-/// (dark teal gradient thumbnail, 64x42, rounded 8px).
+/// The Videos tab, from the phone's copy of the video manifest, so it lists
+/// offline. Each video shows its own download state and actions; nothing
+/// downloads until the learner asks. Pull down to refresh the list when online.
+/// Styled to match the prototype's `.video-list-item`/`.video-list-thumb`.
 class VideoLibraryScreen extends ConsumerWidget {
   const VideoLibraryScreen({super.key});
 
+  Future<void> _refresh(WidgetRef ref) async {
+    try {
+      await refreshVideoManifest(ref.read(apiClientProvider), ref.read(localDatabaseProvider));
+    } catch (_) {
+      // Offline: the stored list stays.
+    }
+    ref.invalidate(videoEntriesProvider);
+  }
+
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final videosAsync = ref.watch(videosProvider);
+    final videosAsync = ref.watch(videoEntriesProvider);
 
     return Scaffold(
       appBar: BrandTopBar(appBar: AppBar(title: Text(context.t('videos.title')))),
-      body: videosAsync.when(
-        data: (videos) => videos.isEmpty
-            ? Center(child: Text(context.t('videos.none')))
-            : ListView(
-                padding: const EdgeInsets.symmetric(vertical: 8),
-                children: [for (final v in videos) _VideoListItem(video: v)],
-              ),
-        loading: () => const Center(child: CircularProgressIndicator()),
-        error: (e, _) => Center(child: Text(context.t('videos.loadFailed', {'error': e}), style: const TextStyle(color: AppColors.errorText))),
+      body: RefreshIndicator(
+        onRefresh: () => _refresh(ref),
+        child: videosAsync.when(
+          data: (videos) => ListView(
+            physics: const AlwaysScrollableScrollPhysics(),
+            padding: const EdgeInsets.symmetric(vertical: 8),
+            children: videos.isEmpty
+                ? [Padding(padding: const EdgeInsets.all(40), child: Center(child: Text(context.t('videos.none'))))]
+                : [
+                    Padding(
+                      padding: const EdgeInsets.fromLTRB(22, 4, 22, 8),
+                      child: Text(context.t('video.optionalNote'), style: const TextStyle(fontSize: 11, color: AppColors.textMuted)),
+                    ),
+                    for (final v in videos) _VideoListItem(video: v),
+                  ],
+          ),
+          loading: () => const Center(child: CircularProgressIndicator()),
+          error: (e, _) => Center(child: Text(context.t('common.somethingWrong'), style: const TextStyle(color: AppColors.errorText))),
+        ),
       ),
       bottomNavigationBar: const AppBottomNav(currentRoute: '/videos'),
     );
@@ -48,40 +60,26 @@ class VideoLibraryScreen extends ConsumerWidget {
 }
 
 class _VideoListItem extends ConsumerWidget {
-  final TrainingVideo video;
+  final VideoEntry video;
 
   const _VideoListItem({required this.video});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final localAsync = video.hasFile ? ref.watch(_localVideoStateProvider(video.id)) : const AsyncValue.data(false);
-    final downloaded = localAsync.maybeWhen(data: (d) => d, orElse: () => false);
-
-    final IconData icon;
-    if (!video.hasFile) {
-      icon = Icons.hourglass_empty_rounded;
-    } else if (downloaded) {
-      icon = Icons.play_arrow_rounded;
-    } else {
-      icon = Icons.download_rounded;
-    }
-
+    final playable = ref.watch(videoStatusProvider(video.videoId)).valueOrNull?.playable ?? false;
     return InkWell(
-      onTap: () => context.go('/videos/${video.id}'),
+      onTap: () => context.go('/videos/${video.videoId}'),
       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 22, vertical: 10),
         child: Row(
-          crossAxisAlignment: CrossAxisAlignment.center,
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Container(
               width: 64,
               height: 42,
-              decoration: BoxDecoration(
-                gradient: AppSheen.button,
-                borderRadius: BorderRadius.circular(8),
-              ),
+              decoration: BoxDecoration(gradient: AppSheen.button, borderRadius: BorderRadius.circular(8)),
               alignment: Alignment.center,
-              child: Icon(icon, color: AppColors.onPrimary.withValues(alpha: video.hasFile ? 1 : 0.6), size: 18),
+              child: Icon(playable ? Icons.play_arrow_rounded : Icons.download_rounded, color: AppColors.onPrimary, size: 18),
             ),
             const SizedBox(width: 11),
             Expanded(
@@ -89,17 +87,8 @@ class _VideoListItem extends ConsumerWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(video.title, style: const TextStyle(fontSize: 11.8, fontWeight: FontWeight.w700, color: AppColors.textStrong)),
-                  const SizedBox(height: 2),
-                  Text(
-                    !video.hasFile
-                        ? context.t('videos.notAvailable')
-                        : downloaded
-                            ? context.t('videos.downloadedTapToPlay')
-                            : (video.description ?? context.t('videos.tapToDownload')),
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                    style: const TextStyle(fontSize: 10, color: AppColors.textMuted),
-                  ),
+                  const SizedBox(height: 6),
+                  VideoDownloadControls(entry: video, compact: true, onPlay: () => context.go('/videos/${video.videoId}')),
                 ],
               ),
             ),
@@ -109,9 +98,3 @@ class _VideoListItem extends ConsumerWidget {
     );
   }
 }
-
-final _localVideoStateProvider = FutureProvider.family<bool, String>((ref, videoId) async {
-  final db = ref.read(localDatabaseProvider);
-  final row = await db.getVideo(videoId);
-  return row?.localPath != null && row!.hasFile;
-});

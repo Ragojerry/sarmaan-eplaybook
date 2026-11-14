@@ -10,6 +10,7 @@ import 'offline/content_sync_service.dart' show localDatabaseProvider;
 import 'sync/error_reporter.dart';
 import 'sync/sync_lifecycle.dart';
 import 'theme/app_theme.dart';
+import 'video/video_downloads.dart' show resumeVideoDownloadsOnReconnect;
 
 /// Phase 7 scope: real screens (splash, language, consent, login, home,
 /// modules, reader, videos, about), all talking to the live backend built
@@ -29,6 +30,8 @@ Future<void> main() async {
   } catch (_) {}
   runApp(UncontrolledProviderScope(container: container, child: const SarmaanEPlaybookApp()));
   container.read(appStringsServiceProvider).sync(code);
+  // Videos the learner started keep going after a dropped connection (never during sync).
+  resumeVideoDownloadsOnReconnect(container);
 }
 
 class SarmaanEPlaybookApp extends ConsumerWidget {

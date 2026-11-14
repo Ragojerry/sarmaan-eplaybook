@@ -1,6 +1,7 @@
 import { useRef, useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { api } from "../services/api";
+import { uploadVideoDirect } from "../services/videoUpload";
 import { useAuth } from "../services/auth";
 import { Module, TrainingVideo, VideoStatus } from "../types/api";
 
@@ -128,10 +129,13 @@ export default function VideosPage() {
     setUploading({ id, pct: 0 });
     setMessage(null);
     try {
-      await api.post(`/videos/${id}/file`, body, {
-        timeout: 0,
-        onUploadProgress: (p) => setUploading({ id, pct: p.total ? Math.round((100 * p.loaded) / p.total) : 0 }),
-      });
+      // Straight to storage when the server uses S3; otherwise the older upload through the server.
+      const direct = await uploadVideoDirect(id, file, (pct) => setUploading({ id, pct }), duration);
+      if (direct === null)
+        await api.post(`/videos/${id}/file`, body, {
+          timeout: 0,
+          onUploadProgress: (p) => setUploading({ id, pct: p.total ? Math.round((100 * p.loaded) / p.total) : 0 }),
+        });
       setMessage({
         kind: "info",
         text: wasPublished

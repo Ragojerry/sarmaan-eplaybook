@@ -1896,6 +1896,57 @@ class $CachedVideosTable extends CachedVideos
   late final GeneratedColumn<String> localPath = GeneratedColumn<String>(
       'local_path', aliasedName, true,
       type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _sizeBytesMeta =
+      const VerificationMeta('sizeBytes');
+  @override
+  late final GeneratedColumn<int> sizeBytes = GeneratedColumn<int>(
+      'size_bytes', aliasedName, true,
+      type: DriftSqlType.int, requiredDuringInsert: false);
+  static const VerificationMeta _contentHashMeta =
+      const VerificationMeta('contentHash');
+  @override
+  late final GeneratedColumn<String> contentHash = GeneratedColumn<String>(
+      'content_hash', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _urlMeta = const VerificationMeta('url');
+  @override
+  late final GeneratedColumn<String> url = GeneratedColumn<String>(
+      'url', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _versionMeta =
+      const VerificationMeta('version');
+  @override
+  late final GeneratedColumn<int> version = GeneratedColumn<int>(
+      'version', aliasedName, false,
+      type: DriftSqlType.int,
+      requiredDuringInsert: false,
+      defaultValue: const Constant(1));
+  static const VerificationMeta _requiredForCompletionMeta =
+      const VerificationMeta('requiredForCompletion');
+  @override
+  late final GeneratedColumn<bool> requiredForCompletion =
+      GeneratedColumn<bool>('required_for_completion', aliasedName, false,
+          type: DriftSqlType.bool,
+          requiredDuringInsert: false,
+          defaultConstraints: GeneratedColumn.constraintIsAlways(
+              'CHECK ("required_for_completion" IN (0, 1))'),
+          defaultValue: const Constant(false));
+  static const VerificationMeta _mimeTypeMeta =
+      const VerificationMeta('mimeType');
+  @override
+  late final GeneratedColumn<String> mimeType = GeneratedColumn<String>(
+      'mime_type', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _manifestSeenMeta =
+      const VerificationMeta('manifestSeen');
+  @override
+  late final GeneratedColumn<bool> manifestSeen = GeneratedColumn<bool>(
+      'manifest_seen', aliasedName, false,
+      type: DriftSqlType.bool,
+      requiredDuringInsert: false,
+      defaultConstraints: GeneratedColumn.constraintIsAlways(
+          'CHECK ("manifest_seen" IN (0, 1))'),
+      defaultValue: const Constant(false));
   @override
   List<GeneratedColumn> get $columns => [
         id,
@@ -1907,7 +1958,14 @@ class $CachedVideosTable extends CachedVideos
         offlineAvailable,
         status,
         hasFile,
-        localPath
+        localPath,
+        sizeBytes,
+        contentHash,
+        url,
+        version,
+        requiredForCompletion,
+        mimeType,
+        manifestSeen
       ];
   @override
   String get aliasedName => _alias ?? actualTableName;
@@ -1976,6 +2034,40 @@ class $CachedVideosTable extends CachedVideos
       context.handle(_localPathMeta,
           localPath.isAcceptableOrUnknown(data['local_path']!, _localPathMeta));
     }
+    if (data.containsKey('size_bytes')) {
+      context.handle(_sizeBytesMeta,
+          sizeBytes.isAcceptableOrUnknown(data['size_bytes']!, _sizeBytesMeta));
+    }
+    if (data.containsKey('content_hash')) {
+      context.handle(
+          _contentHashMeta,
+          contentHash.isAcceptableOrUnknown(
+              data['content_hash']!, _contentHashMeta));
+    }
+    if (data.containsKey('url')) {
+      context.handle(
+          _urlMeta, url.isAcceptableOrUnknown(data['url']!, _urlMeta));
+    }
+    if (data.containsKey('version')) {
+      context.handle(_versionMeta,
+          version.isAcceptableOrUnknown(data['version']!, _versionMeta));
+    }
+    if (data.containsKey('required_for_completion')) {
+      context.handle(
+          _requiredForCompletionMeta,
+          requiredForCompletion.isAcceptableOrUnknown(
+              data['required_for_completion']!, _requiredForCompletionMeta));
+    }
+    if (data.containsKey('mime_type')) {
+      context.handle(_mimeTypeMeta,
+          mimeType.isAcceptableOrUnknown(data['mime_type']!, _mimeTypeMeta));
+    }
+    if (data.containsKey('manifest_seen')) {
+      context.handle(
+          _manifestSeenMeta,
+          manifestSeen.isAcceptableOrUnknown(
+              data['manifest_seen']!, _manifestSeenMeta));
+    }
     return context;
   }
 
@@ -2005,6 +2097,21 @@ class $CachedVideosTable extends CachedVideos
           .read(DriftSqlType.bool, data['${effectivePrefix}has_file'])!,
       localPath: attachedDatabase.typeMapping
           .read(DriftSqlType.string, data['${effectivePrefix}local_path']),
+      sizeBytes: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}size_bytes']),
+      contentHash: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}content_hash']),
+      url: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}url']),
+      version: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}version'])!,
+      requiredForCompletion: attachedDatabase.typeMapping.read(
+          DriftSqlType.bool,
+          data['${effectivePrefix}required_for_completion'])!,
+      mimeType: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}mime_type']),
+      manifestSeen: attachedDatabase.typeMapping
+          .read(DriftSqlType.bool, data['${effectivePrefix}manifest_seen'])!,
     );
   }
 
@@ -2025,6 +2132,13 @@ class CachedVideoRow extends DataClass implements Insertable<CachedVideoRow> {
   final String status;
   final bool hasFile;
   final String? localPath;
+  final int? sizeBytes;
+  final String? contentHash;
+  final String? url;
+  final int version;
+  final bool requiredForCompletion;
+  final String? mimeType;
+  final bool manifestSeen;
   const CachedVideoRow(
       {required this.id,
       required this.title,
@@ -2035,7 +2149,14 @@ class CachedVideoRow extends DataClass implements Insertable<CachedVideoRow> {
       required this.offlineAvailable,
       required this.status,
       required this.hasFile,
-      this.localPath});
+      this.localPath,
+      this.sizeBytes,
+      this.contentHash,
+      this.url,
+      required this.version,
+      required this.requiredForCompletion,
+      this.mimeType,
+      required this.manifestSeen});
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
     final map = <String, Expression>{};
@@ -2057,6 +2178,21 @@ class CachedVideoRow extends DataClass implements Insertable<CachedVideoRow> {
     if (!nullToAbsent || localPath != null) {
       map['local_path'] = Variable<String>(localPath);
     }
+    if (!nullToAbsent || sizeBytes != null) {
+      map['size_bytes'] = Variable<int>(sizeBytes);
+    }
+    if (!nullToAbsent || contentHash != null) {
+      map['content_hash'] = Variable<String>(contentHash);
+    }
+    if (!nullToAbsent || url != null) {
+      map['url'] = Variable<String>(url);
+    }
+    map['version'] = Variable<int>(version);
+    map['required_for_completion'] = Variable<bool>(requiredForCompletion);
+    if (!nullToAbsent || mimeType != null) {
+      map['mime_type'] = Variable<String>(mimeType);
+    }
+    map['manifest_seen'] = Variable<bool>(manifestSeen);
     return map;
   }
 
@@ -2080,6 +2216,19 @@ class CachedVideoRow extends DataClass implements Insertable<CachedVideoRow> {
       localPath: localPath == null && nullToAbsent
           ? const Value.absent()
           : Value(localPath),
+      sizeBytes: sizeBytes == null && nullToAbsent
+          ? const Value.absent()
+          : Value(sizeBytes),
+      contentHash: contentHash == null && nullToAbsent
+          ? const Value.absent()
+          : Value(contentHash),
+      url: url == null && nullToAbsent ? const Value.absent() : Value(url),
+      version: Value(version),
+      requiredForCompletion: Value(requiredForCompletion),
+      mimeType: mimeType == null && nullToAbsent
+          ? const Value.absent()
+          : Value(mimeType),
+      manifestSeen: Value(manifestSeen),
     );
   }
 
@@ -2097,6 +2246,14 @@ class CachedVideoRow extends DataClass implements Insertable<CachedVideoRow> {
       status: serializer.fromJson<String>(json['status']),
       hasFile: serializer.fromJson<bool>(json['hasFile']),
       localPath: serializer.fromJson<String?>(json['localPath']),
+      sizeBytes: serializer.fromJson<int?>(json['sizeBytes']),
+      contentHash: serializer.fromJson<String?>(json['contentHash']),
+      url: serializer.fromJson<String?>(json['url']),
+      version: serializer.fromJson<int>(json['version']),
+      requiredForCompletion:
+          serializer.fromJson<bool>(json['requiredForCompletion']),
+      mimeType: serializer.fromJson<String?>(json['mimeType']),
+      manifestSeen: serializer.fromJson<bool>(json['manifestSeen']),
     );
   }
   @override
@@ -2113,6 +2270,13 @@ class CachedVideoRow extends DataClass implements Insertable<CachedVideoRow> {
       'status': serializer.toJson<String>(status),
       'hasFile': serializer.toJson<bool>(hasFile),
       'localPath': serializer.toJson<String?>(localPath),
+      'sizeBytes': serializer.toJson<int?>(sizeBytes),
+      'contentHash': serializer.toJson<String?>(contentHash),
+      'url': serializer.toJson<String?>(url),
+      'version': serializer.toJson<int>(version),
+      'requiredForCompletion': serializer.toJson<bool>(requiredForCompletion),
+      'mimeType': serializer.toJson<String?>(mimeType),
+      'manifestSeen': serializer.toJson<bool>(manifestSeen),
     };
   }
 
@@ -2126,7 +2290,14 @@ class CachedVideoRow extends DataClass implements Insertable<CachedVideoRow> {
           bool? offlineAvailable,
           String? status,
           bool? hasFile,
-          Value<String?> localPath = const Value.absent()}) =>
+          Value<String?> localPath = const Value.absent(),
+          Value<int?> sizeBytes = const Value.absent(),
+          Value<String?> contentHash = const Value.absent(),
+          Value<String?> url = const Value.absent(),
+          int? version,
+          bool? requiredForCompletion,
+          Value<String?> mimeType = const Value.absent(),
+          bool? manifestSeen}) =>
       CachedVideoRow(
         id: id ?? this.id,
         title: title ?? this.title,
@@ -2140,6 +2311,14 @@ class CachedVideoRow extends DataClass implements Insertable<CachedVideoRow> {
         status: status ?? this.status,
         hasFile: hasFile ?? this.hasFile,
         localPath: localPath.present ? localPath.value : this.localPath,
+        sizeBytes: sizeBytes.present ? sizeBytes.value : this.sizeBytes,
+        contentHash: contentHash.present ? contentHash.value : this.contentHash,
+        url: url.present ? url.value : this.url,
+        version: version ?? this.version,
+        requiredForCompletion:
+            requiredForCompletion ?? this.requiredForCompletion,
+        mimeType: mimeType.present ? mimeType.value : this.mimeType,
+        manifestSeen: manifestSeen ?? this.manifestSeen,
       );
   CachedVideoRow copyWithCompanion(CachedVideosCompanion data) {
     return CachedVideoRow(
@@ -2158,6 +2337,18 @@ class CachedVideoRow extends DataClass implements Insertable<CachedVideoRow> {
       status: data.status.present ? data.status.value : this.status,
       hasFile: data.hasFile.present ? data.hasFile.value : this.hasFile,
       localPath: data.localPath.present ? data.localPath.value : this.localPath,
+      sizeBytes: data.sizeBytes.present ? data.sizeBytes.value : this.sizeBytes,
+      contentHash:
+          data.contentHash.present ? data.contentHash.value : this.contentHash,
+      url: data.url.present ? data.url.value : this.url,
+      version: data.version.present ? data.version.value : this.version,
+      requiredForCompletion: data.requiredForCompletion.present
+          ? data.requiredForCompletion.value
+          : this.requiredForCompletion,
+      mimeType: data.mimeType.present ? data.mimeType.value : this.mimeType,
+      manifestSeen: data.manifestSeen.present
+          ? data.manifestSeen.value
+          : this.manifestSeen,
     );
   }
 
@@ -2173,14 +2364,37 @@ class CachedVideoRow extends DataClass implements Insertable<CachedVideoRow> {
           ..write('offlineAvailable: $offlineAvailable, ')
           ..write('status: $status, ')
           ..write('hasFile: $hasFile, ')
-          ..write('localPath: $localPath')
+          ..write('localPath: $localPath, ')
+          ..write('sizeBytes: $sizeBytes, ')
+          ..write('contentHash: $contentHash, ')
+          ..write('url: $url, ')
+          ..write('version: $version, ')
+          ..write('requiredForCompletion: $requiredForCompletion, ')
+          ..write('mimeType: $mimeType, ')
+          ..write('manifestSeen: $manifestSeen')
           ..write(')'))
         .toString();
   }
 
   @override
-  int get hashCode => Object.hash(id, title, description, moduleId,
-      durationSeconds, language, offlineAvailable, status, hasFile, localPath);
+  int get hashCode => Object.hash(
+      id,
+      title,
+      description,
+      moduleId,
+      durationSeconds,
+      language,
+      offlineAvailable,
+      status,
+      hasFile,
+      localPath,
+      sizeBytes,
+      contentHash,
+      url,
+      version,
+      requiredForCompletion,
+      mimeType,
+      manifestSeen);
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
@@ -2194,7 +2408,14 @@ class CachedVideoRow extends DataClass implements Insertable<CachedVideoRow> {
           other.offlineAvailable == this.offlineAvailable &&
           other.status == this.status &&
           other.hasFile == this.hasFile &&
-          other.localPath == this.localPath);
+          other.localPath == this.localPath &&
+          other.sizeBytes == this.sizeBytes &&
+          other.contentHash == this.contentHash &&
+          other.url == this.url &&
+          other.version == this.version &&
+          other.requiredForCompletion == this.requiredForCompletion &&
+          other.mimeType == this.mimeType &&
+          other.manifestSeen == this.manifestSeen);
 }
 
 class CachedVideosCompanion extends UpdateCompanion<CachedVideoRow> {
@@ -2208,6 +2429,13 @@ class CachedVideosCompanion extends UpdateCompanion<CachedVideoRow> {
   final Value<String> status;
   final Value<bool> hasFile;
   final Value<String?> localPath;
+  final Value<int?> sizeBytes;
+  final Value<String?> contentHash;
+  final Value<String?> url;
+  final Value<int> version;
+  final Value<bool> requiredForCompletion;
+  final Value<String?> mimeType;
+  final Value<bool> manifestSeen;
   final Value<int> rowid;
   const CachedVideosCompanion({
     this.id = const Value.absent(),
@@ -2220,6 +2448,13 @@ class CachedVideosCompanion extends UpdateCompanion<CachedVideoRow> {
     this.status = const Value.absent(),
     this.hasFile = const Value.absent(),
     this.localPath = const Value.absent(),
+    this.sizeBytes = const Value.absent(),
+    this.contentHash = const Value.absent(),
+    this.url = const Value.absent(),
+    this.version = const Value.absent(),
+    this.requiredForCompletion = const Value.absent(),
+    this.mimeType = const Value.absent(),
+    this.manifestSeen = const Value.absent(),
     this.rowid = const Value.absent(),
   });
   CachedVideosCompanion.insert({
@@ -2233,6 +2468,13 @@ class CachedVideosCompanion extends UpdateCompanion<CachedVideoRow> {
     required String status,
     required bool hasFile,
     this.localPath = const Value.absent(),
+    this.sizeBytes = const Value.absent(),
+    this.contentHash = const Value.absent(),
+    this.url = const Value.absent(),
+    this.version = const Value.absent(),
+    this.requiredForCompletion = const Value.absent(),
+    this.mimeType = const Value.absent(),
+    this.manifestSeen = const Value.absent(),
     this.rowid = const Value.absent(),
   })  : id = Value(id),
         title = Value(title),
@@ -2251,6 +2493,13 @@ class CachedVideosCompanion extends UpdateCompanion<CachedVideoRow> {
     Expression<String>? status,
     Expression<bool>? hasFile,
     Expression<String>? localPath,
+    Expression<int>? sizeBytes,
+    Expression<String>? contentHash,
+    Expression<String>? url,
+    Expression<int>? version,
+    Expression<bool>? requiredForCompletion,
+    Expression<String>? mimeType,
+    Expression<bool>? manifestSeen,
     Expression<int>? rowid,
   }) {
     return RawValuesInsertable({
@@ -2264,6 +2513,14 @@ class CachedVideosCompanion extends UpdateCompanion<CachedVideoRow> {
       if (status != null) 'status': status,
       if (hasFile != null) 'has_file': hasFile,
       if (localPath != null) 'local_path': localPath,
+      if (sizeBytes != null) 'size_bytes': sizeBytes,
+      if (contentHash != null) 'content_hash': contentHash,
+      if (url != null) 'url': url,
+      if (version != null) 'version': version,
+      if (requiredForCompletion != null)
+        'required_for_completion': requiredForCompletion,
+      if (mimeType != null) 'mime_type': mimeType,
+      if (manifestSeen != null) 'manifest_seen': manifestSeen,
       if (rowid != null) 'rowid': rowid,
     });
   }
@@ -2279,6 +2536,13 @@ class CachedVideosCompanion extends UpdateCompanion<CachedVideoRow> {
       Value<String>? status,
       Value<bool>? hasFile,
       Value<String?>? localPath,
+      Value<int?>? sizeBytes,
+      Value<String?>? contentHash,
+      Value<String?>? url,
+      Value<int>? version,
+      Value<bool>? requiredForCompletion,
+      Value<String?>? mimeType,
+      Value<bool>? manifestSeen,
       Value<int>? rowid}) {
     return CachedVideosCompanion(
       id: id ?? this.id,
@@ -2291,6 +2555,14 @@ class CachedVideosCompanion extends UpdateCompanion<CachedVideoRow> {
       status: status ?? this.status,
       hasFile: hasFile ?? this.hasFile,
       localPath: localPath ?? this.localPath,
+      sizeBytes: sizeBytes ?? this.sizeBytes,
+      contentHash: contentHash ?? this.contentHash,
+      url: url ?? this.url,
+      version: version ?? this.version,
+      requiredForCompletion:
+          requiredForCompletion ?? this.requiredForCompletion,
+      mimeType: mimeType ?? this.mimeType,
+      manifestSeen: manifestSeen ?? this.manifestSeen,
       rowid: rowid ?? this.rowid,
     );
   }
@@ -2328,6 +2600,28 @@ class CachedVideosCompanion extends UpdateCompanion<CachedVideoRow> {
     if (localPath.present) {
       map['local_path'] = Variable<String>(localPath.value);
     }
+    if (sizeBytes.present) {
+      map['size_bytes'] = Variable<int>(sizeBytes.value);
+    }
+    if (contentHash.present) {
+      map['content_hash'] = Variable<String>(contentHash.value);
+    }
+    if (url.present) {
+      map['url'] = Variable<String>(url.value);
+    }
+    if (version.present) {
+      map['version'] = Variable<int>(version.value);
+    }
+    if (requiredForCompletion.present) {
+      map['required_for_completion'] =
+          Variable<bool>(requiredForCompletion.value);
+    }
+    if (mimeType.present) {
+      map['mime_type'] = Variable<String>(mimeType.value);
+    }
+    if (manifestSeen.present) {
+      map['manifest_seen'] = Variable<bool>(manifestSeen.value);
+    }
     if (rowid.present) {
       map['rowid'] = Variable<int>(rowid.value);
     }
@@ -2347,6 +2641,490 @@ class CachedVideosCompanion extends UpdateCompanion<CachedVideoRow> {
           ..write('status: $status, ')
           ..write('hasFile: $hasFile, ')
           ..write('localPath: $localPath, ')
+          ..write('sizeBytes: $sizeBytes, ')
+          ..write('contentHash: $contentHash, ')
+          ..write('url: $url, ')
+          ..write('version: $version, ')
+          ..write('requiredForCompletion: $requiredForCompletion, ')
+          ..write('mimeType: $mimeType, ')
+          ..write('manifestSeen: $manifestSeen, ')
+          ..write('rowid: $rowid')
+          ..write(')'))
+        .toString();
+  }
+}
+
+class $VideoDownloadsTable extends VideoDownloads
+    with TableInfo<$VideoDownloadsTable, VideoDownloadRow> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $VideoDownloadsTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _videoIdMeta =
+      const VerificationMeta('videoId');
+  @override
+  late final GeneratedColumn<String> videoId = GeneratedColumn<String>(
+      'video_id', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _stateMeta = const VerificationMeta('state');
+  @override
+  late final GeneratedColumn<String> state = GeneratedColumn<String>(
+      'state', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _bytesDownloadedMeta =
+      const VerificationMeta('bytesDownloaded');
+  @override
+  late final GeneratedColumn<int> bytesDownloaded = GeneratedColumn<int>(
+      'bytes_downloaded', aliasedName, false,
+      type: DriftSqlType.int,
+      requiredDuringInsert: false,
+      defaultValue: const Constant(0));
+  static const VerificationMeta _totalBytesMeta =
+      const VerificationMeta('totalBytes');
+  @override
+  late final GeneratedColumn<int> totalBytes = GeneratedColumn<int>(
+      'total_bytes', aliasedName, false,
+      type: DriftSqlType.int,
+      requiredDuringInsert: false,
+      defaultValue: const Constant(0));
+  static const VerificationMeta _localPathMeta =
+      const VerificationMeta('localPath');
+  @override
+  late final GeneratedColumn<String> localPath = GeneratedColumn<String>(
+      'local_path', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _contentHashMeta =
+      const VerificationMeta('contentHash');
+  @override
+  late final GeneratedColumn<String> contentHash = GeneratedColumn<String>(
+      'content_hash', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _versionMeta =
+      const VerificationMeta('version');
+  @override
+  late final GeneratedColumn<int> version = GeneratedColumn<int>(
+      'version', aliasedName, false,
+      type: DriftSqlType.int,
+      requiredDuringInsert: false,
+      defaultValue: const Constant(0));
+  static const VerificationMeta _errorMeta = const VerificationMeta('error');
+  @override
+  late final GeneratedColumn<String> error = GeneratedColumn<String>(
+      'error', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _updatedAtMeta =
+      const VerificationMeta('updatedAt');
+  @override
+  late final GeneratedColumn<DateTime> updatedAt = GeneratedColumn<DateTime>(
+      'updated_at', aliasedName, false,
+      type: DriftSqlType.dateTime, requiredDuringInsert: true);
+  @override
+  List<GeneratedColumn> get $columns => [
+        videoId,
+        state,
+        bytesDownloaded,
+        totalBytes,
+        localPath,
+        contentHash,
+        version,
+        error,
+        updatedAt
+      ];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'video_downloads';
+  @override
+  VerificationContext validateIntegrity(Insertable<VideoDownloadRow> instance,
+      {bool isInserting = false}) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('video_id')) {
+      context.handle(_videoIdMeta,
+          videoId.isAcceptableOrUnknown(data['video_id']!, _videoIdMeta));
+    } else if (isInserting) {
+      context.missing(_videoIdMeta);
+    }
+    if (data.containsKey('state')) {
+      context.handle(
+          _stateMeta, state.isAcceptableOrUnknown(data['state']!, _stateMeta));
+    } else if (isInserting) {
+      context.missing(_stateMeta);
+    }
+    if (data.containsKey('bytes_downloaded')) {
+      context.handle(
+          _bytesDownloadedMeta,
+          bytesDownloaded.isAcceptableOrUnknown(
+              data['bytes_downloaded']!, _bytesDownloadedMeta));
+    }
+    if (data.containsKey('total_bytes')) {
+      context.handle(
+          _totalBytesMeta,
+          totalBytes.isAcceptableOrUnknown(
+              data['total_bytes']!, _totalBytesMeta));
+    }
+    if (data.containsKey('local_path')) {
+      context.handle(_localPathMeta,
+          localPath.isAcceptableOrUnknown(data['local_path']!, _localPathMeta));
+    }
+    if (data.containsKey('content_hash')) {
+      context.handle(
+          _contentHashMeta,
+          contentHash.isAcceptableOrUnknown(
+              data['content_hash']!, _contentHashMeta));
+    }
+    if (data.containsKey('version')) {
+      context.handle(_versionMeta,
+          version.isAcceptableOrUnknown(data['version']!, _versionMeta));
+    }
+    if (data.containsKey('error')) {
+      context.handle(
+          _errorMeta, error.isAcceptableOrUnknown(data['error']!, _errorMeta));
+    }
+    if (data.containsKey('updated_at')) {
+      context.handle(_updatedAtMeta,
+          updatedAt.isAcceptableOrUnknown(data['updated_at']!, _updatedAtMeta));
+    } else if (isInserting) {
+      context.missing(_updatedAtMeta);
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {videoId};
+  @override
+  VideoDownloadRow map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return VideoDownloadRow(
+      videoId: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}video_id'])!,
+      state: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}state'])!,
+      bytesDownloaded: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}bytes_downloaded'])!,
+      totalBytes: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}total_bytes'])!,
+      localPath: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}local_path']),
+      contentHash: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}content_hash']),
+      version: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}version'])!,
+      error: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}error']),
+      updatedAt: attachedDatabase.typeMapping
+          .read(DriftSqlType.dateTime, data['${effectivePrefix}updated_at'])!,
+    );
+  }
+
+  @override
+  $VideoDownloadsTable createAlias(String alias) {
+    return $VideoDownloadsTable(attachedDatabase, alias);
+  }
+}
+
+class VideoDownloadRow extends DataClass
+    implements Insertable<VideoDownloadRow> {
+  final String videoId;
+  final String state;
+  final int bytesDownloaded;
+  final int totalBytes;
+  final String? localPath;
+  final String? contentHash;
+  final int version;
+  final String? error;
+  final DateTime updatedAt;
+  const VideoDownloadRow(
+      {required this.videoId,
+      required this.state,
+      required this.bytesDownloaded,
+      required this.totalBytes,
+      this.localPath,
+      this.contentHash,
+      required this.version,
+      this.error,
+      required this.updatedAt});
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['video_id'] = Variable<String>(videoId);
+    map['state'] = Variable<String>(state);
+    map['bytes_downloaded'] = Variable<int>(bytesDownloaded);
+    map['total_bytes'] = Variable<int>(totalBytes);
+    if (!nullToAbsent || localPath != null) {
+      map['local_path'] = Variable<String>(localPath);
+    }
+    if (!nullToAbsent || contentHash != null) {
+      map['content_hash'] = Variable<String>(contentHash);
+    }
+    map['version'] = Variable<int>(version);
+    if (!nullToAbsent || error != null) {
+      map['error'] = Variable<String>(error);
+    }
+    map['updated_at'] = Variable<DateTime>(updatedAt);
+    return map;
+  }
+
+  VideoDownloadsCompanion toCompanion(bool nullToAbsent) {
+    return VideoDownloadsCompanion(
+      videoId: Value(videoId),
+      state: Value(state),
+      bytesDownloaded: Value(bytesDownloaded),
+      totalBytes: Value(totalBytes),
+      localPath: localPath == null && nullToAbsent
+          ? const Value.absent()
+          : Value(localPath),
+      contentHash: contentHash == null && nullToAbsent
+          ? const Value.absent()
+          : Value(contentHash),
+      version: Value(version),
+      error:
+          error == null && nullToAbsent ? const Value.absent() : Value(error),
+      updatedAt: Value(updatedAt),
+    );
+  }
+
+  factory VideoDownloadRow.fromJson(Map<String, dynamic> json,
+      {ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return VideoDownloadRow(
+      videoId: serializer.fromJson<String>(json['videoId']),
+      state: serializer.fromJson<String>(json['state']),
+      bytesDownloaded: serializer.fromJson<int>(json['bytesDownloaded']),
+      totalBytes: serializer.fromJson<int>(json['totalBytes']),
+      localPath: serializer.fromJson<String?>(json['localPath']),
+      contentHash: serializer.fromJson<String?>(json['contentHash']),
+      version: serializer.fromJson<int>(json['version']),
+      error: serializer.fromJson<String?>(json['error']),
+      updatedAt: serializer.fromJson<DateTime>(json['updatedAt']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'videoId': serializer.toJson<String>(videoId),
+      'state': serializer.toJson<String>(state),
+      'bytesDownloaded': serializer.toJson<int>(bytesDownloaded),
+      'totalBytes': serializer.toJson<int>(totalBytes),
+      'localPath': serializer.toJson<String?>(localPath),
+      'contentHash': serializer.toJson<String?>(contentHash),
+      'version': serializer.toJson<int>(version),
+      'error': serializer.toJson<String?>(error),
+      'updatedAt': serializer.toJson<DateTime>(updatedAt),
+    };
+  }
+
+  VideoDownloadRow copyWith(
+          {String? videoId,
+          String? state,
+          int? bytesDownloaded,
+          int? totalBytes,
+          Value<String?> localPath = const Value.absent(),
+          Value<String?> contentHash = const Value.absent(),
+          int? version,
+          Value<String?> error = const Value.absent(),
+          DateTime? updatedAt}) =>
+      VideoDownloadRow(
+        videoId: videoId ?? this.videoId,
+        state: state ?? this.state,
+        bytesDownloaded: bytesDownloaded ?? this.bytesDownloaded,
+        totalBytes: totalBytes ?? this.totalBytes,
+        localPath: localPath.present ? localPath.value : this.localPath,
+        contentHash: contentHash.present ? contentHash.value : this.contentHash,
+        version: version ?? this.version,
+        error: error.present ? error.value : this.error,
+        updatedAt: updatedAt ?? this.updatedAt,
+      );
+  VideoDownloadRow copyWithCompanion(VideoDownloadsCompanion data) {
+    return VideoDownloadRow(
+      videoId: data.videoId.present ? data.videoId.value : this.videoId,
+      state: data.state.present ? data.state.value : this.state,
+      bytesDownloaded: data.bytesDownloaded.present
+          ? data.bytesDownloaded.value
+          : this.bytesDownloaded,
+      totalBytes:
+          data.totalBytes.present ? data.totalBytes.value : this.totalBytes,
+      localPath: data.localPath.present ? data.localPath.value : this.localPath,
+      contentHash:
+          data.contentHash.present ? data.contentHash.value : this.contentHash,
+      version: data.version.present ? data.version.value : this.version,
+      error: data.error.present ? data.error.value : this.error,
+      updatedAt: data.updatedAt.present ? data.updatedAt.value : this.updatedAt,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('VideoDownloadRow(')
+          ..write('videoId: $videoId, ')
+          ..write('state: $state, ')
+          ..write('bytesDownloaded: $bytesDownloaded, ')
+          ..write('totalBytes: $totalBytes, ')
+          ..write('localPath: $localPath, ')
+          ..write('contentHash: $contentHash, ')
+          ..write('version: $version, ')
+          ..write('error: $error, ')
+          ..write('updatedAt: $updatedAt')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(videoId, state, bytesDownloaded, totalBytes,
+      localPath, contentHash, version, error, updatedAt);
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is VideoDownloadRow &&
+          other.videoId == this.videoId &&
+          other.state == this.state &&
+          other.bytesDownloaded == this.bytesDownloaded &&
+          other.totalBytes == this.totalBytes &&
+          other.localPath == this.localPath &&
+          other.contentHash == this.contentHash &&
+          other.version == this.version &&
+          other.error == this.error &&
+          other.updatedAt == this.updatedAt);
+}
+
+class VideoDownloadsCompanion extends UpdateCompanion<VideoDownloadRow> {
+  final Value<String> videoId;
+  final Value<String> state;
+  final Value<int> bytesDownloaded;
+  final Value<int> totalBytes;
+  final Value<String?> localPath;
+  final Value<String?> contentHash;
+  final Value<int> version;
+  final Value<String?> error;
+  final Value<DateTime> updatedAt;
+  final Value<int> rowid;
+  const VideoDownloadsCompanion({
+    this.videoId = const Value.absent(),
+    this.state = const Value.absent(),
+    this.bytesDownloaded = const Value.absent(),
+    this.totalBytes = const Value.absent(),
+    this.localPath = const Value.absent(),
+    this.contentHash = const Value.absent(),
+    this.version = const Value.absent(),
+    this.error = const Value.absent(),
+    this.updatedAt = const Value.absent(),
+    this.rowid = const Value.absent(),
+  });
+  VideoDownloadsCompanion.insert({
+    required String videoId,
+    required String state,
+    this.bytesDownloaded = const Value.absent(),
+    this.totalBytes = const Value.absent(),
+    this.localPath = const Value.absent(),
+    this.contentHash = const Value.absent(),
+    this.version = const Value.absent(),
+    this.error = const Value.absent(),
+    required DateTime updatedAt,
+    this.rowid = const Value.absent(),
+  })  : videoId = Value(videoId),
+        state = Value(state),
+        updatedAt = Value(updatedAt);
+  static Insertable<VideoDownloadRow> custom({
+    Expression<String>? videoId,
+    Expression<String>? state,
+    Expression<int>? bytesDownloaded,
+    Expression<int>? totalBytes,
+    Expression<String>? localPath,
+    Expression<String>? contentHash,
+    Expression<int>? version,
+    Expression<String>? error,
+    Expression<DateTime>? updatedAt,
+    Expression<int>? rowid,
+  }) {
+    return RawValuesInsertable({
+      if (videoId != null) 'video_id': videoId,
+      if (state != null) 'state': state,
+      if (bytesDownloaded != null) 'bytes_downloaded': bytesDownloaded,
+      if (totalBytes != null) 'total_bytes': totalBytes,
+      if (localPath != null) 'local_path': localPath,
+      if (contentHash != null) 'content_hash': contentHash,
+      if (version != null) 'version': version,
+      if (error != null) 'error': error,
+      if (updatedAt != null) 'updated_at': updatedAt,
+      if (rowid != null) 'rowid': rowid,
+    });
+  }
+
+  VideoDownloadsCompanion copyWith(
+      {Value<String>? videoId,
+      Value<String>? state,
+      Value<int>? bytesDownloaded,
+      Value<int>? totalBytes,
+      Value<String?>? localPath,
+      Value<String?>? contentHash,
+      Value<int>? version,
+      Value<String?>? error,
+      Value<DateTime>? updatedAt,
+      Value<int>? rowid}) {
+    return VideoDownloadsCompanion(
+      videoId: videoId ?? this.videoId,
+      state: state ?? this.state,
+      bytesDownloaded: bytesDownloaded ?? this.bytesDownloaded,
+      totalBytes: totalBytes ?? this.totalBytes,
+      localPath: localPath ?? this.localPath,
+      contentHash: contentHash ?? this.contentHash,
+      version: version ?? this.version,
+      error: error ?? this.error,
+      updatedAt: updatedAt ?? this.updatedAt,
+      rowid: rowid ?? this.rowid,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (videoId.present) {
+      map['video_id'] = Variable<String>(videoId.value);
+    }
+    if (state.present) {
+      map['state'] = Variable<String>(state.value);
+    }
+    if (bytesDownloaded.present) {
+      map['bytes_downloaded'] = Variable<int>(bytesDownloaded.value);
+    }
+    if (totalBytes.present) {
+      map['total_bytes'] = Variable<int>(totalBytes.value);
+    }
+    if (localPath.present) {
+      map['local_path'] = Variable<String>(localPath.value);
+    }
+    if (contentHash.present) {
+      map['content_hash'] = Variable<String>(contentHash.value);
+    }
+    if (version.present) {
+      map['version'] = Variable<int>(version.value);
+    }
+    if (error.present) {
+      map['error'] = Variable<String>(error.value);
+    }
+    if (updatedAt.present) {
+      map['updated_at'] = Variable<DateTime>(updatedAt.value);
+    }
+    if (rowid.present) {
+      map['rowid'] = Variable<int>(rowid.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('VideoDownloadsCompanion(')
+          ..write('videoId: $videoId, ')
+          ..write('state: $state, ')
+          ..write('bytesDownloaded: $bytesDownloaded, ')
+          ..write('totalBytes: $totalBytes, ')
+          ..write('localPath: $localPath, ')
+          ..write('contentHash: $contentHash, ')
+          ..write('version: $version, ')
+          ..write('error: $error, ')
+          ..write('updatedAt: $updatedAt, ')
           ..write('rowid: $rowid')
           ..write(')'))
         .toString();
@@ -8980,6 +9758,7 @@ abstract class _$LocalDatabase extends GeneratedDatabase {
   late final $CachedSectionsTable cachedSections = $CachedSectionsTable(this);
   late final $CachedMediaTable cachedMedia = $CachedMediaTable(this);
   late final $CachedVideosTable cachedVideos = $CachedVideosTable(this);
+  late final $VideoDownloadsTable videoDownloads = $VideoDownloadsTable(this);
   late final $LocalProgressTable localProgress = $LocalProgressTable(this);
   late final $PendingSyncTable pendingSync = $PendingSyncTable(this);
   late final $AppSettingsTable appSettings = $AppSettingsTable(this);
@@ -9017,6 +9796,7 @@ abstract class _$LocalDatabase extends GeneratedDatabase {
         cachedSections,
         cachedMedia,
         cachedVideos,
+        videoDownloads,
         localProgress,
         pendingSync,
         appSettings,
@@ -9962,6 +10742,13 @@ typedef $$CachedVideosTableCreateCompanionBuilder = CachedVideosCompanion
   required String status,
   required bool hasFile,
   Value<String?> localPath,
+  Value<int?> sizeBytes,
+  Value<String?> contentHash,
+  Value<String?> url,
+  Value<int> version,
+  Value<bool> requiredForCompletion,
+  Value<String?> mimeType,
+  Value<bool> manifestSeen,
   Value<int> rowid,
 });
 typedef $$CachedVideosTableUpdateCompanionBuilder = CachedVideosCompanion
@@ -9976,6 +10763,13 @@ typedef $$CachedVideosTableUpdateCompanionBuilder = CachedVideosCompanion
   Value<String> status,
   Value<bool> hasFile,
   Value<String?> localPath,
+  Value<int?> sizeBytes,
+  Value<String?> contentHash,
+  Value<String?> url,
+  Value<int> version,
+  Value<bool> requiredForCompletion,
+  Value<String?> mimeType,
+  Value<bool> manifestSeen,
   Value<int> rowid,
 });
 
@@ -10019,6 +10813,28 @@ class $$CachedVideosTableFilterComposer
 
   ColumnFilters<String> get localPath => $composableBuilder(
       column: $table.localPath, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<int> get sizeBytes => $composableBuilder(
+      column: $table.sizeBytes, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get contentHash => $composableBuilder(
+      column: $table.contentHash, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get url => $composableBuilder(
+      column: $table.url, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<int> get version => $composableBuilder(
+      column: $table.version, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<bool> get requiredForCompletion => $composableBuilder(
+      column: $table.requiredForCompletion,
+      builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get mimeType => $composableBuilder(
+      column: $table.mimeType, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<bool> get manifestSeen => $composableBuilder(
+      column: $table.manifestSeen, builder: (column) => ColumnFilters(column));
 }
 
 class $$CachedVideosTableOrderingComposer
@@ -10061,6 +10877,29 @@ class $$CachedVideosTableOrderingComposer
 
   ColumnOrderings<String> get localPath => $composableBuilder(
       column: $table.localPath, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<int> get sizeBytes => $composableBuilder(
+      column: $table.sizeBytes, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get contentHash => $composableBuilder(
+      column: $table.contentHash, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get url => $composableBuilder(
+      column: $table.url, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<int> get version => $composableBuilder(
+      column: $table.version, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<bool> get requiredForCompletion => $composableBuilder(
+      column: $table.requiredForCompletion,
+      builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get mimeType => $composableBuilder(
+      column: $table.mimeType, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<bool> get manifestSeen => $composableBuilder(
+      column: $table.manifestSeen,
+      builder: (column) => ColumnOrderings(column));
 }
 
 class $$CachedVideosTableAnnotationComposer
@@ -10101,6 +10940,27 @@ class $$CachedVideosTableAnnotationComposer
 
   GeneratedColumn<String> get localPath =>
       $composableBuilder(column: $table.localPath, builder: (column) => column);
+
+  GeneratedColumn<int> get sizeBytes =>
+      $composableBuilder(column: $table.sizeBytes, builder: (column) => column);
+
+  GeneratedColumn<String> get contentHash => $composableBuilder(
+      column: $table.contentHash, builder: (column) => column);
+
+  GeneratedColumn<String> get url =>
+      $composableBuilder(column: $table.url, builder: (column) => column);
+
+  GeneratedColumn<int> get version =>
+      $composableBuilder(column: $table.version, builder: (column) => column);
+
+  GeneratedColumn<bool> get requiredForCompletion => $composableBuilder(
+      column: $table.requiredForCompletion, builder: (column) => column);
+
+  GeneratedColumn<String> get mimeType =>
+      $composableBuilder(column: $table.mimeType, builder: (column) => column);
+
+  GeneratedColumn<bool> get manifestSeen => $composableBuilder(
+      column: $table.manifestSeen, builder: (column) => column);
 }
 
 class $$CachedVideosTableTableManager extends RootTableManager<
@@ -10139,6 +10999,13 @@ class $$CachedVideosTableTableManager extends RootTableManager<
             Value<String> status = const Value.absent(),
             Value<bool> hasFile = const Value.absent(),
             Value<String?> localPath = const Value.absent(),
+            Value<int?> sizeBytes = const Value.absent(),
+            Value<String?> contentHash = const Value.absent(),
+            Value<String?> url = const Value.absent(),
+            Value<int> version = const Value.absent(),
+            Value<bool> requiredForCompletion = const Value.absent(),
+            Value<String?> mimeType = const Value.absent(),
+            Value<bool> manifestSeen = const Value.absent(),
             Value<int> rowid = const Value.absent(),
           }) =>
               CachedVideosCompanion(
@@ -10152,6 +11019,13 @@ class $$CachedVideosTableTableManager extends RootTableManager<
             status: status,
             hasFile: hasFile,
             localPath: localPath,
+            sizeBytes: sizeBytes,
+            contentHash: contentHash,
+            url: url,
+            version: version,
+            requiredForCompletion: requiredForCompletion,
+            mimeType: mimeType,
+            manifestSeen: manifestSeen,
             rowid: rowid,
           ),
           createCompanionCallback: ({
@@ -10165,6 +11039,13 @@ class $$CachedVideosTableTableManager extends RootTableManager<
             required String status,
             required bool hasFile,
             Value<String?> localPath = const Value.absent(),
+            Value<int?> sizeBytes = const Value.absent(),
+            Value<String?> contentHash = const Value.absent(),
+            Value<String?> url = const Value.absent(),
+            Value<int> version = const Value.absent(),
+            Value<bool> requiredForCompletion = const Value.absent(),
+            Value<String?> mimeType = const Value.absent(),
+            Value<bool> manifestSeen = const Value.absent(),
             Value<int> rowid = const Value.absent(),
           }) =>
               CachedVideosCompanion.insert(
@@ -10178,6 +11059,13 @@ class $$CachedVideosTableTableManager extends RootTableManager<
             status: status,
             hasFile: hasFile,
             localPath: localPath,
+            sizeBytes: sizeBytes,
+            contentHash: contentHash,
+            url: url,
+            version: version,
+            requiredForCompletion: requiredForCompletion,
+            mimeType: mimeType,
+            manifestSeen: manifestSeen,
             rowid: rowid,
           ),
           withReferenceMapper: (p0) => p0
@@ -10201,6 +11089,242 @@ typedef $$CachedVideosTableProcessedTableManager = ProcessedTableManager<
       BaseReferences<_$LocalDatabase, $CachedVideosTable, CachedVideoRow>
     ),
     CachedVideoRow,
+    PrefetchHooks Function()>;
+typedef $$VideoDownloadsTableCreateCompanionBuilder = VideoDownloadsCompanion
+    Function({
+  required String videoId,
+  required String state,
+  Value<int> bytesDownloaded,
+  Value<int> totalBytes,
+  Value<String?> localPath,
+  Value<String?> contentHash,
+  Value<int> version,
+  Value<String?> error,
+  required DateTime updatedAt,
+  Value<int> rowid,
+});
+typedef $$VideoDownloadsTableUpdateCompanionBuilder = VideoDownloadsCompanion
+    Function({
+  Value<String> videoId,
+  Value<String> state,
+  Value<int> bytesDownloaded,
+  Value<int> totalBytes,
+  Value<String?> localPath,
+  Value<String?> contentHash,
+  Value<int> version,
+  Value<String?> error,
+  Value<DateTime> updatedAt,
+  Value<int> rowid,
+});
+
+class $$VideoDownloadsTableFilterComposer
+    extends Composer<_$LocalDatabase, $VideoDownloadsTable> {
+  $$VideoDownloadsTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<String> get videoId => $composableBuilder(
+      column: $table.videoId, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get state => $composableBuilder(
+      column: $table.state, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<int> get bytesDownloaded => $composableBuilder(
+      column: $table.bytesDownloaded,
+      builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<int> get totalBytes => $composableBuilder(
+      column: $table.totalBytes, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get localPath => $composableBuilder(
+      column: $table.localPath, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get contentHash => $composableBuilder(
+      column: $table.contentHash, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<int> get version => $composableBuilder(
+      column: $table.version, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get error => $composableBuilder(
+      column: $table.error, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<DateTime> get updatedAt => $composableBuilder(
+      column: $table.updatedAt, builder: (column) => ColumnFilters(column));
+}
+
+class $$VideoDownloadsTableOrderingComposer
+    extends Composer<_$LocalDatabase, $VideoDownloadsTable> {
+  $$VideoDownloadsTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<String> get videoId => $composableBuilder(
+      column: $table.videoId, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get state => $composableBuilder(
+      column: $table.state, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<int> get bytesDownloaded => $composableBuilder(
+      column: $table.bytesDownloaded,
+      builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<int> get totalBytes => $composableBuilder(
+      column: $table.totalBytes, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get localPath => $composableBuilder(
+      column: $table.localPath, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get contentHash => $composableBuilder(
+      column: $table.contentHash, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<int> get version => $composableBuilder(
+      column: $table.version, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get error => $composableBuilder(
+      column: $table.error, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<DateTime> get updatedAt => $composableBuilder(
+      column: $table.updatedAt, builder: (column) => ColumnOrderings(column));
+}
+
+class $$VideoDownloadsTableAnnotationComposer
+    extends Composer<_$LocalDatabase, $VideoDownloadsTable> {
+  $$VideoDownloadsTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<String> get videoId =>
+      $composableBuilder(column: $table.videoId, builder: (column) => column);
+
+  GeneratedColumn<String> get state =>
+      $composableBuilder(column: $table.state, builder: (column) => column);
+
+  GeneratedColumn<int> get bytesDownloaded => $composableBuilder(
+      column: $table.bytesDownloaded, builder: (column) => column);
+
+  GeneratedColumn<int> get totalBytes => $composableBuilder(
+      column: $table.totalBytes, builder: (column) => column);
+
+  GeneratedColumn<String> get localPath =>
+      $composableBuilder(column: $table.localPath, builder: (column) => column);
+
+  GeneratedColumn<String> get contentHash => $composableBuilder(
+      column: $table.contentHash, builder: (column) => column);
+
+  GeneratedColumn<int> get version =>
+      $composableBuilder(column: $table.version, builder: (column) => column);
+
+  GeneratedColumn<String> get error =>
+      $composableBuilder(column: $table.error, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get updatedAt =>
+      $composableBuilder(column: $table.updatedAt, builder: (column) => column);
+}
+
+class $$VideoDownloadsTableTableManager extends RootTableManager<
+    _$LocalDatabase,
+    $VideoDownloadsTable,
+    VideoDownloadRow,
+    $$VideoDownloadsTableFilterComposer,
+    $$VideoDownloadsTableOrderingComposer,
+    $$VideoDownloadsTableAnnotationComposer,
+    $$VideoDownloadsTableCreateCompanionBuilder,
+    $$VideoDownloadsTableUpdateCompanionBuilder,
+    (
+      VideoDownloadRow,
+      BaseReferences<_$LocalDatabase, $VideoDownloadsTable, VideoDownloadRow>
+    ),
+    VideoDownloadRow,
+    PrefetchHooks Function()> {
+  $$VideoDownloadsTableTableManager(
+      _$LocalDatabase db, $VideoDownloadsTable table)
+      : super(TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$VideoDownloadsTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$VideoDownloadsTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$VideoDownloadsTableAnnotationComposer($db: db, $table: table),
+          updateCompanionCallback: ({
+            Value<String> videoId = const Value.absent(),
+            Value<String> state = const Value.absent(),
+            Value<int> bytesDownloaded = const Value.absent(),
+            Value<int> totalBytes = const Value.absent(),
+            Value<String?> localPath = const Value.absent(),
+            Value<String?> contentHash = const Value.absent(),
+            Value<int> version = const Value.absent(),
+            Value<String?> error = const Value.absent(),
+            Value<DateTime> updatedAt = const Value.absent(),
+            Value<int> rowid = const Value.absent(),
+          }) =>
+              VideoDownloadsCompanion(
+            videoId: videoId,
+            state: state,
+            bytesDownloaded: bytesDownloaded,
+            totalBytes: totalBytes,
+            localPath: localPath,
+            contentHash: contentHash,
+            version: version,
+            error: error,
+            updatedAt: updatedAt,
+            rowid: rowid,
+          ),
+          createCompanionCallback: ({
+            required String videoId,
+            required String state,
+            Value<int> bytesDownloaded = const Value.absent(),
+            Value<int> totalBytes = const Value.absent(),
+            Value<String?> localPath = const Value.absent(),
+            Value<String?> contentHash = const Value.absent(),
+            Value<int> version = const Value.absent(),
+            Value<String?> error = const Value.absent(),
+            required DateTime updatedAt,
+            Value<int> rowid = const Value.absent(),
+          }) =>
+              VideoDownloadsCompanion.insert(
+            videoId: videoId,
+            state: state,
+            bytesDownloaded: bytesDownloaded,
+            totalBytes: totalBytes,
+            localPath: localPath,
+            contentHash: contentHash,
+            version: version,
+            error: error,
+            updatedAt: updatedAt,
+            rowid: rowid,
+          ),
+          withReferenceMapper: (p0) => p0
+              .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
+              .toList(),
+          prefetchHooksCallback: null,
+        ));
+}
+
+typedef $$VideoDownloadsTableProcessedTableManager = ProcessedTableManager<
+    _$LocalDatabase,
+    $VideoDownloadsTable,
+    VideoDownloadRow,
+    $$VideoDownloadsTableFilterComposer,
+    $$VideoDownloadsTableOrderingComposer,
+    $$VideoDownloadsTableAnnotationComposer,
+    $$VideoDownloadsTableCreateCompanionBuilder,
+    $$VideoDownloadsTableUpdateCompanionBuilder,
+    (
+      VideoDownloadRow,
+      BaseReferences<_$LocalDatabase, $VideoDownloadsTable, VideoDownloadRow>
+    ),
+    VideoDownloadRow,
     PrefetchHooks Function()>;
 typedef $$LocalProgressTableCreateCompanionBuilder = LocalProgressCompanion
     Function({
@@ -13595,6 +14719,8 @@ class $LocalDatabaseManager {
       $$CachedMediaTableTableManager(_db, _db.cachedMedia);
   $$CachedVideosTableTableManager get cachedVideos =>
       $$CachedVideosTableTableManager(_db, _db.cachedVideos);
+  $$VideoDownloadsTableTableManager get videoDownloads =>
+      $$VideoDownloadsTableTableManager(_db, _db.videoDownloads);
   $$LocalProgressTableTableManager get localProgress =>
       $$LocalProgressTableTableManager(_db, _db.localProgress);
   $$PendingSyncTableTableManager get pendingSync =>

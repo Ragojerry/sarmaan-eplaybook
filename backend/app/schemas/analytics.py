@@ -69,6 +69,10 @@ class VideoUsage(BaseModel):
     opens: int
     completions: int
     playback_failures: int
+    # Phones download a video only when the learner asks (measures demand and data cost).
+    downloads_started: int = 0
+    downloads_completed: int = 0
+    downloads_failed: int = 0
 
 
 class TechnicalCounts(BaseModel):

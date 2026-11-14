@@ -18,6 +18,7 @@ from fastapi import APIRouter, Depends, HTTPException, UploadFile, status
 from sqlalchemy.orm import Session
 
 from app.auth.dependencies import require_roles
+from app import video_storage
 from app.config import get_settings
 from app.content import media_upload
 from app.database import get_db
@@ -143,6 +144,9 @@ async def upload_section_media(
     paths = None
     if section.content_type == ContentType.AUDIO:
         details = await _store_audio(db, section, file)
+    elif video_storage.current() is not None:
+        raise HTTPException(status_code=status.HTTP_409_CONFLICT,
+                            detail="Videos go straight to storage: POST /modules/sections/{id}/video, then the video's upload-url")
     else:
         details, video, paths = await _store_video(db, section, file)
     db.add(AuditLog(user_id=current_user.id, action=AuditAction.MEDIA_UPLOAD, entity_type="content_section",
@@ -157,6 +161,37 @@ async def upload_section_media(
         paths[0].unlink(missing_ok=True)  # the replaced footage, only once the new file and row are committed
     db.refresh(section)
     return _out(section, video)
+
+
+@router.post("/sections/{section_id}/video")
+def attach_section_video(
+    section_id: uuid.UUID,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(require_roles(*CONTENT_EDITORS)),
+):
+    """The video a VIDEO section shows, created (as a DRAFT with no file) if it has
+    none yet. The browser then uploads the file straight to storage with
+    POST /videos/{video_id}/upload-url and /upload-complete."""
+    section = _section(db, section_id)
+    if section.content_type != ContentType.VIDEO:
+        raise HTTPException(status_code=status.HTTP_422_UNPROCESSABLE_ENTITY, detail="This section is not a video section.")
+    content = section.content or {}
+    video = None
+    try:
+        video = db.get(Video, uuid.UUID(str(content.get("video_id"))))
+    except ValueError:
+        pass
+    if video is None:
+        video = Video(title=(section.title or "Video")[:255], module_id=section.module_id, language="en",
+                      status=VideoStatus.DRAFT, filename=NO_FILE, storage_path=NO_FILE, mime_type="video/mp4")
+        db.add(video)
+        db.flush()
+        section.content = {**content, "video_id": str(video.id)}
+        db.add(AuditLog(user_id=current_user.id, action=AuditAction.MEDIA_UPLOAD, entity_type="content_section",
+                        entity_id=section.id, details={"kind": "VIDEO", "video_id": str(video.id), "pending_upload": True}))
+        db.commit()
+        db.refresh(section)
+    return {**_out(section, video), "video_id": str(video.id)}
 
 
 @router.delete("/sections/{section_id}/media")

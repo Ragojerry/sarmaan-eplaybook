@@ -18,6 +18,7 @@ import 'home_screen.dart' show homeExtrasProvider;
 import '../theme/app_theme.dart';
 import '../widgets/offline_aware_image.dart';
 import '../widgets/section_audio_player.dart';
+import '../widgets/video_download_controls.dart';
 import '../l10n/l10n.dart';
 
 /// Phase 8: reads from the LOCAL cache — never the network — matching
@@ -693,6 +694,7 @@ class _ReaderScreenState extends ConsumerState<ReaderScreen> with WidgetsBinding
                     orElse: () => const SizedBox.shrink(),
                   ),
                   _timeIndicator(state),
+                  ModuleVideosBar(moduleId: widget.moduleId),
                   for (final section in sections)
                     section.contentType == 'TRUE_FALSE'
                         ? _quizCard(section, state, toAnswer)
@@ -906,6 +908,7 @@ class _ReaderScreenState extends ConsumerState<ReaderScreen> with WidgetsBinding
                             style: TextStyle(fontSize: 10, color: AppColors.onPrimary.withValues(alpha: 0.75)),
                           ),
                         ),
+                      VideoCardStatus(videoId: videoId),
                     ],
                   ),
                 ),

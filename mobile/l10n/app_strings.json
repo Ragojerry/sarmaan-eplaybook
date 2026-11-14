@@ -376,22 +376,6 @@
       "en": "No videos yet.",
       "note": "Videos screen: no videos published"
     },
-    "videos.loadFailed": {
-      "en": "Could not load videos: {error}",
-      "note": "Videos screen: the list could not be loaded; {error} is a technical message"
-    },
-    "videos.notAvailable": {
-      "en": "Not yet available",
-      "note": "Video list: the video file is not uploaded yet"
-    },
-    "videos.downloadedTapToPlay": {
-      "en": "Downloaded — tap to play",
-      "note": "Video list: the video is on the phone"
-    },
-    "videos.tapToDownload": {
-      "en": "Tap to download",
-      "note": "Video list: the video can be downloaded"
-    },
     "video.playFailed": {
       "en": "This video could not be played. Try deleting it and downloading it again.",
       "note": "Video screen: playback failed"
@@ -399,42 +383,6 @@
     "video.title": {
       "en": "Video",
       "note": "Title of the video player screen"
-    },
-    "video.loadFailed": {
-      "en": "Could not load video: {error}",
-      "note": "Video screen: the video details could not be loaded; {error} is a technical message"
-    },
-    "video.notAvailable": {
-      "en": "This video is not yet available. Real footage and offline download support are planned for a later phase.",
-      "note": "Video screen: no video file uploaded yet"
-    },
-    "video.downloaded": {
-      "en": "Downloaded for offline playback",
-      "note": "Video screen: the video is stored on the phone"
-    },
-    "video.downloadSize": {
-      "en": "Download ({size})",
-      "note": "Video screen: download button; {size} is like 12.5 MB"
-    },
-    "video.download": {
-      "en": "Download",
-      "note": "Video screen: download button when the size is unknown"
-    },
-    "video.noFile": {
-      "en": "No video file has been uploaded for \"{title}\" yet.",
-      "note": "Video download error: the video {title} has no file yet"
-    },
-    "video.metadataMissing": {
-      "en": "Video metadata is missing size/checksum information.",
-      "note": "Video download error: technical details are missing on the server"
-    },
-    "video.emptyDownload": {
-      "en": "Empty response while downloading video.",
-      "note": "Video download error: the server sent nothing"
-    },
-    "video.checksumFailed": {
-      "en": "Downloaded file failed checksum verification for \"{title}\" — please retry.",
-      "note": "Video download error: the downloaded file of {title} is damaged"
     },
     "common.loading": {
       "en": "Loading…",
@@ -1353,6 +1301,142 @@
     "cert.numberLabel": {
       "en": "Certificate number",
       "note": "Certificate: label above the certificate number"
+    },
+    "video.downloadToWatch": {
+      "en": "Download to watch",
+      "note": "Button on a video that is not on the phone yet; the file size is shown next to it"
+    },
+    "video.downloadingPercent": {
+      "en": "Downloading… {percent}%",
+      "note": "Progress text while a video downloads; {percent} is 0-100"
+    },
+    "video.waitingForConnection": {
+      "en": "Waiting for a connection…",
+      "note": "A video download stopped because the connection dropped; it continues by itself"
+    },
+    "video.queued": {
+      "en": "Waiting to download…",
+      "note": "A video is in the download queue (videos download one at a time)"
+    },
+    "video.pausedAt": {
+      "en": "Paused at {percent}%",
+      "note": "A video download the learner paused"
+    },
+    "video.pause": {
+      "en": "Pause",
+      "note": "Button: pause a video download"
+    },
+    "video.resume": {
+      "en": "Resume",
+      "note": "Button: continue a paused video download"
+    },
+    "video.cancelDownload": {
+      "en": "Cancel download",
+      "note": "Button: stop a video download and remove the partial file"
+    },
+    "video.retry": {
+      "en": "Retry",
+      "note": "Button: try a failed video download again"
+    },
+    "video.play": {
+      "en": "Play",
+      "note": "Button: play a video that is on the phone"
+    },
+    "video.offlineReady": {
+      "en": "Offline ready",
+      "note": "Badge on a video that is on the phone and plays without internet"
+    },
+    "video.updateAvailable": {
+      "en": "Update available",
+      "note": "Button on a downloaded video that has a newer version; the old one keeps playing until the learner taps"
+    },
+    "video.connectToWatch": {
+      "en": "Connect to the internet to watch this video.",
+      "note": "Shown when the phone is offline and the video is not downloaded"
+    },
+    "video.mobileDataTitle": {
+      "en": "Use mobile data?",
+      "note": "Title of the question asked before a large download on mobile data"
+    },
+    "video.mobileDataBody": {
+      "en": "This video is {size} and will use your mobile data. Continue?",
+      "note": "Question before a download on mobile data; {size} is like 12 MB"
+    },
+    "video.mobileDataHint": {
+      "en": "Tip: connect to Wi-Fi to download without using your data.",
+      "note": "Hint under the mobile data question"
+    },
+    "video.notEnoughSpace": {
+      "en": "Not enough free space on this phone. This video needs {size}. Delete some files or downloaded videos, then try again.",
+      "note": "Shown when the phone has too little storage for a video; {size} is like 12 MB"
+    },
+    "video.failedNetwork": {
+      "en": "The download stopped. Check your connection and tap Retry.",
+      "note": "A video download failed because of the connection"
+    },
+    "video.failedCorrupt": {
+      "en": "The downloaded file was damaged, so it was removed. Tap Retry to download it again.",
+      "note": "A video failed its integrity check twice"
+    },
+    "video.failedNotFound": {
+      "en": "This video is not available right now. Please try again later.",
+      "note": "The video file was not found on the server"
+    },
+    "video.failedStorage": {
+      "en": "The video could not be saved on this phone. Free some space and tap Retry.",
+      "note": "Writing the video to storage failed"
+    },
+    "video.deleteDownload": {
+      "en": "Delete download",
+      "note": "Button: remove a downloaded video from the phone to free space"
+    },
+    "video.notInManifest": {
+      "en": "This video is not available on this phone yet. Connect to the internet and sync.",
+      "note": "Opened a video the phone knows nothing about yet"
+    },
+    "video.optionalNote": {
+      "en": "Videos are optional. Your training progress never depends on them.",
+      "note": "Small note on the video screen and Videos tab"
+    },
+    "video.moduleDownloadAll": {
+      "en": "Download videos for this module ({size})",
+      "note": "Button on a module: download all its videos at once; {size} is the total"
+    },
+    "video.moduleAllOffline": {
+      "en": "All videos for this module are offline ready",
+      "note": "Shown on a module when all its videos are on the phone"
+    },
+    "video.downloadsQueued": {
+      "en": "{count} videos will download one at a time.",
+      "note": "After tapping a download-all button; {count} is a number"
+    },
+    "settings.videosTitle": {
+      "en": "Downloaded videos",
+      "note": "Heading of the video storage section in Settings"
+    },
+    "settings.videosUsed": {
+      "en": "Videos on this phone use {size}.",
+      "note": "How much storage downloaded videos take; {size} is like 120 MB"
+    },
+    "settings.downloadAllVideos": {
+      "en": "Download all videos for offline ({size})",
+      "note": "Button: download every video; {size} is the total still to download"
+    },
+    "settings.allVideosOffline": {
+      "en": "All videos are offline ready.",
+      "note": "Shown when every video is already on the phone"
+    },
+    "settings.deleteAllVideos": {
+      "en": "Delete downloaded videos",
+      "note": "Button: remove every downloaded video from the phone"
+    },
+    "settings.deleteAllVideosConfirm": {
+      "en": "Delete all downloaded videos? Your training progress is not affected, and you can download them again later.",
+      "note": "Confirmation before deleting all downloaded videos"
+    },
+    "settings.videosDeleted": {
+      "en": "Downloaded videos deleted.",
+      "note": "Shown after deleting all downloaded videos"
     }
   }
 }

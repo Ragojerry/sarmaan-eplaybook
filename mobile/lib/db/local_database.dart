@@ -109,10 +109,39 @@ class CachedVideos extends Table {
   BoolColumn get offlineAvailable => boolean()();
   TextColumn get status => text()();
   BoolColumn get hasFile => boolean()();
-  TextColumn get localPath => text().nullable()(); // populated in Phase 9 — always null for now
+  TextColumn get localPath => text().nullable()(); // file from app 0.1.19 and older (see VideoDownloads)
+  // v13: the video manifest (GET /sync/videos), so videos list and play offline.
+  IntColumn get sizeBytes => integer().nullable()();
+  TextColumn get contentHash => text().nullable()(); // SHA-256 hex
+  TextColumn get url => text().nullable()(); // CloudFront, versioned
+  IntColumn get version => integer().withDefault(const Constant(1))();
+  BoolColumn get requiredForCompletion => boolean().withDefault(const Constant(false))(); // read by nothing
+  TextColumn get mimeType => text().nullable()();
+  BoolColumn get manifestSeen => boolean().withDefault(const Constant(false))();
 
   @override
   Set<Column> get primaryKey => {id};
+}
+
+/// v13: one row per video the learner downloaded (or started to), for the whole
+/// phone (videos are files, not anyone's progress: a training restart or another
+/// account never removes them). States: not_downloaded, downloading, paused,
+/// failed, downloaded. [localPath] is the verified file (it keeps playing while a
+/// newer version downloads); the partial file is <videoId>.v<version>.part.
+@DataClassName('VideoDownloadRow')
+class VideoDownloads extends Table {
+  TextColumn get videoId => text()();
+  TextColumn get state => text()();
+  IntColumn get bytesDownloaded => integer().withDefault(const Constant(0))();
+  IntColumn get totalBytes => integer().withDefault(const Constant(0))();
+  TextColumn get localPath => text().nullable()();
+  TextColumn get contentHash => text().nullable()(); // of the file at localPath
+  IntColumn get version => integer().withDefault(const Constant(0))(); // of the file at localPath
+  TextColumn get error => text().nullable()();
+  DateTimeColumn get updatedAt => dateTime()();
+
+  @override
+  Set<Column> get primaryKey => {videoId};
 }
 
 @DataClassName('LocalProgressRow')
@@ -399,6 +428,7 @@ class CachedToolItems extends Table {
     CachedSections,
     CachedMedia,
     CachedVideos,
+    VideoDownloads,
     LocalProgress,
     PendingSync,
     AppSettings,
@@ -438,8 +468,9 @@ class LocalDatabase extends _$LocalDatabase {
   // v10: Support deck contacts on the Ask tab (a new table only).
   // v11: the Tools repository (two new tables only).
   // v12: the pass mark stored with each General test attempt (a new nullable column).
+  // v13: videos on demand: the video manifest on cached_videos and video_downloads.
   @override
-  int get schemaVersion => 12;
+  int get schemaVersion => 13;
 
   String? _activeUserId;
   String? _learnerRole;
@@ -532,6 +563,24 @@ class LocalDatabase extends _$LocalDatabase {
             // (A database older than 8 just created the table with the column.)
             // Existing attempts keep NULL: they are never re-graded.
             await m.addColumn(localGeneralAttempts, localGeneralAttempts.passMark);
+          }
+          if (from < 13) {
+            // Videos on demand. Only video tables change; progress and attempts are not touched.
+            for (final (name, column) in [
+              ('size_bytes', cachedVideos.sizeBytes),
+              ('content_hash', cachedVideos.contentHash),
+              ('url', cachedVideos.url),
+              ('version', cachedVideos.version),
+              ('required_for_completion', cachedVideos.requiredForCompletion),
+              ('mime_type', cachedVideos.mimeType),
+              ('manifest_seen', cachedVideos.manifestSeen),
+            ]) {
+              if (!await _hasColumn('cached_videos', name)) await m.addColumn(cachedVideos, column);
+            }
+            await m.createTable(videoDownloads);
+            // Videos the old app downloaded: kept, and marked downloaded once the
+            // next manifest confirms their size and SHA-256 (no second download).
+            await recordLegacyVideoDownloads();
           }
           if (from < 11) {
             // New, empty tables: nothing existing changes. Until they fill, no Tools section shows.
@@ -1421,9 +1470,23 @@ class LocalDatabase extends _$LocalDatabase {
     final paths = <String>[];
     for (final v in hidden) {
       if (v.localPath != null) paths.add(v.localPath!);
+      final download = await (select(videoDownloads)..where((d) => d.videoId.equals(v.id))).getSingleOrNull();
+      if (download?.localPath != null) paths.add(download!.localPath!);
+      await (delete(videoDownloads)..where((d) => d.videoId.equals(v.id))).go();
       await (delete(cachedVideos)..where((x) => x.id.equals(v.id))).go();
     }
     return paths;
+  }
+
+  /// Videos downloaded by app 0.1.19 and older (cached_videos.local_path): a
+  /// video_downloads row keeps the file, not yet "downloaded" until the manifest
+  /// confirms it (adoptLegacyVideoDownloads). Safe to run again.
+  Future<void> recordLegacyVideoDownloads() async {
+    await customStatement(
+      "INSERT OR IGNORE INTO video_downloads (video_id, state, bytes_downloaded, total_bytes, local_path, version, updated_at) "
+      "SELECT id, 'not_downloaded', 0, 0, local_path, 0, CAST(strftime('%s','now') AS INTEGER) "
+      "FROM cached_videos WHERE local_path IS NOT NULL",
+    );
   }
 
   Future<void> markVideoDeleted(String id) async {

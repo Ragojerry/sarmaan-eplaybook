@@ -12,10 +12,11 @@ from pathlib import Path
 from typing import Iterator
 
 from fastapi import APIRouter, Depends, Form, HTTPException, Request, UploadFile, status
-from fastapi.responses import FileResponse, StreamingResponse
+from fastapi.responses import FileResponse, RedirectResponse, StreamingResponse
 from pydantic import BaseModel, Field
 from sqlalchemy.orm import Session
 
+from app import video_storage
 from app.database import get_db
 from app.config import get_settings
 from app.auth.dependencies import get_current_user, require_roles
@@ -49,6 +50,18 @@ class VideoCreate(BaseModel):
     language: str = Field(default="en", max_length=10)
     duration_seconds: int | None = Field(default=None, ge=0)
     required_offline: bool = False
+
+
+class UploadRequest(BaseModel):
+    mime_type: str
+    size_bytes: int = Field(gt=0)
+    sha256: str = Field(pattern=r"^[0-9a-fA-F]{64}$")
+    filename: str | None = Field(default=None, max_length=255)
+
+
+class UploadComplete(BaseModel):
+    key: str = Field(min_length=1, max_length=500)
+    duration_seconds: int | None = Field(default=None, ge=0)
 
 
 class VideoUpdate(BaseModel):
@@ -112,6 +125,7 @@ def _serialize(video: Video) -> dict:
         # Deliberately NOT including storage_path/filename — internal
         # details, not something the client should construct a path from.
         "has_file": video.filename != "NOT_YET_UPLOADED",
+        "version": video.version,
     }
 
 
@@ -217,6 +231,105 @@ def update_video(
     return _serialize(video)
 
 
+def _s3_or_409():
+    store = video_storage.current()
+    if store is None:
+        raise HTTPException(status_code=status.HTTP_409_CONFLICT,
+                            detail="Videos are stored on this server: upload with POST /videos/{id}/file")
+    return store
+
+
+@router.post("/{video_id}/upload-url")
+def video_upload_url(
+    video_id: uuid.UUID,
+    payload: UploadRequest,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(require_roles(*CONTENT_EDITORS)),
+):
+    """Step 1 of a direct upload: a signed S3 PUT for exactly this file (type and
+    SHA-256 are part of the signature, so S3 refuses any other bytes)."""
+    store = _s3_or_409()
+    if db.get(Video, video_id) is None:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Video not found")
+    if payload.mime_type not in ALLOWED_MIME:
+        raise HTTPException(status_code=status.HTTP_415_UNSUPPORTED_MEDIA_TYPE, detail="Only MP4 (H.264) or WebM video is accepted.")
+    if payload.size_bytes > settings.max_video_upload_mb * 1024 * 1024:
+        raise HTTPException(status_code=status.HTTP_413_REQUEST_ENTITY_TOO_LARGE,
+                            detail=f"Video is larger than the {settings.max_video_upload_mb} MB limit.")
+    sha = payload.sha256.lower()
+    key = store.key_for(video_id, sha, payload.mime_type)
+    return {**store.upload_target(key, payload.mime_type, payload.size_bytes, sha), "key": key}
+
+
+def record_new_file(db: Session, video: Video, *, key: str, size: int, sha256: str, mime: str, actor: User,
+                    filename: str | None, duration_seconds: int | None = None) -> None:
+    """Points the video at its new S3 file (shared with section uploads). A replaced
+    file raises the version; replacing published footage sends it back to DRAFT."""
+    had_file = video.filename != NO_FILE
+    was_published = video.status == VideoStatus.PUBLISHED
+    video.storage_key = key
+    video.storage_path = key
+    video.filename = key.rsplit("/", 1)[-1]
+    video.mime_type = mime
+    video.file_size = size
+    video.checksum = sha256
+    if had_file:
+        video.version = (video.version or 1) + 1
+    if duration_seconds is not None:
+        video.duration_seconds = duration_seconds
+    if was_published:
+        video.status = VideoStatus.DRAFT
+        video.offline_available = False
+    db.add(AuditLog(
+        user_id=actor.id, action=AuditAction.VIDEO_UPLOAD, entity_type="video", entity_id=video.id,
+        details={"filename": filename, "size_bytes": size, "sha256": sha256, "storage": "s3", "key": key,
+                 "version": video.version, "replaced_existing": had_file, "returned_to_draft": was_published},
+    ))
+
+
+@router.post("/{video_id}/upload-complete")
+def video_upload_complete(
+    video_id: uuid.UUID,
+    payload: UploadComplete,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(require_roles(*CONTENT_EDITORS)),
+):
+    """Step 2: checks what S3 holds (size, SHA-256, really a video) and records it."""
+    store = _s3_or_409()
+    video = db.get(Video, video_id)
+    if video is None:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Video not found")
+    parts = payload.key.split("/")
+    if len(parts) < 3 or parts[-2] != str(video_id):
+        raise HTTPException(status_code=status.HTTP_422_UNPROCESSABLE_ENTITY, detail="That file belongs to another video")
+    found = store.stat(payload.key)
+    if found is None:
+        raise HTTPException(status_code=status.HTTP_422_UNPROCESSABLE_ENTITY, detail="The upload has not reached storage")
+    name = payload.key.rsplit("/", 1)[-1]
+    if not found.sha256 or not name.startswith(found.sha256[:16]) or not _sniff_ok(found.head):
+        raise HTTPException(status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+                            detail="The stored file does not match the upload (or is not an MP4/WebM video)")
+    mime = found.content_type if found.content_type in ALLOWED_MIME else "video/mp4"
+    record_new_file(db, video, key=payload.key, size=found.size, sha256=found.sha256, mime=mime, actor=current_user,
+                    filename=name, duration_seconds=payload.duration_seconds)
+    _sync_section_metadata(db, video)
+    db.commit()
+    db.refresh(video)
+    return _serialize(video)
+
+
+def _sync_section_metadata(db: Session, video: Video) -> None:
+    """Sections showing this video keep their file details in step (section_media.py)."""
+    from app.models import ContentSection
+    from app.models.enums import ContentType
+
+    for section in db.query(ContentSection).filter(ContentSection.content_type == ContentType.VIDEO).all():
+        content = section.content or {}
+        if content.get("video_id") == str(video.id):
+            section.content = {**content, "filename": video.filename, "mime_type": video.mime_type,
+                               "size_bytes": video.file_size}
+
+
 @router.post("/{video_id}/file")
 async def upload_video_file(
     video_id: uuid.UUID,
@@ -229,6 +342,9 @@ async def upload_video_file(
     enforces a size cap, checks it really is MP4/WebM, and records its SHA-256.
     Replacing the footage of a PUBLISHED video sends it back to DRAFT so the
     new footage is re-approved before learners get it."""
+    if video_storage.current() is not None:
+        raise HTTPException(status_code=status.HTTP_409_CONFLICT,
+                            detail="Videos go straight to storage: use POST /videos/{id}/upload-url")
     video = db.get(Video, video_id)
     if video is None:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Video not found")
@@ -278,6 +394,8 @@ async def upload_video_file(
     was_published = video.status == VideoStatus.PUBLISHED
     checksum = digest.hexdigest()
 
+    if old is not None:
+        video.version = (video.version or 1) + 1
     video.filename = filename
     video.storage_path = f"videos/{filename}"
     video.mime_type = file.content_type
@@ -322,6 +440,11 @@ def download_video_file(
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Video not found")
     if video.filename == NO_FILE:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="No video file has been uploaded yet")
+    store = video_storage.current()
+    if store is not None and video.storage_key:
+        # Apps before 0.1.20 download here: send them to CloudFront (Range requests
+        # are kept by the client), so video bytes never pass through the API.
+        return RedirectResponse(store.url(video.storage_key), status_code=status.HTTP_302_FOUND)
 
     path = _video_path(video)
     if not path.is_file():

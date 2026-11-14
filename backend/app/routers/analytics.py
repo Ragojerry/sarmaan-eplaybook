@@ -257,6 +257,9 @@ def usage(
             _count(ET.VIDEO_OPEN),
             _count(ET.VIDEO_COMPLETE),
             _count(ET.VIDEO_PLAYBACK_FAILURE),
+            _count(ET.DOWNLOAD_STARTED),
+            _count(ET.DOWNLOAD_COMPLETED),
+            _count(ET.DOWNLOAD_FAILED),
         )
         .outerjoin(
             AnalyticsEvent,
@@ -267,8 +270,9 @@ def usage(
         .all()
     )
     videos = [
-        VideoUsage(video_id=str(vid), title=t, opens=o or 0, completions=c or 0, playback_failures=f or 0)
-        for vid, t, o, c, f in vid_rows
+        VideoUsage(video_id=str(vid), title=t, opens=o or 0, completions=c or 0, playback_failures=f or 0,
+                   downloads_started=ds or 0, downloads_completed=dc or 0, downloads_failed=df or 0)
+        for vid, t, o, c, f, ds, dc, df in vid_rows
     ]
 
     counts = dict(

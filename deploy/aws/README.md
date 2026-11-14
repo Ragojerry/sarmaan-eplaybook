@@ -72,6 +72,37 @@ A 100% pre-test is auto-approved by a post-test at or above
 `POST_TEST_AUTO_APPROVE_PERCENT`, default 90. To change the threshold, set it in
 `/opt/sarmaan/.env.prod` and restart the backend container.
 
+## Training videos (S3 + CloudFront)
+
+Videos live in `s3://sarmaan-admin-568898409880/videos/` and are served by the
+admin distribution (`https://dpoc28iz0vbai.cloudfront.net/videos/...`), never
+through the API. Object names hold the file's SHA-256 (`videos/<id>/<sha16>.mp4`)
+and are stored with `Cache-Control: public, max-age=31536000, immutable`. The
+admin browser uploads straight to S3 with a signed PUT; phones download only when
+the learner asks (`GET /sync/videos` is the manifest). Settings are in
+`docker-compose.prod.yml` (`VIDEO_STORAGE=s3`, bucket, CDN URL).
+
+One-time setup before the first upload (the instance metadata hop limit is
+already 2, so the container can use the instance role):
+
+```bash
+# 1. let the backend sign uploads and read back what arrived
+aws iam put-role-policy --role-name <role of sarmaan-ec2-profile> --policy-name sarmaan-videos   --policy-document '{"Version":"2012-10-17","Statement":[{"Effect":"Allow",
+   "Action":["s3:PutObject","s3:GetObject"],
+   "Resource":"arn:aws:s3:::sarmaan-admin-568898409880/videos/*"}]}'
+# 2. let the admin portal PUT to the bucket
+aws s3api put-bucket-cors --bucket sarmaan-admin-568898409880 --cors-configuration '{"CORSRules":[{
+  "AllowedOrigins":["https://dpoc28iz0vbai.cloudfront.net"],"AllowedMethods":["PUT"],
+  "AllowedHeaders":["content-type","cache-control","x-amz-checksum-sha256"],"MaxAgeSeconds":3000}]}'
+# 3. after the backend deploy: size, hash and S3 copy for any video still on disk (safe to repeat)
+$C exec -T -w /app backend python -m scripts.backfill_videos --dry-run
+$C exec -T -w /app backend python -m scripts.backfill_videos
+```
+
+A missing object comes back as the portal's `index.html` with status 200 (the
+distribution's 403/404 rules); phones refuse anything that is not the expected
+size and SHA-256, so this cannot be saved as a video.
+
 ## Redeploy the admin portal
 
 ```powershell

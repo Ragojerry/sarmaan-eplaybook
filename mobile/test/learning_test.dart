@@ -7,6 +7,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:sarmaan_eplaybook/db/local_database.dart';
 import 'package:sarmaan_eplaybook/learning/learning_rules.dart';
 import 'package:sarmaan_eplaybook/learning/learning_service.dart';
+import 'package:sarmaan_eplaybook/video/video_manifest.dart';
 
 /// Module completion (inline True/False quiz + minimum active time), the General
 /// pre/post test, and role-based visibility of the local cache. The rules are
@@ -219,6 +220,23 @@ void main() {
       expect(b.hasQuiz, isFalse);
       await expectLater(recordModuleQuiz(db, moduleId: 'A', answers: right('A')), throwsStateError,
           reason: 'a completed module is review-only');
+    });
+
+    test('a module with a video completes, times and unlocks the quiz with zero videos downloaded', () async {
+      // Videos download only when the learner asks; nothing in training waits for one.
+      await db.into(db.cachedSections).insert(CachedSectionsCompanion.insert(
+            id: 'A-video', moduleId: 'A', sectionNumber: 99, contentType: 'VIDEO', contentJson: '{"video_id": "vid-A"}', sortOrder: 99));
+      await storeVideoManifest(db, [
+        VideoEntry.fromJson({'video_id': 'vid-A', 'module_id': 'A', 'title': 'Demo', 'language': 'en', 'size_bytes': 50000000,
+          'duration_seconds': 300, 'content_hash': 'a' * 64, 'url': 'https://cdn.example.test/videos/vid-A/a.mp4', 'version': 1,
+          'required_for_completion': true, 'mime_type': 'video/mp4'}),
+      ]);
+      expect(await db.select(db.videoDownloads).get(), isEmpty);
+      expect((await loadLearning(db)).of('A')!.stage, ModuleStage.reading, reason: 'open without the video');
+      expect((await recordModuleQuiz(db, moduleId: 'A', answers: right('A'))).passed, isTrue, reason: 'the quiz is open');
+      await db.addModuleSeconds('A', 180);
+      expect(await completeModule(db, 'A'), isNull, reason: 'even when the manifest says required_for_completion');
+      expect((await loadLearning(db)).of('B')!.stage, ModuleStage.reading, reason: 'the next module unlocks');
     });
 
     test('old per-module test attempts and attempts the server refused never count', () async {

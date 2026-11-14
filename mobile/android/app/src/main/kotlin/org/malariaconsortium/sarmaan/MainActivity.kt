@@ -5,6 +5,7 @@ import android.content.ActivityNotFoundException
 import android.content.Intent
 import android.net.Uri
 import android.os.Build
+import android.os.StatFs
 import io.flutter.embedding.android.FlutterActivity
 import io.flutter.embedding.engine.FlutterEngine
 import io.flutter.plugin.common.MethodChannel
@@ -15,8 +16,8 @@ import io.flutter.plugin.common.MethodChannel
  * every supported Android version and needs no storage permission. "open" shows
  * a saved file in the phone's PDF viewer.
  *
- * The device channel answers only "osVersion" (for example "Android 14 (API 34)") for
- * the admin portal's device list. No model, hardware id, IMEI or phone number is read.
+ * The device channel answers "osVersion" (for example "Android 14 (API 34)") for
+ * the admin portal's device list, and "freeBytes" (free storage) before a video download. No model, hardware id, IMEI or phone number is read.
  */
 class MainActivity : FlutterActivity() {
     private var pendingResult: MethodChannel.Result? = null
@@ -25,8 +26,12 @@ class MainActivity : FlutterActivity() {
     override fun configureFlutterEngine(flutterEngine: FlutterEngine) {
         super.configureFlutterEngine(flutterEngine)
         MethodChannel(flutterEngine.dartExecutor.binaryMessenger, DEVICE_CHANNEL).setMethodCallHandler { call, result ->
-            if (call.method == "osVersion") result.success("Android ${Build.VERSION.RELEASE} (API ${Build.VERSION.SDK_INT})")
-            else result.notImplemented()
+            when (call.method) {
+                "osVersion" -> result.success("Android ${Build.VERSION.RELEASE} (API ${Build.VERSION.SDK_INT})")
+                // Free space where videos are saved, checked before a download starts.
+                "freeBytes" -> result.success(StatFs(filesDir.absolutePath).availableBytes)
+                else -> result.notImplemented()
+            }
         }
         MethodChannel(flutterEngine.dartExecutor.binaryMessenger, CHANNEL).setMethodCallHandler { call, result ->
             when (call.method) {

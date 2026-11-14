@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { api } from "../services/api";
+import { uploadVideoDirect } from "../services/videoUpload";
 
 export type MediaKind = "AUDIO" | "VIDEO";
 
@@ -29,6 +30,17 @@ export async function uploadSectionMedia(
   onProgress: (pct: number) => void,
   signal?: AbortSignal,
 ): Promise<SectionMediaResult> {
+  if (file.type.startsWith("video/")) {
+    // Straight to storage when the server uses S3 (the section's video record first).
+    const attached = (await api.post(`/modules/sections/${sectionId}/video`, null, { signal })).data;
+    const video = await uploadVideoDirect(attached.video_id, file, onProgress, null, signal);
+    if (video !== null)
+      return {
+        ...attached,
+        content: { ...attached.content, filename: file.name, mime_type: file.type, size_bytes: video.file_size },
+        video_status: video.status,
+      };
+  }
   const form = new FormData();
   form.append("file", file);
   const resp = await api.post(`/modules/sections/${sectionId}/media`, form, {

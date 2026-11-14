@@ -143,6 +143,9 @@ export default function AnalyticsPage() {
                 <th className="py-1 pr-3">Opens</th>
                 <th className="py-1 pr-3">Completions</th>
                 <th className="py-1 pr-3">Playback failures</th>
+                <th className="py-1 pr-3" title="Phones download a video only when the learner asks">Downloads started</th>
+                <th className="py-1 pr-3">Downloads completed</th>
+                <th className="py-1 pr-3">Downloads failed</th>
               </tr>
             </thead>
             <tbody>
@@ -152,6 +155,9 @@ export default function AnalyticsPage() {
                   <td className="py-1.5 pr-3">{v.opens}</td>
                   <td className="py-1.5 pr-3">{v.completions}</td>
                   <td className="py-1.5 pr-3">{v.playback_failures}</td>
+                  <td className="py-1.5 pr-3">{v.downloads_started}</td>
+                  <td className="py-1.5 pr-3">{v.downloads_completed}</td>
+                  <td className="py-1.5 pr-3">{v.downloads_failed}</td>
                 </tr>
               ))}
             </tbody>

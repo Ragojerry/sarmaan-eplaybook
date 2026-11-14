@@ -162,7 +162,16 @@ export interface UsageReport {
     cdds_started: number;
     cdds_completed: number;
   }[];
-  videos: { video_id: string; title: string; opens: number; completions: number; playback_failures: number }[];
+  videos: {
+    video_id: string;
+    title: string;
+    opens: number;
+    completions: number;
+    playback_failures: number;
+    downloads_started: number;
+    downloads_completed: number;
+    downloads_failed: number;
+  }[];
   technical: {
     download_failures: number;
     sync_failures: number;
