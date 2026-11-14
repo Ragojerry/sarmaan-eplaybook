@@ -21,6 +21,7 @@ from sqlalchemy import func
 from sqlalchemy.orm import Session
 
 from app.auth.dependencies import require_roles
+from app.auth.pages import clean_pages, role_allows
 from app.auth.security import hash_password
 from app.database import get_db
 from app.models import AdminBoundary, TrainingSession, User
@@ -141,6 +142,7 @@ def create_user(
         _check_session(db, payload.training_session_id)
     if payload.role == RoleName.CDD and payload.learner_role is None:
         raise HTTPException(status_code=status.HTTP_422_UNPROCESSABLE_ENTITY, detail=LEARNER_ROLE_REQUIRED)
+    data["admin_pages"] = clean_pages(payload.role, payload.admin_pages)
     user = User(**data, password_hash=hash_password(payload.password), status=UserStatus.ACTIVE)
     db.add(user)
     db.flush()
@@ -151,7 +153,8 @@ def create_user(
             entity_type="user",
             entity_id=user.id,
             details={"username": user.username, "role": user.role.value, "team_code": user.team_code,
-                     "learner_role": user.learner_role.value if user.learner_role else None},
+                     "learner_role": user.learner_role.value if user.learner_role else None,
+                     "admin_pages": user.admin_pages},
         )
     )
     db.commit()
@@ -395,6 +398,19 @@ def update_user(
     becomes_learner = "role" in changes and changes["role"] == RoleName.CDD and user.role != RoleName.CDD
     if (becomes_learner or clear_learner_role) and changes.get("role", user.role) == RoleName.CDD             and changes.get("learner_role", user.learner_role) is None:
         raise HTTPException(status_code=status.HTTP_422_UNPROCESSABLE_ENTITY, detail=LEARNER_ROLE_REQUIRED)
+    # Portal pages: ticks are checked against the (new) role; a role change keeps
+    # only the ticked pages the new role allows.
+    new_role = changes.get("role", user.role)
+    if changes.pop("all_pages", False):
+        changes["admin_pages"] = None
+    elif "admin_pages" in changes:
+        changes["admin_pages"] = clean_pages(new_role, changes["admin_pages"])
+    elif "role" in changes and user.admin_pages is not None:
+        kept = [p for p in user.admin_pages if role_allows(new_role, p)]
+        if not kept and new_role not in (RoleName.SUPER_ADMIN, RoleName.CDD):
+            raise HTTPException(status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+                                detail="None of this account's pages fit the new role: choose its pages too")
+        changes["admin_pages"] = clean_pages(new_role, kept)
     boundary_id = changes.pop("boundary_id", None)
     clear_boundary = changes.pop("clear_boundary", False)
     clear_session = changes.pop("clear_session", False)
@@ -428,6 +444,8 @@ def update_user(
                 **({"learner_role": {"before": before["learner_role"],
                                      "after": user.learner_role.value if user.learner_role else None}}
                    if "learner_role" in changes else {}),
+                **({"admin_pages": {"before": before["admin_pages"], "after": user.admin_pages}}
+                   if "admin_pages" in changes else {}),
             },
         )
     )

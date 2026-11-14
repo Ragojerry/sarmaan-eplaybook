@@ -20,7 +20,7 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from pydantic import BaseModel, Field
 from sqlalchemy.orm import Session
 
-from app.auth.dependencies import get_current_user, require_roles
+from app.auth.dependencies import get_staff_user, require_roles
 from app.database import get_db
 from app.learning.certificate import find_certificate
 from app.learning.settings import PASS_MARK_KEYS, SettingError, change_setting, general_test_ready, training_settings
@@ -32,7 +32,7 @@ EDITORS = (RoleName.CONTENT_ADMIN,)
 LETTERS = "ABCDEFGHIJ"
 
 
-def _staff(user: User = Depends(get_current_user)) -> User:
+def _staff(user: User = Depends(get_staff_user)) -> User:
     if user.role == RoleName.CDD:
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Test answers are not available to learners")
     return user

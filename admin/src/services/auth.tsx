@@ -9,6 +9,8 @@ interface UserProfile {
   last_name: string;
   role: string;
   status: string;
+  /** Portal pages this account sees (its role, narrowed by any pages a super admin ticked). */
+  pages: string[];
 }
 
 interface AuthContextValue {

@@ -23,6 +23,7 @@ import GeneralTestPage from "./pages/GeneralTestPage";
 import LoginPage from "./pages/LoginPage";
 import AdminLayout from "./layouts/AdminLayout";
 import ProtectedRoute from "./components/ProtectedRoute";
+import PageGate from "./components/PageGate";
 
 /** Dashboard, content, module detail, releases, languages, analytics (Phase 13) and audit log (Phase 13), all behind authentication. */
 export default function App() {
@@ -36,27 +37,27 @@ export default function App() {
           </ProtectedRoute>
         }
       >
-        <Route path="/" element={<DashboardPage />} />
-        <Route path="/content" element={<ContentPage />} />
-        <Route path="/content/:moduleId" element={<ModuleDetailPage />} />
-        <Route path="/content/:moduleId/quiz" element={<QuizEditorPage />} />
-        <Route path="/videos" element={<VideosPage />} />
-        <Route path="/references" element={<ReferencesPage />} />
-        <Route path="/answers" element={<AnswersPage />} />
-        <Route path="/consent" element={<ConsentPage />} />
-        <Route path="/learning" element={<LearningReviewPage />} />
-        <Route path="/general-test" element={<GeneralTestPage />} />
-        <Route path="/releases" element={<ReleasesPage />} />
-        <Route path="/languages" element={<LanguagesPage />} />
-        <Route path="/app-text" element={<AppTextPage />} />
-        <Route path="/support-contacts" element={<SupportContactsPage />} />
-        <Route path="/tools" element={<ToolsPage />} />
-        <Route path="/analytics" element={<AnalyticsPage />} />
-        <Route path="/audit" element={<AuditLogPage />} />
-        <Route path="/users" element={<UsersPage />} />
-        <Route path="/areas" element={<BoundariesPage />} />
-        <Route path="/sessions" element={<SessionsPage />} />
-        <Route path="/reports" element={<ReportsPage />} />
+        <Route path="/" element={<PageGate page="dashboard"><DashboardPage /></PageGate>} />
+        <Route path="/content" element={<PageGate page="content"><ContentPage /></PageGate>} />
+        <Route path="/content/:moduleId" element={<PageGate page="content"><ModuleDetailPage /></PageGate>} />
+        <Route path="/content/:moduleId/quiz" element={<PageGate page="content"><QuizEditorPage /></PageGate>} />
+        <Route path="/videos" element={<PageGate page="videos"><VideosPage /></PageGate>} />
+        <Route path="/references" element={<PageGate page="references"><ReferencesPage /></PageGate>} />
+        <Route path="/answers" element={<PageGate page="answers"><AnswersPage /></PageGate>} />
+        <Route path="/consent" element={<PageGate page="consent"><ConsentPage /></PageGate>} />
+        <Route path="/learning" element={<PageGate page="learning"><LearningReviewPage /></PageGate>} />
+        <Route path="/general-test" element={<PageGate page="general-test"><GeneralTestPage /></PageGate>} />
+        <Route path="/releases" element={<PageGate page="releases"><ReleasesPage /></PageGate>} />
+        <Route path="/languages" element={<PageGate page="languages"><LanguagesPage /></PageGate>} />
+        <Route path="/app-text" element={<PageGate page="app-text"><AppTextPage /></PageGate>} />
+        <Route path="/support-contacts" element={<PageGate page="support-contacts"><SupportContactsPage /></PageGate>} />
+        <Route path="/tools" element={<PageGate page="tools"><ToolsPage /></PageGate>} />
+        <Route path="/analytics" element={<PageGate page="analytics"><AnalyticsPage /></PageGate>} />
+        <Route path="/audit" element={<PageGate page="audit"><AuditLogPage /></PageGate>} />
+        <Route path="/users" element={<PageGate page="users"><UsersPage /></PageGate>} />
+        <Route path="/areas" element={<PageGate page="areas"><BoundariesPage /></PageGate>} />
+        <Route path="/sessions" element={<PageGate page="sessions"><SessionsPage /></PageGate>} />
+        <Route path="/reports" element={<PageGate page="reports"><ReportsPage /></PageGate>} />
         <Route
           path="*"
           element={

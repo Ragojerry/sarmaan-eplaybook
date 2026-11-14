@@ -39,6 +39,8 @@ class UserCreate(BaseModel):
     role: RoleName = RoleName.CDD
     # Required for learner accounts (role CDD); optional for staff.
     learner_role: LearnerRoleField = None
+    # Portal pages they see (app/auth/pages.py); None = every page the role allows.
+    admin_pages: list[str] | None = Field(default=None, max_length=40)
     team_code: str | None = Field(default=None, pattern=TEAM_CODE_PATTERN)
     language_id: uuid.UUID | None = None
     # deepest area chosen (country, state, LGA, ward or facility); its parents are filled in
@@ -57,6 +59,9 @@ class UserUpdate(BaseModel):
     clear_learner_role: bool = False
     # Confirms the learner role (even unchanged or none) and clears the review flag.
     learner_role_reviewed: bool = False
+    # ticked portal pages; all_pages goes back to every page the role allows
+    admin_pages: list[str] | None = Field(default=None, max_length=40)
+    all_pages: bool = False
     status: UserStatus | None = None
     language_id: uuid.UUID | None = None
     # a boundary id sets the area; clear_boundary removes it

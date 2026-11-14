@@ -14,7 +14,7 @@ from sqlalchemy import func, distinct
 from sqlalchemy.orm import Session
 
 from app.database import get_db
-from app.auth.dependencies import get_current_user, require_roles
+from app.auth.dependencies import get_staff_user, require_roles
 from app.models import (
     User,
     Module,
@@ -89,7 +89,7 @@ def stub():
 
 
 @router.get("/dashboard", response_model=DashboardResponse)
-def dashboard(db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
+def dashboard(db: Session = Depends(get_db), current_user: User = Depends(get_staff_user)):
     seven_days_ago = datetime.now(timezone.utc) - timedelta(days=7)
 
     active_devices_7d = (

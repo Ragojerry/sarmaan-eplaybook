@@ -217,6 +217,9 @@ export interface TrainingVideo {
 
 export interface ManagedUser {
   id: string;
+  /** Ticked portal pages; null = every page the role allows. */
+  admin_pages: string[] | null;
+  pages: string[];
   username: string;
   email: string;
   first_name: string;

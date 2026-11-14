@@ -12,7 +12,7 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy import func
 from sqlalchemy.orm import Session
 
-from app.auth.dependencies import get_current_user, require_roles
+from app.auth.dependencies import get_staff_user, require_roles
 from app.database import get_db
 from app.models import MediaAsset, Module, QuizAttempt, QuizQuestion, User, UserModuleProgress
 from app.models.audit_log import AuditLog
@@ -34,7 +34,7 @@ def test_question_counts(db: Session, module_id: uuid.UUID) -> tuple[int, int]:
     return pre, post
 
 
-def _require_staff(user: User = Depends(get_current_user)) -> User:
+def _require_staff(user: User = Depends(get_staff_user)) -> User:
     if user.role == RoleName.CDD:
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Quiz answers are not available to learners")
     return user

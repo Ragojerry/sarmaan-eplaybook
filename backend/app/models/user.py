@@ -2,7 +2,7 @@ import uuid
 from datetime import datetime
 
 from sqlalchemy import Boolean, Integer, String, DateTime, ForeignKey, Enum as SAEnum
-from sqlalchemy.dialects.postgresql import UUID
+from sqlalchemy.dialects.postgresql import ARRAY, UUID
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from sqlalchemy.sql import func
 
@@ -27,6 +27,8 @@ class User(Base):
     role: Mapped[RoleName] = mapped_column(SAEnum(RoleName, name="role_name"), nullable=False)
     # What the learner does in the field; decides role-specific content. Never a permission.
     learner_role: Mapped[LearnerRole | None] = mapped_column(SAEnum(LearnerRole, name="learner_role"), nullable=True)
+    # Portal pages a super admin ticked for this account (app/auth/pages.py); NULL = every page the role allows.
+    admin_pages: Mapped[list[str] | None] = mapped_column(ARRAY(String(40)), nullable=True)
     # Set when an existing account could not be given a learner role reliably.
     learner_role_needs_review: Mapped[bool] = mapped_column(Boolean, nullable=False, default=False, server_default="false")
     language_id: Mapped[uuid.UUID | None] = mapped_column(
@@ -65,6 +67,13 @@ class User(Base):
     facility = relationship("AdminBoundary", foreign_keys=[facility_id], lazy="joined")
 
     training_session = relationship("TrainingSession", foreign_keys=[training_session_id], lazy="joined")
+
+    @property
+    def pages(self) -> list[str]:
+        """The portal pages this account sees."""
+        from app.auth.pages import allowed_pages  # app.auth.pages imports app.models
+
+        return allowed_pages(self.role, self.admin_pages)
 
     @property
     def session_name(self):

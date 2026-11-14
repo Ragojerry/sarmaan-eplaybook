@@ -61,6 +61,9 @@ class UserResponse(BaseModel):
     role: RoleName
     learner_role: LearnerRole | None = None
     learner_role_needs_review: bool = False
+    # Ticked portal pages (None = every page the role allows) and the pages that gives.
+    admin_pages: list[str] | None = None
+    pages: list[str] = []
     language_id: uuid.UUID | None
     status: UserStatus
     deactivated_at: datetime | None = None

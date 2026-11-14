@@ -17,6 +17,7 @@ from app.auth.account import deactivated
 from app.devices import registry as device_registry
 from app.auth.security import verify_password, create_access_token, create_refresh_token, decode_token
 from app.auth.dependencies import get_current_user
+from app.auth.pages import PAGES
 from app.schemas.auth import (
     LoginRequest,
     TokenResponse,
@@ -140,3 +141,9 @@ def logout(payload: LogoutRequest, db: Session = Depends(get_db), current_user: 
 @router.get("/me", response_model=UserResponse)
 def me(current_user: User = Depends(get_current_user)):
     return current_user
+
+
+@router.get("/pages")
+def portal_pages(current_user: User = Depends(get_current_user)):
+    """The portal pages a super admin can tick for an account, with the roles that may open each."""
+    return [{"key": key, "label": label, "roles": [r.value for r in roles]} for key, (label, roles) in PAGES.items()]

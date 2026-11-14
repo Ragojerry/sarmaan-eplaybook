@@ -1,6 +1,6 @@
 import uuid
 
-from fastapi import Depends, HTTPException, status
+from fastapi import Depends, HTTPException, Request, status
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from jose import JWTError
 from sqlalchemy.orm import Session
@@ -9,6 +9,7 @@ from app.database import get_db
 from app.models import User
 from app.models.enums import RoleName, UserStatus
 from app.auth.account import deactivated
+from app.auth.pages import check_page
 from app.auth.security import decode_token
 
 bearer_scheme = HTTPBearer(auto_error=False)
@@ -54,12 +55,20 @@ def get_current_user(
     return user
 
 
+def get_staff_user(request: Request, current_user: User = Depends(get_current_user)) -> User:
+    """A signed-in user on a portal endpoint: also checks the pages ticked for
+    them (app/auth/pages.py). Phone endpoints use get_current_user instead."""
+    check_page(request, current_user)
+    return current_user
+
+
 def require_roles(*allowed: RoleName):
     """Dependency factory for RBAC: `Depends(require_roles(RoleName.SUPER_ADMIN, RoleName.CONTENT_ADMIN))`.
     SUPER_ADMIN always passes regardless of the allowed list — it's the one
-    role every governance action (§15) and admin endpoint must permit."""
+    role every governance action (§15) and admin endpoint must permit. A user
+    with ticked pages must also have a page that uses the endpoint."""
 
-    def _check(current_user: User = Depends(get_current_user)) -> User:
+    def _check(current_user: User = Depends(get_staff_user)) -> User:
         if current_user.role == RoleName.SUPER_ADMIN:
             return current_user
         if current_user.role not in allowed:

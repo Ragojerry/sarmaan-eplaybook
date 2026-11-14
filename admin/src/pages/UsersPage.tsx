@@ -43,6 +43,48 @@ function saveCsv(filename: string, rows: string[][]) {
 
 type ImportResult = { created: number; generated_passwords: { username: string; password: string }[] };
 
+type PortalPage = { key: string; label: string; roles: string[] };
+
+/** Roles with a choice of portal pages: not learners (no portal) or super admins (always everything). */
+const choosesPages = (role: string) => role !== "CDD" && role !== "SUPER_ADMIN";
+
+/** "Pages they can see": everything the role allows (null), or only the ticked pages. */
+function PagePicker({ role, catalog, value, onChange }: {
+  role: string;
+  catalog: PortalPage[];
+  value: string[] | null;
+  onChange: (v: string[] | null) => void;
+}) {
+  const open = catalog.filter((p) => p.roles.includes(role));
+  if (role === "SUPER_ADMIN") return <p className="text-xs text-gray-500">A super admin always sees every page.</p>;
+  if (role === "CDD") return <p className="text-xs text-gray-500">Learners use the phone app, not this portal.</p>;
+  return (
+    <div className="text-sm">
+      <label className="mr-4">
+        <input type="radio" checked={value === null} onChange={() => onChange(null)} /> Every page this role allows ({open.length})
+      </label>
+      <label>
+        <input type="radio" checked={value !== null} onChange={() => onChange(value ?? open.map((p) => p.key))} /> Only the pages I tick
+      </label>
+      {value !== null && (
+        <div className="mt-2 grid grid-cols-3 gap-x-4 gap-y-1">
+          {open.map((p) => (
+            <label key={p.key} className="text-xs flex items-center gap-1">
+              <input
+                type="checkbox"
+                checked={value.includes(p.key)}
+                onChange={(e) => onChange(e.target.checked ? [...value, p.key] : value.filter((k) => k !== p.key))}
+              />
+              {p.label}
+            </label>
+          ))}
+        </div>
+      )}
+      {value !== null && value.length === 0 && <p className="text-xs text-red-600 mt-1">Tick at least one page.</p>}
+    </div>
+  );
+}
+
 /** Account administration (SUPER_ADMIN). The team code is what a CDD sees on
  *  the phone's Home screen as "CDD TEAM 0041". The portal role sets what
  *  someone may do in this portal; the learner role (CDD, Health Worker, ...)
@@ -64,6 +106,17 @@ export default function UsersPage() {
   const [area, setArea] = useState<AreaValue>({});
   const [sessionId, setSessionId] = useState("");
   const [areaEdit, setAreaEdit] = useState<{ id: string; area: AreaValue; sessionId: string } | null>(null);
+  const [pages, setPages] = useState<string[] | null>(null);
+  const [accessEdit, setAccessEdit] = useState<{ id: string; role: string; pages: string[] | null } | null>(null);
+  const catalog = useQuery<PortalPage[]>({
+    queryKey: ["portal-pages"],
+    queryFn: async () => (await api.get("/auth/pages")).data,
+  });
+  // Ticks are only kept for pages the chosen role can open.
+  const keepFor = (role: string, ticked: string[] | null) =>
+    ticked === null ? null : ticked.filter((k) => catalog.data?.find((p) => p.key === k)?.roles.includes(role));
+  const pagesLabel = (u: ManagedUser) =>
+    !choosesPages(u.role) ? null : u.admin_pages === null ? "all pages" : `${u.pages.length} page${u.pages.length === 1 ? "" : "s"}`;
   const sessions = useQuery<TrainingSession[]>({
     queryKey: ["sessions"],
     queryFn: async () => (await api.get("/sessions")).data,
@@ -103,6 +156,7 @@ export default function UsersPage() {
           team_code: form.team_code || null,
           boundary_id: deepest(area),
           training_session_id: sessionId || null,
+          admin_pages: choosesPages(form.role) ? pages : null,
         })
       ).data,
     onSuccess: () => {
@@ -110,6 +164,7 @@ export default function UsersPage() {
       setForm({ username: "", email: "", password: "", first_name: "", last_name: "", team_code: "", role: "CDD", learner_role: "CDD" });
       setArea({});
       setSessionId("");
+      setPages(null);
       setMessage({ kind: "info", text: "Account created. Share the password with the user securely." });
       refresh();
     },
@@ -149,6 +204,7 @@ export default function UsersPage() {
       setEditing(null);
       setRoleEdit(null);
       setAreaEdit(null);
+      setAccessEdit(null);
       setMessage(null);
       refresh();
     },
@@ -323,7 +379,14 @@ export default function UsersPage() {
           </label>
           <label className="block">
             <span className="text-xs text-gray-500">Portal role (what they may do in this portal)</span>
-            <select className={field} value={form.role} onChange={(e) => setForm({ ...form, role: e.target.value })}>
+            <select
+              className={field}
+              value={form.role}
+              onChange={(e) => {
+                setForm({ ...form, role: e.target.value });
+                setPages(keepFor(e.target.value, pages));
+              }}
+            >
               {ROLES.map((r) => (
                 <option key={r} value={r}>
                   {portalRoleLabel(r)}
@@ -376,8 +439,16 @@ export default function UsersPage() {
               ))}
             </select>
           </label>
+          {choosesPages(form.role) && (
+            <div className="col-span-2">
+              <span className="text-xs text-gray-500">Pages they can see in this portal</span>
+              <div className="mt-1">
+                <PagePicker role={form.role} catalog={catalog.data ?? []} value={pages} onChange={setPages} />
+              </div>
+            </div>
+          )}
           <div className="col-span-2">
-            <button disabled={create.isPending} className="bg-gray-900 text-white rounded px-4 py-1.5 disabled:opacity-50">
+            <button disabled={create.isPending || (choosesPages(form.role) && pages?.length === 0)} className="bg-gray-900 text-white rounded px-4 py-1.5 disabled:opacity-50">
               {create.isPending ? "Creating…" : "Create account"}
             </button>
           </div>
@@ -421,7 +492,19 @@ export default function UsersPage() {
                   <div className="text-xs text-gray-500">{u.email}</div>
                 </td>
                 <td className="px-3 py-2 text-gray-600">{u.username}</td>
-                <td className="px-3 py-2 text-gray-600">{portalRoleLabel(u.role)}</td>
+                <td className="px-3 py-2 text-gray-600">
+                  {portalRoleLabel(u.role)}
+                  {pagesLabel(u) && <div className="text-xs text-gray-500">{pagesLabel(u)}</div>}
+                  <button
+                    className="text-xs underline decoration-dotted text-gray-500 block"
+                    onClick={() => {
+                      setMessage(null);
+                      setAccessEdit({ id: u.id, role: u.role, pages: u.admin_pages });
+                    }}
+                  >
+                    edit role / pages
+                  </button>
+                </td>
                 <td className="px-3 py-2">
                   {roleEdit?.id === u.id ? (
                     <span className="flex items-center gap-2">
@@ -590,6 +673,56 @@ export default function UsersPage() {
                         Cancel
                       </button>
                     </form>
+                  </td>
+                </tr>
+              )}
+              {accessEdit?.id === u.id && (
+                <tr className="bg-gray-50">
+                  <td colSpan={8} className="px-3 py-3 space-y-2">
+                    <label className="block text-sm">
+                      <span className="text-xs text-gray-600">Portal role</span>{" "}
+                      <select
+                        className="border rounded px-2 py-1 text-sm"
+                        disabled={u.id === me?.id}
+                        title={u.id === me?.id ? "You cannot change your own role" : undefined}
+                        value={accessEdit.role}
+                        onChange={(e) => setAccessEdit({ ...accessEdit, role: e.target.value, pages: keepFor(e.target.value, accessEdit.pages) })}
+                      >
+                        {ROLES.map((r) => (
+                          <option key={r} value={r}>
+                            {portalRoleLabel(r)}
+                          </option>
+                        ))}
+                      </select>
+                    </label>
+                    <PagePicker
+                      role={accessEdit.role}
+                      catalog={catalog.data ?? []}
+                      value={accessEdit.pages}
+                      onChange={(v) => setAccessEdit({ ...accessEdit, pages: v })}
+                    />
+                    <div className="flex gap-3">
+                      <button
+                        className="bg-gray-900 text-white text-sm rounded px-3 py-1.5 disabled:opacity-50"
+                        disabled={patch.isPending || (choosesPages(accessEdit.role) && accessEdit.pages?.length === 0)}
+                        onClick={() =>
+                          patch.mutate({
+                            id: u.id,
+                            body: {
+                              ...(accessEdit.role !== u.role ? { role: accessEdit.role } : {}),
+                              ...(!choosesPages(accessEdit.role) || accessEdit.pages === null
+                                ? { all_pages: true }
+                                : { admin_pages: accessEdit.pages }),
+                            },
+                          })
+                        }
+                      >
+                        Save
+                      </button>
+                      <button className="text-sm text-gray-500" onClick={() => setAccessEdit(null)}>
+                        Cancel
+                      </button>
+                    </div>
                   </td>
                 </tr>
               )}

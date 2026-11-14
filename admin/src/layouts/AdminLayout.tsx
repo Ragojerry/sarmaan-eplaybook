@@ -3,28 +3,29 @@ import { useAuth } from "../services/auth";
 import PartnerLogos from "../components/PartnerLogos";
 import BrandMark from "../components/BrandMark";
 
-// `roles` mirrors the backend (the server is what actually enforces access;
-// hiding a link is only a courtesy). SUPER_ADMIN always sees everything.
-const navItems: { to: string; label: string; roles?: string[] }[] = [
-  { to: "/", label: "Dashboard" },
-  { to: "/content", label: "Content" },
-  { to: "/videos", label: "Videos" },
-  { to: "/tools", label: "Tools repository", roles: ["CONTENT_ADMIN", "PROGRAM_REVIEWER", "LOCALISATION_REVIEWER", "TECHNICAL_REVIEWER", "SUPERVISOR", "READ_ONLY"] },
-  { to: "/learning", label: "Roles & tests", roles: ["CONTENT_ADMIN", "PROGRAM_REVIEWER", "LOCALISATION_REVIEWER", "TECHNICAL_REVIEWER", "SUPERVISOR", "READ_ONLY"] },
-  { to: "/general-test", label: "General test", roles: ["CONTENT_ADMIN", "PROGRAM_REVIEWER", "LOCALISATION_REVIEWER", "TECHNICAL_REVIEWER", "SUPERVISOR", "READ_ONLY"] },
-  { to: "/answers", label: "Curated answers", roles: ["CONTENT_ADMIN", "PROGRAM_REVIEWER", "LOCALISATION_REVIEWER", "TECHNICAL_REVIEWER"] },
-  { to: "/references", label: "Reference library", roles: ["CONTENT_ADMIN", "PROGRAM_REVIEWER", "LOCALISATION_REVIEWER", "TECHNICAL_REVIEWER"] },
-  { to: "/releases", label: "Releases" },
-  { to: "/languages", label: "Languages" },
-  { to: "/app-text", label: "App interface text", roles: ["CONTENT_ADMIN", "PROGRAM_REVIEWER", "LOCALISATION_REVIEWER", "TECHNICAL_REVIEWER"] },
-  { to: "/consent", label: "Consent text", roles: ["CONTENT_ADMIN", "LOCALISATION_REVIEWER"] },
-  { to: "/support-contacts", label: "Support contacts", roles: ["CONTENT_ADMIN", "PROGRAM_REVIEWER", "LOCALISATION_REVIEWER", "TECHNICAL_REVIEWER", "SUPERVISOR", "READ_ONLY"] },
-  { to: "/analytics", label: "Analytics", roles: ["CONTENT_ADMIN", "PROGRAM_REVIEWER", "LOCALISATION_REVIEWER", "TECHNICAL_REVIEWER", "SUPERVISOR", "READ_ONLY"] },
-  { to: "/reports", label: "Reports", roles: ["CONTENT_ADMIN", "PROGRAM_REVIEWER", "LOCALISATION_REVIEWER", "TECHNICAL_REVIEWER", "SUPERVISOR", "READ_ONLY"] },
-  { to: "/audit", label: "Audit log", roles: ["CONTENT_ADMIN", "TECHNICAL_REVIEWER"] },
-  { to: "/users", label: "Users", roles: [] }, // SUPER_ADMIN only
-  { to: "/sessions", label: "Sessions", roles: [] }, // SUPER_ADMIN only
-  { to: "/areas", label: "Areas", roles: [] }, // SUPER_ADMIN only
+// `page` is a key from the server (backend/app/auth/pages.py), which decides
+// who sees what: the role, narrowed by pages a super admin ticked. The server
+// enforces it; hiding a link is only a courtesy.
+export const navItems: { to: string; label: string; page: string }[] = [
+  { to: "/", label: "Dashboard", page: "dashboard" },
+  { to: "/content", label: "Content", page: "content" },
+  { to: "/videos", label: "Videos", page: "videos" },
+  { to: "/tools", label: "Tools repository", page: "tools" },
+  { to: "/learning", label: "Roles & tests", page: "learning" },
+  { to: "/general-test", label: "General test", page: "general-test" },
+  { to: "/answers", label: "Curated answers", page: "answers" },
+  { to: "/references", label: "Reference library", page: "references" },
+  { to: "/releases", label: "Releases", page: "releases" },
+  { to: "/languages", label: "Languages", page: "languages" },
+  { to: "/app-text", label: "App interface text", page: "app-text" },
+  { to: "/consent", label: "Consent text", page: "consent" },
+  { to: "/support-contacts", label: "Support contacts", page: "support-contacts" },
+  { to: "/analytics", label: "Analytics", page: "analytics" },
+  { to: "/reports", label: "Reports", page: "reports" },
+  { to: "/audit", label: "Audit log", page: "audit" },
+  { to: "/users", label: "Users", page: "users" },
+  { to: "/sessions", label: "Sessions", page: "sessions" },
+  { to: "/areas", label: "Areas", page: "areas" },
 ];
 
 export default function AdminLayout() {
@@ -37,7 +38,7 @@ export default function AdminLayout() {
         <BrandMark short className="text-base mb-6" size={36} />
         <nav className="space-y-1 flex-1">
           {navItems
-            .filter((item) => !item.roles || user?.role === "SUPER_ADMIN" || (user && item.roles.includes(user.role)))
+            .filter((item) => user?.pages?.includes(item.page))
             .map((item) => (
             <NavLink
               key={item.to}
