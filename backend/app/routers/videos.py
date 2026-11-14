@@ -126,7 +126,14 @@ def _serialize(video: Video) -> dict:
         # details, not something the client should construct a path from.
         "has_file": video.filename != "NOT_YET_UPLOADED",
         "version": video.version,
+        # CloudFront address of the file (S3 storage), for the admin preview; None on a development server.
+        "url": _cdn_url(video),
     }
+
+
+def _cdn_url(video: Video) -> str | None:
+    store = video_storage.current()
+    return store.url(video.storage_key) if store is not None and video.storage_key else None
 
 
 @router.get("")

@@ -204,7 +204,7 @@ export default function SectionEditor({
         </div>
       )}
       {(type === "VIDEO" || type === "AUDIO") && (
-        <SectionMediaField sectionId={section.id} kind={type} content={c} onChanged={(next) => {
+        <SectionMediaField sectionId={section.id} moduleId={section.module_id} kind={type} content={c} onChanged={(next) => {
             setC(next);
             setFileChanged(true);
           }} />

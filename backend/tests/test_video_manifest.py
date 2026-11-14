@@ -332,3 +332,56 @@ def test_a_video_section_uploads_straight_to_storage(db, s3):
         db.query(Video).filter(Video.module_id == m.id).delete(synchronize_session=False)
         db.delete(db.get(Module, m.id))
         db.commit()
+
+
+def test_a_video_section_can_show_an_existing_video(db, s3):
+    """One upload, shown on the Videos tab and in a module: no second copy."""
+    from app.models import ContentSection
+    from app.models.enums import ContentType
+
+    learner, learner_h = _user(db, RoleName.CDD)
+    _, admin = _user(db, RoleName.CONTENT_ADMIN)
+    general = _video(db, title="General intro")
+    m = Module(module_code=f"VLNK-{uuid.uuid4().hex[:6]}", module_number=96, title="Link test", sort_order=96)
+    other = Module(module_code=f"VLNK-{uuid.uuid4().hex[:6]}", module_number=95, title="Other module", sort_order=95)
+    db.add_all([m, other])
+    db.commit()
+    try:
+        own = _video(db, module_id=m.id, title="This module's clip")
+        foreign = _video(db, module_id=other.id, title="Another module's clip")
+        s = ContentSection(module_id=m.id, section_number=1, sort_order=1, content_type=ContentType.VIDEO, title="Clip",
+                           content={"text": "keep me"})
+        text_section = ContentSection(module_id=m.id, section_number=2, sort_order=2, content_type=ContentType.TEXT, content={})
+        db.add_all([s, text_section])
+        db.commit()
+
+        r = client.post(f"/modules/sections/{s.id}/video", headers=admin, json={"video_id": str(general.id)})
+        assert r.status_code == 200, r.text
+        content = r.json()["content"]
+        assert content["video_id"] == str(general.id) and content["size_bytes"] == len(MP4) and content["text"] == "keep me"
+        assert db.query(Video).filter(Video.title == "General intro").count() == 1, "no second copy"
+
+        r = client.post(f"/modules/sections/{s.id}/video", headers=admin, json={"video_id": str(foreign.id)})
+        assert r.status_code == 422 and "another module" in r.json()["detail"]
+        assert client.post(f"/modules/sections/{text_section.id}/video", headers=admin,
+                           json={"video_id": str(general.id)}).status_code == 422
+        assert client.post(f"/modules/sections/{s.id}/video", headers=admin,
+                           json={"video_id": str(uuid.uuid4())}).status_code == 404
+        r = client.post(f"/modules/sections/{s.id}/video", headers=admin, json={"video_id": str(own.id)})
+        assert r.status_code == 200 and r.json()["content"]["video_id"] == str(own.id)
+
+        # The learner's manifest lists the general video once.
+        ids = [e["video_id"] for e in client.get("/sync/videos", headers=learner_h).json()["videos"]]
+        assert ids.count(str(general.id)) == 1
+        # The admin preview plays straight from CloudFront.
+        assert client.get(f"/videos/{general.id}", headers=admin).json()["url"] == f"{CDN}/{general.storage_key}"
+    finally:
+        db.rollback()
+        db.query(ContentSection).filter(ContentSection.module_id == m.id).delete(synchronize_session=False)
+        db.query(AuditLog).filter(AuditLog.entity_type == "content_section").filter(
+            AuditLog.details["video_id"].astext.in_([str(v) for v in db.made_videos])).delete(synchronize_session=False)
+        db.query(Video).filter(Video.module_id.in_([m.id, other.id])).delete(synchronize_session=False)
+        db.commit()
+        db.delete(db.get(Module, m.id))
+        db.delete(db.get(Module, other.id))
+        db.commit()

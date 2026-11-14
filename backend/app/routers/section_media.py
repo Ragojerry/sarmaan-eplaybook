@@ -15,6 +15,7 @@ a published release (and the phones on it) may still point to it.
 import uuid
 
 from fastapi import APIRouter, Depends, HTTPException, UploadFile, status
+from pydantic import BaseModel
 from sqlalchemy.orm import Session
 
 from app.auth.dependencies import require_roles
@@ -163,19 +164,30 @@ async def upload_section_media(
     return _out(section, video)
 
 
+class AttachVideo(BaseModel):
+    # An existing video to show here (one upload, shown in several places).
+    video_id: uuid.UUID | None = None
+
+
 @router.post("/sections/{section_id}/video")
 def attach_section_video(
     section_id: uuid.UUID,
+    payload: AttachVideo | None = None,
     db: Session = Depends(get_db),
     current_user: User = Depends(require_roles(*CONTENT_EDITORS)),
 ):
-    """The video a VIDEO section shows, created (as a DRAFT with no file) if it has
-    none yet. The browser then uploads the file straight to storage with
+    """The video a VIDEO section shows. With video_id: an existing video, which must
+    be a general one (no module) or belong to this section's module, so every
+    learner who sees the section can also get the video. Without: the section's
+    current video, created (as a DRAFT with no file) if it has none yet; the
+    browser then uploads the file straight to storage with
     POST /videos/{video_id}/upload-url and /upload-complete."""
     section = _section(db, section_id)
     if section.content_type != ContentType.VIDEO:
         raise HTTPException(status_code=status.HTTP_422_UNPROCESSABLE_ENTITY, detail="This section is not a video section.")
     content = section.content or {}
+    if payload is not None and payload.video_id is not None:
+        return _link_existing(db, section, payload.video_id, current_user)
     video = None
     try:
         video = db.get(Video, uuid.UUID(str(content.get("video_id"))))
@@ -191,6 +203,25 @@ def attach_section_video(
                         entity_id=section.id, details={"kind": "VIDEO", "video_id": str(video.id), "pending_upload": True}))
         db.commit()
         db.refresh(section)
+    return {**_out(section, video), "video_id": str(video.id)}
+
+
+def _link_existing(db: Session, section: ContentSection, video_id: uuid.UUID, actor: User) -> dict:
+    video = db.get(Video, video_id)
+    if video is None:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Video not found")
+    if video.module_id is not None and video.module_id != section.module_id:
+        raise HTTPException(status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+                            detail="That video belongs to another module. Choose a general video or one of this module's videos.")
+    content = section.content or {}
+    previous = content.get("video_id")
+    file_details = ({"filename": video.filename, "mime_type": video.mime_type, "size_bytes": video.file_size}
+                    if video.filename != NO_FILE else {})
+    section.content = {**{k: v for k, v in content.items() if k not in _MEDIA_KEYS}, "video_id": str(video.id), **file_details}
+    db.add(AuditLog(user_id=actor.id, action=AuditAction.MEDIA_UPLOAD, entity_type="content_section", entity_id=section.id,
+                    details={"kind": "VIDEO", "video_id": str(video.id), "linked_existing": True, "replaced_video_id": previous}))
+    db.commit()
+    db.refresh(section)
     return {**_out(section, video), "video_id": str(video.id)}
 
 

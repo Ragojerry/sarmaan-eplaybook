@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { api } from "../services/api";
 import { uploadVideoDirect } from "../services/videoUpload";
+import { TrainingVideo } from "../types/api";
 
 export type MediaKind = "AUDIO" | "VIDEO";
 
@@ -73,14 +74,18 @@ export function MediaPlayer({ kind, src }: { kind: MediaKind; src: string }) {
   );
 }
 
-/** File name, size, preview, replace and remove for one AUDIO/VIDEO section. */
+/** File name, size, preview, replace and remove for one AUDIO/VIDEO section. A VIDEO
+ *  section can also show an existing video (a general one or one of this module's),
+ *  so one upload appears in several places without a second copy. */
 export default function SectionMediaField({
   sectionId,
+  moduleId,
   kind,
   content,
   onChanged,
 }: {
   sectionId: string;
+  moduleId?: string;
   kind: MediaKind;
   content: Record<string, unknown>;
   onChanged: (content: Record<string, unknown>) => void;
@@ -94,6 +99,8 @@ export default function SectionMediaField({
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   const [loadingPreview, setLoadingPreview] = useState(false);
   const [videoStatus, setVideoStatus] = useState<string | null>(null);
+  const [videoUrl, setVideoUrl] = useState<string | null>(null);
+  const [choices, setChoices] = useState<TrainingVideo[] | null>(null);
   const abort = useRef<AbortController | null>(null);
   const input = useRef<HTMLInputElement>(null);
 
@@ -102,10 +109,16 @@ export default function SectionMediaField({
   }, [previewUrl]);
 
   useEffect(() => {
-    if (kind !== "VIDEO" || !fileId) return setVideoStatus(null);
+    if (kind !== "VIDEO" || !fileId) {
+      setVideoUrl(null);
+      return setVideoStatus(null);
+    }
     api
       .get(`/videos/${fileId}`)
-      .then((r) => setVideoStatus(r.data.status))
+      .then((r) => {
+        setVideoStatus(r.data.status);
+        setVideoUrl(r.data.url ?? null);
+      })
       .catch(() => setVideoStatus(null));
   }, [kind, fileId]);
 
@@ -147,8 +160,36 @@ export default function SectionMediaField({
     }
   };
 
+  // Videos the section may show: general ones and this module's, with a file, not archived.
+  const openChoices = async () => {
+    setError(null);
+    try {
+      const all: TrainingVideo[] = (await api.get("/videos")).data;
+      setChoices(all.filter((v) => v.has_file && v.status !== "ARCHIVED" && v.id !== fileId && (!v.module_id || v.module_id === moduleId)));
+    } catch (e) {
+      setError(errorText(e, "Could not load the videos."));
+    }
+  };
+
+  const pickExisting = async (videoId: string) => {
+    setError(null);
+    try {
+      const resp = await api.post(`/modules/sections/${sectionId}/video`, { video_id: videoId });
+      showPreview(null);
+      setChoices(null);
+      setVideoStatus(resp.data.video_status);
+      onChanged(resp.data.content);
+    } catch (e) {
+      setError(errorText(e, "Could not use that video."));
+    }
+  };
+
   const loadPreview = async () => {
     if (!fileId) return;
+    if (kind === "VIDEO" && videoUrl) {
+      showPreview(videoUrl); // straight from CloudFront (same site as this portal)
+      return;
+    }
     setLoadingPreview(true);
     setError(null);
     try {
@@ -239,12 +280,48 @@ export default function SectionMediaField({
         >
           {fileId ? `Replace ${label}` : `Upload ${label}`}
         </button>
+        {kind === "VIDEO" && (
+          <button type="button" disabled={uploading} onClick={openChoices} className="text-xs text-blue-600 hover:underline disabled:opacity-50">
+            Use an existing video
+          </button>
+        )}
         {fileId && (
           <button type="button" disabled={uploading} onClick={remove} className="text-xs text-red-500 hover:underline disabled:opacity-50">
             Remove file
           </button>
         )}
       </div>
+      {choices && (
+        <div className="border rounded p-2 bg-gray-50 space-y-1">
+          {choices.length === 0 ? (
+            <p className="text-xs text-gray-500">No other general or module videos with a file yet.</p>
+          ) : (
+            <select
+              className="border rounded px-2 py-1 text-sm w-full"
+              defaultValue=""
+              onChange={(e) => e.target.value && pickExisting(e.target.value)}
+            >
+              <option value="">Choose a video…</option>
+              {choices.map((v) => (
+                <option key={v.id} value={v.id}>
+                  {v.title} {v.module_id ? "(this module)" : "(general)"} {v.file_size ? `· ${formatBytes(v.file_size)}` : ""}{" "}
+                  {v.status === "DRAFT" ? "· draft" : ""}
+                </option>
+              ))}
+            </select>
+          )}
+          <p className="text-xs text-gray-500">
+            The same file is shown here and wherever else it is used: phones download it once. Videos of other modules are not offered,
+            because learners who cannot see that module would not get them.
+          </p>
+          <button type="button" onClick={() => setChoices(null)} className="text-xs text-gray-500 hover:underline">
+            Cancel
+          </button>
+        </div>
+      )}
+      {kind === "VIDEO" && fileId && (
+        <p className="text-xs text-gray-400">Replacing the file changes it everywhere this video is shown.</p>
+      )}
       <p className="text-xs text-gray-400">
         {kind === "AUDIO" ? "MP3, M4A or WAV." : "MP4 (H.264)."} The server checks the real file type and the size limit.
       </p>

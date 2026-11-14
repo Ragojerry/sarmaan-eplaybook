@@ -220,6 +220,9 @@ export interface TrainingVideo {
   required_offline: boolean;
   status: VideoStatus;
   has_file: boolean;
+  version?: number;
+  /** CloudFront address of the file (S3 storage); null on a development server. */
+  url?: string | null;
 }
 
 // ---------- Users (SUPER_ADMIN) ----------
