@@ -11,8 +11,10 @@ import 'package:sarmaan_eplaybook/offline/content_sync_service.dart';
 import 'package:sarmaan_eplaybook/screens/reader_screen.dart';
 
 /// The inline True/False quiz in the real reader: a wrong answer shows the right
-/// one and "Try again" (all statements again); passing, the time indicator and
-/// "Complete module". Offline, against an in-memory database.
+/// one and "Try again" (the statement opens again after its section is re-read for
+/// 20 seconds); passing, the time indicator and "Complete module", which goes to
+/// Home. Offline, against
+/// an in-memory database.
 void main() {
   setUp(() {
     TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
@@ -70,6 +72,13 @@ void main() {
 
     await tester.ensureVisible(find.widgetWithText(FilledButton, 'Try again'));
     await tester.tap(find.widgetWithText(FilledButton, 'Try again'));
+    await settle(tester);
+    // Re-read the section above first (it is on screen here): 20 seconds.
+    expect(find.textContaining('Read the section above again before you answer.'), findsOneWidget);
+    expect(find.widgetWithText(OutlinedButton, 'True'), findsNothing);
+    for (var i = 0; i < 20; i++) {
+      await tester.pump(const Duration(seconds: 1));
+    }
     await settle(tester);
     await tester.tap(find.widgetWithText(OutlinedButton, 'True'));
     await settle(tester);

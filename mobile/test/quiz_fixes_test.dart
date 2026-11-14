@@ -234,7 +234,42 @@ void main() {
       await tester.ensureVisible(find.widgetWithText(FilledButton, 'Try again'));
       await tester.tap(find.widgetWithText(FilledButton, 'Try again'));
       await settle(tester);
-      expect(find.text('Answered correctly: kept from your last try.'), findsNWidgets(2));
+      // The list builds lazily: scroll until a statement is built, then bring it into view.
+      Future<void> reveal(String text) async {
+        if (find.text(text).evaluate().isEmpty) {
+          await tester.scrollUntilVisible(find.text(text), -250, scrollable: find.byType(Scrollable).first);
+        }
+        await tester.ensureVisible(find.text(text));
+        await tester.pump();
+      }
+
+      for (final kept in ['Statement B1', 'Statement B3']) {
+        await reveal(kept);
+        final card = find.ancestor(of: find.text(kept), matching: find.byType(Container)).first;
+        expect(find.descendant(of: card, matching: find.text('Answered correctly: kept from your last try.')), findsOneWidget,
+            reason: '$kept keeps its credit');
+      }
+      await reveal('Statement B2');
+      // The statement still wrong waits until its section has been re-read for 20 seconds.
+      expect(find.textContaining('Read the section above again before you answer. 20 seconds left.'), findsOneWidget);
+      expect(find.widgetWithText(OutlinedButton, 'True'), findsNothing);
+      await tester.ensureVisible(find.widgetWithText(OutlinedButton, 'Go to the section'));
+      await tester.tap(find.widgetWithText(OutlinedButton, 'Go to the section'));
+      for (var i = 0; i < 10; i++) {
+        await tester.pump(const Duration(seconds: 1));
+      }
+      await reveal('Statement B2');
+      final left = find.textContaining(RegExp(r'Read the section above again before you answer\. ([0-9]+) seconds? left\.'));
+      expect(left, findsOneWidget, reason: 'still waiting after 10 seconds');
+      final secondsLeft = int.parse(RegExp(r'([0-9]+) seconds? left').firstMatch(tester.widget<Text>(left).data!)!.group(1)!);
+      expect(secondsLeft, inInclusiveRange(1, 19), reason: 'counted only while the section was on screen');
+      await tester.ensureVisible(find.widgetWithText(OutlinedButton, 'Go to the section'));
+      await tester.tap(find.widgetWithText(OutlinedButton, 'Go to the section'));
+      for (var i = 0; i < 25; i++) {
+        await tester.pump(const Duration(seconds: 1));
+      }
+      await settle(tester);
+      await reveal('Statement B2');
       final open = tester.widgetList<OutlinedButton>(find.byType(OutlinedButton)).where((b) => b.onPressed != null);
       expect(open, hasLength(2), reason: 'True and False of the one statement still wrong');
 

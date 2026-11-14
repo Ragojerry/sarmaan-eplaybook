@@ -9,7 +9,8 @@ const FIELD_KEYS: (keyof Fields)[] = ["title", "body", "usage_label", "button_la
 const EMPTY: Fields = { title: "", body: "", usage_label: "", button_label: "" };
 const LABELS: Record<keyof Fields, { label: string; rows?: number; max: number }> = {
   title: { label: "Title", max: 120 },
-  body: { label: "Consent text", rows: 7, max: 5000 },
+  // Includes the full privacy notice; phones fold it with "See more".
+  body: { label: "Consent text and privacy notice", rows: 16, max: 40000 },
   usage_label: { label: "Usage statistics checkbox", max: 255 },
   button_label: { label: "Button", max: 60 },
 };

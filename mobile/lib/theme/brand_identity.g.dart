@@ -5,7 +5,7 @@
 class BrandIdentity {
   BrandIdentity._();
 
-  static const title = 'SARMAAN II Multi-lingual e-Playbook';
+  static const title = 'REACH – SARMAAN II MULTILINGUAL PLAY BOOK (E-BOOK)';
 
   /// Short form for narrow headers and the launcher label (approved 2026-11-13).
   static const shortTitle = 'SARMAAN II';

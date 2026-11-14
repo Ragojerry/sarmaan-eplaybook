@@ -13,6 +13,8 @@ import '../learning/learning_service.dart';
 import '../models/api_models.dart';
 import '../offline/content_sync_service.dart';
 import '../quiz/quiz_grader.dart';
+import '../sync/sync_engine.dart';
+import 'home_screen.dart' show homeExtrasProvider;
 import '../theme/app_theme.dart';
 import '../widgets/offline_aware_image.dart';
 import '../widgets/section_audio_player.dart';
@@ -127,6 +129,17 @@ class _ReaderScreenState extends ConsumerState<ReaderScreen> with WidgetsBinding
   // Statements already answered correctly in the latest attempt: a retry does not ask them again.
   Set<String> _credit = const {};
 
+  // On a retry, a statement still wrong opens only after the section that teaches it (the
+  // section just above it) has been on screen for [kRereadSeconds] (decision 2026-11-13:
+  // re-read first, so flipping True/False is not enough).
+  static const kRereadSeconds = 20;
+  bool _retryRound = false; // a failed attempt exists and the quiz is not passed yet
+  final Map<String, GlobalKey> _sectionKeys = {}; // content section id -> its widget
+  Map<String, String> _relatedOf = const {}; // statement id -> the section just above it
+  final Map<String, int> _reread = {}; // statement id -> seconds its section was on screen
+  Timer? _rereadTicker;
+  bool _inFront = true;
+
   @override
   void initState() {
     super.initState();
@@ -145,7 +158,13 @@ class _ReaderScreenState extends ConsumerState<ReaderScreen> with WidgetsBinding
       recordAnalyticsEvent(db, 'MODULE_OPEN', moduleId: widget.moduleId);
       _checkShortModule();
       final credit = await quizCredit(db, widget.moduleId);
-      if (mounted) setState(() => _credit = credit);
+      if (mounted) {
+        setState(() {
+          _credit = credit;
+          _retryRound = state != null && state.hasQuiz && !state.quizPassed && !state.completed && state.quizAttempts.isNotEmpty;
+        });
+      }
+      _rereadTicker ??= Timer.periodic(const Duration(seconds: 1), (_) => _countReread());
       if (mounted && state != null && !state.completed) {
         _baseSeconds = state.secondsSpent;
         _timing = true;
@@ -156,6 +175,7 @@ class _ReaderScreenState extends ConsumerState<ReaderScreen> with WidgetsBinding
 
   @override
   void didChangeAppLifecycleState(AppLifecycleState lifecycle) {
+    _inFront = lifecycle == AppLifecycleState.resumed;
     if (lifecycle == AppLifecycleState.resumed) {
       _resumeTimer();
     } else {
@@ -246,6 +266,7 @@ class _ReaderScreenState extends ConsumerState<ReaderScreen> with WidgetsBinding
   @override
   void dispose() {
     WidgetsBinding.instance.removeObserver(this);
+    _rereadTicker?.cancel();
     _pauseTimer();
     _flushProgress();
     _scroll.dispose();
@@ -269,7 +290,9 @@ class _ReaderScreenState extends ConsumerState<ReaderScreen> with WidgetsBinding
 
   /// "Complete module": allowed when the quiz is passed (if the module has one) and
   /// the minimum time is reached; otherwise a plain message says what is missing.
-  /// Once completed, the learner goes straight to Home, where the next module
+  /// Completing is one local transaction (completeModule); a sync starts at once and
+  /// uploads the module's quiz attempts together with the completion (they are held
+  /// on the phone until then), and the learner goes to Home, where the next module
   /// (now open) is highlighted.
   Future<void> _complete() async {
     final db = ref.read(localDatabaseProvider);
@@ -278,9 +301,13 @@ class _ReaderScreenState extends ConsumerState<ReaderScreen> with WidgetsBinding
     if (problem == null) {
       _pauseTimer();
       _timing = false;
+      try {
+        unawaited(ref.read(syncEngineProvider.notifier).syncNow(manual: true)); // offline: waits for the next sync
+      } catch (_) {}
     }
     ref.invalidate(localProgressProvider(widget.moduleId));
     ref.invalidate(learningProvider);
+    ref.invalidate(homeExtrasProvider);
     if (!mounted) return;
     ScaffoldMessenger.of(context).showSnackBar(SnackBar(
       content: Text(problem ?? context.t('reader.completedWillSync')),
@@ -289,7 +316,8 @@ class _ReaderScreenState extends ConsumerState<ReaderScreen> with WidgetsBinding
   }
 
   /// Records the learner's answer; when every statement is answered, the attempt
-  /// is graded and saved (offline too).
+  /// is graded and saved (offline too). The module itself is completed only with
+  /// "Complete module".
   /// [toAnswer]: the statements shown in this attempt (all of them, or on a retry only
   /// those still wrong).
   Future<void> _answer(String sectionId, bool value, int toAnswer) async {
@@ -317,7 +345,42 @@ class _ReaderScreenState extends ConsumerState<ReaderScreen> with WidgetsBinding
       _credit = credit;
       _answers.clear();
       _quizResult = null;
+      _retryRound = true;
+      _reread.clear(); // each retry starts with a fresh re-read
     });
+  }
+
+  /// Whether [statementId] must wait for its section to be re-read before it can be answered.
+  bool _mustReread(String statementId) =>
+      _retryRound &&
+      _quizResult == null &&
+      !_credit.contains(statementId) &&
+      !_answers.containsKey(statementId) &&
+      _relatedOf[statementId] != null &&
+      (_reread[statementId] ?? 0) < kRereadSeconds;
+
+  /// Once a second: counts the time each waiting statement's section is on screen
+  /// (at least partly visible, the app in front).
+  void _countReread() {
+    if (!mounted || !_inFront || !_retryRound) return;
+    final height = MediaQuery.sizeOf(context).height;
+    var changed = false;
+    for (final entry in _relatedOf.entries) {
+      if (!_mustReread(entry.key)) continue;
+      final box = _sectionKeys[entry.value]?.currentContext?.findRenderObject();
+      if (box is! RenderBox || !box.attached) continue;
+      final top = box.localToGlobal(Offset.zero).dy;
+      if (top + box.size.height > 80 && top < height - 80) {
+        _reread[entry.key] = (_reread[entry.key] ?? 0) + 1;
+        changed = true;
+      }
+    }
+    if (changed) setState(() {});
+  }
+
+  void _goToSection(String statementId) {
+    final target = _sectionKeys[_relatedOf[statementId]]?.currentContext;
+    if (target != null) Scrollable.ensureVisible(target, duration: const Duration(milliseconds: 300), alignment: 0.1);
   }
 
   Widget _card({required IconData icon, required String title, required String body, Widget? action, bool good = false}) {
@@ -454,6 +517,7 @@ class _ReaderScreenState extends ConsumerState<ReaderScreen> with WidgetsBinding
     final review = state == null || state.completed || (state.hasQuiz && state.quizPassed && _quizResult == null);
     // Answered correctly in the latest attempt: kept, not asked again on a retry.
     final kept = !review && _credit.contains(section.id) && !_answers.containsKey(section.id);
+    final reread = !review && !kept && _mustReread(section.id);
     final mine = _answers[section.id];
     final answered = mine != null;
     final right = answered && mine == correctAnswer;
@@ -493,6 +557,25 @@ class _ReaderScreenState extends ConsumerState<ReaderScreen> with WidgetsBinding
           if (review)
             Text(correctAnswer == true ? context.t('quiz.answerTrue') : context.t('quiz.answerFalse'),
                 style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w700, color: AppColors.primaryText))
+          else if (reread)
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                Semantics(
+                  liveRegion: true,
+                  child: Text(
+                    '${context.t('quiz.rereadFirst')} ${context.tn('quiz.rereadLeft', kRereadSeconds - (_reread[section.id] ?? 0))}',
+                    style: const TextStyle(fontSize: 12, height: 1.4, color: AppColors.text),
+                  ),
+                ),
+                const SizedBox(height: 8),
+                OutlinedButton.icon(
+                  onPressed: () => _goToSection(section.id),
+                  icon: const Icon(Icons.arrow_upward_rounded, size: 18),
+                  label: Text(context.t('quiz.goToSection')),
+                ),
+              ],
+            )
           else if (kept)
             Row(
               children: [
@@ -573,6 +656,17 @@ class _ReaderScreenState extends ConsumerState<ReaderScreen> with WidgetsBinding
           if (state == null || !state.canRead) return _gate(learning, state);
           _canRead = true;
           final statements = sections.where((x) => x.contentType == 'TRUE_FALSE').toList();
+          // Each statement's teaching section: the closest content section above it.
+          final related = <String, String>{};
+          String? lastContent;
+          for (final x in sections) {
+            if (x.contentType == 'TRUE_FALSE') {
+              if (lastContent != null) related[x.id] = lastContent;
+            } else {
+              lastContent = x.id;
+            }
+          }
+          _relatedOf = related;
           _lastStatementId = statements.isEmpty ? null : statements.last.id;
           // A retry asks only the statements not already answered correctly.
           final toAnswer = statements.where((s) => !_credit.contains(s.id)).length;
@@ -602,7 +696,8 @@ class _ReaderScreenState extends ConsumerState<ReaderScreen> with WidgetsBinding
                   for (final section in sections)
                     section.contentType == 'TRUE_FALSE'
                         ? _quizCard(section, state, toAnswer)
-                        : _buildSection(context, section),
+                        : KeyedSubtree(
+                            key: _sectionKeys.putIfAbsent(section.id, GlobalKey.new), child: _buildSection(context, section)),
                   const SizedBox(height: 22),
                   _completionArea(state, statements.length, _quizResult?.remaining ?? (_credit.isEmpty ? 0 : toAnswer)),
                 ],

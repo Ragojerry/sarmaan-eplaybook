@@ -187,7 +187,7 @@ void main() {
 
   group('Item 5: brand', () {
     test('one title for the whole app', () {
-      expect(BrandIdentity.title, 'SARMAAN II Multi-lingual e-Playbook');
+      expect(BrandIdentity.title, 'REACH – SARMAAN II MULTILINGUAL PLAY BOOK (E-BOOK)');
       expect(BrandIdentity.shortTitle, 'SARMAAN II', reason: 'approved short form (sidebar, launcher label)');
       expect(BrandIdentity.logoAsset, 'assets/brand/sarmaan_ii_project.png');
     });

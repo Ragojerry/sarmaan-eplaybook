@@ -11,7 +11,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../db/local_database.dart';
 import '../l10n/app_strings_service.dart';
 import '../learning/curriculum_notice.dart';
-import '../learning/learning_service.dart' show kGeneralPassMarkKey;
+import '../learning/learning_service.dart' show kGeneralPassMarkKey, quizAttemptsReadyToUpload;
 import '../offline/content_sync_service.dart';
 import '../services/api_client.dart';
 import '../services/auth_service.dart';
@@ -433,7 +433,8 @@ class SyncEngine extends StateNotifier<SyncSnapshot> {
   }
 
   Future<void> _uploadQuizAttempts(String device) async {
-    final rows = await _db.getUnsyncedQuizAttempts();
+    // A module's attempts go with its completion (learning_service.quizAttemptsReadyToUpload).
+    final rows = await quizAttemptsReadyToUpload(_db);
     for (var i = 0; i < rows.length; i += 50) {
       final batch = rows.sublist(i, min(i + 50, rows.length));
       final resp = await _api.dio.post('/sync/quiz-attempts', data: {

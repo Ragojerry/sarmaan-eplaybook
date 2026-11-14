@@ -1,0 +1,293 @@
+This app is used to deliver AZM training content to Community Drug Distributors. Your training progress and the questions you ask in the app are linked to your account and uploaded when you are online, so your supervisor and the programme team can support you. Module content is downloaded to this device so you can keep working without an internet connection.
+
+Please read the Privacy Notice below before you continue.
+
+MALARIA CONSORTIUM
+SARMAAN II MOBILE PLAYBOOK (LEARNING MANAGEMENT SYSTEM)
+PRIVACY NOTICE
+
+1. Introduction
+
+Malaria Consortium is committed to protecting the privacy and personal data of individuals participating in its programmes and activities.
+
+This Privacy Notice explains how Malaria Consortium collects, uses, processes, stores, shares and protects personal data through the SARMAAN II Mobile PlayBook, a mobile-based Learning Management System (LMS) established to support learning, training, capacity development, knowledge management and programme implementation under the SARMAAN II project.
+
+The Mobile PlayBook incorporates digital learning functionalities and Artificial Intelligence (AI)-enabled features designed to facilitate learning, provide interactive responses, improve user experiences and support continuous improvement of the platform.
+
+This Privacy Notice applies to individuals who register, access or participate in learning activities through the platform, including:
+• Community Drug Distributors (CDDs).
+• CDD Supervisors.
+• Health workers, including Officers-in-Charge (OICs) of health facilities.
+• Other authorised personnel involved in SARMAAN II project activities.
+
+By accessing the platform, you are provided with information about how your personal data is processed, the purposes of processing, the circumstances under which your information may be shared and the rights available to you under applicable data protection laws.
+
+2. Who We Are
+
+Malaria Consortium is the Data Controller responsible for determining the purposes and means of processing personal data collected through the SARMAAN II Mobile PlayBook.
+
+The organisation processes personal data in accordance with the Nigeria Data Protection Act (NDPA) 2023, the Nigeria Data Protection Commission (NDPC) General Application and Implementation Directive (GAID) 2025 and its internal data protection and information security policies.
+
+For questions, concerns or requests relating to your personal data, you may contact the Data Protection Officer (DPO):
+Email: dpo.ng@malariaconsortium.org
+
+3. Whose Personal Data Do We Process?
+
+This Privacy Notice applies to the following categories of users:
+• Community Drug Distributors (CDDs) participating in SARMAAN II project activities.
+• CDD Supervisors responsible for supervising and supporting community-level implementation.
+• Health workers, including Officers-in-Charge (OICs) of participating health facilities.
+• Other authorised individuals involved in project training, supervision, coordination and implementation.
+
+4. Categories of Personal Data We Collect
+
+Depending on your role and the functionality of the LMS, Malaria Consortium may collect and process the following categories of personal data.
+
+A. Personal Identification and Profile Information
+• Full name.
+• Gender, where collected.
+• Age or date of birth, where necessary.
+• Phone number.
+• Email address, where available.
+• State, Local Government Area (LGA), ward and community of deployment.
+• Health facility or assigned operational location.
+• Volunteer or staff identification number.
+• Designation or role within the SARMAAN II project.
+
+B. Account and Registration Information
+• LMS username and user identification details.
+• Account registration and activation information.
+• Login and authentication records.
+• Account status and access history.
+
+C. Learning and Training Information
+• Courses and learning modules accessed.
+• Training participation and attendance records.
+• Assessment and examination responses.
+• Quiz scores and completion status.
+• Learning progress and performance records.
+• Training certificates and learning achievements.
+• Responses, questions, feedback and interactions submitted through the LMS, including its AI-enabled features.
+
+D. Technical and Platform Usage Information
+The LMS may automatically collect certain technical and usage information, including:
+• Date and time of platform access.
+• Platform activity and interaction logs.
+• Device identification information and device type.
+• Operating system information.
+• Internet Protocol (IP) address.
+• GPS or location information, where enabled and collected.
+• Cookies, analytics and other tracking information.
+• Technical error reports and diagnostic information.
+
+E. Information Stored Through Offline Functionality
+The Mobile PlayBook supports offline access to certain platform functionalities. Consequently, some information may be temporarily stored on the user's device and synchronised with the LMS when an internet connection becomes available.
+
+Users should protect their devices against unauthorised access, particularly where LMS information is stored locally.
+
+5. Why We Process Your Personal Data
+
+Malaria Consortium processes your personal data for the following purposes:
+1. User registration and account management: To create, verify, administer and maintain user accounts on the Mobile PlayBook.
+2. Training and capacity development: To provide access to learning materials, training modules, educational resources and other relevant learning activities.
+3. Learning assessment: To assess knowledge acquisition, monitor course completion and maintain training and assessment records.
+4. Performance monitoring: To enable authorised supervisors and project management personnel to monitor learning participation, progress and completion.
+5. Project monitoring and reporting: To generate training reports, measure capacity-building outcomes and support project implementation, monitoring and accountability.
+6. Technical support and platform administration: To troubleshoot technical problems, maintain platform functionality, monitor system performance and improve the user experience.
+7. Artificial Intelligence (AI) functionality: To facilitate AI-enabled learning interactions, respond to user questions, provide learning support and improve the relevance and effectiveness of the platform's AI functionalities.
+8. LMS improvement and AI model training: To use relevant user interactions, responses, questions, feedback and learning-related information to evaluate, train, test and improve the LMS and its AI components for future improvement, subject to the applicable lawful basis and safeguards.
+9. Project-related research: To use relevant information and responses generated through the LMS to support further research, analysis, evaluation and knowledge development relating to SARMAAN II and its public health objectives.
+10. Compliance and accountability: To maintain appropriate records and demonstrate compliance with applicable legal, regulatory, contractual and programme requirements.
+
+6. Use of LMS Responses for Artificial Intelligence Training and Improvement
+
+The SARMAAN II Mobile PlayBook incorporates AI-enabled functionalities intended to support users in their learning and training activities.
+
+When you interact with the AI components of the LMS, including by submitting questions, providing responses, entering information or using interactive learning features, the information you provide may be processed for the following purposes:
+• To generate responses and provide learning assistance.
+• To evaluate the accuracy, relevance and effectiveness of AI-generated responses.
+• To identify gaps in learning content and areas requiring improvement.
+• To train, test, evaluate and improve the AI models supporting the LMS.
+• To enhance the platform's ability to provide relevant learning support in the future.
+• To improve the overall quality, reliability and effectiveness of the Mobile PlayBook.
+
+Your responses and interactions may therefore be used as learning and improvement inputs for the LMS and its AI components.
+
+Where responses contain personal data, Malaria Consortium will ensure that an appropriate lawful basis is established for their use in AI training and improvement. Where consent is relied upon, the relevant consent will be obtained separately and transparently.
+
+Where feasible, personal identifiers will be removed or the information anonymised before it is used for further model development and improvement. Access to identifiable or pseudonymised information will be restricted to authorised personnel and service providers who require it for approved purposes.
+
+Your personal information will not be intentionally incorporated into publicly accessible AI training datasets without appropriate authorisation and safeguards.
+
+7. Use of Information for Further Research
+
+Information and responses generated through your participation in the Mobile PlayBook may also be used to support further research, analysis, evaluation and knowledge development relating to the SARMAAN II project and its associated public health objectives.
+
+Such research may include:
+• Assessing the effectiveness of digital learning and capacity-building interventions.
+• Evaluating knowledge acquisition and training outcomes among CDDs, supervisors and health workers.
+• Identifying knowledge gaps and areas requiring additional training.
+• Analysing trends in learning participation and assessment outcomes.
+• Supporting evidence-based improvements to malaria prevention, treatment and community health interventions.
+• Generating insights and evidence to inform future programme design and implementation.
+
+Where research findings are published, presented or otherwise disseminated, the information will be anonymised so that individual participants cannot reasonably be identified.
+
+Research reports, publications, presentations and other knowledge products will therefore present findings in aggregated or anonymised formats.
+
+Information will not be published in a manner that identifies individual CDDs, CDD Supervisors, OICs or other LMS users.
+
+Where proposed research involves identifiable personal data or processing beyond the purposes described in this notice, Malaria Consortium will assess the applicable lawful basis and any additional ethical, regulatory and data protection requirements before proceeding.
+
+8. Legal Basis for Processing Your Personal Data
+
+Malaria Consortium processes personal data in accordance with the Nigeria Data Protection Act 2023.
+
+Depending on the specific processing activity, the applicable lawful basis may include:
+
+A. Consent
+Where consent is the appropriate lawful basis, particularly for additional processing activities such as using identifiable user responses for AI model training or other optional purposes, Malaria Consortium will provide relevant information and obtain appropriate consent.
+
+You have the right to withdraw your consent at any time. Withdrawal will not affect the lawfulness of processing undertaken before the withdrawal.
+
+B. Legitimate Interests
+Malaria Consortium may process personal data where necessary for its legitimate interests, including:
+• Administering and improving the Mobile PlayBook.
+• Monitoring learning participation and performance.
+• Maintaining platform security and integrity.
+• Improving training materials and learning outcomes.
+• Supporting project monitoring, evaluation and accountability.
+
+Such processing will be subject to an assessment to ensure that the organisation's legitimate interests do not override your fundamental rights and freedoms.
+
+C. Legal Obligations
+Where necessary, personal data may be processed to fulfil applicable legal, regulatory or statutory obligations.
+
+The lawful basis for each processing activity will be assessed and documented by Malaria Consortium.
+
+9. Who May Have Access to Your Personal Data?
+
+Access to your personal data is restricted to authorised individuals and organisations who require the information for legitimate project or operational purposes.
+
+These may include:
+• Authorised SARMAAN II project management personnel.
+• Designated training and capacity-development personnel.
+• CDD Supervisors and relevant health facility personnel, where access is necessary for their supervisory responsibilities.
+• Authorised Malaria Consortium personnel responsible for programme management, monitoring, compliance, information technology and data protection.
+• The Gates Foundation, as the project donor, where information sharing is necessary for legitimate project monitoring, evaluation, reporting and accountability purposes.
+• Authorised implementing partners and other approved project stakeholders.
+• Approved LMS technology providers, hosting providers, AI service providers and technical support service providers.
+• Auditors and regulatory authorities, where disclosure is necessary and lawful.
+
+Information shared with donors and authorised project partners will be limited to what is necessary for the relevant purpose. Where individual-level information is not required, anonymised or aggregated information will be used.
+
+Where third-party service providers process personal data on behalf of Malaria Consortium, appropriate contractual and confidentiality safeguards will be established.
+
+10. Data Hosting and International Transfers
+
+The SARMAAN II Mobile PlayBook uses Amazon Web Services (AWS) as its cloud hosting infrastructure.
+
+The platform's hosting and related data processing arrangements may involve AWS infrastructure located in African and European regions.
+
+This means that personal data may be stored, processed or accessed across different geographical locations, depending on the platform's hosting configuration and technical requirements.
+
+Where personal data is transferred outside Nigeria, Malaria Consortium will ensure that such transfers comply with the international data transfer requirements of the Nigeria Data Protection Act 2023.
+
+Appropriate safeguards will be implemented to protect personal data during international transfers, including applicable contractual and security arrangements.
+
+11. How We Protect Your Personal Data
+
+Malaria Consortium implements appropriate technical and organisational measures to protect personal data against unauthorised access, disclosure, alteration, loss, destruction or misuse.
+
+These measures include, as applicable:
+• Restricted access to personal data based on authorised roles and responsibilities.
+• User authentication and account access controls.
+• Appropriate information security and confidentiality requirements.
+• Secure storage and transmission arrangements.
+• Monitoring of system access and relevant security events.
+• Periodic review of access privileges and platform security arrangements.
+• Appropriate safeguards for information stored through offline functionality.
+• Staff and authorised users' awareness of applicable data protection and information security requirements.
+
+Users are expected to protect their login credentials and devices and must not share passwords or allow unauthorised individuals to access their LMS accounts.
+
+12. Data Retention and Disposal
+
+Malaria Consortium retains personal data only for as long as necessary to fulfil the purposes for which it was collected, taking into consideration applicable legal, contractual, regulatory, project and organisational requirements.
+
+LMS registration details, learning records, assessment results, platform interactions and related information will be retained only for as long as necessary for their approved purposes.
+
+Financial and other records required for financial accountability will be retained for seven (7) years after the conclusion of the project, where required under applicable financial and organisational retention requirements.
+
+Where personal data is no longer required for its original purpose, it will be securely deleted, anonymised or otherwise disposed of in accordance with applicable retention and disposal requirements.
+
+Where information is retained for historical, research, statistical or reporting purposes beyond its original retention period, it will be anonymised so that individuals are no longer identifiable.
+
+13. Your Data Protection Rights
+
+Under the Nigeria Data Protection Act 2023, you have rights concerning your personal data, subject to applicable legal conditions and exemptions.
+
+These include:
+• Right to be informed: To receive clear information about how and why your personal data is processed.
+• Right of access: To request access to personal data held about you.
+• Right to rectification: To request correction of inaccurate or incomplete personal data.
+• Right to erasure: To request deletion of your personal data where applicable.
+• Right to restriction: To request restriction of processing in circumstances provided by law.
+• Right to data portability: To request a copy of your personal data in a commonly used and machine-readable format, where applicable.
+• Right to object: To object to certain processing activities, including processing based on legitimate interests, where applicable.
+• Right to withdraw consent: Where processing is based on consent, you may withdraw your consent at any time.
+• Right to lodge a complaint: To lodge a complaint with the Nigeria Data Protection Commission (NDPC) if you believe your personal data has been processed in violation of applicable data protection requirements.
+
+To exercise any of these rights, please contact the Malaria Consortium Data Protection Officer using the contact details provided in this notice.
+
+14. Cookies, Analytics and Tracking Technologies
+
+The Mobile PlayBook may use cookies, analytics tools and other technical tracking technologies to support platform functionality, monitor usage, identify technical issues and improve the user experience.
+
+These technologies may collect information about your device, browsing activities, platform interactions and usage patterns.
+
+Such information will be processed for legitimate platform administration, security, performance monitoring and improvement purposes, subject to applicable data protection requirements.
+
+15. Personal Data Breaches and Privacy Concerns
+
+Malaria Consortium maintains procedures for identifying, managing and responding to personal data breaches and other information security incidents.
+
+If you become aware of any suspected unauthorised access, disclosure, loss or misuse of personal data associated with the Mobile PlayBook, please report it promptly to the appropriate project or ICT representative or directly to the Data Protection Officer.
+
+Malaria Consortium will investigate and manage reported incidents in accordance with applicable internal procedures and legal requirements.
+
+16. Your Responsibilities as an LMS User
+
+As a user of the SARMAAN II Mobile PlayBook, you are expected to:
+• Keep your LMS login credentials confidential.
+• Avoid sharing your account with other individuals.
+• Ensure that personal information entered into the platform is accurate, where you are responsible for providing it.
+• Avoid submitting sensitive personal information or information relating to other individuals through the AI components unless expressly required and authorised for the relevant learning activity.
+• Avoid uploading or sharing personal information that is unrelated to approved learning activities.
+• Protect devices used to access the platform, particularly where information is stored offline.
+• Report suspected unauthorised access, loss of account credentials or other privacy and security concerns to the appropriate project or ICT contact.
+• Use the platform only for its intended learning and project-related purposes.
+
+17. Updates to This Privacy Notice
+
+Malaria Consortium may periodically review and update this Privacy Notice to reflect changes in the LMS, AI functionalities, project activities, applicable laws, regulatory requirements or organisational data protection practices.
+
+Where material changes are made, users will be appropriately informed through the LMS or other suitable communication channels.
+
+18. Contact Us
+
+If you have questions about this Privacy Notice, wish to exercise your data protection rights or have concerns about how your personal data is being processed, please contact:
+
+Data Protection Officer (DPO)
+Malaria and Public Health Nigeria Ltd/Gte (Malaria Consortium Nigeria)
+Email: dpo.ng@malariaconsortium.org
+
+You may also contact the Nigeria Data Protection Commission through its official channels to raise a data protection complaint.
+
+OUR COMMITMENT TO YOUR PRIVACY
+
+Malaria Consortium is committed to protecting your personal data and ensuring that information collected through the SARMAAN II Mobile PlayBook is processed responsibly, securely and transparently.
+
+Your participation in the platform helps strengthen learning, improve knowledge and support the delivery of effective public health interventions. We remain committed to ensuring that these objectives are pursued with due respect for your privacy and data protection rights.
+
+By tapping the button below, I acknowledge that I have read and understood the SARMAAN II Mobile PlayBook Privacy Notice and understand how Malaria Consortium processes my personal data to administer the LMS and support my learning activities.

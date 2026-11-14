@@ -70,13 +70,14 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
               crossAxisAlignment: CrossAxisAlignment.stretch,
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                // The app logo and title (brand/brand.json); the title wraps on small phones.
-                const Align(alignment: Alignment.centerLeft, child: BrandLogo()),
+                // The app logo and title (brand/brand.json), centred together; the title wraps on small phones.
+                const Center(child: BrandLogo()),
                 const SizedBox(height: 16),
-                const BrandTitle(),
+                const BrandTitle(textAlign: TextAlign.center),
                 const SizedBox(height: 4),
                 Text(
                   context.t('login.eyebrow'),
+                  textAlign: TextAlign.center,
                   style: Theme.of(context).textTheme.labelSmall?.copyWith(color: AppColors.textMuted),
                 ),
                 const SizedBox(height: 28),

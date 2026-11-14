@@ -1,6 +1,6 @@
 {
   "_about": "The app's identity, in one place for the mobile app and the admin portal: the title, the short title and which logo (a key of logos.json) is the app logo. Change it here, then run: python scripts/brand_sync.py. It writes mobile/lib/theme/brand_identity.g.dart, the Android launcher label (mobile/android/app/src/main/res/values/brand_strings.xml) and admin/src/brand/brand.json; the admin's browser tab title is built from it.",
-  "title": "SARMAAN II Multi-lingual e-Playbook",
+  "title": "REACH – SARMAAN II MULTILINGUAL PLAY BOOK (E-BOOK)",
   "shortTitle": "SARMAAN II",
   "shortTitleNote": "Approved 2026-11-13: used where the full title does not fit (the admin sidebar header) and as the Android launcher label under the app icon. The full title stays on sign-in, splash and browser tabs.",
   "logo": "sarmaan_ii"

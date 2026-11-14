@@ -29,7 +29,8 @@ TRANSLATORS = (RoleName.CONTENT_ADMIN, RoleName.LOCALISATION_REVIEWER)
 
 class ConsentIn(BaseModel):
     title: str = Field(min_length=1, max_length=120)
-    body: str = Field(min_length=20, max_length=5000)
+    # Holds the full privacy notice (content/privacy_notice/, about 21,000 characters in English).
+    body: str = Field(min_length=20, max_length=40000)
     usage_label: str = Field(min_length=1, max_length=255)
     button_label: str = Field(min_length=1, max_length=60)
 

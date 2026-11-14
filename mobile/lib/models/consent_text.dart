@@ -1,3 +1,5 @@
+import 'consent_body_en.g.dart';
+
 /// The first-launch consent screen's text in one language, edited and
 /// translated in the admin portal (GET /consent, public). The phone caches
 /// every language and shows the chosen one, else English, else
@@ -43,10 +45,8 @@ class ConsentText {
 const kBundledConsent = ConsentText(
   language: 'en',
   title: 'Before you start',
-  body: 'This app is used to deliver AZM training content to Community Drug Distributors. '
-      'Your training progress and the questions you ask in the app are linked to your account and '
-      'uploaded when you are online, so your supervisor and the programme team can support you. '
-      'Module content is downloaded to this device so you can keep working without an internet connection.',
+  body: kBundledConsentBody, // includes the full privacy notice
+
   usageLabel: 'Also share anonymous usage statistics (optional)',
   buttonLabel: 'Agree and continue',
   version: 0,

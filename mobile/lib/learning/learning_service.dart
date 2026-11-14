@@ -194,6 +194,8 @@ Future<QuizResult> recordModuleQuiz(LocalDatabase db, {required String moduleId,
         },
   ];
   final correct = results.where((r) => r['correct'] == true).length;
+  // Saved on the phone at once (offline too). The module is completed only with
+  // "Complete module" (completeModule); this attempt is uploaded with that completion.
   await db.insertQuizAttempt(
     moduleId: moduleId,
     clientId: newClientId('quiz'),
@@ -208,6 +210,35 @@ Future<QuizResult> recordModuleQuiz(LocalDatabase db, {required String moduleId,
   return QuizResult(correct, statements.length, moduleQuizPasses(correct, statements.length), after.quizPassed);
 }
 
+/// Module-quiz attempts that may be uploaded now: those of modules completed on this
+/// phone, so a module's quiz and its completion reach the server in the same sync
+/// (quiz first, then the completion) and the server never sees one without the
+/// other. Attempts of the retired per-module tests, and of modules no longer on the
+/// phone, go at once (history only).
+Future<List<LocalQuizAttemptRow>> quizAttemptsReadyToUpload(LocalDatabase db) async {
+  final completed = {for (final p in await db.getAllProgress()) if (p.completed) p.moduleId};
+  final onPhone = {for (final m in await db.getAllModules()) m.id};
+  return [
+    for (final a in await db.getUnsyncedQuizAttempts())
+      if (a.testType != 'MODULE_QUIZ' || completed.contains(a.moduleId) || !onPhone.contains(a.moduleId)) a,
+  ];
+}
+
+/// Completes [moduleId] inside the caller's transaction when the rules allow it
+/// (unlocked, quiz passed if it has one, minimum time met): the completion and its
+/// upload marker are written together. The next module's unlock is derived from
+/// this saved completion (computeLearning), never from screen state.
+Future<bool> _completeNow(LocalDatabase db, String moduleId) async {
+  final state = (await loadLearning(db)).of(moduleId);
+  if (state == null || state.completed || !state.canComplete) return false;
+  await db.upsertProgress(moduleId: moduleId, progressPercent: 100, completed: true);
+  await db.enqueueSync(
+    'progress',
+    jsonEncode({'module_id': moduleId, 'completed': true, 'completed_at': DateTime.now().toUtc().toIso8601String()}),
+  );
+  return true;
+}
+
 /// Completes a module when the rules allow it (quiz passed, minimum time spent),
 /// offline too; the server checks the same when the progress reaches it.
 /// Returns null when completed, or the plain reason it is not allowed yet.
@@ -216,12 +247,9 @@ Future<String?> completeModule(LocalDatabase db, String moduleId) async {
   if (state == null) return L10n.t('learning.notAvailable');
   if (state.completed) return null;
   if (!state.canComplete) return completionMessage(state);
-  await db.upsertProgress(moduleId: moduleId, progressPercent: 100, completed: true);
-  await db.enqueueSync(
-    'progress',
-    jsonEncode({'module_id': moduleId, 'completed': true, 'completed_at': DateTime.now().toUtc().toIso8601String()}),
-  );
-  await recordAnalyticsEvent(db, 'MODULE_COMPLETE', moduleId: moduleId);
+  if (await db.transaction(() => _completeNow(db, moduleId))) {
+    await recordAnalyticsEvent(db, 'MODULE_COMPLETE', moduleId: moduleId);
+  }
   return null;
 }
 

@@ -23,7 +23,11 @@ class ConsentScreen extends ConsumerStatefulWidget {
 }
 
 class _ConsentScreenState extends ConsumerState<ConsentScreen> {
+  static const _bodyStyle = TextStyle(fontSize: 11.5, height: 1.6, color: AppColors.textMuted);
+  static const _foldedLines = 8;
+
   bool _shareUsage = false; // opt-in: off unless the person ticks it
+  bool _expanded = false; // the full privacy notice is shown
   ConsentText _text = kBundledConsent;
   String? _language;
 
@@ -53,6 +57,17 @@ class _ConsentScreenState extends ConsumerState<ConsentScreen> {
     if (mounted) setState(() => _text = pickConsent(texts, _language));
   }
 
+  /// Whether [text] needs more than [_foldedLines] lines at this width (only then is "See more" offered).
+  bool _overflows(String text, TextStyle style, double width) {
+    final painter = TextPainter(
+      text: TextSpan(text: text, style: style),
+      maxLines: _foldedLines,
+      textDirection: Directionality.of(context),
+      textScaler: MediaQuery.textScalerOf(context),
+    )..layout(maxWidth: width);
+    return painter.didExceedMaxLines;
+  }
+
   Future<void> _continue() async {
     final settings = ref.read(settingsServiceProvider);
     await settings.recordAcceptedConsent(_text);
@@ -80,23 +95,49 @@ class _ConsentScreenState extends ConsumerState<ConsentScreen> {
               const SizedBox(height: 8),
               Text(_text.title, style: Theme.of(context).textTheme.headlineSmall),
               const SizedBox(height: 20),
-              // Admins edit this text, so a long version scrolls instead of
-              // pushing the checkbox and button off small screens.
+              // The text includes the full privacy notice: it starts folded to the
+              // first lines; "See more" (always under the box) opens it to scroll
+              // inside the box, so the checkbox and button stay on screen, and
+              // "See less" folds it again.
               Flexible(
-                child: Container(
-                  decoration: BoxDecoration(
-                    color: AppColors.surface,
-                    border: Border.all(color: AppColors.divider),
-                    borderRadius: BorderRadius.circular(AppRadius.standard),
-                  ),
-                  child: SingleChildScrollView(
-                    padding: const EdgeInsets.all(14),
-                    child: Text(
-                      _text.body,
-                      style: const TextStyle(fontSize: 11.5, height: 1.6, color: AppColors.textMuted),
-                    ),
-                  ),
-                ),
+                child: LayoutBuilder(builder: (context, box) {
+                  final folds = _overflows(_text.body, _bodyStyle, box.maxWidth - 28 - 2); // padding + border
+                  final folded = folds && !_expanded;
+                  return Column(
+                    mainAxisSize: MainAxisSize.min,
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      Flexible(
+                        child: Container(
+                          decoration: BoxDecoration(
+                            color: AppColors.surface,
+                            border: Border.all(color: AppColors.divider),
+                            borderRadius: BorderRadius.circular(AppRadius.standard),
+                          ),
+                          child: SingleChildScrollView(
+                            padding: const EdgeInsets.all(14),
+                            child: Text(
+                              _text.body,
+                              key: const Key('consentBody'),
+                              style: _bodyStyle,
+                              maxLines: folded ? _foldedLines : null,
+                              overflow: folded ? TextOverflow.ellipsis : null,
+                            ),
+                          ),
+                        ),
+                      ),
+                      if (folds)
+                        Align(
+                          alignment: Alignment.centerLeft,
+                          child: TextButton.icon(
+                            onPressed: () => setState(() => _expanded = !_expanded),
+                            icon: Icon(_expanded ? Icons.expand_less : Icons.expand_more, size: 18),
+                            label: Text(_expanded ? context.t('consent.seeLess') : context.t('consent.seeMore')),
+                          ),
+                        ),
+                    ],
+                  );
+                }),
               ),
               const SizedBox(height: 10),
               CheckboxListTile(

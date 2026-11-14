@@ -112,3 +112,16 @@ def test_permissions_and_validation(users):
     assert client.put("/consent/en", headers=translator, json=HAUSA).status_code == 403, "English is the source"
     assert client.put("/consent/xx", headers=translator, json=HAUSA).status_code == 404
     assert client.put("/consent/ha", headers=translator, json={**HAUSA, "body": "short"}).status_code == 422
+
+
+def test_full_privacy_notice_fits(users):
+    """The consent text carries the full SARMAAN II privacy notice (about 21,000
+    characters, content/privacy_notice/consent_body_en.txt), so the limit is 40,000."""
+    from pathlib import Path
+    admin = _login(users[RoleName.CONTENT_ADMIN])
+    notice = (Path(__file__).resolve().parents[2] / "content" / "privacy_notice" / "consent_body_en.txt").read_text(encoding="utf-8")
+    en = {k: _texts()["en"][k] for k in HAUSA}
+    resp = client.put("/consent/en", headers=admin, json={**en, "body": notice})
+    assert resp.status_code == 200, resp.text
+    assert _texts()["en"]["body"] == notice.strip() and "dpo.ng@malariaconsortium.org" in notice
+    assert client.put("/consent/en", headers=admin, json={**en, "body": "x" * 40001}).status_code == 422

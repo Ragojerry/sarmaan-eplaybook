@@ -89,6 +89,14 @@
       "en": "STEP 2 OF 2",
       "note": "Small label on the second set-up screen (consent); the consent text itself is translated on the Consent text page"
     },
+    "consent.seeMore": {
+      "en": "See more",
+      "note": "Consent screen: opens the full consent text and privacy notice"
+    },
+    "consent.seeLess": {
+      "en": "See less",
+      "note": "Consent screen: folds the privacy notice back to its first lines"
+    },
     "home.goodMorning": {
       "en": "GOOD MORNING",
       "note": "Home header greeting before noon, followed by the learner's name"
@@ -595,6 +603,19 @@
     "quiz.kept": {
       "en": "Answered correctly: kept from your last try.",
       "note": "Module quiz retry: this statement was right last time, so it is not asked again"
+    },
+    "quiz.rereadFirst": {
+      "en": "Read the section above again before you answer.",
+      "note": "Module quiz retry: a statement still wrong opens after its section is re-read"
+    },
+    "quiz.rereadLeft": {
+      "en": "{count} seconds left.",
+      "en_one": "{count} second left.",
+      "note": "Module quiz retry: reading time left before the statement opens"
+    },
+    "quiz.goToSection": {
+      "en": "Go to the section",
+      "note": "Module quiz retry: button that scrolls up to the section to re-read"
     },
     "reader.module": {
       "en": "Module",
